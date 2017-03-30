@@ -6,6 +6,7 @@
 ## 控件
 > 待续...
 
+>
 ;(function() {
     function getNamespace(namespace) {
         var spaces,
