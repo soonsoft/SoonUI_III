@@ -32,7 +32,7 @@
 > grunt prestyle
 
 #### clean
-> grunt grunt clean
+> grunt clean
 
 #### build
 > grunt
