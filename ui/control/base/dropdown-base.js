@@ -1,5 +1,3 @@
-//下拉框基类
-
 var docClickHideHandler = [],
     hideCtrls = function (currentCtrl) {
         var handler, retain;
@@ -25,7 +23,7 @@ ui.docclick(function (e) {
 });
 // 添加隐藏的处理方法
 ui.addHideHandler = function (ctrl, func) {
-    if (ctrl && $.isFunction(func)) {
+    if (ctrl && ui.core.isFunction(func)) {
         docClickHideHandler.push({
             ctrl: ctrl,
             func: func
