@@ -54,7 +54,7 @@ KeyArray.prototype.set = function (key, value) {
     if (typeof key !== "string") {
         throw new TypeError("the key must be string");
     }
-    if (this.contains(key)) {
+    if (this.containsKey(key)) {
         this[this._keys[key]] = value;
     } else {
         arrayInstance.push.apply(this, [value]);
@@ -62,7 +62,7 @@ KeyArray.prototype.set = function (key, value) {
     }
 };
 KeyArray.prototype.get = function (key) {
-    if (this.contains(key)) {
+    if (this.containsKey(key)) {
         return this[this._keys[key]];
     } else {
         return null;
@@ -70,7 +70,7 @@ KeyArray.prototype.get = function (key) {
 };
 KeyArray.prototype.remove = function (key) {
     var index;
-    if (this.contains(key)) {
+    if (this.containsKey(key)) {
         index = this._keys[key];
         arrayInstance.splice.apply(this, [index, 1]);
         rebuildIndex(this._keys, key);
