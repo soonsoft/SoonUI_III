@@ -41,7 +41,7 @@ ui.keyCode = {
     UP: 38
 };
 
-var core = {};
+var core = ui.core = {};
 
 var DOC = document;
 //切割字符串为一个个小块，以空格或豆号分开它们，结合replace实现字符串的forEach
