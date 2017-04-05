@@ -17,8 +17,8 @@ var page = ui.page = {
         "resize", "hashchange"
     ]
 };
-page.eventTarget = new ui.CustomEvent(ui);
-page.eventTarget.initEvents();
+page.event = new ui.CustomEvent(page);
+page.event.initEvents();
 
 $(document)
     //注册全局ready事件
@@ -32,11 +32,11 @@ $(document)
 
 $(window)
     //注册全局resize事件
-    .on(resize, function (e) {
-        ui.fire(resize, root.clientWidth, root.clientHeight);
+    .on("resize", function (e) {
+        ui.fire("resize", root.clientWidth, root.clientHeight);
     })
     //注册全局hashchange事件
-    .on(hashchange, function(e) {
+    .on("hashchange", function(e) {
         var hash = "";
         if(window.location.hash) {
             hash = window.location.hash;

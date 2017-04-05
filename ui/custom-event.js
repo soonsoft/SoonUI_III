@@ -72,7 +72,7 @@ ui.CustomEvent.prototype = {
         if (!events) {
             events = target.events;
         }
-        if (Array.isArray(events) || events.length === 0) {
+        if (!Array.isArray(events) || events.length === 0) {
             return;
         }
 

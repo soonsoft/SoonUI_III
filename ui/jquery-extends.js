@@ -1,5 +1,7 @@
 // jquery extends
 
+var rword = /[^, ]+/g;;
+
 //为jquery添加一个获取元素标签类型的方法
 $.fn.nodeName = function () {
     return this.prop("nodeName");

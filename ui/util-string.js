@@ -70,7 +70,7 @@ var _utf8_decode = function (utftext) {
 
 ui.str = {
     /** 空字符串 */
-    empty: strEmpty,
+    empty: textEmpty,
     /** 去空格 */
     trim: function (str) {
         if (!ui.core.isString(str)) {

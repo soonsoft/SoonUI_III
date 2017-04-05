@@ -23,7 +23,7 @@
 				return factory( w );
 			};
 	} else {
-		factory( global );
+		factory( global, true );
 	}
 
 // Pass this if window is not defined yet
@@ -1341,7 +1341,7 @@ var _utf8_decode = function (utftext) {
 
 ui.str = {
     /** 空字符串 */
-    empty: strEmpty,
+    empty: textEmpty,
     /** 去空格 */
     trim: function (str) {
         if (!ui.core.isString(str)) {
@@ -2400,7 +2400,7 @@ ui.CustomEvent.prototype = {
         if (!events) {
             events = target.events;
         }
-        if (Array.isArray(events) || events.length === 0) {
+        if (!Array.isArray(events) || events.length === 0) {
             return;
         }
 
@@ -3018,7 +3018,9 @@ function updateProperty(target, name, ver) {
 
 // 提供三个对象,每个对象都有name, version(version必然为字符串)
 // 取得用户操作系统名字与版本号，如果是0表示不是此操作系统
-var platform = {
+
+// 平台
+ui.platform = {
     name: (window.orientation !== undefined) ? 'iPod' : (pf.match(/mac|win|linux/i) || ['unknown'])[0],
     version: 0,
     iPod: 0,
@@ -3040,13 +3042,13 @@ var platform = {
         (s = ua.match(/iphone[\D]*os ([\d_]+)/)) ? updateProperty("platform", "iPhone", toFixedVersion(s[1])) :
         (s = ua.match(/android ([\d.]+)/)) ? updateProperty("platform", "android", toFixedVersion(s[1])) : 
         (s = ua.match(/windows phone ([\d.]+)/)) ? updateProperty("platform", "windowsPhone", toFixedVersion(s[1])) : 0;
-if(platform.iphone || platform.iPad) {
-    platform.ios = platform.iphone || platform.iPad;
+if(ui.platform.iphone || ui.platform.iPad) {
+    ui.platform.ios = ui.platform.iphone || ui.platform.iPad;
 }
 
 //============================================
 //取得用户的浏览器名与版本,如果是0表示不是此浏览器
-var browser = {
+ui.browser = {
     name: "unknown",
     version: 0,
     ie: 0,
@@ -3072,24 +3074,24 @@ var browser = {
 //mobile safari 判断，可与safari字段并存
 (s = ua.match(/version\/([\d.]+).*mobile.*safari/)) ? updateProperty("browser", "mobileSafari", toFixedVersion(s[1])) : 0;
 
-if (platform.iPad) {
+if (ui.platform.iPad) {
     updateProperty("browser", 'mobileSafari', '0.0');
 }
 
-if (browser.ie) {
+if (ui.browser.ie) {
     if (!document.documentMode) {
-        document.documentMode = Math.floor(browser.ie);
+        document.documentMode = Math.floor(ui.browser.ie);
         //http://msdn.microsoft.com/zh-cn/library/cc817574.aspx
         //IE下可以通过设置 <meta http-equiv="X-UA-Compatible" content="IE=8"/>改变渲染模式
         //一切以实际渲染效果为准
-    } else if (document.documentMode !== Math.floor(browser.ie)) {
+    } else if (document.documentMode !== Math.floor(ui.browser.ie)) {
         updateProperty("browser", "ie", toFixedVersion(document.documentMode));
     }
 }
 
 //============================================
 //取得用户浏览器的渲染引擎名与版本,如果是0表示不是此浏览器
-var engine = {
+ui.engine = {
     name: 'unknown',
     version: 0,
     trident: 0,
@@ -3103,20 +3105,13 @@ var engine = {
         (s = ua.match(/applewebkit\/([\d.]+)/)) ? updateProperty("engine", "webkit", toFixedVersion(s[1])) :
         (s = ua.match(/presto\/([\d.]+)/)) ? updateProperty("engine", "presto", toFixedVersion(s[1])) : 0;
 
-if (browser.ie) {
-    if (browser.ie == 6) {
+if (ui.browser.ie) {
+    if (ui.browser.ie == 6) {
         updateProperty("engine", "trident", toFixedVersion("4"));
-    } else if (browser.ie == 7 || browser.ie == 8) {
+    } else if (ui.browser.ie == 7 || ui.browser.ie == 8) {
         updateProperty("engine", "trident", toFixedVersion("5"));
     }
 }
-
-// 平台
-ui.platform = platform;
-// 浏览器版本
-ui.browser = browser;
-// 浏览器引擎
-ui.engine = engine;
 
 })(jQuery, ui);
 
@@ -3252,6 +3247,8 @@ ui.ImageLoader = ImageLoader;
 
 (function($, ui) {
 // jquery extends
+
+var rword = /[^, ]+/g;;
 
 //为jquery添加一个获取元素标签类型的方法
 $.fn.nodeName = function () {
@@ -4152,7 +4149,7 @@ var page = ui.page = {
         "resize", "hashchange"
     ]
 };
-page.event = new ui.CustomEvent(ui);
+page.event = new ui.CustomEvent(page);
 page.event.initEvents();
 
 $(document)
@@ -4167,11 +4164,11 @@ $(document)
 
 $(window)
     //注册全局resize事件
-    .on(resize, function (e) {
-        ui.fire(resize, root.clientWidth, root.clientHeight);
+    .on("resize", function (e) {
+        ui.fire("resize", root.clientWidth, root.clientHeight);
     })
     //注册全局hashchange事件
-    .on(hashchange, function(e) {
+    .on("hashchange", function(e) {
         var hash = "";
         if(window.location.hash) {
             hash = window.location.hash;
