@@ -7,7 +7,7 @@ ui.ArrayFaker = function () {
 };
 ui.ArrayFaker.prototype = {
     isArray: function (obj) {
-        return Object.prototype.toString.call(obj) === "[object Array]";
+        return ui.core.isArray(obj);
     },
     setArray: function (elems) {
         this.length = 0;
@@ -61,7 +61,7 @@ ui.ArrayFaker.prototype = {
     splice: arrayInstance.splice,
     concat: arrayInstance.concat,
     slice: arrayInstance.slice,
-    constructor: core.ArrayObject,
+    constructor: ui.ArrayFaker,
     get: function (num) {
         return num === undefined ? Array.prototype.slice.call(this) : this[num];
     }
