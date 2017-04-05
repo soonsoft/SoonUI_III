@@ -1,0 +1,21 @@
+{
+  "name": "soon-ui",
+  "title": "SoonUI",
+  "version": "3.0.0",
+  "description": "Javascript UI library for html",
+  "author": {
+    "name": "周松",
+    "email": "soonz@outlook.com",
+    "url": ""
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-less": "^1.4.0",
+    "grunt-contrib-qunit": "1.3.0",
+    "grunt-contrib-uglify": "^2.1.0",
+    "grunt-contrib-watch": "^1.0.0"
+  }
+}
