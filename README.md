@@ -24,7 +24,13 @@
 6. grunt-contrib-watch: 监控文件
 7. grunt-contrib-less: css less编译工具
 
-> npm install grunt-contrib-clean --save-dev
+* npm install grunt-contrib-clean --save-dev
+* npm install grunt-contrib-concat --save-dev
+* npm install grunt-contrib-uglify --save-dev
+* npm install grunt-contrib-qunit --save-dev
+* npm install grunt-contrib-jshint --save-dev
+* npm install grunt-contrib-watch --save-dev
+* npm install grunt-contrib-less --save-dev
 
 ### 使用grunt命令
 
