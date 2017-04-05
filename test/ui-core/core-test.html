@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ui-core test</title>
+    <link type="text/css" href="../qunit/qunit.css" rel="stylesheet" />
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript" src="../qunit/qunit.js"></script>
+
+    <script type="text/javascript" src="../../jquery.js"></script>
+    <script type="text/javascript" src="../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript">
+        QUnit.test("type", function() {
+            QUnit.assert.ok(ui.core.type("字符串") === "string", "通过");
+            QUnit.assert.notOk(ui.core.type(1) === "string", "通过");
+            QUnit.assert.ok(ui.core.type(true) === "boolean", "通过");
+            QUnit.assert.ok(ui.core.type(false) === "boolean", "通过");
+            QUnit.assert.ok(ui.core.type(1) === "number", "通过");
+            QUnit.assert.ok(ui.core.type(0.5) === "number", "通过");
+            QUnit.assert.ok(ui.core.type([]) === "array", "通过");
+            QUnit.assert.ok(ui.core.type({}) === "object", "通过");
+            QUnit.assert.ok(ui.core.type(function(){}) === "function", "通过");
+            QUnit.assert.ok(ui.core.type(/\d/) === "regexp", "通过");
+            QUnit.assert.ok(ui.core.type(new Error()) === "error", "通过");
+            QUnit.assert.ok(ui.core.type(new Date()) === "date", "通过");
+        });
+    </script>
+</head>
+<body>
+    <div id="qunit-header">ui-core test</div>
+    <div id="qunit-banner"></div>
+    <div id="qunit-tests"></div>
+</body>
+</html>
