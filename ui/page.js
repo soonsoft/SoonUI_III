@@ -33,7 +33,9 @@ $(document)
 $(window)
     //注册全局resize事件
     .on("resize", function (e) {
-        ui.fire("resize", root.clientWidth, root.clientHeight);
+        ui.fire("resize", 
+            document.documentElement.clientWidth, 
+            document.documentElement.clientHeight);
     })
     //注册全局hashchange事件
     .on("hashchange", function(e) {
