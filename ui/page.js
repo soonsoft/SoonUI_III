@@ -17,7 +17,7 @@ var page = ui.page = {
         "resize", "hashchange"
     ]
 };
-page.eventTarget = new ui.EventTarget(ui);
+page.eventTarget = new ui.CustomEvent(ui);
 page.eventTarget.initEvents();
 
 $(document)
