@@ -17,18 +17,80 @@
     <script type="text/javascript" src="../../dist/ui-core.3.0.0.js"></script>
     <script type="text/javascript">
         QUnit.test("type", function() {
-            QUnit.assert.ok(ui.core.type("字符串") === "string", "通过");
-            QUnit.assert.notOk(ui.core.type(1) === "string", "通过");
-            QUnit.assert.ok(ui.core.type(true) === "boolean", "通过");
-            QUnit.assert.ok(ui.core.type(false) === "boolean", "通过");
-            QUnit.assert.ok(ui.core.type(1) === "number", "通过");
-            QUnit.assert.ok(ui.core.type(0.5) === "number", "通过");
-            QUnit.assert.ok(ui.core.type([]) === "array", "通过");
-            QUnit.assert.ok(ui.core.type({}) === "object", "通过");
-            QUnit.assert.ok(ui.core.type(function(){}) === "function", "通过");
-            QUnit.assert.ok(ui.core.type(/\d/) === "regexp", "通过");
-            QUnit.assert.ok(ui.core.type(new Error()) === "error", "通过");
-            QUnit.assert.ok(ui.core.type(new Date()) === "date", "通过");
+            QUnit.assert.ok(ui.core.type("字符串") === "string", "String判断通过");
+            QUnit.assert.ok(ui.core.type(true) === "boolean", "true判断通过");
+            QUnit.assert.ok(ui.core.type(false) === "boolean", "false判断通过");
+            QUnit.assert.ok(ui.core.type(1) === "number", "整数判断通过");
+            QUnit.assert.ok(ui.core.type(0.5) === "number", "小数判断通过");
+            QUnit.assert.ok(ui.core.type([]) === "array", "array判断通过");
+            QUnit.assert.ok(ui.core.type({}) === "object", "object判断通过");
+            QUnit.assert.ok(ui.core.type(function(){}) === "function", "function判断通过");
+            QUnit.assert.ok(ui.core.type(/\d/) === "regexp", "正则表达式判断通过");
+            QUnit.assert.ok(ui.core.type(new Error()) === "error", "Error判断通过");
+            QUnit.assert.ok(ui.core.type(new Date()) === "date", "Date判断通过");
+        });
+
+        var typeValues = {
+            "string": "String",
+            "boolean": true,
+            "number": 1.0,
+            "array": [],
+            "object": {},
+            "function": function(){},
+            "regExp": /\d/,
+            "error": new Error(),
+            "date": new Date()
+        };
+        var type,
+            methodName;
+        var testFn = function(type, methodName) {
+            return function() {
+                var key;
+                var typeName = methodName.substring(2);
+                QUnit.assert.ok(ui.core[methodName].call(ui.core, typeValues[type]), type + " is " + typeName);
+                for(key in typeValues) {
+                    if(typeValues.hasOwnProperty(key) && key !== type) {
+                        QUnit.assert.notOk(ui.core[methodName].call(ui.core, typeValues[key]), key + " is not " + typeName);
+                    }
+                }
+            };
+        };
+        for(type in typeValues) {
+            if(type === "number") {
+                continue;
+            }
+            methodName = "is" + type.charAt(0).toUpperCase() + type.substring(1);
+            QUnit.test(methodName, testFn(type, methodName));
+        }
+
+        QUnit.test("isNumber", function() {
+            QUnit.assert.ok(ui.core.isNumber(1), "1 is number");
+            QUnit.assert.ok(ui.core.isNumber(1.5), "1.5 is number");
+            QUnit.assert.ok(ui.core.isNumber("1"), "\"1\" is number");
+            QUnit.assert.ok(ui.core.isNumber("1.5"), "\"1.5\" is number");
+        });
+
+        QUnit.test("isWindow", function() {
+            QUnit.assert.ok(ui.core.isWindow(window), "the window is window");
+            QUnit.assert.notOk(ui.core.isWindow(document), "the document is not window");
+        });
+
+        QUnit.test("isPlainObject", function() {
+            QUnit.assert.ok(ui.core.isPlainObject({}), "{} is plain object");
+            QUnit.assert.notOk(ui.core.isPlainObject(new Date()), "Date is not plain object");
+        });
+
+        QUnit.test("isEmptyObject", function() {
+            QUnit.assert.ok(ui.core.isEmptyObject({}), "{} is empty object");
+            QUnit.assert.notOk(ui.core.isEmptyObject({type: 1}), "{type : 1} is not empty object");
+        });
+
+        QUnit.test("isDomObject", function() {
+            QUnit.assert.ok(ui.core.isDomObject(document.createElement("div")), "dom object");
+        });
+
+        QUnit.test("isJQueryObject", function() {
+            QUnit.assert.ok(ui.core.isJQueryObject($("<div>")), "jquery object");
         });
     </script>
 </head>
