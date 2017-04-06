@@ -97,8 +97,7 @@ var root = DOC.documentElement;
 var serialize = oproto.toString;
 var aslice = arrayInstance.slice;
 var head = DOC.head || DOC.getElementsByTagName("head")[0];
-var rwindow = /^[object (Window|DOMWindow|global)]$/;
-var relement = /^[object HTML\w+Element]$;/;
+var rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/;
 var isTouchAvailable = "ontouchstart" in window;
 
 // 数据类型处理
@@ -120,10 +119,11 @@ typeStr.replace(rword, function (name) {
         return core.type.apply(core, arguments) === name.toLowerCase();
     };
 });
+// 重写isNumber实现
 core.isNumber = function(obj) {
     var type = core.type(obj);
     return (type === "number" || type === "string") &&
-        isNaN(obj - parseFloat(obj));
+        !isNaN(obj - parseFloat(obj));
 };
 
 // window对象判断
@@ -1036,7 +1036,9 @@ ui.Introsort = Introsort;
 (function($, ui) {
 // util
 
-// 修复javascript中四舍五入方法的bug
+/**
+ * 修复javascript中四舍五入方法的bug
+ */ 
 ui.fixedNumber = function (number, precision) {
     var b = 1;
     if (isNaN(number)) return number;
@@ -1060,6 +1062,64 @@ ui.tempDiv.remove();
 delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
+
+/**
+ * 以一个对象的scrollLeft和scrollTop属性的方式返回滚动条的偏移量
+ */
+ui.getScrollOffsets = function(w) {
+    var result,
+        doc;
+    w = w || window;
+    doc = w.document;
+
+    result = {};
+    if(w.pageXOffset !== null) {
+        result.scrollLeft = w.pageXOffset;
+        result.scrollTop = w.pageYOffset;
+        return result;
+    }
+
+    if(document.compatMode === "CSS1Compat") {
+        result.scrollLeft = doc.documentElement.scrollLeft;
+        result.scrollTop = doc.documentElement.scrollTop;
+        return result;
+    }
+
+    result.scrollLeft = doc.body.scrollLeft;
+    result.scrollTop = doc.body.scrollTop;
+    return result;
+};
+
+/**
+ * 获取当前显示区域的尺寸
+ */
+ui.getViewportSize = function(w) {
+    var result = {};
+    var doc;
+    w = w || window;
+    doc = w.document;
+
+    if(w.innerWidth !== null) {
+        result.clientWidth = w.innerWidth;
+        result.clientHeight = w.innerHeight;
+    }
+    if(document.compatMode === "CSS1Compat") {
+        result.scrollLeft = doc.documentElement.clientWidth;
+        result.scrollTop = doc.documentElement.clientHeight;
+        return result;
+    }
+
+    result.scrollLeft = doc.body.clientWidth;
+    result.scrollTop = doc.body.clientHeight;
+    return result;
+};
+
+/**
+ * 获取一个元素的尺寸
+ */
+ui.getBoundingClientRect = function(elem) {
+
+};
 
 //获取元素
 ui.getJQueryElement = function(arg) {
@@ -1263,6 +1323,7 @@ ui.closeMask = function () {
         mask.css("display", "none");
     }
 };
+
 
 })(jQuery, ui);
 
