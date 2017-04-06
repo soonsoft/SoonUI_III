@@ -55,8 +55,7 @@ var root = DOC.documentElement;
 var serialize = oproto.toString;
 var aslice = arrayInstance.slice;
 var head = DOC.head || DOC.getElementsByTagName("head")[0];
-var rwindow = /^[object (Window|DOMWindow|global)]$/;
-var relement = /^[object HTML\w+Element]$;/;
+var rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/;
 var isTouchAvailable = "ontouchstart" in window;
 
 // 数据类型处理
@@ -78,10 +77,11 @@ typeStr.replace(rword, function (name) {
         return core.type.apply(core, arguments) === name.toLowerCase();
     };
 });
+// 重写isNumber实现
 core.isNumber = function(obj) {
     var type = core.type(obj);
     return (type === "number" || type === "string") &&
-        isNaN(obj - parseFloat(obj));
+        !isNaN(obj - parseFloat(obj));
 };
 
 // window对象判断
