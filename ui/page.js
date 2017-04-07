@@ -14,7 +14,8 @@ var page = ui.page = {
         "ready", 
         "docclick", 
         "docmouseup", 
-        "resize", "hashchange"
+        "resize", 
+        "hashchange"
     ]
 };
 page.event = new ui.CustomEvent(page);
