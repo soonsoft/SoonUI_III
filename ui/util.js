@@ -82,7 +82,17 @@ ui.getViewportSize = function(w) {
  * 获取一个元素的尺寸
  */
 ui.getBoundingClientRect = function(elem) {
-
+    var box;
+    if(!elem) {
+        return null;
+    }
+    if(ui.core.isJQueryObject(elem)) {
+       elem = elem[0]; 
+    }
+    box = elem.getBoundingClientRect();
+    box.width = box.width || box.right - box.left;
+    box.height = box.height || box.bottom - box.top;
+    return box;
 };
 
 //获取元素
@@ -98,9 +108,8 @@ ui.getJQueryElement = function(arg) {
     
     if(!elem || elem.length === 0) {
         return null;
-    } else {
-        return elem;
     }
+    return elem;
 };
 
 //将元素移动到目标元素下方
@@ -179,111 +188,114 @@ ui.getLeftLocation = function (target, width, height) {
 };
 
 //全局遮罩
-var maskPanelId = "#ui_maskPanel";
-//全局遮罩是否开启
-ui.isMaskOpened = function() {
-    var mask = $(maskPanelId);
-    return mask.css("display") === "block";
-};
-//开启遮罩
-ui.openMask = function (target, option) {
-    var mask = $(maskPanelId),
-        body = $(document.body);
-    if(this.core.isPlainObject(target)) {
-        option = target;
-        target = null;
-    }
-    target = ui.getJQueryElement(target);
-    if(!target) {
-        target = body;
-    }
-    if(!option) {
-        option = {};
-    }
-    option.color = option.color || "#000000";
-    option.opacity = option.opacity || .6;
-    option.animate = option.animate !== false;
-    if (mask.length === 0) {
-        mask = $("<div id='ui_maskPanel' class='mask-panel' />");
-        body.append(mask);
-        ui.resize(function (e, width, height) {
-            mask.css({
-                "height": height + "px",
-                "width": width + "px"
-            });
-        }, ui.eventPriority.ctrlResize);
-        this._mask_animator = ui.animator({
-            target: mask,
-            onChange: function (op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
-            }
-        });
-        this._mask_animator.duration = 500;
-    }
-    mask.css("background-color", option.color);
-    this._mask_data = {
-        option: option,
-        target: target
-    };
-    if(target.nodeName() === "BODY") {
-        this._mask_data.overflow = body.css("overflow");
-        if(this._mask_data.overflow !== "hidden") {
-            body.css("overflow", "hidden");
+ui.mask = {
+    maskId: "#ui_mask_rectangle",
+    isOpen: function() {
+        return $(this.maskId).css("display") === "block";
+    },
+    open: function() {
+        var mask = $(this.maskId),
+            body = $(document.body),
+            offset;
+        if(this.core.isPlainObject(target)) {
+            option = target;
+            target = null;
         }
-        mask.css({
-            top: "0px",
-            left: "0px",
-            width: root.clientWidth + "px",
-            height: root.clientHeight + "px"
-        });
-    } else {
-        var offset = target.offset();
-        mask.css({
-            top: offset.top + "px",
-            left: offset.left + "px",
-            width: target.outerWidth() + "px",
-            height: target.outerHeight() + "px"
-        });
-    }
-    
-    if(option.animate) {
-        mask.css({
-            "display": "block",
-            "opacity": "0",
-            "filter": "Alpha(opacity=0)"
-        });
-        this._mask_animator[0].begin = 0;
-        this._mask_animator[0].end = option.opacity * 100;
-        this._mask_animator.start();
-    } else {
-        mask.css({
-            "display": "block",
-            "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
-            "opacity": option.opacity
-        });
-    }
-    return mask;
-};
-//关闭遮罩
-ui.closeMask = function () {
-    var mask = $(maskPanelId);
-    if (mask.length === 0) {
-        return;
-    }
-    var data = this._mask_data;
-    if(data.target.nodeName() === "BODY") {
-        data.target.css("overflow", data.overflow);
-    }
-    if(data.option.animate) {
-        this._mask_animator[0].begin = 60;
-        this._mask_animator[0].end = 0;
-        this._mask_animator.start().done(function() {
+        target = ui.getJQueryElement(target);
+        if(!target) {
+            target = body;
+        }
+        if(!option) {
+            option = {};
+        }
+        option.color = option.color || "#000000";
+        option.opacity = option.opacity || .6;
+        option.animate = option.animate !== false;
+        if (mask.length === 0) {
+            mask = $("<div class='mask-panel' />");
+            mask.prop("id", this.maskId.substring(1));
+            body.append(mask);
+            ui.page.resize(function (e, width, height) {
+                mask.css({
+                    "height": height + "px",
+                    "width": width + "px"
+                });
+            }, ui.eventPriority.ctrlResize);
+            this._mask_animator = ui.animator({
+                target: mask,
+                onChange: function (op) {
+                    this.target.css({
+                        "opacity": op / 100,
+                        "filter": "Alpha(opacity=" + op + ")"
+                    });
+                }
+            });
+            this._mask_animator.duration = 500;
+        }
+        mask.css("background-color", option.color);
+        this._mask_data = {
+            option: option,
+            target: target
+        };
+        if(target.nodeName() === "BODY") {
+            this._mask_data.overflow = body.css("overflow");
+            if(this._mask_data.overflow !== "hidden") {
+                body.css("overflow", "hidden");
+            }
+            mask.css({
+                top: "0px",
+                left: "0px",
+                width: root.clientWidth + "px",
+                height: root.clientHeight + "px"
+            });
+        } else {
+            offset = target.offset();
+            mask.css({
+                top: offset.top + "px",
+                left: offset.left + "px",
+                width: target.outerWidth() + "px",
+                height: target.outerHeight() + "px"
+            });
+        }
+        
+        if(option.animate) {
+            mask.css({
+                "display": "block",
+                "opacity": "0",
+                "filter": "Alpha(opacity=0)"
+            });
+            this._mask_animator[0].begin = 0;
+            this._mask_animator[0].end = option.opacity * 100;
+            this._mask_animator.start();
+        } else {
+            mask.css({
+                "display": "block",
+                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
+                "opacity": option.opacity
+            });
+        }
+        return mask;
+    },
+    close: function() {
+        var mask, data;
+
+        mask = $(this.maskId);
+        if (mask.length === 0) {
+            return;
+        }
+        data = this._mask_data;
+        this._mask_data = null;
+        if(data.target.nodeName() === "BODY") {
+            data.target.css("overflow", data.overflow);
+        }
+        if(data.option.animate) {
+            this._mask_animator[0].begin = 60;
+            this._mask_animator[0].end = 0;
+            this._mask_animator.start().done(function() {
+                mask.css("display", "none");
+            });
+        } else {
             mask.css("display", "none");
-        });
-    } else {
-        mask.css("display", "none");
+        }
     }
 };
