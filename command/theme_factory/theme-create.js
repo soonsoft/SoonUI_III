@@ -2,10 +2,11 @@ module.exports = function( grunt ) {
     "use strict";
 
     var fs = require( "fs" ),
+        path = require("path"),
         rootPath = __dirname + "/../../";
     var textFormatReg = /\\?\{([^{}]+)\}/gm;
 
-    var format = function (str, params) {
+    function format (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
         return str.replace(textFormatReg, function (match, name) {
@@ -18,16 +19,16 @@ module.exports = function( grunt ) {
                 return params[name];
             return '';
         });
-    };
+    }
 
-    var loadTemplate = function(path) {
+    function loadTemplate (path) {
         if(!fs.existsSync(path)) {
             return null;
         }
         return fs.readFileSync(path, "utf8");
     };
 
-    var buildColorParameters = function(item, description) {
+    function buildColorParameters (item, description) {
         if(!item) {
             return;
         }
@@ -40,6 +41,9 @@ module.exports = function( grunt ) {
         }
         params.push("\r\n*/\r\n\r\n");
         for(let key in item) {
+            if(key === "name" || key === "description") {
+                continue;
+            }
             if(item.hasOwnProperty(key)) {
                 params.push("@",  key, ": ", item[key], ";\r\n");
             }
@@ -47,7 +51,7 @@ module.exports = function( grunt ) {
         return params.join("");
     };
 
-    var createTheme = function(params, template, filename) {
+    function createTheme (params, template, filename) {
         let text = params + template;
 
         if(fs.existsSync(filename)) {
@@ -61,12 +65,14 @@ module.exports = function( grunt ) {
         "theme-create",
         "创建主题样式文件",
         function() {
-            var templateSrc = rootPath + this.data.template;
-            var colors = this.data.colors;
-            var distPath = this.data.dist;
+            var templateSrc = rootPath + this.data.template,
+                colors = this.data.colors,
+                distPath = this.data.dist,
+                files = grunt.file.expand(templateSrc),
+                templateText;
+
             if(!distPath) {
                 distPath = templateSrc.substring(0, templateSrc.lastIndexOf("/") + 1);
-                distPath = distPath.replace("template", "{0}");
             } else {
                 distPath = rootPath + distPath;
             }
@@ -75,21 +81,25 @@ module.exports = function( grunt ) {
                 return;
             }
 
-            var templateText = loadTemplate(templateSrc);
-            if(!templateText) {
-                throw new Error("模板文件不存在！");
-            }
-            for(let i = 0; i < colors.length; i++) {
-                let item = colors[i];
-                let name = item.name;
-                let description = item.description;
-                delete item.name;
-                delete item.description;
 
-                let savePath = format(distPath, name);
-                let params = buildColorParameters(item, description);
+            for(let i = 0; i < files.length; i++) {
+                let filename = files[i];
+                let dirname = path.dirname(filename);
+                let name = path.basename(filename, path.extname(filename));
+                templateText = loadTemplate(filename);
+                if(!templateText) {
+                    throw new Error("模板文件不存在！");
+                }
 
-                createTheme(params, templateText, savePath);
+                for(let j = 0; j < colors.length; j++) {
+                    let item = colors[j];
+                    let themeName = item.name;
+                    let description = item.description;
+
+                    let params = buildColorParameters(item, description);
+                    let savePath = format(distPath, themeName, name);
+                    createTheme(params, templateText, savePath);
+                }
             }
         }
     );
