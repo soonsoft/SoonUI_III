@@ -1,0 +1,31 @@
+/********* Confirm Button ***********/
+ .confirm-button {
+     position: relative;
+     overflow: hidden;
+     cursor: default;
+ }
+ 
+    .confirm-button .text-state {
+        display:inline-block;
+        width:100%;
+        height:100%;
+        margin-left:0%;
+    }
+ 
+    .confirm-button .confirm-state {
+        display:block;
+        position:absolute;
+        top:0px;
+        left:100%;
+        width:100%;
+        height:100%;
+        text-align: center;
+        color: #fff;
+        font-style:normal;
+        overflow: hidden;
+    }
+    
+    .confirm-button:active .confirm-state {
+        background-color: transparent !important;
+        color: @active-color;
+    }

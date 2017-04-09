@@ -1,0 +1,85 @@
+/********* Switch Button ***********/
+.switch-button {
+    display: inline-block;
+    position: relative;
+    height: 24px;
+    line-height: 24px !important;
+    width: 44px;
+    position: relative;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+    .switch-button .switch-inner {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        border-radius: 12px;
+        border-width: 2px;
+        border-style: solid;
+        border-color: @tool-color;
+        width: 40px;
+        height: 20px;
+    }
+    
+    .switch-button .switch-thumb {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        top: 3px;
+        left: 3px;
+        background-color: @tool-color;
+    }
+    
+    .switch-button input {
+        position: absolute;
+        left: -20px;
+    }
+    
+.switch-text {
+    margin-left:10px;
+    vertical-align:middle;
+    line-height: 24px !important;
+    font-size: 14px;
+}
+    
+    .switch-lollipop .switch-inner {
+        border-radius: 2px;
+        border: none 0px;
+        height: 4px;
+        background-color: @tool-color;
+        top: 10px;
+    }
+    
+    .switch-lollipop .switch-thumb {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 12px;
+        top: 0px;
+        left: 0px;
+        background-color: @background-color;
+        border: solid 2px @tool-color;
+    }
+    
+    .switch-marshmallow .switch-inner {
+        border-radius: 8px;
+        border: none 0px;
+        height: 16px;
+        background-color: @tool-color;
+        top: 4px;
+        filter: Alpha(opacity=50);
+        opacity: .5;
+    }
+    
+    .switch-marshmallow .switch-thumb {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 12px;
+        top: 0px;
+        left: 0px;
+        background-color: @tool-color;
+        border: solid 2px @tool-color;
+    }

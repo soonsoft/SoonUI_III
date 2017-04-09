@@ -1,0 +1,68 @@
+/********* Extend Button ***********/
+.extend-button-panel {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    overflow: visible;
+}
+
+.extend-button-background {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: @panel-color;
+    filter: Alpha(opacity=0);
+    opacity: 1;
+    border-radius: 50%;
+    border-width: 1px;
+    border-style: solid;
+    overflow: hidden;
+}
+
+.extend-button-panel .extend-button, .extend-button-panel .center-icon {
+    display: block;
+    position: absolute;
+    overflow: hidden;
+    text-align: center;
+    font-size: 16px;
+    border-radius: 50%;
+    filter: Alpha(opacity=60);
+    opacity: .6;
+}
+
+    .extend-button-panel .extend-button:hover {
+        filter: Alpha(opacity=100);
+        opacity: 1;
+    }
+    
+    .extend-button-panel .center-icon {
+        filter: Alpha(opacity=100);
+        opacity: 1;
+    }
+    
+    .extend-button-panel .center-icon {
+        top: 50%;
+        left: 50%;
+        border-radius: 50%;
+    }
+    
+    .extend-button-panel .center-none {
+        border-width: 1px;
+        border-style: solid;
+        margin-top: -1px;
+        margin-left: -1px;
+    }
+    
+    .extend-button-panel  .background-panel {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        overflow: visible;
+        border-radius: 50%;
+        border-color: @border-color;
+        border-style: solid;
+        filter: Alpha(opacity=70);
+        opacity: .7;
+    }
