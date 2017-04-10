@@ -243,7 +243,7 @@ module.exports = function(grunt) {
     // 主题色
     for(i = 0, len = themeColor.length; i < len; i++) {
         item = themeColor[i];
-        key = "dist/theme/site." + item.name + ".css";
+        key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
         value = "theme/site." + item.name + ".less";
         item = {};
         item[key] = value;
@@ -251,8 +251,8 @@ module.exports = function(grunt) {
     }
 
     // 控件主题色
-    themeFiles.push({ "dist/theme/metro-light.all.css": "theme/light/**/*.less" });
-    themeFiles.push({ "dist/theme/metro-dark.all.css": "theme/dark/**/*.less" });
+    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/light/**/*.less" });
+    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/dark/**/*.less" });
 
     // 高亮色
     for(i = 0, len = highlights.length; i < len; i++) {
@@ -303,25 +303,25 @@ module.exports = function(grunt) {
     var componentFiles = [
         "ui/component/**/*.js"
     ];
-    var componentDestFile = "dist/components.<%= pkg.version %>.js";
+    var componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
 
     // 控件文件
     var controlFiles = [
         "ui/control/**/*.js"
     ];
-    var controlDestFile = "dist/controls.<%= pkg.version %>.js";
+    var controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
     // 特效文件
     var effectFiles = [
         "ui/effect/**/*.js"
     ];
-    var effectDestFile = "dist/effects.<%= pkg.version %>.js";
+    var effectDestFile = "dist/ui-effects.<%= pkg.version %>.js";
 
     // 视图文件
     var viewFiles = [
         "ui/view/**/*.js"
     ];
-    var viewDestFile = "dist/views.<%= pkg.version %>.js";
+    var viewDestFile = "dist/ui-views.<%= pkg.version %>.js";
     
     var wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {
@@ -376,12 +376,14 @@ module.exports = function(grunt) {
             dist: {
                 // 将要被合并的文件
                 src: [
-                    //frameDestFile,
+                    frameDestFile,
                     controlDestFile,
-                    effectDestFile
+                    componentDestFile,
+                    effectDestFile,
+                    viewDestFile
                 ],
                 // 合并后的JS文件的存放位置
-                dest: "dist/<%= pkg.name %>.<%= pkg.version %>.js"
+                dest: "dist/<%= pkg.name %>.<%= pkg.version %>.all.js"
             }
         },
         // 压缩工具

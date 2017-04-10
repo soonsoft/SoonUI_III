@@ -7,6 +7,8 @@
 @font-color: #333333;
 @border-color: #dcdcdc;
 @panel-color: #f1f1f1;
+@panel-hover-color: #dcdcdc;
+@panel-active-color: #aaaaaa;
 @tool-color: #666666;
 @readonly-color: #666666;
 @disabled-color: #aaaaaa;
@@ -14,7 +16,16 @@
 @active-color: #434343;
 @shadow-color: #434343;
 
-@font-size: 0.813em;
+@font-normal: 0.813em;
+@font-small: 0.750em;
+@font-middle: 1.000em;
+@font-large: 1.250em;
+@font-h1: 3.000em;
+@font-h2: 2.250em;
+@font-h3: 1.500em;
+@font-h4: 1.125em;
+@font-h5: 1.000em;
+@font-h6: 0.875em;
 
 html {
     margin: 0;
@@ -25,7 +36,7 @@ html {
 }
 
 body {
-    font-size: @font-size;
+    font-size: @font-normal;
     font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
     font-style: normal;
     font-variant: normal;
@@ -39,9 +50,40 @@ body {
     word-wrap: break-word;
 }
 
-body, ol, ul, li, dl, dt, dd, h1, h2, h3, h4, h5, h6, form, fieldset, pr, pc {
+body, ol, ul, li, dl, dt, dd, form, fieldset, pr, pc {
     margin: 0;
     padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: @font-h1;
+}
+
+h2 {
+    font-size: @font-h2;
+}
+
+h3 {
+    font-size: @font-h3;
+}
+
+h4 {
+    font-size: @font-h4;
+}
+
+h5 {
+    font-size: @font-h5;
+}
+
+h6 {
+    font-size: @font-h6;
 }
 
 section, header, footer, address, article, aside, nav, menu {
@@ -124,6 +166,277 @@ a {
     display: none;
 }
 
+/* 头部元素 */
+/* 返回按钮 */
+#headBackButton {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    margin: 0;
+    text-align: center;
+    opacity: .6;
+}
+
+    #headBackButton:hover {
+        opacity: 1;
+    }
+
+/* 标题 */
+.head-system-title {
+    display: block;
+    height: 100%;
+    float: left;
+    width: 192px;
+    position: relative;
+    font-weight: normal;
+    overflow: hidden;
+    font-size: @font-large;
+}
+
+/* 副标题 */
+.head-tab-title {
+    float: left;
+    position: relative;
+    width: auto;
+}
+
+.head-tab-title-item {
+    line-height: 48px;
+    font-size: 16px;
+    margin-left: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+
+    .head-tab-title-item .tab-button {
+        display:block;
+        height: 48px;
+        margin-top: 0;
+        line-height: 48px;
+        text-align: center;
+        text-decoration: none;
+        color: #fff !important;
+        position: relative;
+        opacity: .6;
+    }
+
+        .head-tab-title-item .tab-button .head-tab-pointer {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            margin-left: -10px;
+            width: 0;
+            height: 0;
+            display: none;
+            border-width: 10px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-left-color: transparent;
+            border-bottom-color: @panel-color;
+            border-style: dashed dashed solid dashed;
+        }
+
+    .head-tab-title-item .tab-button-selection {
+        opacity: 1;
+    }
+
+        .head-tab-title-item .tab-button-selection .head-tab-pointer {
+            display: block;
+        }
+
+/* 头部全局按钮 */
+.head-ctrl-buttons {
+    position: relative;
+    float: right;
+}
+
+.head-ctrl-buttons-item {
+    height: 100%;
+    width: 48px;
+    position: relative;
+    overflow: visible;
+    text-align: center;
+}
+
+.head-ctrl-button {
+    position: relative;
+    color: #fff;
+    font-size: 18px;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-top: 14px;
+    vertical-align: top;
+    line-height: 18px;
+    opacity: .6;
+}
+
+    .head-ctrl-button:hover {
+        opacity: 1;
+    }
+
+    /* 用户头像 */
+    .head-ctrl-button #user {
+        height: 32px;
+        width: 32px;
+        color: #fff;
+        margin-top: 8px;
+        margin-left: auto;
+        margin-right: auto;
+        border: solid 1px transparent;
+        border-radius: 16px; 
+        overflow: hidden;
+    }
+
+        .head-ctrl-button #user:active {
+            opacity: .6;
+        }
+
+        .head-ctrl-button #user .cover {
+            height: 100%;
+            width: 100%;
+            background: @background-color url(images/protrait.png);
+            float: left;
+            cursor: pointer;
+        }
+
+/* 工具条 */
+.toolbar {
+    width: 100%;
+    height: 40px;
+    background-color: @panel-color;
+    color: @tool-color;
+    overflow: hidden;
+}
+
+    .toolbar .tool-action-button {
+        height: 40px;
+        width: 40px;
+        display: inline-block;
+        text-align: center;
+        cursor: pointer;
+        font-size: 18px;
+        color: @tool-color;
+        overflow: hidden;
+    }
+    
+        .toolbar .tool-action-button:hover {
+            background-color: @panel-hover-color;
+        }
+        
+        .toolbar .tool-action-button:active {
+            background-color: @panel-active-color;
+        }
+        
+    .toolbar .toolbar-extend {
+        width: 100%;
+        height: 120px;
+        background-color: @border-color;
+        position: absolute;
+        z-index: 9999;
+    }
+    
+    .toolbar .tool-extend-pin-button {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 14px;
+        line-height: 24px;
+        z-index: 10000;
+        text-align: center;
+        color: @tool-color;
+    }
+    
+        .toolbar .extend-spliter {
+            margin-top: 0;
+            margin-bottom: 0;
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 0;
+            border: none 0;
+            width: 1px;
+            background-color: @tool-color;
+            height: 100%;
+        }
+
+    .toolbar .tools {
+        margin-left: 10px;
+        height: 100%;
+        overflow: hidden;
+        float: left;
+    }
+
+    .toolbar .tool-item {
+        float: left;
+        list-style: none;
+        height: 100%;
+        margin-right: 10px;
+        line-height: 40px;
+    }
+
+/* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
+.icon-button, 
+.tool-button {
+    text-align: center;
+    height: 24px;
+    line-height: 20px;
+    margin: 0;
+    padding: 0;
+    min-width: 24px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #666666;
+    color: #666666;
+    overflow: hidden;
+    background-color:transparent;
+    background-image: url(images/input-bg.gif);
+    cursor: pointer;
+    outline: 0 none;
+}
+
+.tool-button {
+    min-width: 60px;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+.icon-button {
+    border-radius: 50%;
+    line-height: 1em;
+    height: 24px;
+}
+
+    .icon-button .fa {
+        font-size: @font-h6;
+    }
+
+    .icon-button:focus,
+    .tool-button:focus {
+        padding: 0;
+    }
+
+    .icon-button:disabled, 
+    .tool-button:disabled {
+        color: @disabled-color;
+        border-color: @disabled-color;
+    }
+
+/* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
+.tool-text-button {
+    font-size: @font-h6;
+    opacity: .8;
+    cursor: pointer;
+}
+
+    .tool-text-button:hover {
+        text-decoration: none !important;
+        opacity: 1;
+    }
+
 /* 表单元素 */
 input[type="text"], 
 input[type="password"], 
@@ -184,4 +497,142 @@ textarea {
     height: 63px;
     resize: none;
     overflow: auto;
+}
+
+/* 操作按钮，会改变后台数据的按钮，实心的 */
+.button {
+    min-width: 80px;
+    height: 24px;
+    line-height: 24px;
+    border: 0 solid;
+    color: #fff;
+    background-color: @tool-color;
+    font-size: @font-small;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+    .button:active {
+        background-color: @hover-color !important;
+        color: #fff;
+    }
+    .button:disabled{
+        background-color: @disabled-color !important;
+        color: @readonly-color;
+    }
+
+/*滚动条样式*/
+/*IE*/
+html
+{
+    /*滑块*/
+    scrollbar-face-color: @border-color;
+    -ms-scrollbar-face-color: @border-color;
+    /*高亮色*/
+    scrollbar-highlight-color :@panel-color;
+    -ms-scrollbar-highlight-color :@panel-color;
+    /*3D高亮色 win8下无效*/
+    scrollbar-3dlight-color: @panel-color;
+    -ms-scrollbar-3dlight-color: @panel-color;
+    /*阴影 win8下无效*/
+    scrollbar-darkshadow-color: @panel-color;
+    -ms-scrollbar-darkshadow-color: @panel-color;
+    /*阴影 win8下无效*/
+    scrollbar-shadow-color: @panel-color;
+    -ms-scrollbar-shadow-color: @panel-color;
+    /*箭头*/
+    scrollbar-arrow-color: @tool-color;
+    -ms-scrollbar-arrow-color: @tool-color;
+    /*滚动条*/
+    scrollbar-track-color: @panel-color;
+    -ms-scrollbar-track-color: @panel-color;
+    /*基础*/
+    scrollbar-base-color: @panel-color;
+    -ms-scrollbar-base-color: @panel-color;
+}
+
+/*Webkit chrome opera safari*/
+/* 滚动条宽度 */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+/* 横向纵向同时出现是角的样式 */
+::-webkit-scrollbar-corner {
+    background-color: @panel-color;
+}
+
+/* 定义滚动条渐增按扭的样式 */
+/* 向下 */
+::-webkit-scrollbar-button:vertical:increment {
+    height: 12px;
+    background-color: @panel-color;
+    background-image: url(images/arrow.png);
+    background-position: 0px -48px;
+    border: none 0px;
+}
+::-webkit-scrollbar-button:vertical:increment:hover {
+    background-position: 0px -60px;
+}
+/* 向上 */
+::-webkit-scrollbar-button:vertical:decrement {
+    height: 12px;
+    background-color: @panel-color;
+    background-image: url(images/arrow.png);
+    background-position: 0px -12px;
+    border: none 0px;
+}
+::-webkit-scrollbar-button:vertical:decrement:hover {
+    background-position: 0px -24px;
+}
+/* 向右 */
+::-webkit-scrollbar-button:horizontal:increment {
+    width: 12px;
+    background-color: @panel-color;
+    background-image: url(images/arrow.png);
+    background-position: 0px -120px;
+    border: none 0px;
+}
+::-webkit-scrollbar-button:horizontal:increment:hover {
+    background-position: 0px -132px;
+}
+/* 向左 */
+::-webkit-scrollbar-button:horizontal:decrement {
+    width: 12px;
+    background-color: @panel-color;
+    background-image: url(images/arrow.png);
+    background-position: 0px -84px;
+    border: none 0px;
+}
+::-webkit-scrollbar-button:horizontal:decrement:hover {
+    background-position: 0px -96px;
+}
+
+/* 垂直滚动条的第一层轨道*/ 
+::-webkit-scrollbar-track:vertical {
+    background-color: @panel-color;
+    border: 1px solid @panel-color; 
+}
+::-webkit-scrollbar-track:horizontal {
+    background-color: @panel-color;
+    border: 1px solid @panel-color; 
+}
+
+/* 垂直滚动条的滑动块 */ 
+::-webkit-scrollbar-thumb:vertical {
+    height: 48px;
+    background-color: @border-color; 
+}
+::-webkit-scrollbar-thumb:horizontal {
+    height: 48px;
+    background-color: @border-color; 
+}
+
+/*滚动条交汇处*/
+::-webkit-scrollbar-corner:vertical { 
+    background-color: @panel-color;
+} 
+::-webkit-scrollbar-resizer:vertical { 
+    background-color: @panel-color; 
 }
