@@ -19,6 +19,10 @@ module.exports = function(grunt) {
             "border-color": "#dcdcdc",
             // 面板颜色
             "panel-color": "#f1f1f1",
+	    // 面板悬停色
+            "panel-hover-color": "#dcdcdc",
+            // 面板激活色
+            "panel-active-color": "#aaaaaa",
             // 交互元素色
             "tool-color": "#666666",
             // 只读色
@@ -45,6 +49,10 @@ module.exports = function(grunt) {
             "border-color": "#5d5f60",
             // 面板颜色
             "panel-color": "#3c3f41",
+	    // 面板悬停色
+            "panel-hover-color": "#5d5f60",
+            // 面板激活色
+            "panel-active-color": "#1d1f21",
             // 交互元素色
             "tool-color": "#aaaaaa",
             // 只读色
