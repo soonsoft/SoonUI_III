@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     var themeColor = [
         {
             // 主题名
-            name: "light",
+            name: "Light",
             // 描述
             description: "光明",
             // 背景色
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
             "border-color": "#dcdcdc",
             // 面板颜色
             "panel-color": "#f1f1f1",
-	    // 面板悬停色
+            // 面板悬停色
             "panel-hover-color": "#dcdcdc",
             // 面板激活色
             "panel-active-color": "#aaaaaa",
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
         },
         {
             // 主题名
-            name: "dark",
+            name: "Dark",
             // 描述
             description: "暗夜",
             // 背景色
@@ -49,22 +49,22 @@ module.exports = function(grunt) {
             "border-color": "#5d5f60",
             // 面板颜色
             "panel-color": "#3c3f41",
-	    // 面板悬停色
+            // 面板悬停色
             "panel-hover-color": "#5d5f60",
             // 面板激活色
             "panel-active-color": "#1d1f21",
             // 交互元素色
-            "tool-color": "#aaaaaa",
+            "tool-color": "#888888",
             // 只读色
-            "readonly-color": "#aaaaaa",
+            "readonly-color": "#888888",
             // 禁用色
             "disabled-color": "#5d5f60",
             // 悬停色
-            "hover-color": "#eeeeee",
+            "hover-color": "#999999",
             // 激活色
-            "active-color": "#eeeeee",
+            "active-color": "#999999",
             // 阴影色
-            "shadow-color": "#eeeeee"
+            "shadow-color": "#999999"
         }
     ];
     // 高亮色
