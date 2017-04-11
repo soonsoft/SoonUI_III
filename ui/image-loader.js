@@ -74,6 +74,7 @@ ImageLoader.centerCrop = function() {
     }
 };
 ImageLoader.prototype = {
+    constructor: ImageLoader,
     initialize: function() {
         //图片路径
         this.src = null;
