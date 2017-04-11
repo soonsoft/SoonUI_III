@@ -1,9 +1,10 @@
 // custom event
-ui.CustomEvent = function (target) {
+function CustomEvent (target) {
     this._listeners = {};
     this._eventTarget = target || this;
-};
-ui.CustomEvent.prototype = {
+}
+CustomEvent.prototype = {
+    constructor: CustomEvent,
     addEventListener: function (type, callback, scope, priority) {
         if (isFinite(scope)) {
             priority = scope;
@@ -105,3 +106,5 @@ ui.CustomEvent.prototype = {
         };
     }
 };
+
+ui.CustomEvent = CustomEvent;
