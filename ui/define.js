@@ -120,6 +120,7 @@ function define(name, base, prototype, constructor) {
 function CtrlBase() {
 }
 CtrlBase.prototype = {
+    constructor: CtrlBase,
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
