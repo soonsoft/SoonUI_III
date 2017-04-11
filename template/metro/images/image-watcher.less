@@ -1,0 +1,32 @@
+/* 图片局部放大 */
+.image-watch-panel {
+    position: relative;
+    overflow: visible !important;
+}
+
+    .image-watch-panel img {
+        cursor: move;
+    }
+
+    .image-watch-panel .focus-view {
+        position: absolute;
+        background-color: @panel-color;
+        opacity: 0.6;
+        display: none;
+        cursor: move;
+        border: solid 1px #fff;
+    }
+
+    .image-watch-panel .zoom-view {
+        position: absolute;
+        border: solid 1px #fff;
+        overflow: hidden;
+        display: none;
+        z-index: 10000;
+    }
+
+        .image-watch-panel .zoom-view img {
+            position: absolute;
+            width: auto;
+            height: auto;
+        }
