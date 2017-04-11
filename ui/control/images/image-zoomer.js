@@ -372,3 +372,31 @@ ui.define("ui.ctrls.ImageZoomer", {
         return content;
     }
 });
+
+$.fn.addImageZoomer = function (image) {
+    if (this.length == 0) {
+        return null;
+    }
+    if (image instanceof ui.ctrls.ImageZoomer) {
+        this.click(function(e) {
+            var target = $(e.target);
+            var largeSize = target.data("LargeSize");
+            if(largeSize) {
+                image.show(target);
+            } else {
+                loadImageSize(image._getLargeImageSrc(target))
+                    .then(
+                        //success
+                        function(size) {
+                            target.data("LargeSize", size);
+                            image.show(target);
+                        },
+                        //failed
+                        function(size) {
+                            image.show(target)
+                        }
+                    );
+            }
+        });
+    }
+};
