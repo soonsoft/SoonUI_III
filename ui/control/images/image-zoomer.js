@@ -375,7 +375,7 @@ ui.define("ui.ctrls.ImageZoomer", {
 
 $.fn.addImageZoomer = function (image) {
     if (this.length == 0) {
-        return null;
+        return;
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
