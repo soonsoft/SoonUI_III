@@ -1,6 +1,6 @@
 //控件分页逻辑，Gridview, ReportView, flowView
 var pageHashPrefix = "page";
-ui.ctrls.Pager = function(option) {
+function Pager(option) {
     if(!option) {
         option = {};
     }
@@ -24,8 +24,9 @@ ui.ctrls.Pager = function(option) {
         this.pageButtonCount = option.pageButtonCount;
     }
     this._ex = Math.floor((this.pageButtonCount - 1) / 2);
-};
-ui.ctrls.Pager.prototype = {
+}
+Pager.prototype = {
+    constructor: Pager,
     renderPageList: function (rowCount) {
         var pageInfo = this._createPageInfo();
         if (!$.isNumeric(rowCount) || rowCount < 1) {
@@ -200,3 +201,5 @@ ui.ctrls.Pager.prototype = {
         }
     }
 };
+
+ui.ctrls.Pager = Pager;
