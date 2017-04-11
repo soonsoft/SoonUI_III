@@ -1,0 +1,38 @@
+/* 图片轮播器 */
+.image-view-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+    .image-view-panel .image-view {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: none;
+        overflow: hidden;
+    }
+
+        .image-view-panel .image-view img {
+            position: absolute;
+        }
+
+    .image-view-panel .image-switch-button {
+        position: absolute;
+        z-index: 100;
+        width: 32px;
+        height: 32px;
+        top: 50%;
+        margin-top: -16px;
+        display: block;
+        text-align: center;
+        font-size: 32px;
+        color: #aaa;
+    }
+
+    .image-view-panel .switch-button-prev {
+        left: 0px;
+    }
+
+    .image-view-panel .switch-button-next {
+        right: 0px;
+    }
