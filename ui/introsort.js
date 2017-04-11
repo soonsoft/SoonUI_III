@@ -9,6 +9,7 @@ function Introsort () {
     }
 }
 Introsort.prototype = {
+    constructor: Introsort,
     initialize: function() {
         this.keys = null;
         this.items = null;
