@@ -16,7 +16,7 @@ ui.define("ui.ctrls.ImageViewer", {
         return ["changed", "ready"];
     },
     _create: function () {
-        if(Array.isArray(this.option.images)) {
+        if(!Array.isArray(this.option.images)) {
             this.option.images = [];
         }
         if(ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
