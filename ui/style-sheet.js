@@ -28,6 +28,7 @@ function StyleSheet(elem) {
     }
 }
 StyleSheet.prototype = {
+    constructor: StyleSheet,
     initialize: function(elem) {
         var nodeName,
             styleElement;
