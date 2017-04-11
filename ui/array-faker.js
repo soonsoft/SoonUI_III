@@ -1,11 +1,12 @@
 // Array Faker
 
 var arrayInstance = [];
-ui.ArrayFaker = function () {
+function ArrayFaker () {
     this.setArray(this.makeArray(arguments));
     return this;
-};
-ui.ArrayFaker.prototype = {
+}
+ArrayFaker.prototype = {
+    constructor: ArrayFaker,
     isArray: function (obj) {
         return ui.core.isArray(obj);
     },
@@ -66,3 +67,5 @@ ui.ArrayFaker.prototype = {
         return num === undefined ? Array.prototype.slice.call(this) : this[num];
     }
 };
+
+ui.ArrayFaker = ArrayFaker;
