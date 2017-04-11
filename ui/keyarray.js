@@ -23,7 +23,9 @@ function KeyArray () {
         return new KeyArray();
     }
 };
-KeyArray.prototype = $.extend({}, ui.ArrayFaker.prototype);
+KeyArray.prototype = $.extend({
+    constructor: KeyArray
+}, ui.ArrayFaker.prototype);
 delete KeyArray.prototype.shift;
 delete KeyArray.prototype.push;
 delete KeyArray.prototype.sort;
