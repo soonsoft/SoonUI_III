@@ -1,0 +1,573 @@
+/*
+	Color: #1d1f21
+	Name: 暗夜
+*/
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+body {
+  font-size: 0.813em;
+  font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  color: #aaaaaa;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  /* 让所有的字符全部自动换行 */
+  word-break: break-all;
+  word-wrap: break-word;
+}
+body,
+ol,
+ul,
+li,
+dl,
+dt,
+dd,
+form,
+fieldset,
+pr,
+pc {
+  margin: 0;
+  padding: 0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  font-size: 3em;
+}
+h2 {
+  font-size: 2.25em;
+}
+h3 {
+  font-size: 1.5em;
+}
+h4 {
+  font-size: 1.125em;
+}
+h5 {
+  font-size: 1em;
+}
+h6 {
+  font-size: 0.875em;
+}
+section,
+header,
+footer,
+address,
+article,
+aside,
+nav,
+menu {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+/* 清除浮动，在浮动元素的父级容器上使用 */
+.clear {
+  zoom: 1;
+}
+.clear:after {
+  content: "";
+  display: block;
+  height: 0;
+  line-height: 0;
+  clear: both;
+  visibility: hidden;
+}
+/* 默认超链接 */
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+a:active {
+  background-color: transparent;
+}
+/* 主题颜色 */
+.theme-background-color {
+  background-color: #1d1f21;
+}
+.theme-panel-color {
+  background-color: #3c3f41;
+}
+.theme-border-color {
+  border-color: #5d5f60;
+}
+.theme-font-color {
+  color: #aaaaaa;
+}
+/* 头部 */
+#head {
+  height: 48px;
+  width: 100%;
+  min-width: 768px;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  z-index: 9999;
+  overflow: hidden;
+}
+/* 中间内容 */
+#body {
+  height: auto;
+  width: 100%;
+  min-width: 768px;
+  position: relative;
+  overflow: hidden;
+}
+/* 底部 */
+#foot {
+  height: 30px;
+  width: 100%;
+  min-width: 768px;
+  overflow: hidden;
+  display: none;
+}
+/* 头部元素 */
+/* 返回按钮 */
+#headBackButton {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+  margin: 0;
+  text-align: center;
+  opacity: .6;
+}
+#headBackButton:hover {
+  opacity: 1;
+}
+/* 标题 */
+.head-system-title {
+  display: block;
+  height: 100%;
+  float: left;
+  width: 192px;
+  position: relative;
+  font-weight: normal;
+  overflow: hidden;
+  font-size: 1.5em;
+}
+.head-system-title-text {
+  color: #fff;
+  font-family: 'Segoe UI', 'Microsoft YaHei light', 'Microsoft YaHei';
+  line-height: 44px;
+  margin-left: 10px;
+}
+/* 副标题 */
+.head-tab-title {
+  float: left;
+  position: relative;
+  width: auto;
+  list-style: none;
+}
+.head-tab-title .tab-item {
+  line-height: 48px;
+  font-size: 1.125em;
+  margin-left: 20px;
+  color: #fff;
+  list-style: none;
+  float: left;
+  cursor: pointer;
+}
+.head-tab-title .tab-button {
+  display: block;
+  height: 48px;
+  margin-top: 0;
+  line-height: 48px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff !important;
+  position: relative;
+  opacity: .6;
+}
+.head-tab-title .tab-item .head-tab-pointer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -10px;
+  width: 0;
+  height: 0;
+  display: none;
+  border-width: 10px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-bottom-color: #3c3f41;
+  border-style: dashed dashed solid dashed;
+}
+.head-tab-title .tab-button-selection {
+  opacity: 1;
+}
+.head-tab-title .tab-button-selection .head-tab-pointer {
+  display: block;
+}
+/* 头部全局按钮 */
+.head-ctrl-buttons {
+  position: relative;
+  float: right;
+}
+.head-ctrl-buttons-item {
+  height: 100%;
+  width: 48px;
+  list-style: none;
+  float: left;
+  position: relative;
+  overflow: visible;
+  text-align: center;
+}
+.head-ctrl-button {
+  position: relative;
+  color: #fff;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-top: 14px;
+  vertical-align: top;
+  line-height: 18px;
+  opacity: .6;
+}
+.head-ctrl-button:hover {
+  opacity: 1;
+}
+/* 用户头像 */
+.head-ctrl-buttons-item #user {
+  height: 32px;
+  width: 32px;
+  color: #fff;
+  margin-top: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  border: solid 1px transparent;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.head-ctrl-buttons-item #user:active {
+  opacity: .6;
+}
+.head-ctrl-buttons-item #user .cover {
+  height: 100%;
+  width: 100%;
+  background: #1d1f21;
+  float: left;
+  cursor: pointer;
+}
+/* 工具条 */
+.toolbar {
+  width: 100%;
+  height: 40px;
+  background-color: #3c3f41;
+  color: #888888;
+  overflow: hidden;
+}
+.toolbar .tool-action-button {
+  height: 40px;
+  width: 40px;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888888;
+  overflow: hidden;
+}
+.toolbar .tool-action-button:hover {
+  background-color: #5d5f60;
+}
+.toolbar .tool-action-button:active {
+  background-color: #1d1f21;
+}
+.toolbar .toolbar-extend {
+  width: 100%;
+  height: 120px;
+  background-color: #5d5f60;
+  position: absolute;
+  z-index: 9999;
+}
+.toolbar .tool-extend-pin-button {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 14px;
+  line-height: 24px;
+  z-index: 10000;
+  text-align: center;
+  color: #888888;
+}
+.toolbar .extend-spliter {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 0;
+  border: none 0;
+  width: 1px;
+  background-color: #888888;
+  height: 100%;
+}
+.toolbar .tools {
+  margin-left: 10px;
+  height: 100%;
+  overflow: hidden;
+  float: left;
+}
+.toolbar .tool-item {
+  float: left;
+  list-style: none;
+  height: 100%;
+  margin-right: 10px;
+  line-height: 40px;
+}
+/* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
+.icon-button,
+.tool-button {
+  text-align: center;
+  height: 24px;
+  line-height: 20px;
+  margin: 0;
+  padding: 0;
+  min-width: 24px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #666666;
+  color: #666666;
+  overflow: hidden;
+  background-color: transparent;
+  background-image: url(images/input-bg.gif);
+  cursor: pointer;
+  outline: 0 none;
+}
+.tool-button {
+  min-width: 60px;
+  font-size: 12px;
+  line-height: 22px;
+}
+.icon-button {
+  border-radius: 50%;
+  line-height: 1em;
+  height: 24px;
+}
+.icon-button .fa {
+  font-size: 0.875em;
+}
+.icon-button:focus,
+.tool-button:focus {
+  padding: 0;
+}
+.icon-button:disabled,
+.tool-button:disabled {
+  color: #5d5f60;
+  border-color: #5d5f60;
+}
+/* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
+.tool-text-button {
+  font-size: 0.875em;
+  opacity: .8;
+  cursor: pointer;
+}
+.tool-text-button:hover {
+  text-decoration: none !important;
+  opacity: 1;
+}
+/* 表单元素 */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+  background-color: transparent;
+  background-image: url(images/input-bg.gif);
+  border: 1px solid #888888;
+  color: #888888;
+  margin: 0;
+  padding-left: 1px;
+  padding-right: 1px;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 22px;
+  font-size: 12px;
+  font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+input[type="text"],
+input[type="password"] {
+  height: 22px;
+}
+select {
+  height: 24px;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  color: #aaaaaa;
+  border-color: #aaaaaa;
+  text-decoration: none;
+  outline: none 0;
+}
+input[type="text"][readonly],
+textarea[readonly] {
+  color: #888888;
+  border-color: #888888;
+  cursor: default;
+}
+input:disabled,
+textarea:disabled,
+select:disabled {
+  color: #888888;
+  border-color: #888888;
+  cursor: not-allowed;
+}
+textarea {
+  height: 63px;
+  resize: none;
+  overflow: auto;
+}
+/* 操作按钮，会改变后台数据的按钮，实心的 */
+.button {
+  min-width: 80px;
+  height: 24px;
+  line-height: 24px;
+  border: 0 solid;
+  color: #fff;
+  background-color: #888888;
+  font-size: 0.75em;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.button:active {
+  background-color: #999999 !important;
+  color: #fff;
+}
+.button:disabled {
+  background-color: #5d5f60 !important;
+  color: #888888;
+}
+/*滚动条样式*/
+/*IE*/
+html {
+  /*滑块*/
+  scrollbar-face-color: #5d5f60;
+  -ms-scrollbar-face-color: #5d5f60;
+  /*高亮色*/
+  scrollbar-highlight-color: #3c3f41;
+  -ms-scrollbar-highlight-color: #3c3f41;
+  /*3D高亮色 win8下无效*/
+  scrollbar-3dlight-color: #3c3f41;
+  -ms-scrollbar-3dlight-color: #3c3f41;
+  /*阴影 win8下无效*/
+  scrollbar-darkshadow-color: #3c3f41;
+  -ms-scrollbar-darkshadow-color: #3c3f41;
+  /*阴影 win8下无效*/
+  scrollbar-shadow-color: #3c3f41;
+  -ms-scrollbar-shadow-color: #3c3f41;
+  /*箭头*/
+  scrollbar-arrow-color: #888888;
+  -ms-scrollbar-arrow-color: #888888;
+  /*滚动条*/
+  scrollbar-track-color: #3c3f41;
+  -ms-scrollbar-track-color: #3c3f41;
+  /*基础*/
+  scrollbar-base-color: #3c3f41;
+  -ms-scrollbar-base-color: #3c3f41;
+}
+/*Webkit chrome opera safari*/
+/* 滚动条宽度 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+/* 横向纵向同时出现是角的样式 */
+::-webkit-scrollbar-corner {
+  background-color: #3c3f41;
+}
+/* 定义滚动条渐增按扭的样式 */
+/* 向下 */
+::-webkit-scrollbar-button:vertical:increment {
+  height: 12px;
+  background-color: #3c3f41;
+  background-image: url(images/arrow.png);
+  background-position: 0px -48px;
+  border: none 0px;
+}
+::-webkit-scrollbar-button:vertical:increment:hover {
+  background-position: 0px -60px;
+}
+/* 向上 */
+::-webkit-scrollbar-button:vertical:decrement {
+  height: 12px;
+  background-color: #3c3f41;
+  background-image: url(images/arrow.png);
+  background-position: 0px -12px;
+  border: none 0px;
+}
+::-webkit-scrollbar-button:vertical:decrement:hover {
+  background-position: 0px -24px;
+}
+/* 向右 */
+::-webkit-scrollbar-button:horizontal:increment {
+  width: 12px;
+  background-color: #3c3f41;
+  background-image: url(images/arrow.png);
+  background-position: 0px -120px;
+  border: none 0px;
+}
+::-webkit-scrollbar-button:horizontal:increment:hover {
+  background-position: 0px -132px;
+}
+/* 向左 */
+::-webkit-scrollbar-button:horizontal:decrement {
+  width: 12px;
+  background-color: #3c3f41;
+  background-image: url(images/arrow.png);
+  background-position: 0px -84px;
+  border: none 0px;
+}
+::-webkit-scrollbar-button:horizontal:decrement:hover {
+  background-position: 0px -96px;
+}
+/* 垂直滚动条的第一层轨道*/
+::-webkit-scrollbar-track:vertical {
+  background-color: #3c3f41;
+  border: 1px solid #3c3f41;
+}
+::-webkit-scrollbar-track:horizontal {
+  background-color: #3c3f41;
+  border: 1px solid #3c3f41;
+}
+/* 垂直滚动条的滑动块 */
+::-webkit-scrollbar-thumb:vertical {
+  height: 48px;
+  background-color: #5d5f60;
+}
+::-webkit-scrollbar-thumb:horizontal {
+  height: 48px;
+  background-color: #5d5f60;
+}
+/*滚动条交汇处*/
+::-webkit-scrollbar-corner:vertical {
+  background-color: #3c3f41;
+}
+::-webkit-scrollbar-resizer:vertical {
+  background-color: #3c3f41;
+}

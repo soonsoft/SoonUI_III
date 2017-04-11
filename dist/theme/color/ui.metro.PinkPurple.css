@@ -1,0 +1,77 @@
+/*
+	Color: #A988DF
+	Name: 粉紫
+*/
+.head-color {
+  background-color: #A988DF;
+}
+.title-color {
+  background-color: #B69AE4;
+}
+a {
+  color: #A988DF;
+}
+.font-highlight {
+  color: #A988DF !important;
+}
+.font-highlight-hover:hover {
+  color: #A988DF !important;
+}
+.background-highlight {
+  background-color: #A988DF !important;
+  color: #ffffff !important;
+}
+.background-highlight-hover:hover {
+  background-color: #A988DF !important;
+  color: #ffffff !important;
+}
+.border-highlight {
+  border-color: #A988DF !important;
+}
+.border-highlight-hover:hover {
+  border-color: #A988DF !important;
+}
+.icon-button:hover,
+.tool-button:hover,
+.button-highlight {
+  color: #A988DF;
+  border-color: #A988DF;
+}
+.icon-button:active,
+.tool-button:active {
+  background-color: #A988DF !important;
+  color: #ffffff !important;
+}
+.tools input[type="text"]:focus,
+.tools textarea:focus,
+.tools select:focus {
+  background-color: transparent;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #A988DF;
+}
+::selection {
+  background-color: #A988DF;
+  color: #ffffff;
+}
+::-moz-selection {
+  background-color: #A988DF;
+  color: #ffffff;
+}
+/*UI Ctrls Style*/
+/*dateChooser*/
+div.calendar-panel td:hover {
+  color: #A988DF;
+}
+div.date-panel div.days-panel td.other-month:hover {
+  color: #A988DF;
+}
+div.calendar-panel div.prev:hover {
+  border-color: transparent #A988DF transparent transparent;
+}
+div.calendar-panel div.next:hover {
+  border-color: transparent transparent transparent #A988DF;
+}
