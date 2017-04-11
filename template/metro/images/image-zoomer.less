@@ -1,0 +1,71 @@
+/* 图片放大器 */
+.show-image-panel {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    display: none;
+    z-index: 10001;
+}
+
+.show-image-panel .image-view-panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.show-image-panel .image-view-img {
+    position: absolute;
+    z-index: 10001;
+    border: 0 solid;
+    height: auto;
+    width: auto;
+}
+
+.show-image-panel .next-button,
+.show-image-panel .prev-button {
+    position: absolute;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    line-height: 48px;
+    top: 50%;
+    margin-top: -24px;
+    text-align: center;
+    color: #fff;
+    z-index: 10001;
+    opacity: .5;
+}
+
+    .show-image-panel .next-button:hover,
+    .show-image-panel .prev-button:hover {
+        text-decoration: none;
+        opacity: 1;
+    }
+    
+.show-image-panel .disabled-button {
+    display: none;
+}
+
+.show-image-panel a.close-button {
+    position:absolute;
+    top: 2px;
+    right: 2px;
+    height: 28px;
+    width:28px;
+    line-height: 25px;
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
+    z-index: 10001;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.show-image-panel a.close-button:hover {
+    text-decoration: none;
+}
