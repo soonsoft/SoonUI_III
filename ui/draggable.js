@@ -25,6 +25,7 @@ function MouseDragger(option) {
     }
 }
 MouseDragger.prototype = {
+    constructor: MouseDragger,
     initialize: function(option) {
         this.doc = document;
         this.shield = null;
@@ -138,6 +139,7 @@ MouseDragger.prototype = {
 };
 
 ui.MouseDragger = MouseDragger;
+
 $.fn.draggable = function(option) {
     var dragger;
     if (!option || !option.target || !option.parent) {
