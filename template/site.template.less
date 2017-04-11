@@ -174,7 +174,14 @@ a {
     position: relative;
     font-weight: normal;
     overflow: hidden;
-    font-size: @font-large;
+    font-size: @font-h3;
+}
+
+.head-system-title-text {
+    color: #fff;
+    font-family: 'Segoe UI', 'Microsoft YaHei light', 'Microsoft YaHei';
+    line-height: 44px;
+    margin-left: 10px;
 }
 
 /* 副标题 */
@@ -182,17 +189,20 @@ a {
     float: left;
     position: relative;
     width: auto;
+    list-style: none;
 }
 
-.head-tab-title-item {
-    line-height: 48px;
-    font-size: 16px;
-    margin-left: 20px;
-    color: #fff;
-    cursor: pointer;
-}
+    .head-tab-title .tab-item {
+        line-height: 48px;
+        font-size: @font-h4;
+        margin-left: 20px;
+        color: #fff;
+        list-style: none;
+        float: left;
+        cursor: pointer;
+    }
 
-    .head-tab-title-item .tab-button {
+    .head-tab-title .tab-button {
         display:block;
         height: 48px;
         margin-top: 0;
@@ -204,27 +214,27 @@ a {
         opacity: .6;
     }
 
-        .head-tab-title-item .tab-button .head-tab-pointer {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            margin-left: -10px;
-            width: 0;
-            height: 0;
-            display: none;
-            border-width: 10px;
-            border-top-color: transparent;
-            border-right-color: transparent;
-            border-left-color: transparent;
-            border-bottom-color: @panel-color;
-            border-style: dashed dashed solid dashed;
-        }
+    .head-tab-title .tab-item .head-tab-pointer {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        margin-left: -10px;
+        width: 0;
+        height: 0;
+        display: none;
+        border-width: 10px;
+        border-top-color: transparent;
+        border-right-color: transparent;
+        border-left-color: transparent;
+        border-bottom-color: @panel-color;
+        border-style: dashed dashed solid dashed;
+    }
 
-    .head-tab-title-item .tab-button-selection {
+    .head-tab-title .tab-button-selection {
         opacity: 1;
     }
 
-        .head-tab-title-item .tab-button-selection .head-tab-pointer {
+        .head-tab-title .tab-button-selection .head-tab-pointer {
             display: block;
         }
 
@@ -237,6 +247,8 @@ a {
 .head-ctrl-buttons-item {
     height: 100%;
     width: 48px;
+    list-style: none;
+    float: left;
     position: relative;
     overflow: visible;
     text-align: center;
@@ -245,7 +257,6 @@ a {
 .head-ctrl-button {
     position: relative;
     color: #fff;
-    font-size: 18px;
     display: inline-block;
     width: 18px;
     height: 18px;
@@ -260,7 +271,7 @@ a {
     }
 
     /* 用户头像 */
-    .head-ctrl-button #user {
+    .head-ctrl-buttons-item #user {
         height: 32px;
         width: 32px;
         color: #fff;
@@ -272,14 +283,14 @@ a {
         overflow: hidden;
     }
 
-        .head-ctrl-button #user:active {
+        .head-ctrl-buttons-item #user:active {
             opacity: .6;
         }
 
-        .head-ctrl-button #user .cover {
+        .head-ctrl-buttons-item #user .cover {
             height: 100%;
             width: 100%;
-            background: @background-color url(images/protrait.png);
+            background: @background-color;
             float: left;
             cursor: pointer;
         }

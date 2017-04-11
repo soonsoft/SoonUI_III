@@ -651,11 +651,12 @@ return window.Promise = nativePromise || uiPromise;
 // Array Faker
 
 var arrayInstance = [];
-ui.ArrayFaker = function () {
+function ArrayFaker () {
     this.setArray(this.makeArray(arguments));
     return this;
-};
-ui.ArrayFaker.prototype = {
+}
+ArrayFaker.prototype = {
+    constructor: ArrayFaker,
     isArray: function (obj) {
         return ui.core.isArray(obj);
     },
@@ -717,6 +718,8 @@ ui.ArrayFaker.prototype = {
     }
 };
 
+ui.ArrayFaker = ArrayFaker;
+
 
 })(jQuery, ui);
 
@@ -748,7 +751,9 @@ function KeyArray () {
         return new KeyArray();
     }
 };
-KeyArray.prototype = $.extend({}, ui.ArrayFaker.prototype);
+KeyArray.prototype = $.extend({
+    constructor: KeyArray
+}, ui.ArrayFaker.prototype);
 delete KeyArray.prototype.shift;
 delete KeyArray.prototype.push;
 delete KeyArray.prototype.sort;
@@ -852,6 +857,7 @@ function Introsort () {
     }
 }
 Introsort.prototype = {
+    constructor: Introsort,
     initialize: function() {
         this.keys = null;
         this.items = null;
@@ -1028,6 +1034,7 @@ Introsort.prototype = {
 };
 
 ui.Introsort = Introsort;
+
 
 })(jQuery, ui);
 
@@ -2400,11 +2407,12 @@ ui.animator = function (target, option) {
 
 (function($, ui) {
 // custom event
-ui.CustomEvent = function (target) {
+function CustomEvent (target) {
     this._listeners = {};
     this._eventTarget = target || this;
-};
-ui.CustomEvent.prototype = {
+}
+CustomEvent.prototype = {
+    constructor: CustomEvent,
     addEventListener: function (type, callback, scope, priority) {
         if (isFinite(scope)) {
             priority = scope;
@@ -2506,6 +2514,9 @@ ui.CustomEvent.prototype = {
         };
     }
 };
+
+ui.CustomEvent = CustomEvent;
+
 
 })(jQuery, ui);
 
@@ -3267,6 +3278,7 @@ ImageLoader.centerCrop = function() {
     }
 };
 ImageLoader.prototype = {
+    constructor: ImageLoader,
     initialize: function() {
         //图片路径
         this.src = null;
@@ -3313,6 +3325,7 @@ ImageLoader.prototype = {
 };
 
 ui.ImageLoader = ImageLoader;
+
 
 })(jQuery, ui);
 
@@ -3671,6 +3684,7 @@ function define(name, base, prototype, constructor) {
 function CtrlBase() {
 }
 CtrlBase.prototype = {
+    constructor: CtrlBase,
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
@@ -3801,6 +3815,7 @@ function MouseDragger(option) {
     }
 }
 MouseDragger.prototype = {
+    constructor: MouseDragger,
     initialize: function(option) {
         this.doc = document;
         this.shield = null;
@@ -3914,6 +3929,7 @@ MouseDragger.prototype = {
 };
 
 ui.MouseDragger = MouseDragger;
+
 $.fn.draggable = function(option) {
     var dragger;
     if (!option || !option.target || !option.parent) {
@@ -3977,6 +3993,7 @@ $.fn.undraggable = function() {
     }
 };
 
+
 })(jQuery, ui);
 
 // Source: ui/style-sheet.js
@@ -4012,6 +4029,7 @@ function StyleSheet(elem) {
     }
 }
 StyleSheet.prototype = {
+    constructor: StyleSheet,
     initialize: function(elem) {
         var nodeName,
             styleElement;
@@ -4136,6 +4154,7 @@ StyleSheet.createStyleSheet = function(id) {
 };
 
 ui.StyleSheet = StyleSheet;
+
 
 })(jQuery, ui);
 
