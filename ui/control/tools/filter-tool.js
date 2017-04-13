@@ -3,7 +3,7 @@ var prefix = "filter_tool";
 var filterCount = 0;
 
 ui.define("ui.ctrls.FilterTool", {
-    _defineOption: function () {
+    _getOption: function () {
         //data item is { text: "", value: "" }
         return {
             data: [],
@@ -11,8 +11,8 @@ ui.define("ui.ctrls.FilterTool", {
             filterCss: null
         };
     },
-    _defineEvents: function () {
-        return ["selected", "deselected"];
+    _getEvents: function () {
+        return ["selected", "deselect"];
     },
     _create: function () {
         var i, len, item;
@@ -85,7 +85,7 @@ ui.define("ui.ctrls.FilterTool", {
             this.current
                 .addClass("font-highlight")
                 .removeClass("background-highlight");
-            this.fire("deselected", currentItem);
+            this.fire("deselect", currentItem);
         }
 
         this.current = label;
@@ -114,7 +114,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (!this.data) {
             return;
         }
-        if (!ui.core.isNumber(index)) {
+        if (!$.isNumeric(index)) {
             index = 0;
         }
         var label;
@@ -151,7 +151,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (!this.data) {
             return;
         }
-        if (!ui.core.isNumber(index)) {
+        if (!$.isNumeric(index)) {
             index = 0;
         }
         var label;
@@ -195,7 +195,7 @@ ui.define("ui.ctrls.FilterTool", {
     }
 });
 $.fn.createFilterTools = function (option) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     return ui.ctrls.FilterTool(option, this);
