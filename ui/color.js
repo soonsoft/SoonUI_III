@@ -92,7 +92,8 @@ var color = ui.color = {
     overlay: function (color1, color2, alpha) {
         var getColor,
             arr1,
-            arr2;
+            arr2,
+            newColor;
         if (isNaN(alpha))
             alpha = .5;
 
@@ -118,7 +119,7 @@ var color = ui.color = {
         arr1 = [color1.red || 0, color1.green || 0, color1.blue || 0];
         arr2 = [color2.red || 0, color2.green || 0, color2.blue || 0];
 
-        var newColor = [];
+        newColor = [];
         for (var i = 0, l = arr1.length; i < l; i++) {
             newColor[i] = Math.floor((1 - alpha) * arr1[i] + alpha * arr2[i]);
         }
