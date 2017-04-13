@@ -1,6 +1,6 @@
 /* 扩展按钮 */
 ui.define("ui.ctrls.ExtendButton", {
-    _getOption: function() {
+    _defineOption: function() {
         return {
             buttonSize: 32,
             //centerIcon = close: 关闭按钮 | none: 中空结构 | htmlString: 提示信息
@@ -10,7 +10,7 @@ ui.define("ui.ctrls.ExtendButton", {
             parent: null
         };
     },
-    _getEvents: function() {
+    _defineEvents: function() {
         return ["showing", "showed", "hiding", "hided"];
     },
     _create: function() {
@@ -139,7 +139,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.element.addClass("extend-element");
         }
         this.parent.append(this.buttonPanel);
-        this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width"), 10) || 0;
+        this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
         this.bindShowEvent();
         this.bindHideEvent();
@@ -391,7 +391,7 @@ ui.define("ui.ctrls.ExtendButton", {
             }
         });
         
-        if($.isFunction(button.handler)) {
+        if(ui.core.isFunction(button.handler)) {
             button.elem.click(function(e) {
                 button.handler.call(that, button);
             });
