@@ -22,10 +22,10 @@ ui.define("ui.ctrls.ConfirmButton", {
             this.option.backTime = 5000;
         }
 
-        if(!$.isFunction(this.option.handler)) {
+        if(!ui.core.isFunction(this.option.handler)) {
             return;
         }
-        text = ui.str.trim(this.element.text());
+        text = this.element.text().trim();
         textState = $("<span class='text-state' />");
         confirmState = $("<i class='confirm-state' />");
         
@@ -175,8 +175,8 @@ $.fn.confirmClick = function(option) {
     if (!this || this.length == 0) {
         return null;
     }
-    if($.isFunction(option)) {
-        if($.isFunction(arguments[1])) {
+    if(ui.core.isFunction(option)) {
+        if(ui.core.isFunction(arguments[1])) {
             option = {
                 checkHandler: option,
                 handler: arguments[1]
