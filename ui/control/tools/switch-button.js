@@ -1,12 +1,12 @@
 /* 开关按钮 */
 ui.define("ui.ctrls.SwitchButton", {
-    _getOption: function() {
+    _defineOption: function() {
         return {
             readonly: false,
             style: null
         };
     },
-    _getEvents: function() {
+    _defineEvents: function() {
         return ["changed"];
     },
     _create: function() {
@@ -52,7 +52,7 @@ ui.define("ui.ctrls.SwitchButton", {
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("background-color", 
-                    ui.theme.overlay(this.beginColor, this.endColor, val / 100));
+                    ui.color.overlay(this.beginColor, this.endColor, val / 100));
             }
         }).addTarget({
             target: this.thumb,
@@ -89,7 +89,7 @@ ui.define("ui.ctrls.SwitchButton", {
         option.end = 100;
         
         option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"), 10);
+        option.begin = parseFloat(option.target.css("left"));
         option.end = this.width - this.thumb.width() - 3;
         this.animator.start();
     },
@@ -106,7 +106,7 @@ ui.define("ui.ctrls.SwitchButton", {
         option.end = 100;
         
         option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"), 10);
+        option.begin = parseFloat(option.target.css("left"));
         option.end = 3;
         
         this.animator.start();     
@@ -123,7 +123,7 @@ ui.define("ui.ctrls.SwitchButton", {
         option.end = 0;
         
         option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"), 10);
+        option.begin = parseFloat(option.target.css("left"));
         option.end = this.width - this.thumb.outerWidth();
         this.animator.start();
     },
@@ -139,7 +139,7 @@ ui.define("ui.ctrls.SwitchButton", {
         option.end = 0;
         
         option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"), 10);
+        option.begin = parseFloat(option.target.css("left"));
         option.end = 0;
         
         this.animator.start();
@@ -188,11 +188,11 @@ ui.define("ui.ctrls.SwitchButton", {
     }
 });
 $.fn.switchButton = function(option) {
-    if (!this || this.length == 0) {
+    if (this.length == 0) {
         return null;
     }
     if(this.nodeName() !== "INPUT" && this.prop("type") !== "checkbox") {
-        throw new Error("switch button must be checkbox");
+        throw new TypeError("the element is not checkbox");
     }
     return ui.ctrls.SwitchButton(option, this);
 };
