@@ -12,7 +12,7 @@ ui.define("ui.ctrls.FilterTool", {
         };
     },
     _defineEvents: function () {
-        return ["selected", "deselect"];
+        return ["selected", "deselected"];
     },
     _create: function () {
         var i, len, item;
@@ -85,7 +85,7 @@ ui.define("ui.ctrls.FilterTool", {
             this.current
                 .addClass("font-highlight")
                 .removeClass("background-highlight");
-            this.fire("deselect", currentItem);
+            this.fire("deselected", currentItem);
         }
 
         this.current = label;
