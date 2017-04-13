@@ -255,8 +255,8 @@ a:active {
   margin-top: 8px;
   margin-left: auto;
   margin-right: auto;
-  border: solid 1px transparent;
-  border-radius: 16px;
+  border: solid 1px #fff;
+  border-radius: 50%;
   overflow: hidden;
 }
 .head-ctrl-buttons-item #user:active {
@@ -265,7 +265,6 @@ a:active {
 .head-ctrl-buttons-item #user .cover {
   height: 100%;
   width: 100%;
-  background: #ffffff;
   float: left;
   cursor: pointer;
 }

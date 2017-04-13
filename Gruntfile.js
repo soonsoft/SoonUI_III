@@ -307,7 +307,11 @@ module.exports = function(grunt) {
 
     // 控件文件
     var controlFiles = [
-        "ui/control/**/*.js"
+        "ui/control/base/**/*.js",
+        "ui/control/box/**/*.js",
+        "ui/control/view/**/*.js",
+        "ui/control/tools/**/*.js",
+        "ui/control/images/**/*.js"
     ];
     var controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
