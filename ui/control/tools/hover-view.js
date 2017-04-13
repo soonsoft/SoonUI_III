@@ -2,13 +2,13 @@
 var guid = 1;
 ui.define("ui.ctrls.HoverView", {
     buffer: 30,
-    _getOption: function () {
+    _defineOption: function () {
         return {
             width: 160,
             height: 160
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["showing", "showed", "hiding", "hided"];
     },
     _create: function () {
@@ -32,10 +32,10 @@ ui.define("ui.ctrls.HoverView", {
         this.animating = false;
         this.isShow = false;
 
-        if (!$.isNumeric(this.option.width) || this.option.width <= 0) {
+        if (!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
             this.option.width = 160;
         }
-        if (!$.isNumeric(this.option.height) || this.option.height <= 0) {
+        if (!ui.core.isNumber(this.option.height) || this.option.height <= 0) {
             this.option.height = 160;
         }
 
@@ -141,14 +141,14 @@ ui.define("ui.ctrls.HoverView", {
             return;
         }
         this.hasDocMousemoveEvent = true;
-        $(document).bind("mousemove", this.onDocumentMousemove);
+        $(document).on("mousemove", this.onDocumentMousemove);
     },
     removeDocMousemove: function () {
         if (!this.hasDocMousemoveEvent) {
             return;
         }
         this.hasDocMousemoveEvent = false;
-        $(document).unbind("mousemove", this.onDocumentMousemove);
+        $(document).off("mousemove", this.onDocumentMousemove);
     },
     setLocation: function () {
         ui.setLeft(this.target, this.viewPanel);
@@ -180,7 +180,7 @@ ui.define("ui.ctrls.HoverView", {
                 left: loc.left + "px",
                 top: loc.top + "px"
             };
-            opacity = parseFloat(this.viewPanel.css("opacity"), 10);
+            opacity = parseFloat(this.viewPanel.css("opacity"));
             if (opacity < 1) {
                 css["opacity"] = 1;
                 css["filter"] = "Alpha(opacity=100)"
@@ -230,7 +230,7 @@ ui.createHoverView = function (option) {
     return ui.ctrls.HoverView(option);
 };
 $.fn.addHoverView = function (view) {
-    if (!this || this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     var that = this;
