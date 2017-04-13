@@ -1,6 +1,6 @@
 //图片局部放大查看器
 ui.define("ui.ctrls.ImageWatcher", {
-    _getOption: function () {
+    _defineOption: function () {
         return {
             position: "right",
             zoomWidth: null,
