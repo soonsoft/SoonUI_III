@@ -3,7 +3,7 @@ var prefix = "filter_tool";
 var filterCount = 0;
 
 ui.define("ui.ctrls.FilterTool", {
-    _getOption: function () {
+    _defineOption: function () {
         //data item is { text: "", value: "" }
         return {
             data: [],
@@ -11,7 +11,7 @@ ui.define("ui.ctrls.FilterTool", {
             filterCss: null
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["selected", "deselected"];
     },
     _create: function () {
@@ -114,7 +114,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (!this.data) {
             return;
         }
-        if (!$.isNumeric(index)) {
+        if (!ui.core.isNumber(index)) {
             index = 0;
         }
         var label;
@@ -151,7 +151,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (!this.data) {
             return;
         }
-        if (!$.isNumeric(index)) {
+        if (!ui.core.isNumber(index)) {
             index = 0;
         }
         var label;
@@ -195,7 +195,7 @@ ui.define("ui.ctrls.FilterTool", {
     }
 });
 $.fn.createFilterTools = function (option) {
-    if (!this || this.length == 0) {
+    if (this.length == 0) {
         return null;
     }
     return ui.ctrls.FilterTool(option, this);
