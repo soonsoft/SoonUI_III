@@ -151,6 +151,35 @@ CtrlBase.prototype = {
         }
         return target;
     },
+    mergeEvents: function(originEvents, newEvents) {
+        var temp,
+            i;
+        if(!Array.isArray(originEvents)) {
+            return newEvents;
+        }
+
+        temp = {};
+        for(i = 0, len = originEvents.length; i < len; i++) {
+            if(!temp.hasOwnProperty(originEvents[i])) {
+                temp[originEvents[i]] = true;
+            }
+        }
+
+        for(i = 0, len = newEvents.length; i < len; i++) {
+            if(!temp.hasOwnProperty(newEvents[i])) {
+                temp[newEvents[i]] = true;
+            }
+        }
+
+        newEvents = [];
+        for(i in temp) {
+            if(temp.hasOwnProperty(i)) {
+                newEvents.push(i);
+            }
+        }
+
+        return newEvents;
+    },
     _initialize: function(option, element) {
         var events;
 
