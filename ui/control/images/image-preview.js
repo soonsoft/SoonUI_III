@@ -1,6 +1,6 @@
 //图片预览视图
 ui.define("ui.ctrls.ImagePreview", {
-    _getOption: function () {
+    _defineOption: function () {
         return {
             chooserButtonSize: 16,
             imageMargin: 10,
@@ -8,7 +8,7 @@ ui.define("ui.ctrls.ImagePreview", {
             direction: "horizontal"
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["changing", "changed", "ready"];
     },
     _create: function () {
