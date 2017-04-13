@@ -1,6 +1,6 @@
 //图片轮播视图
 ui.define("ui.ctrls.ImageViewer", {
-    _getOption: function () {
+    _defineOption: function () {
         return {
             //是否显示切换
             hasSwitchButtom: false,
@@ -12,7 +12,7 @@ ui.define("ui.ctrls.ImageViewer", {
             images: []
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["changed", "ready"];
     },
     _create: function () {
