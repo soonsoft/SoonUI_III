@@ -1,6 +1,6 @@
 /* 确认按钮 */
 ui.define("ui.ctrls.ConfirmButton", {
-    _getOption: function () {
+    _defineOption: function () {
         return {
             disabled: false,
             readonly: false,
