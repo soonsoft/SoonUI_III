@@ -56,8 +56,8 @@ ui.define("ui.ctrls.Sidebar", {
         this.animator = ui.animator({
             target: this._panel,
             ease: ui.AnimationStyle.easeTo,
-            onChange: function(val, elem) {
-                elem.css("left", val + "px");
+            onChange: function(val) {
+                this.target.css("left", val + "px");
             }
         });
     },
