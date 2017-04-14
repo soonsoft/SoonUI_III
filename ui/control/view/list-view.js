@@ -1,7 +1,33 @@
 //列表
 
+// 默认的格式化器
 function defaultItemFormatter(item, index) {
     return "<span class='ui-list-view-item-text'>" + item + "</span>";
+}
+
+// 点击事件处理函数
+function onListItemClick(e) {
+    var elem,
+        isCloseButton,
+        index,
+        data;
+
+    elem = $(e.target);
+    isCloseButton = elem.hasClass("close-button");
+    while(!elem.isNodeName("li")) {
+        if(elem.hasClass("ui-list-view-ul")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    index = parseInt(elem.attr("data-index"), 10);
+    data = this.listData[index];
+    if(this.option.hasRemoveButton && isCloseButton) {
+        this._removeItem(elem, data, index);
+    } else {
+        this._selectItem(elem, data, index);
+    }
 }
 
 ui.define("ui.ctrls.ListView", {
@@ -25,7 +51,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
-        this.onListItemClickHandler = $.proxy(this.onListItemClick);
+        this.onListItemClickHandler = $.proxy(onListItemClick, this);
 
         this._init();
     },
@@ -48,16 +74,18 @@ ui.define("ui.ctrls.ListView", {
             item;
 
         this.listPanel.empty();
+        this.listData = [];
         for(i = 0, len = data.length; i < len; i++) {
             item = data[i];
             if(item === null || item === undefined) {
                 continue;
             }
-            this._createItem(builder, item, i);
+            this._createItemHtml(builder, item, i);
+            this.listData.push(item);
         }
         this.listPanel.html(itemBuilder.join(""));
     },
-    _createItem: function(builder, item, index) {
+    _createItemHtml: function(builder, item, index) {
         var content,
             index,
             temp;
@@ -96,12 +124,42 @@ ui.define("ui.ctrls.ListView", {
         }
         builder.push("</li>");
     },
+    _createItem: function(item, index) {
+        var li = $("<li class='ui-list-view-item'>"),
+            content = this.option.itemFormatter.call(this, item, index);
+        
+        // 添加class
+        if(ui.core.isString(content.class)) {
+            li.addClass(content.class);
+        } else if(Array.isArray(content.class)) {
+            li.addClass(content.class.join(" "));
+        }
+        // 添加style
+        if(content.style && !ui.core.isEmptyObject(content.style)) {
+            li.css(content.style);
+        }
+        // 添加内容
+        li.html(content.html);
+
+        return li;
+    },
 
     /// API
+    /** 重新设置数据 */
     setData: function(data) {
         if(Array.isArray(data)) {
             this._fill(data);
         }
-    }
+    },
+    /** 添加 */
+    add: function(item) {
+        var li;
+        if(!item) {
+            return;
+        }
 
+        li = this._createItem(item, this.listData.length);
+        this.listPanel.append(li);
+        this.listData.push(item);
+    }
 });
