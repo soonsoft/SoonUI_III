@@ -1,7 +1,7 @@
 //列表
 
-function defaultItemFormatter() {
-
+function defaultItemFormatter(item, index) {
+    return "<span class='ui-list-view-item-text'>" + item + "</span>";
 }
 
 ui.define("ui.ctrls.ListView", {
