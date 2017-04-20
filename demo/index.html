@@ -6,9 +6,6 @@
 
     <link type="text/css" href="../dist/theme/light/site.Light.css" rel="stylesheet" />
     <link id="theme" type="text/css" href="../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
-
-    <script type="text/javascript" src="../jquery.js"></script>
-    <script type="text/javascript" src="../dist/ui.core.3.0.0.js"></script>
 </head>
 <body>
     <header id="head" class="head-color clear">
@@ -36,5 +33,34 @@
     <section id="body">
         <div class="toolbar clear"></div>
     </section>
+
+
+    <script type="text/javascript" src="../jquery.js"></script>
+    <script type="text/javascript" src="../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript">
+        ui.master.init();
+        (function() {
+            var pageLogic = window.pageLogic = {
+                init: {
+                    before: function() {
+                        console.log(ui.master.contentBodyHeight);
+                    },
+                    layout: function() {
+
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+
+                    }
+                }
+            };
+        })();
+    </script>
 </body>
 </html>

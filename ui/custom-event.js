@@ -12,7 +12,7 @@ CustomEvent.prototype = {
         }
         priority = priority || 0;
         var list = this._listeners[type], index = 0, listener, i;
-        if (list === null) {
+        if (!list) {
             this._listeners[type] = list = [];
         }
         i = list.length;

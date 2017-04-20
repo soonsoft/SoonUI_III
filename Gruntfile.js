@@ -323,9 +323,9 @@ module.exports = function(grunt) {
 
     // 视图文件
     var viewFiles = [
-        "ui/view/**/*.js"
+        "ui/viewpage/**/*.js"
     ];
-    var viewDestFile = "dist/ui-views.<%= pkg.version %>.js";
+    var viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
     
     var wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {
@@ -484,7 +484,7 @@ module.exports = function(grunt) {
     // 在命令行上输入"grunt test"，test task就会被执行。
     grunt.registerTask("test", ["jshint", "qunit"]);
     // 在命令行上输入"grunt"，就会执行default task
-    grunt.registerTask("default", ["clean", "less:production", "concat"]);
+    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat"]);
     // 在命令行上输入"grunt release，就会执行"
     grunt.registerTask("release", ["clean", "less:devlopment", "concat", "uglify"]);
 };

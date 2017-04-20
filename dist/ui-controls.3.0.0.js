@@ -281,412 +281,6 @@ ui.ctrls.DropDownBase.hideAll = hideAll;
 
 })(jQuery, ui);
 
-// Source: ui/control/base/pager.js
-
-(function($, ui) {
-//控件分页逻辑，GridView, ReportView, flowView
-var pageHashPrefix = "page";
-function Pager(option) {
-    if(!option) {
-        option = {};
-    }
-    this.pageNumPanel = null;
-    this.pageInfoPanel = null;
-
-    this.pageButtonCount = 5;
-    this.pageIndex = 1;
-    this.pageSize = 100;
-
-    this.data = [];
-    this.pageInfoFormatter = option.pageInfoFormatter;
-
-    if ($.isNumeric(option.pageIndex) && option.pageIndex > 0) {
-        this.pageIndex = option.pageIndex;
-    }
-    if ($.isNumeric(option.pageSize) || option.pageSize > 0) {
-        this.pageSize = option.pageSize;
-    }
-    if ($.isNumeric(option.pageButtonCount) || option.pageButtonCount > 0) {
-        this.pageButtonCount = option.pageButtonCount;
-    }
-    this._ex = Math.floor((this.pageButtonCount - 1) / 2);
-}
-Pager.prototype = {
-    constructor: Pager,
-    renderPageList: function (rowCount) {
-        var pageInfo = this._createPageInfo();
-        if (!$.isNumeric(rowCount) || rowCount < 1) {
-            if (this.data) {
-                rowCount = this.data.length || 0;
-            } else {
-                rowCount = 0;
-            }
-        }
-        pageInfo.pageIndex = this.pageIndex;
-        pageInfo.pageSize = this.pageSize;
-        pageInfo.rowCount = rowCount;
-        pageInfo.pageCount = Math.floor((rowCount + this.pageSize - 1) / this.pageSize);
-        if (this.pageInfoPanel) {
-            this.pageInfoPanel.html("");
-            this._showRowCount(pageInfo);
-        }
-        this._renderPageButton(pageInfo.pageCount);
-        if (pageInfo.pageCount) {
-            this._checkAndSetDefaultPageIndexHash(this.pageIndex);
-        }
-    },
-    _showRowCount: function (pageInfo) {
-        var dataCount = (this.data) ? this.data.length : 0;
-        if (pageInfo.pageCount == 1) {
-            pageInfo.currentRowNum = pageInfo.rowCount < pageInfo.pageSize ? pageInfo.rowCount : pageInfo.pageSize;
-        } else {
-            pageInfo.currentRowNum = dataCount < pageInfo.pageSize ? dataCount : pageInfo.pageSize;
-        }
-        
-        if(this.pageInfoFormatter) {
-            for(var key in this.pageInfoFormatter) {
-                if(this.pageInfoFormatter.hasOwnProperty(key) && $.isFunction(this.pageInfoFormatter[key])) {
-                    this.pageInfoPanel
-                            .append(this.pageInfoFormatter[key].call(this, pageInfo[key]));
-                }
-            }
-        }
-    },
-    _createPageInfo: function() {
-        return {
-            rowCount: -1,
-            pageCount: -1,
-            pageIndex: -1,
-            pageSize: -1,
-            currentRowNum: -1
-        }; 
-    },
-    _renderPageButton: function (pageCount) {
-        if (!this.pageNumPanel) return;
-        this.pageNumPanel.empty();
-
-        //添加页码按钮
-        var start = this.pageIndex - this._ex;
-        start = (start < 1) ? 1 : start;
-        var end = start + this.pageButtonCount - 1;
-        end = (end > pageCount) ? pageCount : end;
-        if ((end - start + 1) < this.pageButtonCount) {
-            if ((end - (this.pageButtonCount - 1)) > 0) {
-                start = end - (this.pageButtonCount - 1);
-            }
-            else {
-                start = 1;
-            }
-        }
-
-        //当start不是从1开始时显示带有特殊标记的首页
-        if (start > 1)
-            this.pageNumPanel.append(this._createPageButton("1..."));
-        for (var i = start, btn; i <= end; i++) {
-            if (i == this.pageIndex) {
-                btn = this._createCurrentPage(i);
-            } else {
-                btn = this._createPageButton(i);
-            }
-            this.pageNumPanel.append(btn);
-        }
-        //当end不是最后一页时显示带有特殊标记的尾页
-        if (end < pageCount)
-            this.pageNumPanel.append(this._createPageButton("..." + pageCount));
-    },
-    _createPageButton: function (pageIndex) {
-        return "<a class='pager-button font-highlight-hover'>" + pageIndex + "</a>";
-    },
-    _createCurrentPage: function (pageIndex) {
-        return "<span class='pager-current font-highlight'>" + pageIndex + "</span>";
-    },
-    pageChanged: function(eventHandler, eventCaller) {
-        var that;
-        if(this.pageNumPanel && $.isFunction(eventHandler)) {
-            eventCaller = eventCaller || ui;
-            this.pageChangedHandler = function() {
-                eventHandler.call(eventCaller, this.pageIndex, this.pageSize);
-            };
-            that = this;
-            if(!ui.core.ie || ui.core.ie >= 8) {
-                ui.hashchange(function(e, hash) {
-                    if(that._breakHashChanged) {
-                        that._breakHashChanged = false;
-                        return;
-                    }
-                    if(!that._isPageHashChange(hash)) {
-                        return;
-                    }
-                    that.pageIndex = that._getPageIndexByHash(hash);
-                    that.pageChangedHandler();
-                });
-            }
-            this.pageNumPanel.click(function(e) {
-                var btn = $(e.target);
-                if (btn.nodeName() !== "A")
-                    return;
-                var num = btn.text();
-                num = num.replace("...", "");
-                num = parseInt(num, 10);
-
-                that.pageIndex = num;
-                if (!ui.core.ie || ui.core.ie >= 8) {
-                    that._setPageHash(that.pageIndex);
-                }
-                that.pageChangedHandler();
-            });
-        }
-    },
-    empty: function() {
-        if(this.pageNumPanel) {
-            this.pageNumPanel.html("");
-        }
-        if(this.pageInfoPanel) {
-            this.pageInfoPanel.html("");
-        }
-        this.data = [];
-        this.pageIndex = 1;
-    },
-    _setPageHash: function(pageIndex) {
-        if(!pageIndex) {
-            return;
-        }
-        
-        this._breakHashChanged = true;
-        window.location.hash = pageHashPrefix + "=" + pageIndex;
-    },
-    _isPageHashChange: function(hash) {
-        var index = 0;
-        if(!hash) {
-            return false;
-        }
-        if(hash.charAt(0) === "#") {
-            index = 1;
-        }
-        return hash.indexOf(pageHashPrefix) == index;
-    },
-    _getPageIndexByHash: function(hash) {
-        var pageIndex,
-            index;
-        if(hash) {
-            index = hash.indexOf("=");
-            if(index >= 0) {
-                pageIndex = hash.substring(index + 1, hash.length);
-                return parseInt(pageIndex, 10);
-            }
-        }
-        return 1;
-    },
-    _checkAndSetDefaultPageIndexHash: function (pageIndex) {
-        var hash = window.location.hash;
-        var len = hash.length;
-        if (hash.charAt(0) === "#")
-            len--;
-        if (len <= 0) {
-            this._setPageHash(pageIndex);
-        }
-    }
-};
-
-ui.ctrls.Pager = Pager;
-
-
-})(jQuery, ui);
-
-// Source: ui/control/base/sidebar.js
-
-(function($, ui) {
-//侧滑面板基类
-ui.define("ui.ctrls.Sidebar", {
-    showTimeValue: 300,
-    hideTimeValue: 300,
-    _defineOption: function() {
-        return {
-            parent: null,
-            width: 240
-        };
-    },
-    _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided", "resize"];
-    },
-    _create: function() {
-        var that = this;
-
-        this._showClass = "sidebar-show";
-        
-        this.parent = ui.getJQueryElement(this.option.parent);
-        this._panel = $("<aside class='sidebar-panel border-highlight' />");
-        this._panel.css("width", this.width + "px");
-        
-        this._closeButton = $("<button class='icon-button' />");
-        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
-        this._closeButton.css({
-            "position": "absolute",
-            "top": "6px",
-            "right": "10px",
-            "z-index": 999
-        });
-        
-        this.height = 0;
-        this.width = this.option.width || 240;
-        this.borderWidth = 0;
-
-        this.parent.append(this._panel);
-        if(this.element) {
-            this._panel.append(this.element);
-        }
-        this._closeButton.click(function(e) {
-            that.hide();
-        });
-        this._panel.append(this._closeButton);
-        
-        this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
-        this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
-        
-        //进入异步调用，给resize事件绑定的时间
-        setTimeout(function() {
-            that.setSizeLocation();
-        });
-        ui.resize(function() {
-            that.setSizeLocation();
-        }, ui.eventPriority.ctrlResize);
-        
-        this.animator = ui.animator({
-            target: this._panel,
-            ease: ui.AnimationStyle.easeTo,
-            onChange: function(val) {
-                this.target.css("left", val + "px");
-            }
-        });
-    },
-    set: function (elem) {
-        if(this.element) {
-            this.element.remove();
-        }
-        if(ui.core.isDomObject(elem)) {
-            elem = $(elem);
-        } else if(!ui.core.isJQueryObject(elem)) {
-            return;
-        }
-        this.element = elem;
-        this._closeButton.before(elem);
-    },
-    append: function(elem) {
-        if(ui.core.isDomObject(elem)) {
-            elem = $(elem);
-        } else if(!ui.core.isJQueryObject(elem)) {
-            return;
-        }
-        this._panel.append(elem);
-        if(!this.element) {
-            this.element = elem;
-        }
-    },
-    setSizeLocation: function(width, resizeFire) {
-        var parentWidth = this.parent.width(),
-            parentHeight = this.parent.height();
-        
-        this.height = parentHeight;
-        var sizeCss = {
-            height: this.height + "px"
-        };
-        var right = this.width;
-        if ($.isNumeric(width)) {
-            this.width = width;
-            sizeCss["width"] = this.width + "px";
-            right = width;
-        }
-        this.hideLeft = parentWidth;
-        this.left = parentWidth - this.width - this.borderWidth;
-        this._panel.css(sizeCss);
-        if (this.isShow()) {
-            this._panel.css({
-                "left": this.left + "px",
-                "display": "block"
-            });
-        } else {
-            this._panel.css({
-                "left": this.hideLeft + "px",
-                "display": "none"
-            });
-        }
-        
-        if(resizeFire !== false) {
-            this.fire("resize", this.width, this.height);
-        }
-    },
-    isShow: function() {
-        return this._panel.hasClass(this._showClass);
-    },
-    show: function() {
-        var op, 
-            that = this,
-            i, len;
-        if(!this.isShow()) {
-            this.animator.stop();
-            this.animator.splice(1, this.length - 1);
-            this.animator.duration = this.showTimeValue;
-            
-            op = this.animator[0];
-            op.target.css("display", "block");
-            op.target.addClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.hideLeft;
-            op.end = this.left;
-
-            for(i = 0, len = arguments.length; i < len; i++) {
-                if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
-                }
-            }
-
-            this.animator.onBegin = function() {
-                that.fire("showing");
-            };
-            this.animator.onEnd = function() {
-                this.splice(1, this.length - 1);
-                that.fire("showed");
-            };
-            return this.animator.start();
-        }
-        return null;
-    },
-    hide: function() {
-        var op,
-            that = this,
-            i, len;
-        if(this.isShow()) {
-            this.animator.stop();
-            this.animator.splice(1, this.length - 1);
-            this.animator.duration = this.hideTimeValue;
-            
-            op = this.animator[0];
-            op.target.removeClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.left;
-            op.end = this.hideLeft;
-            
-            for(i = 0, len = arguments.length; i < len; i++) {
-                if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
-                }
-            }
-
-            this.animator.onBegin = function() {
-                that.fire("hiding");
-            };
-            this.animator.onEnd = function() {
-                this.splice(1, this.length - 1);
-                op.target.css("display", "none");
-                that.fire("hided");
-            };
-            return this.animator.start();
-        }
-        return null;
-    }
-});
-
-
-})(jQuery, ui);
-
 // Source: ui/control/box/dialog-box.js
 
 (function($, ui) {
@@ -740,8 +334,34 @@ ui.define("ui.ctrls.Sidebar", {
 (function($, ui) {
 //列表
 
-function defaultItemFormatter() {
+// 默认的格式化器
+function defaultItemFormatter(item, index) {
+    return "<span class='ui-list-view-item-text'>" + item + "</span>";
+}
 
+// 点击事件处理函数
+function onListItemClick(e) {
+    var elem,
+        isCloseButton,
+        index,
+        data;
+
+    elem = $(e.target);
+    isCloseButton = elem.hasClass("close-button");
+    while(!elem.isNodeName("li")) {
+        if(elem.hasClass("ui-list-view-ul")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    index = parseInt(elem.attr("data-index"), 10);
+    data = this.listData[index];
+    if(this.option.hasRemoveButton && isCloseButton) {
+        this._removeItem(elem, data, index);
+    } else {
+        this._selectItem(elem, data, index);
+    }
 }
 
 ui.define("ui.ctrls.ListView", {
@@ -765,7 +385,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
-        this.onListItemClickHandler = $.proxy(this.onListItemClick);
+        this.onListItemClickHandler = $.proxy(onListItemClick, this);
 
         this._init();
     },
@@ -788,16 +408,18 @@ ui.define("ui.ctrls.ListView", {
             item;
 
         this.listPanel.empty();
+        this.listData = [];
         for(i = 0, len = data.length; i < len; i++) {
             item = data[i];
             if(item === null || item === undefined) {
                 continue;
             }
-            this._createItem(builder, item, i);
+            this._createItemHtml(builder, item, i);
+            this.listData.push(item);
         }
         this.listPanel.html(itemBuilder.join(""));
     },
-    _createItem: function(builder, item, index) {
+    _createItemHtml: function(builder, item, index) {
         var content,
             index,
             temp;
@@ -836,14 +458,44 @@ ui.define("ui.ctrls.ListView", {
         }
         builder.push("</li>");
     },
+    _createItem: function(item, index) {
+        var li = $("<li class='ui-list-view-item'>"),
+            content = this.option.itemFormatter.call(this, item, index);
+        
+        // 添加class
+        if(ui.core.isString(content.class)) {
+            li.addClass(content.class);
+        } else if(Array.isArray(content.class)) {
+            li.addClass(content.class.join(" "));
+        }
+        // 添加style
+        if(content.style && !ui.core.isEmptyObject(content.style)) {
+            li.css(content.style);
+        }
+        // 添加内容
+        li.html(content.html);
+
+        return li;
+    },
 
     /// API
+    /** 重新设置数据 */
     setData: function(data) {
         if(Array.isArray(data)) {
             this._fill(data);
         }
-    }
+    },
+    /** 添加 */
+    add: function(item) {
+        var li;
+        if(!item) {
+            return;
+        }
 
+        li = this._createItem(item, this.listData.length);
+        this.listPanel.append(li);
+        this.listData.push(item);
+    }
 });
 
 
@@ -853,6 +505,13 @@ ui.define("ui.ctrls.ListView", {
 
 (function($, ui) {
 // ReportView
+
+
+})(jQuery, ui);
+
+// Source: ui/control/view/tab-view.js
+
+(function($, ui) {
 
 
 })(jQuery, ui);

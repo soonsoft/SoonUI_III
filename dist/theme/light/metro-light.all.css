@@ -359,6 +359,25 @@
 	Color: #ffffff
 	Name: 光明
 */
+.ui-list-view {
+  overflow: auto;
+}
+.ui-list-view-ul {
+  width: 100%;
+  height: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ui-list-view-item {
+  width: 100%;
+  position: relative;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
 /********* Switch Button ***********/
 .switch-button {
   display: inline-block;

@@ -34,7 +34,7 @@ $(document)
 $(window)
     //注册全局resize事件
     .on("resize", function (e) {
-        ui.fire("resize", 
+        page.fire("resize", 
             document.documentElement.clientWidth, 
             document.documentElement.clientHeight);
     })
