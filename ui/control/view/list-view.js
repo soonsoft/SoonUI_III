@@ -18,7 +18,6 @@ function defaultSortFn(a, b) {
         return 0;
     }
 }
-
 // 点击事件处理函数
 function onListItemClick(e) {
     var elem,
