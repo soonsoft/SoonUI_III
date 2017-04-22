@@ -158,7 +158,7 @@ ui.define("ui.ctrls.ListView", {
         builder.push("</li>");
     },
     _createItem: function(item, index) {
-        var li = $("<li class='ui-list-view-item'>"),
+        var li = $("<li class='ui-list-view-item' />"),
             content = this.option.itemFormatter.call(this, item, index);
         
         li.attr(indexAttr, index);
