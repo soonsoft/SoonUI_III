@@ -1,4 +1,4 @@
-// text
+// string util
 
 var textEmpty = "";
 // text format
@@ -71,6 +71,8 @@ var _utf8_decode = function (utftext) {
 ui.str = {
     /** 空字符串 */
     empty: textEmpty,
+    /** 字符串遍历，通过[ ]和[,]分割 */
+    each: ui.core.each,
     /** 去空格 */
     trim: function (str) {
         if (!ui.core.isString(str)) {
