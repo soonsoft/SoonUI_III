@@ -1,4 +1,4 @@
-//列表
+//list view
 
 var indexAttr = "data-index";
 var selectionClass = "ui-list-view-item-selection";
@@ -48,7 +48,7 @@ ui.define("ui.ctrls.ListView", {
             // 支持多选
             multiple: false,
             // 数据集
-            data: null,
+            viewData: null,
             // 数据项格式化器
             itemFormatter: false,
             // 是否要显示删除按钮
@@ -61,7 +61,7 @@ ui.define("ui.ctrls.ListView", {
         return ["selecting", "selected", "deselected", "cancel", "removing", "removed"];
     },
     _create: function() {
-        this.listData = [];
+        this.viewData = [];
         this._selectList = [];
         this.sorter = Introsort();
 
@@ -82,7 +82,7 @@ ui.define("ui.ctrls.ListView", {
         this.element.append(this.listPanel);
 
         this._initAnimator();
-        this.setData(this.option.data);
+        this.setData(this.option.viewData);
     },
     _initAnimator: function() {
         // 删除动画
@@ -107,14 +107,14 @@ ui.define("ui.ctrls.ListView", {
             item;
 
         this.listPanel.empty();
-        this.listData = [];
+        this.viewData = [];
         for(i = 0, len = data.length; i < len; i++) {
             item = data[i];
             if(item === null || item === undefined) {
                 continue;
             }
             this._createItemHtml(builder, item, i);
-            this.listData.push(item);
+            this.viewData.push(item);
         }
         this.listPanel.html(itemBuilder.join(""));
     },
@@ -179,8 +179,8 @@ ui.define("ui.ctrls.ListView", {
     },
     _indexOf: function(item) {
         var i, len;
-        for(i = 0, len = this.listData.length; i > len; i++) {
-            if(item === this.listData[i]) {
+        for(i = 0, len = this.viewData.length; i > len; i++) {
+            if(item === this.viewData[i]) {
                 return i;
             }
         }
@@ -198,7 +198,7 @@ ui.define("ui.ctrls.ListView", {
     _getSelectionData: function(li) {
         var index = this._getItemIndex(li);
         var data = {};
-        data.itemData = this.listData[index];
+        data.itemData = this.viewData[index];
         data.itemIndex = index;
         return data;
     },
@@ -243,7 +243,7 @@ ui.define("ui.ctrls.ListView", {
             
             this.fire("removed", eventData);
             elem.remove();
-            this.listData.splice(index, 1);
+            this.viewData.splice(index, 1);
         };
 
         if(this.option.animatable === false) {
@@ -349,9 +349,9 @@ ui.define("ui.ctrls.ListView", {
             return;
         }
 
-        li = this._createItem(item, this.listData.length);
+        li = this._createItem(item, this.viewData.length);
         this.listPanel.append(li);
-        this.listData.push(item);
+        this.viewData.push(item);
     },
     /** 根据数据项移除 */
     remove: function(item) {
@@ -382,7 +382,7 @@ ui.define("ui.ctrls.ListView", {
         if(index < 0) {
             index = 0;
         }
-        if(index >= this.listData.length) {
+        if(index >= this.viewData.length) {
             this.add(item);
             return;
         }
@@ -394,7 +394,7 @@ ui.define("ui.ctrls.ListView", {
             this._itemIndexAdd(liList[i], 1);
         }
         newLi.insertBefore(li);
-        this.listData.splice(index, 0, item);
+        this.viewData.splice(index, 0, item);
     },
     /** 上移 */
     currentUp: function() {
@@ -457,9 +457,9 @@ ui.define("ui.ctrls.ListView", {
             this._itemIndexSet(sourceLi[0], destIndex);
             destLi.before(sourceLi);
         }
-        item = this.listData[sourceIndex];
-        this.listData.splice(sourceIndex, 1);
-        this.listData.splice(destIndex, 0, item);
+        item = this.viewData[sourceIndex];
+        this.viewData.splice(sourceIndex, 1);
+        this.viewData.splice(destIndex, 0, item);
     },
     /** 获取选中项 */
     getSelection: function() {
@@ -542,7 +542,7 @@ ui.define("ui.ctrls.ListView", {
         }
         liList = this.listPanel.children();
         this.sorter.items = liList;
-        this.sorter.sort(this.listData, fn);
+        this.sorter.sort(this.viewData, fn);
 
         fragment = document.createDocumentFragment();
         for(i = 0, len = liList.length; i < len; i++) {
@@ -554,11 +554,11 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 获取项目数 */
     count: function() {
-        return this.listData.length;
+        return this.viewData.length;
     },
     /** 清空列表 */
     clear: function() {
-        this.listData = [];
+        this.viewData = [];
         this.listPanel.empty();
         this._current = null;
         this._selectList = [];
