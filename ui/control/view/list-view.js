@@ -564,3 +564,10 @@ ui.define("ui.ctrls.ListView", {
         this._selectList = [];
     }
 });
+
+$.fn.createListView = function(option) {
+    if(this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.ListView(option, this);
+};
