@@ -58,11 +58,18 @@ var head = DOC.head || DOC.getElementsByTagName("head")[0];
 var rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/;
 var isTouchAvailable = "ontouchstart" in window;
 
+// 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
+core.each = function(text, fn) {
+    text.replace(rword, fn);
+};
+
 // 数据类型处理
 var typeStr = "Boolean Number String Function Array Date RegExp Object Error";
-typeStr.replace(rword, function (name) {
+core.each(typeStr, function (name) {
     class2type["[object " + name + "]"] = name.toLowerCase();
 });
+
+// 获取对象的类型
 core.type = function(obj) {
     if (obj === null) {
         return String(obj);
@@ -72,11 +79,13 @@ core.type = function(obj) {
             class2type[serialize.call(obj)] || "object" :
             typeof obj;
 };
-typeStr.replace(rword, function (name) {
+// 生成isXXX方法
+core.each(typeStr, function (name) {
     core["is" + name] = function() {
         return core.type.apply(core, arguments) === name.toLowerCase();
     };
 });
+
 // 重写isNumber实现
 core.isNumber = function(obj) {
     var type = core.type(obj);
