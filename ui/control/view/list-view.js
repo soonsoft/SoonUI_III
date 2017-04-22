@@ -35,21 +35,26 @@ function onListItemClick(e) {
     }
 
     index = this._getItemIndex(elem[0]);
-    data = this.listData[index];
     if(this.option.hasRemoveButton && isCloseButton) {
-        this._removeItem(elem, data, index);
+        this._removeItem(elem, index);
     } else {
-        this._selectItem(elem, data, index);
+        this._selectItem(elem, index);
     }
 }
 
 ui.define("ui.ctrls.ListView", {
     _defineOption: function() {
         return {
+            // 支持多选
             multiple: false,
+            // 数据集
             data: null,
+            // 数据项格式化器
             itemFormatter: false,
-            hasRemoveButton: false
+            // 是否要显示删除按钮
+            hasRemoveButton: false,
+            // 是否开启动画效果
+            animatable: true
         };
     },
     _defineEvents: function() {
@@ -80,7 +85,21 @@ ui.define("ui.ctrls.ListView", {
         this.setData(this.option.data);
     },
     _initAnimator: function() {
-        // TODO Something
+        // 删除动画
+        this.removeFirstAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("margin-left", val + "px");
+            }
+        });
+        this.removeFirstAnimator.duration = 300;
+        this.removeSecondAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("height", val + "px");
+            }
+        });
+        this.removeSecondAnimator.duration = 300;
     },
     _fill: function(data) {
         var i, len,
@@ -183,13 +202,85 @@ ui.define("ui.ctrls.ListView", {
         data.itemIndex = index;
         return data;
     },
-    _selectItem: function(elem, item, index, checked, isFire) {
+    _removeItem: function(elem, index) {
+        var that = this,
+            doRemove,
+            eventData,
+            result,
+            option;
+        
+        eventData = this._getSelectionData(elem[0]);
+        eventData.itemElement = elem;
+        eventData.originElement = elem.context ? $(elem.context) : null;
+
+        result = this.fire("removing", eventData);
+        if(result === false) return;
+
+        if(arguments.length === 1) {
+            index = this._getItemIndex(elem[0]);
+        }
+        doRemove = function() {
+            var nextLi = elem.next(),
+                i;
+            // 修正索引
+            while(nextLi.length > 0) {
+                this._itemIndexAdd(nextLi[0], -1);
+                nextLi = nextLi.next();
+            }
+            // 检查已选择的项目
+            if(this.option.multiple === true) {
+                for(i = 0; i < this._selectList.length; i++) {
+                    if(elem[0] === this._selectList[i]) {
+                        this._selectList(i, 1);
+                        break;
+                    }
+                }
+            } else {
+                if(this._current && this._current[0] === elem[0]) {
+                    this._current = null;
+                }
+            }
+            
+            this.fire("removed", eventData);
+            elem.remove();
+            this.listData.splice(index, 1);
+        };
+
+        if(this.option.animatable === false) {
+            doRemove.call(this);
+            return;
+        }
+
+        option = this.removeFirstAnimator[0];
+        option.target = elem;
+        option.begin = 0;
+        option.end = -(option.target.width());
+
+        option = this.removeSecondAnimator[0];
+        option.target = elem;
+        option.begin = option.target.height();
+        option.end = 0;
+        option.target.css({
+            "height": option.begin + "px",
+            "overflow": "hidden"
+        });
+
+        this.removeFirstAnimator
+            .start()
+            .done(function() {
+                return that.removeSecondAnimator.start();
+            })
+            .done(function() {
+                doRemove.call(that);
+            });
+    },
+    _selectItem: function(elem, index, checked, isFire) {
         var eventData,
             result,
             i;
         eventData = this._getSelectionData(elem[0]);
         eventData.itemElement = elem;
-        eventData.originElement = $(elem.context);
+        eventData.originElement = elem.context ? $(elem.context) : null;
 
         result = this.fire("selecting", eventData);
         if(result === false) return;
@@ -244,7 +335,6 @@ ui.define("ui.ctrls.ListView", {
         }
     },
 
-
     /// API
     /** 重新设置数据 */
     setData: function(data) {
@@ -273,19 +363,15 @@ ui.define("ui.ctrls.ListView", {
     removeAt: function(index) {
         var li,
             liList,
-            i;
-        if(index >= 0 && index < this.listData.length) {
-            liList = this.listPanel.children();
-            li = $(liList[index]);
-            if(this._current && this._current[0] === li[0]) {
-                this._current = null;
-            }
-            for(i = index + 1; i < liList.length; i++) {
-                this._itemIndexAdd(liList[i], -1);
-            }
-            li.remove();
-            this.listData.splice(index, 1);
+            that = this,
+            doRemove,
+            eventData;
+        if(index < 0 || index >= this.count()) {
+            return;
         }
+        
+        li = $(this.listPanel.children()[index]);
+        this._removeItem(li);
     },
     /** 插入数据项 */
     insert: function(item, index) {
@@ -417,7 +503,7 @@ ui.define("ui.ctrls.ListView", {
             index = indexes[i];
             li = liList[index];
             if(li) {
-                this._selectItem($(li), this.listData[index], index, true, !(i < len - 1));
+                this._selectItem($(li), index, true, !(i < len - 1));
             }
         }
     },
@@ -444,7 +530,10 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 排序 */
     sort: function(fn) {
-        var liList;
+        var liList,
+            fragment,
+            i, 
+            len;
         if(this.count() === 0) {
             return;
         }
@@ -452,10 +541,16 @@ ui.define("ui.ctrls.ListView", {
             fn = defaultSortFn;
         }
         liList = this.listPanel.children();
-        this.sorter.items = this.listData;
-        this.sorter.sort();
+        this.sorter.items = liList;
+        this.sorter.sort(this.listData, fn);
 
-        // TODO 排序做法需要再考虑考虑
+        fragment = document.createDocumentFragment();
+        for(i = 0, len = liList.length; i < len; i++) {
+            this._itemIndexSet(liList[i], i);
+            fragment.appendChild(liList[i]);
+        }
+        this.listPanel.empty();
+        this.listPanel[0].appendChild(fragment);
     },
     /** 获取项目数 */
     count: function() {
