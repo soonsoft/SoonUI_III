@@ -1,32 +1,39 @@
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
-    if(!option) {
-        option = {};
+    if(this instanceof Pager) {
+        this.initialize(option);
+    } else {
+        return new Pager(option);
     }
-    this.pageNumPanel = null;
-    this.pageInfoPanel = null;
-
-    this.pageButtonCount = 5;
-    this.pageIndex = 1;
-    this.pageSize = 100;
-
-    this.data = [];
-    this.pageInfoFormatter = option.pageInfoFormatter;
-
-    if ($.isNumeric(option.pageIndex) && option.pageIndex > 0) {
-        this.pageIndex = option.pageIndex;
-    }
-    if ($.isNumeric(option.pageSize) || option.pageSize > 0) {
-        this.pageSize = option.pageSize;
-    }
-    if ($.isNumeric(option.pageButtonCount) || option.pageButtonCount > 0) {
-        this.pageButtonCount = option.pageButtonCount;
-    }
-    this._ex = Math.floor((this.pageButtonCount - 1) / 2);
 }
 Pager.prototype = {
     constructor: Pager,
+    initialize: function(option) {
+        if(!option) {
+            option = {};
+        }
+        this.pageNumPanel = null;
+        this.pageInfoPanel = null;
+
+        this.pageButtonCount = 5;
+        this.pageIndex = 1;
+        this.pageSize = 100;
+
+        this.data = [];
+        this.pageInfoFormatter = option.pageInfoFormatter;
+
+        if ($.isNumeric(option.pageIndex) && option.pageIndex > 0) {
+            this.pageIndex = option.pageIndex;
+        }
+        if ($.isNumeric(option.pageSize) || option.pageSize > 0) {
+            this.pageSize = option.pageSize;
+        }
+        if ($.isNumeric(option.pageButtonCount) || option.pageButtonCount > 0) {
+            this.pageButtonCount = option.pageButtonCount;
+        }
+        this._ex = Math.floor((this.pageButtonCount - 1) / 2);
+    },
     renderPageList: function (rowCount) {
         var pageInfo = this._createPageInfo();
         if (!$.isNumeric(rowCount) || rowCount < 1) {
