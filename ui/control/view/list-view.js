@@ -552,6 +552,12 @@ ui.define("ui.ctrls.ListView", {
         this.listPanel.empty();
         this.listPanel[0].appendChild(fragment);
     },
+    /** 获取视图数据 */
+    getViewData: function() {
+        return Array.isArray(this.option.viewData) 
+            ? this.option.viewData 
+            : [];
+    },
     /** 获取项目数 */
     count: function() {
         return this.viewData.length;
