@@ -37,7 +37,7 @@ columnFormatter = {
         span.text(value);
         return span;
     },
-    empty: function () {
+    empty: function (col) {
         return null;
     }
 };
@@ -45,18 +45,42 @@ columnFormatter = {
 // 单元格格式化器
 cellFormatter = {
     defaultText: function (val, col) {
-        var t = val + "",
-            span = null;
-        if (t === "undefined" || t === "null" || t === "NaN")
+        var span;
+        if (val === undefined || val === null || isNaN(val)) {
             return null;
+        }
         span = $("<span class='table-cell-text' />");
-        span.text(t);
+        span.text(t + "");
         return span;
     },
     empty: function (val, col) {
         return null;
     },
+    rowNumber: function (val, col, idx) {
+        var span;
+        if(val === "no-count") {
+            return null;
+        }
+        span = $("<span />");
+        span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
+        return span;
+    },
+    paragraph: function (val, col) {
+        var p;
+        if(val === undefined || val === null || isNaN(val)) {
+            return null;
+        }
+        p = $("<p class='table-cell-block' />")
+        p.text(val + "");
+        return p;
+    }
 };
 
 // 带参数的单元格格式化器
 cellParameterFormatter = {};
+
+ui.ColumnStyle = {
+    cnfn: columnFormatter,
+    cfn: cellFormatter,
+    cfnp: cellParameterFormatter
+};
