@@ -126,7 +126,11 @@ ui.define("ui.ctrls.GridView", {
         };
     },
     _defineEvents: function() {
-        return ["pagechanging", "selecting", "selected", "deselected", "rebind"];
+        var events = ["selecting", "selected", "deselected", "rebind"];
+        if(this.option.pager) {
+            events.push("pagechanging");
+        }
+        return events;
     },
     _create: function() {
         this._selectList = [];
