@@ -256,20 +256,61 @@ ui.define("ui.ctrls.GridView", {
     },
     // 获得并组装值
     _prepareValue: function(rowData, c) {
-
+        var value,
+            i, len;
+        if (Array.isArray(c.column)) {
+            value = {};
+            for (i = 0, len = c.column.length; i < len; i++) {
+                value[c.column[i]] = this._getValue(rowData, c.column[i], c);
+            }
+        } else {
+            value = this._getValue(rowData, c.column, c);
+        }
+        return value;
     },
     // 获取值
-    _getValue: function() {
-
+    _getValue: function(rowData, column, c) {
+        var arr, i = 0, value;
+        if (!ui.core.isString(column)) {
+            return null;
+        }
+        if (!c._columnKeys.hasOwnProperty(column)) {
+            c._columnKeys[column] = column.split(".");
+        }
+        arr = c._columnKeys[column];
+        var value = rowData[arr[i]];
+        for (i = 1; i < arr.length; i++) {
+            value = value[arr[i]];
+            if (value === undefined || value === null) {
+                return value;
+            }
+        }
+        return value;
     },
-    _createCol: function() {
-
+    _createCol: function(column) {
+        var col = $("<col />");
+        if (!isNaN(parseInt(column.len))) {
+            col.css("width", column.len + "px");
+        }
+        return col;
     },
     _createCell: function() {
+        var cell = $("<" + tagName + " />"),
+            css = {};
+        if (column.align) {
+            css["text-align"] = column.align;
+        }
+        cell.css(css);
 
+        return cell;
     },
-    _setSorter: function(cell, column, i) {
-
+    _setSorter: function(cell, column, index) {
+        if (column.sort === true || ui.core.isFunction(column.sort)) {
+            cell.click(this.onSortHandler);
+            cell.addClass("sorter");
+            cell.append("<i class='fa fa-sort'></i>");
+            this.sorterIndexes.push(index);
+        }
     },
     _renderPageList: function(rowCount) {
         if (!this.pager) {
@@ -406,6 +447,22 @@ ui.define("ui.ctrls.GridView", {
     },
     /** 清空表格数据 */
     clear: function() {
-
+        if (this.tableBody) {
+            this.tableBody.html("");
+            this.option.listView = null;
+            this._selectList = [];
+            this._current = null;
+            //this.cancelColumnState();
+        }
+        if (this.tableHead) {
+            this._resetSortColumnState();
+            this._lastSortColumn = null;
+        }
+        if (this.pager) {
+            this.pager.empty();
+        }
+        if (arguments[0] !== false) {
+            this.showDataPrompt();
+        }
     }
 });
