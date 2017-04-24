@@ -54,11 +54,17 @@ ui.define("ui.ctrls.ListView", {
             // 是否要显示删除按钮
             hasRemoveButton: false,
             // 是否开启动画效果
-            animatable: true
+            animatable: true,
+            // 启用分页
+            pager: false
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "deselected", "cancel", "removing", "removed"];
+        var events = ["selecting", "selected", "deselected", "cancel", "removing", "removed"];
+        if(this.option.pager) {
+            events.push("pageChanging");
+        }
+        return events;
     },
     _create: function() {
         this.viewData = [];
@@ -81,8 +87,27 @@ ui.define("ui.ctrls.ListView", {
         this.listPanel.click(this.onListItemClickHandler);
         this.element.append(this.listPanel);
 
+        if(this.option.pager) {
+            this._initPager(this.option.pager);
+        }
+
         this._initAnimator();
         this.setData(this.option.viewData);
+    },
+    _initPager: function(pager) {
+        this.pagerPanel = $("<div class='ui-list-view-pager clear' />");
+        this.element.append(this.pagerPanel);
+        this.listPanel.addClass("ui-list-view-pagelist");
+
+        this.pager = ui.ctrls.Pager(pager);
+        this.pageIndex = this.pager.Index;
+        this.pageSize = this.pager.pageSize;
+        this.pager.pageNumPanel = this.pagerPanel;
+        this.pager.pageChanged(function(pageIndex, pageSize) {
+            this.pageIndex = pageIndex;
+            this.pageSize = pageSize;
+            this.fire("pagechanging", pageIndex, pageSize);
+        }, this);
     },
     _initAnimator: function() {
         // 删除动画
