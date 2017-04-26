@@ -613,7 +613,7 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 是否可以多选 */
     isMultiple: function() {
-        return !!this.option.multiple;
+        return this.option.multiple === true;
     },
     /** 清空列表 */
     clear: function() {
