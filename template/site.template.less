@@ -514,6 +514,25 @@ textarea {
         color: @readonly-color;
     }
 
+.closable-button {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    text-decoration: none;
+    font: 18px/16px Tahoma,Verdana,sans-serif;
+    width: 14px;
+    height: 14px;
+    line-height: 12px;
+    color: @tool-color;
+    cursor: pointer;
+}
+
+.cancel-user-select {
+	-ms-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
 /*滚动条样式*/
 /*IE*/
 html
