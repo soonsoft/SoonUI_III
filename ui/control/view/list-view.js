@@ -278,7 +278,7 @@ ui.define("ui.ctrls.ListView", {
                 nextLi = nextLi.next();
             }
             // 检查已选择的项目
-            if(this.option.multiple === true) {
+            if(this.isMultiple()) {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(elem[0] === this._selectList[i]) {
                         this._selectList(i, 1);
@@ -342,7 +342,7 @@ ui.define("ui.ctrls.ListView", {
             checked = !!checked;
         }
 
-        if(this.option.multiple === true) {
+        if(this.isMultiple()) {
             if(checked) {
                 this._selectList.push(elem[0]);
                 elem.addClass(selectionClass);
@@ -444,6 +444,9 @@ ui.define("ui.ctrls.ListView", {
     /** 上移 */
     currentUp: function() {
         var sourceIndex;
+        if(this.isMultiple()) {
+            throw new Error("The currentUp can not support for multiple selection");
+        }
         if(this._current) {
             sourceIndex = this._getItemIndex(this._current[0]);
             if(sourceIndex > 0) {
@@ -454,6 +457,9 @@ ui.define("ui.ctrls.ListView", {
     /** 下移 */
     currentDown: function() {
         var sourceIndex;
+        if(this.isMultiple()) {
+            throw new Error("The currentDown can not support for multiple selection");
+        }
         if(this._current) {
             sourceIndex = this._getItemIndex(this._current[0]);
             if(sourceIndex < this.count() - 1) {
@@ -510,7 +516,7 @@ ui.define("ui.ctrls.ListView", {
     getSelection: function() {
         var result = null,
             i;
-        if(this.option.multiple === true) {
+        if(this.isMultiple()) {
             result = [];
             for(i = 0; i < this._selectList.length; i++) {
                 result.push(
@@ -531,7 +537,7 @@ ui.define("ui.ctrls.ListView", {
             liList,
             li;
         this.cancelSelection();
-        if(this.option.multiple === true) {
+        if(this.isMultiple()) {
             if(!Array.isArray(indexes)) {
                 indexes = [indexes];
             }
@@ -557,7 +563,7 @@ ui.define("ui.ctrls.ListView", {
         var li,
             i,
             len;
-        if(this.option.multiple === true) {
+        if(this.isMultiple()) {
             for(i = 0, len = this._selectList.length; i < len; i++) {
                 li = $(this._selectList[i]);
                 li.removeClass(selectionClass);
@@ -604,6 +610,10 @@ ui.define("ui.ctrls.ListView", {
     /** 获取项目数 */
     count: function() {
         return this.viewData.length;
+    },
+    /** 是否可以多选 */
+    isMultiple: function() {
+        return !!this.option.multiple;
     },
     /** 清空列表 */
     clear: function() {
