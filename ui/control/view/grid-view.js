@@ -444,6 +444,44 @@ ui.define("ui.ctrls.GridView", {
             }
         }
     },
+    _refreshRowNumber: function(startRowIndex, endRowIndex) {
+        var viewData,
+            colIndex, rowNumber,
+            rows, cell,
+            column, i, len;
+
+        viewData = this.option.viewData;
+        if(!viewData || viewData.length === 0) {
+            return;
+        }
+
+        colIndex = this._findRowNumberColumnIndex();
+        rowNumber = ui.ColumnStyle.cfn.rowNumber;
+        if (colIndex == -1) return;
+        if (isNaN(startRowIndex)) {
+            startRowIndex = 0;
+        } else {
+            startRowIndex += 1;
+        }
+        rows = this.tableBody[0].rows;
+        column = this.option.columns[colIndex];
+        len = ui.core.isNumber(endRowIndex) ? endRowIndex + 1 : rows.length;
+        for (i = startRowIndex; i < len; i++) {
+            cell = $(rows[i].cells[colIndex]);
+            cell.html("");
+            cell.append(rowNumber.call(this, null, column, i));
+        }
+    },
+    _findRowNumberColumnIndex: function() {
+        var i, len = this.option.columns.length, c;
+        for (i = 0; i < len; i++) {
+            c = this.option.columns[i];
+            if (c.handler === ui.ColumnStyle.cfn.rowNumber) {
+                return i;
+            }
+        }
+        return -1;
+    },
 
 
     /// API
