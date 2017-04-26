@@ -1,7 +1,7 @@
 //list view
 
 var indexAttr = "data-index";
-var selectionClass = "ui-list-view-item-selection";
+var selectionClass = "ui-list-view-selection";
 // 默认的格式化器
 function defaultItemFormatter(item, index) {
     return "<span class='ui-list-view-item-text'>" + item + "</span>";
@@ -49,7 +49,7 @@ ui.define("ui.ctrls.ListView", {
             multiple: false,
             // 数据集
             viewData: null,
-            // 数据项格式化器
+            // 数据项格式化器 返回HTML Text或者 { css: "", class: [], html: ""}，样式会作用到每一个LI上面
             itemFormatter: false,
             // 是否要显示删除按钮
             hasRemoveButton: false,
@@ -150,7 +150,9 @@ ui.define("ui.ctrls.ListView", {
         builder.push("<li ", indexAttr, "='", index, "' class='ui-list-view-item'>");
         content = this.option.itemFormatter.call(this, item, index);
         if(ui.core.isString(content)) {
+            builder.push("<div class='ui-list-view-container'>");
             builder.push(content);
+            builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
             index = temp.lastIndexOf("'");
@@ -175,32 +177,55 @@ ui.define("ui.ctrls.ListView", {
             }
             builder.push(">");
 
+            builder.push("<div class='ui-list-view-container'>");
             // 放入html
-            if(ui.core.isString(content.html)) {
+            if(content.html) {
                 builder.push(content.html);
             }
+            builder.push("</div>");
         }
+        this._appendOperateElements(builder);
         builder.push("</li>");
     },
     _createItem: function(item, index) {
-        var li = $("<li class='ui-list-view-item' />"),
+        var builder = [],
+            li = $("<li class='ui-list-view-item' />"),
+            container = $("<div class='ui-list-view-container' />"),
             content = this.option.itemFormatter.call(this, item, index);
         
         li.attr(indexAttr, index);
-        // 添加class
-        if(ui.core.isString(content.class)) {
-            li.addClass(content.class);
-        } else if(Array.isArray(content.class)) {
-            li.addClass(content.class.join(" "));
+
+        if(ui.core.isString(content)) {
+            container.append(content);
+        } else if(ui.core.isPlainObject(content)) {
+            // 添加class
+            if(ui.core.isString(content.class)) {
+                li.addClass(content.class);
+            } else if(Array.isArray(content.class)) {
+                li.addClass(content.class.join(" "));
+            }
+            // 添加style
+            if(content.style && !ui.core.isEmptyObject(content.style)) {
+                li.css(content.style);
+            }
+
+            // 添加内容
+            if(content.html) {
+                container.html(content.html);
+            }
         }
-        // 添加style
-        if(content.style && !ui.core.isEmptyObject(content.style)) {
-            li.css(content.style);
-        }
-        // 添加内容
-        li.html(content.html);
+        
+        this._appendOperateElements(builder);
+        container.append(builder.join(""));
+        li.append(container);
 
         return li;
+    },
+    _appendOperateElements: function(builder) {
+        builder.push("<b class='ui-list-view-b background-highlight' />");
+        if(this.option.hasRemoveButton) {
+            builder.push("<a href='javascript:void(0)' class='close-button ui-item-view-remove'>×</a>");
+        }
     },
     _indexOf: function(item) {
         var i, len;
@@ -320,8 +345,7 @@ ui.define("ui.ctrls.ListView", {
         if(this.option.multiple === true) {
             if(checked) {
                 this._selectList.push(elem[0]);
-                elem.addClass(selectionClass)
-                    .addClass("background-highlight");
+                elem.addClass(selectionClass);
             } else {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(this._selectList[i] === elem[0]) {
@@ -329,23 +353,19 @@ ui.define("ui.ctrls.ListView", {
                         break;
                     }
                 }
-                elem.removeClass(selectionClass)
-                    .removeClass("background-highlight");
+                elem.removeClass(selectionClass);
             }
         } else {
             if(checked) {
                 if(this._current) {
                     this._current
-                        .removeClass(selectionClass)
-                        .removeClass("background-highlight");
+                        .removeClass(selectionClass);
                 }
                 this._current = elem;
                 this._current
-                    .addClass(selectionClass)
-                    .addClass("background-highlight");
+                    .addClass(selectionClass);
             } else {
-                elem.removeClass(selectionClass)
-                    .removeClass("background-highlight");
+                elem.removeClass(selectionClass);
                 this._current = null;
             }
         }
@@ -540,14 +560,12 @@ ui.define("ui.ctrls.ListView", {
         if(this.option.multiple === true) {
             for(i = 0, len = this._selectList.length; i < len; i++) {
                 li = $(this._selectList[i]);
-                li.removeClass(selectionClass)
-                    .removeClass("background-highlight");
+                li.removeClass(selectionClass);
             }
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass)
-                    .removeClass("background-highlight");
+                    .removeClass(selectionClass);
                 this._current = null;
             }
         }
