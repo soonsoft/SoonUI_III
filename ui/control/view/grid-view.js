@@ -43,6 +43,20 @@ function reverse(arr1, arr2) {
         arr2[j] = temp;
     }
 }
+function sorting(v1, v2) {
+    var column,
+        fn,
+        val1, val2;
+    column = this._lastSortColumn;
+    fn = column.sort;
+    if(!ui.core.isFunction(fn)) {
+        fn = defaultSortFn;
+    }
+
+    val1 = this._prepareValue(v1, column);
+    val2 = this._prepareValue(v2, column);
+    return fn(val1, val2);
+}
 function defaultSortFn(v1, v2) {
     var val, i, len;
     if (Array.isArray(v1)) {
@@ -72,11 +86,73 @@ function defaultSorting(v1, v2) {
 }
 
 // 事件处理函数
+// 排序点击事件处理
 function onSort(e) {
+    var viewData,
+        elem,
+        nodeName,
+        columnIndex, column,
+        fn, isSelf,
+        tempTbody, rows, icon;
 
+    e.stopPropagation();
+    viewData = this.option.viewData;
+    if (!Array.isArray(viewData) || viewData.length == 0) {
+        return;
+    }
+    elem = $(e.target);
+    while ((nodeName = elem.nodeName()) !== "TH") {
+        if (nodeName === "TR") {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    columnIndex = elem[0].cellIndex;
+    column = this.option.columns[columnIndex];
+
+    if (this._lastSortColumn !== column) {
+        this.resetSortColumnState(elem.parent());
+    }
+
+    fn = $.proxy(sorting, this);
+    isSelf = this._lastSortColumn == column;
+    this._lastSortColumn = column;
+
+    tempTbody = this.tableBody.children("tbody");
+    rows = tempTbody.children().get();
+    if (!Array.isArray(rows) || rows.length != viewData.length) {
+        throw new Error("data row error");
+    }
+
+    icon = elem.find("i");
+    if (icon.hasClass(asc)) {
+        reverse(viewData, rows);
+        icon.removeClass(sortClass).removeClass(asc).addClass(desc);
+    } else {
+        if (isSelf) {
+            reverse(viewData, rows);
+        } else {
+            this.sorter.items = rows;
+            this.sorter.sort(viewData, fn);
+        }
+        icon.removeClass(sortClass).removeClass(desc).addClass(asc);
+    }
+    tempTbody.append(rows);
+    this._refreshRowNumber();
 }
+// 表格内容点击事件处理
 function onTableBodyClick(e) {
 
+}
+// 横向滚动条跟随事件处理
+function onScrollingX(e) {
+    this.gridHead.scrollLeft(
+        this.gridBody.scrollLeft());
+}
+// 全选按钮点击事件处理
+function onAllCheckboxClick(e) {
+    e.stopPropagation();
 }
 
 
@@ -136,6 +212,8 @@ ui.define("ui.ctrls.GridView", {
         this._selectList = [];
         this._sorterIndexes = [];
         this._hasPrompt = !!this.option.promptText;
+        // 存放列头状态重置方法
+        this.resetColumnStateHandlers = {};
         
         this.gridHead = null;
         this.gridBody = null;
@@ -213,7 +291,7 @@ ui.define("ui.ctrls.GridView", {
     },
     _initPagerPanel: function() {
         if(this.pager) {
-            this.gridFoot = $("<div class='view-foot' />");
+            this.gridFoot = $("<div class='view-foot clear' />");
             this.element.append(this.gridFoot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
@@ -224,7 +302,7 @@ ui.define("ui.ctrls.GridView", {
                 this.pager.pageNumPanel.css("width", "100%");
             }
 
-            this.gridFoot.append(this.pager.pageNumPanel).append($("<br style='clear:both' />"));
+            this.gridFoot.append(this.pager.pageNumPanel);
             this.pager.pageChanged(function(pageIndex, pageSize) {
                 this.pageIndex = pageIndex;
                 this.pageSize = pageSize;
@@ -331,6 +409,39 @@ ui.define("ui.ctrls.GridView", {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
+        }
+    },
+    _resetColumnState: function() {
+        var fn, key;
+        for(key in this.resetColumnStateHandlers) {
+            if(this.resetColumnStateHandlers.hasOwnProperty(key)) {
+                fn = this.resetColumnStateHandlers[key];
+                if(ui.core.isFunction(fn)) {
+                    try {
+                        fn.call(this);
+                    } catch (e) { }
+                }
+            }
+        }
+    },
+    _resetSortColumnState: function (tr) {
+        var icon, 
+            cells,
+            i, 
+            len;
+
+        if (!tr) {
+            tr = this.tableHead.find("tr");
+        }
+
+        cells = tr.children();
+        for (i = 0, len = this._sorterIndexes.length; i < len; i++) {
+            icon = $(cells[this._sorterIndexes[i]]);
+            icon = icon.find("i");
+            if (!icon.hasClass(sortClass)) {
+                icon.attr("class", "fa fa-sort");
+                return;
+            }
         }
     },
 
@@ -449,6 +560,15 @@ ui.define("ui.ctrls.GridView", {
     count: function() {
         return this.viewData.length;
     },
+    /** 是否可以选择 */
+    isSelectable: function() {
+        var type = this.option.selection.type;
+        return type === "row" || type === "cell"
+    },
+    /** 是否支持多选 */
+    isMultiple: function() {
+        return this.option.selection.multiple === true;
+    },
     /** 清空表格数据 */
     clear: function() {
         if (this.tableBody) {
@@ -456,7 +576,7 @@ ui.define("ui.ctrls.GridView", {
             this.option.listView = null;
             this._selectList = [];
             this._current = null;
-            //this.cancelColumnState();
+            this._resetColumnState();
         }
         if (this.tableHead) {
             this._resetSortColumnState();
