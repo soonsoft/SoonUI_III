@@ -19,13 +19,11 @@ var columnFormatter,
 columnFormatter = {
     columnCheckboxAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        //checkbox.on("change", $.proxy(this.onAllSelected, this));
-        /*
-        this.columnStateFunctions.checkboxAllCancel = function () {
-            checkbox.prop("checked", false);
+        checkbox.click(this.onCheckboxAllClickHandler);
+        this.resetColumnStateHandlers.checkboxAllCancel = function () {
+            checkbox.removeClass("fa-check-square").addClass("fa-square");
             this._checkedCount = 0;
         };
-        */
         return checkbox;
     },
     columnText: function (col) {
@@ -64,6 +62,11 @@ cellFormatter = {
         span = $("<span />");
         span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
         return span;
+    },
+    checkbox: function(val, col) {
+        var checkbox = $("<i class='fa fa-square grid-checkbox' />");
+        checkbox.attr("data-value", ui.str.htmlEncode(value));
+        return checkbox;
     },
     paragraph: function (val, col) {
         var p;
