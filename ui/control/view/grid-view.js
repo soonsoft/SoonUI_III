@@ -105,7 +105,7 @@ function changeChecked(cbx) {
             return;
         }
         this._gridCheckboxAll = 
-            $(this.tableHead[0].tbodies[0].rows[0].cells[colIndex])
+            $(this.tableHead[0].tBodies[0].rows[0].cells[colIndex])
                 .find("." + cellCheckboxAll);
     }
     if(checked) {
@@ -256,7 +256,7 @@ function onCheckboxAllClick(e) {
         };
     }
 
-    rows = this.tableBody[0].tbodies[0].rows;
+    rows = this.tableBody[0].tBodies[0].rows;
     for(i = 0, len = rows.length; i < len; i++) {
         cbx = $(rows[i].cells[cellIndex]).find("." + cellCheckbox);
         if(cbx.length > 0) {
@@ -696,6 +696,23 @@ ui.define("ui.ctrls.GridView", {
             }
         }
     },
+    _promptIsShow: function() {
+        return this._hasPrompt 
+            && this._dataPrompt.css("display") === "block";
+    },
+    _setPromptLocation: function() {
+        var height = this._dataPrompt.height();
+        this._dataPrompt.css("margin-top", -(height / 2) + "px");
+    },
+    _showDataPrompt: function() {
+        if(!this._hasPrompt) return;
+        this._dataPrompt.css("display", "block");
+        this._setPromptLocation();
+    },
+    _hideDataPrompt: function() {
+        if(!this._hasPrompt) return;
+        this._dataPrompt.css("display", "none");
+    },
 
 
     /// API
@@ -770,10 +787,10 @@ ui.define("ui.ctrls.GridView", {
         }
 
         if(!Array.isArray(viewData) || viewData.length == 0) {
-            this.showDataPrompt();
+            this._showDataPrompt();
             return;
         } else {
-            this.hideDataPrompt();
+            this._hideDataPrompt();
         }
         this.option.viewData = viewData;
 
@@ -814,7 +831,7 @@ ui.define("ui.ctrls.GridView", {
             return result;
         }
 
-        rows = this.gridBody[0].tbodies[0].rows;
+        rows = this.gridBody[0].tBodies[0].rows;
         for(i = 0, len = rows.length; i < len; i++) {
             elem = $(rows[i].cells[columnIndex]).find(checkboxClass);
             if(elem.length > 0) {
@@ -884,6 +901,176 @@ ui.define("ui.ctrls.GridView", {
         }
         this.fire("cancel");
     },
+    /** 移除行 */
+    removeRowAt: function(rowIndex) {
+        var viewData,
+            row;
+
+        viewData = this.option.viewData;
+        if(!viewData) {
+            return;
+        }
+        if(rowIndex < 0 || rowIndex > viewData.length) {
+            return;
+        }
+
+        row = $(this.tableBody[0].rows[rowIndex]);
+        if(row.length === 0) {
+            return;
+        }
+        if(this._current && this._current[0] === row[0]) {
+            this_current = null;
+        }
+        row.remove();
+        viewData.splice(rowIndex, 1);
+        this._updateScrollState();
+        this._refreshRowNumber();
+    },
+    /** 更新行 */
+    updateRow: function(rowIndex, rowData) {
+        var viewData,
+            row;
+
+        viewData = this.option.viewData;
+        if(!viewData) {
+            return;
+        }
+        if(rowIndex < 0 || rowIndex > viewData.length) {
+            return;
+        }
+
+        row = $(this.tableBody[0].rows[rowIndex]);
+        if(row.length === 0) {
+            return;
+        }
+        row.empty();
+        viewData[rowIndex] = rowData;
+        this._createRowCells(row, rowData, rowIndex);
+    },
+    /** 增加行 */
+    addRow: function(rowData) {
+        var viewData,
+            row;
+        if(!rowData) return;
+        viewData = this.option.viewData;
+
+        if(!Array.isArray(viewData) || viewData.length === 0) {
+            if(this.tableBody) {
+                this.tableBody.remove();
+                this.tableBody = null;
+            }
+            this.createGridBody([rowData]);
+            return;
+        }
+
+        row = $("<tr class='grid-view-tr' />");
+        this._createCell(row, rowData, viewData.length);
+        $(this.tableBody[0].tBodies[0]).append(row);
+        viewData.push(rowData);
+        this._updateScrollState();
+    },
+    /** 插入行 */
+    insertRow: function(rowIndex, rowData) {
+        var viewData,
+            row;
+        if(!rowData) return;
+        viewData = this.option.viewData;
+
+        if(!Array.isArray(viewData) || viewData.length === 0) {
+            this.addRow(rowData);
+            return;
+        }
+        if(rowIndex < 0) {
+            rowIndex = 0;
+        }
+        if(rowIndex < viewData.length) {
+            row = $("<tr class='grid-view-tr' />");
+            this._createRowCells(row, rowData, rowIndex);
+            $(this.tableBody[0].rows[rowIndex]).before(row);
+            viewData.splice(rowIndex, 0, rowData);
+            this._updateScrollState();
+            this._refreshRowNumber();
+        } else {
+            this.addRow(rowData);
+        }
+    },
+    /** 当前行上移 */
+    currentRowUp: function() {
+        var data;
+        if(this.isMultiple()) {
+            throw new Error("The currentRowUp can not support for multiple selection");
+        }
+        if(this.option.selection.type === "cell") {
+            throw new Error("The currentRowUp can not support for cell selection");
+        }
+        
+        data = this.getSelection();
+        if(!data || data.rowIndex === 0) {
+            return;
+        }
+        this.moveRow(data.rowIndex, data.rowIndex - 1);
+    },
+    /** 当前行下移 */
+    currentRowDown: function() {
+        var data;
+        if(this.isMultiple()) {
+            throw new Error("The currentRowDown can not support for multiple selection");
+        }
+        if(this.option.selection.type === "cell") {
+            throw new Error("The currentRowDown can not support for cell selection");
+        }
+        
+        data = this.getSelection();
+        if(!data || data.rowIndex >= this.count()) {
+            return;
+        }
+        this.moveRow(data.rowIndex, data.rowIndex + 1);
+    },
+    /** 移动行 */
+    moveRow: function(sourceIndex, destIndex) {
+        var viewData,
+            rows,
+            destRow,
+            tempData;
+        
+        viewData = this.option.viewData;
+        if(viewData.length === 0) {
+            return;
+        }
+        if(destIndex < 0) {
+            destIndex = 0;
+        } else if(destIndex >= viewData.length) {
+            destIndex = viewData.length - 1;
+        }
+
+        if(sourceIndex === destIndex) {
+            return;
+        }
+
+        rows = this.tableBody[0].tBodies[0].rows;
+        destRow = $(rows[destIndex]);
+        if(destIndex > rowIndex) {
+            destRow.after($(rows[sourceIndex]));
+            this._refreshRowNumber(sourceIndex - 1, destIndex);
+        } else {
+            destRow.before($(rows[sourceIndex]));
+            this._refreshRowNumber(destIndex - 1, sourceIndex);
+        }
+        tempData = viewData[sourceIndex];
+        viewData.splice(sourceIndex, 1);
+        viewData.splice(destIndex, 0, tempData);
+    },
+    /** 获取行数据 */
+    getRowData: function(rowIndex) {
+        var viewData = this.option.viewData;
+        if(!Array.isArray(viewData) || viewData.length === 0) {
+            return null;
+        }
+        if(!ui.core.isNumber(rowIndex) || rowIndex < 0 || rowIndex >= viewData.length) {
+            return null;
+        }
+        return viewData[rowIndex];
+    },
     /** 获取视图数据 */
     getViewData: function() {
         return Array.isArray(this.option.viewData) 
@@ -920,7 +1107,25 @@ ui.define("ui.ctrls.GridView", {
             this.pager.empty();
         }
         if (arguments[0] !== false) {
-            this.showDataPrompt();
+            this._showDataPrompt();
+        }
+    },
+    /** 设置表格的尺寸, height: 高度， width: 宽度 */
+    setSize: function(height, width) {
+        if(ui.core.isNumber(height)) {
+            height -= this.columnHeight + this.borderHeight;
+            if(this.pager) {
+                height -= this.pagerHeight;
+            }
+            this.gridBody.css("height", height + "px");
+        }
+        if(ui.core.isNumber(width)) {
+            width -= this.borderWidth;
+            this.element.css("width", width + "px");
+        }
+        this._updateScrollState();
+        if(this._promptIsShow()) {
+            this._setPromptLocation();
         }
     }
 });
