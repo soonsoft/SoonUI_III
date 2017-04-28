@@ -520,11 +520,11 @@ ui.define("ui.ctrls.ListView", {
             result = [];
             for(i = 0; i < this._selectList.length; i++) {
                 result.push(
-                    this._getSelectionData(this._selectItem[i]).itemData);
+                    this._getSelectionData(this._selectItem[i]));
             }
         } else {
             if(this._current) {
-                result = this._getSelectionData(this._current).itemData;
+                result = this._getSelectionData(this._current);
             }
         }
         return result;
