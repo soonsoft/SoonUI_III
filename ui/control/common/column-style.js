@@ -152,7 +152,7 @@ cellFormatter = {
             return;
         }
         span = $("<span />");
-        if (val.length == 11) {
+        if (val.length === 11) {
             span.text(val.substring(0, 3) + "-" + val.substring(3, 7) + "-" + val.substring(7));
         } else {
             span.text(val);
