@@ -1,6 +1,6 @@
-
 .ui-list-view {
     overflow: auto;
+    position: relative;
 }
 
 .ui-list-view-ul {
@@ -14,8 +14,33 @@
 .ui-list-view-item {
     width: 100%;
     position: relative;
+    height: auto;
+}
+
+.ui-list-view-b {
+    position: absolute;
+    width: 4px;
+    display: none;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+}
+
+.ui-list-view-container {
+    position: absolute;
+    height: auto;
+    padding-left: 4px;
+    height: auto;
 }
 
 .ui-list-view-item:hover {
-    background-color: @panel-color;
+    background-color: @background-color;
+}
+
+.ui-list-view-selection {
+    background-color: @background-color;
+}
+
+.ui-list-view-selection .ui-list-view-b {
+    display: block;
 }
