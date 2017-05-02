@@ -359,6 +359,9 @@ ui.define("ui.ctrls.GridView", {
         this._init();
     },
     _init: function() {
+        if(!this.element.hasClass("ui-grid-view")) {
+            this.element.addClass("ui-grid-view");
+        }
         this._initBorderWidth();
         this._initDataPrompt();
 
@@ -441,7 +444,7 @@ ui.define("ui.ctrls.GridView", {
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.gridColumns[i];
             if (!ui.core.isFunction(c.formatter)) {
-                formatter = ui.ColumnStyle.cfn.defaultText;
+                formatter = ui.ColumnStyle.cfn.text;
             }
             cval = this._prepareValue(rowData, c);
             td = this._createCell("td", c);
