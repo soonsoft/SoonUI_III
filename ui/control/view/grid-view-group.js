@@ -1,4 +1,4 @@
-// GridView-Group
+// GridViewGroup
 function defaultCreateGroupItem(groupKey) {
     return {
         groupText: groupKey
@@ -10,9 +10,9 @@ function isGroupItem() {
 function renderGroupItemCell(data, column, index, td) {
     td.isFinale = true;
     td.attr("colspan", this.option.columns.length);
-    td.click(this.groupGrid.onGroupRowClickHandler);
-    this.groupGrid["_last_group_index_"] = data.groupIndex;
-    return this.groupGrid.groupItemFormatter.apply(this, arguments);
+    td.click(this.group.onGroupRowClickHandler);
+    this.group["_last_group_index_"] = data.groupIndex;
+    return this.group.groupItemFormatter.apply(this, arguments);
 }
 
 function onGropRowClick(e) {
@@ -41,15 +41,15 @@ function onGropRowClick(e) {
     }
 }
 
-function GroupGrid() {
-    if(this instanceof GroupGrid) {
+function GridViewGroup() {
+    if(this instanceof GridViewGroup) {
         this.initialize();
     } else {
-        return new GroupGrid();
+        return new GridViewGroup();
     }
 }
-GroupGrid.prototype = {
-    constructor: GroupGrid,
+GridViewGroup.prototype = {
+    constructor: GridViewGroup,
     initialize: function() {
         this.gridview = null;
         this.onGroupRowClickHandler = $.proxy(onGropRowClick, this);
@@ -74,7 +74,7 @@ GroupGrid.prototype = {
     setGridView: function(gridview) {
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
-            this.gridview.groupGrid = this;
+            this.gridview.group = this;
         }
     },
     /** 数据结构转换 */
@@ -119,7 +119,7 @@ GroupGrid.prototype = {
         if(isGroupItem.call(data)) {
             return renderGroupItemCell.call(this, data, column, index, td);
         } else {
-            return "<span>" + (index - this.groupGrid["_last_group_index_"]) + "</span>";
+            return "<span>" + (index - this.group["_last_group_index_"]) + "</span>";
         }
     },
     /** 分组文本格式化器，每次开始新分组都会自动调用分组格式化器 */
@@ -137,4 +137,4 @@ GroupGrid.prototype = {
     }
 };
 
-ui.ctrls.GroupGrid = GroupGrid;
+ui.ctrls.GridViewGroup = GridViewGroup;
