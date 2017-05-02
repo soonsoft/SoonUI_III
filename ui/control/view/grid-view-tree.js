@@ -1,4 +1,4 @@
-// GridView-tree
+// GridViewTree
 
 var childrenField = "_children",
     parentField = "_parent",
@@ -36,14 +36,14 @@ function onFoldButtonClick(e) {
     }
 }
 
-function TreeGrid() {
+function GridViewTree() {
     if(this instanceof TreeGrid) {
         this.initialize();
     } else {
-        return new TreeGrid();
+        return new GridViewTree();
     }
 }
-TreeGrid.prototype = {
+GridViewTree.prototype = {
     constructor: TreeGrid,
     initialize: function() {
         this.lazy = false;
@@ -379,3 +379,4 @@ TreeGrid.prototype = {
         }
     }
 };
+ui.ctrls.GridViewTree = GridViewTree;
