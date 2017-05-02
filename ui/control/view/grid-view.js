@@ -89,9 +89,11 @@ function defaultSorting(v1, v2) {
 }
 function setChecked(cbx, checked) {
     if(checked) {
-        cbx.removeClass("fa-square").addClass("fa-check-square");
+        cbx.removeClass("fa-square")
+            .addClass("fa-check-square").addClass("font-highlight");
     } else {
-        cbx.removeClass("fa-check-square").addClass("fa-square");
+        cbx.removeClass("fa-check-square").removeClass("font-highlight")
+            .addClass("fa-square");
     }
 }
 function changeChecked(cbx) {
@@ -365,11 +367,11 @@ ui.define("ui.ctrls.GridView", {
         this._initBorderWidth();
         this._initDataPrompt();
 
-        this.gridHead = $("<div class='grid-head' />");
+        this.gridHead = $("<div class='ui-grid-head' />");
         this.element.append(this.gridHead);
         this.createGridHead();
 
-         this.gridBody = $("<div class='grid-body' />");
+         this.gridBody = $("<div class='ui-grid-body' />");
         this.element.append(this.gridBody);
         if (Array.isArray(this.option.viewData)) {
             this.createGridBody(
@@ -378,6 +380,11 @@ ui.define("ui.ctrls.GridView", {
         this._initPagerPanel();
 
         this.setSize(this.option.width, this.option.height);
+        if(!this.option.selection) {
+            this.option.selection = {
+                type: "disabled"
+            };
+        }
 
         // event handlers
         // 排序按钮点击事件
@@ -418,7 +425,7 @@ ui.define("ui.ctrls.GridView", {
     },
     _initPagerPanel: function() {
         if(this.pager) {
-            this.gridFoot = $("<div class='view-foot clear' />");
+            this.gridFoot = $("<div class='ui-grid-foot clear' />");
             this.element.append(this.gridFoot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
@@ -440,7 +447,13 @@ ui.define("ui.ctrls.GridView", {
     // 创建一行的所有单元格
     _createRowCells: function(tr, rowData, rowIndex) {
         var i, len, 
-            c, cval, td, el;
+            c, cval, td, el,
+            isRowHover;
+        
+        isRowHover = this.option.selection.type !== "cell";
+        if(isRowHover) {
+            tr.addClass("table-body-row-hover");
+        }
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.gridColumns[i];
             if (!ui.core.isFunction(c.formatter)) {
@@ -448,6 +461,10 @@ ui.define("ui.ctrls.GridView", {
             }
             cval = this._prepareValue(rowData, c);
             td = this._createCell("td", c);
+            td.addClass("ui-table-body-cell");
+            if(!isRowHover) {
+                td.addClass("table-body-cell-hover");
+            }
             el = formatter.call(this, cval, c, rowIndex, td);
             if (td.isAnnulment)
                 continue;
@@ -732,7 +749,7 @@ ui.define("ui.ctrls.GridView", {
         }
 
         if (!this.tableHead) {
-            this.tableHead = $("<table class='table-head' cellspacing='0' cellpadding='0' />");
+            this.tableHead = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' />");
             this.gridHead.append(this.tableHead);
         } else {
             this.tableHead.html("");
@@ -750,6 +767,7 @@ ui.define("ui.ctrls.GridView", {
             }
             colGroup.append(this.createCol(c));
             th = this._createCell("th", c);
+            th.addClass("ui-table-head-cell");
             if ($.isFunction(c.text)) {
                 th.append(c.text.call(this, c, th));
             } else {
@@ -778,7 +796,7 @@ ui.define("ui.ctrls.GridView", {
             isRebind = false;
         
         if (!this.tableBody) {
-            this.tableBody = $("<table class='table-body' cellspacing='0' cellpadding='0' />");
+            this.tableBody = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
             if (this.isSelectable()) {
                 this.tableBody.click(this.onTableBodyClickHandler);
             }
