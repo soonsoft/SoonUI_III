@@ -37,14 +37,14 @@ function onFoldButtonClick(e) {
 }
 
 function GridViewTree() {
-    if(this instanceof TreeGrid) {
+    if(this instanceof GridViewTree) {
         this.initialize();
     } else {
         return new GridViewTree();
     }
 }
 GridViewTree.prototype = {
-    constructor: TreeGrid,
+    constructor: GridViewTree,
     initialize: function() {
         this.lazy = false;
         this.loadChildrenHandler = null;
@@ -175,7 +175,7 @@ GridViewTree.prototype = {
     setGridView: function (gridview) {
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
-            this.gridview.treeGrid = this;
+            this.gridview.tree = this;
         }
     },
     /** 转换数据结构 */
@@ -287,13 +287,13 @@ GridViewTree.prototype = {
         if (isTreeNode(item)) {
             item._isFolded = false;
             span = [null, span[0]];
-            if (this.treeGrid.lazy) {
+            if (this.tree.lazy) {
                 fold = $("<i class='fold font-highlight-hover fa fa-angle-right' />");
             } else {
                 fold = $("<i class='fold unfold font-highlight-hover fa fa-angle-down' />");
             }
             fold.css("margin-left", (item._level * (12 + 5) + 5) + "px");
-            fold.click(this.treeGrid.onFoldButtonClickHandler);
+            fold.click(this.tree.onFoldButtonClickHandler);
             span[0] = fold[0];
         } else {
             span.css("margin-left", ((item._level + 1) * (12 + 5) + 5) + "px");
