@@ -149,7 +149,7 @@ ui.define("ui.ctrls.ImageViewer", {
         });
     },
     _loadImage: function(src) {
-        if(ui.core.type(src) !== "string" || src.length == 0) {
+        if(ui.core.type(src) !== "string" || src.length === 0) {
             return;
         }
         var promise = new Promise(function(resolve, reject) {
@@ -179,7 +179,7 @@ ui.define("ui.ctrls.ImageViewer", {
         
         option = this.viewAnimator[0];
         option.target = this.currentView;
-        option.begin = parseFloat(option.target.css(this.animationCssItem), 10);
+        option.begin = parseFloat(option.target.css(this.animationCssItem));
         if(isNext) {
             option.end = -cssValue;
         } else {
@@ -187,7 +187,7 @@ ui.define("ui.ctrls.ImageViewer", {
         }
         option = this.viewAnimator[1];
         option.target = this.nextView;
-        option.begin = parseFloat(option.target.css(this.animationCssItem), 10);
+        option.begin = parseFloat(option.target.css(this.animationCssItem));
         option.end = 0;
         
         this.viewAnimator.start();
