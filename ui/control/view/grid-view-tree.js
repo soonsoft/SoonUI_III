@@ -71,14 +71,14 @@ GridViewTree.prototype = {
         }
     },
     //修正所有的子元素索引
-    _fixTreeIndexes: function (startIndex, endIndex, dataTable, count) {
+    _fixTreeIndexes: function (startIndex, endIndex, viewData, count) {
         var i = startIndex,
             len = endIndex;
         var item,
             children,
             j;
         for (; i < len; i++) {
-            item = dataTable[i];
+            item = viewData[i];
             if (isTreeNode(item)) {
                 children = item[childrenField];
                 if (!children) {
@@ -112,19 +112,21 @@ GridViewTree.prototype = {
         }
     },
     _operateChildren: function (list, action) {
+        var viewData,
+            rowIndex,
+            row, item,
+            result,
+            i, len;
+
         if (!list) {
             return;
         }
-        var i = 0,
-            len = list.length,
-            rowIndex;
-        var dataTable = this.gridview.dataTable,
-            rows = this.gridview.tableBody[0].rows,
-            item,
-            result;
-        for (; i < len; i++) {
+        
+        viewData = this.gridview.getViewData();
+        rows = this.gridview.tableBody[0].rows;
+        for (i= 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
-            item = dataTable[rowIndex];
+            item = viewData[rowIndex];
             result = action.call(this, item, rows[rowIndex]);
             if (result === false) {
                 continue;
@@ -275,15 +277,21 @@ GridViewTree.prototype = {
     },
     /** 树格式化器 */
     treeNode: function (val, col, idx, td) {
+        var viewData,
+            item,
+            span, 
+            fold;
+        
         if (!val) {
             return null;
         }
-        var item = this.dataTable[idx];
+
+        viewData = this.getViewData();
+        item = viewData[idx];
         if (!$.isNumeric(item._level)) {
             item._level = 0;
         }
-        var span = $("<span />").text(val),
-            fold = null;
+        span = $("<span />").text(val);
         if (isTreeNode(item)) {
             item._isFolded = false;
             span = [null, span[0]];
@@ -302,12 +310,16 @@ GridViewTree.prototype = {
     },
     /** 层级格式化器 */
     levelNode: function(val, col, idx, td) {
-        var item,
+        var viewData,
+            item,
             span;
+
         if (!val) {
             return null;
         }
-        item = this.dataTable[idx];
+
+        viewData = this.getViewData();
+        item = viewData[idx];
         if (!ui.type.isNumber(item._level)) {
             item._level = 0;
         }
@@ -318,22 +330,24 @@ GridViewTree.prototype = {
     },
     /** 异步添加子节点 */
     addChildren: function (rowData, rowIndex, children) {
-        var i = 0,
-            len = children.length,
-            item;
-        var currRowIndex = rowIndex + 1,
-            row;
+        var viewData,
+            item,
+            currRowIndex = rowIndex + 1,
+            row,
+            i, len;
+
         rowData[childrenField] = [];
-        for (; i < len; i++) {
+        viewData = this.gridview.getViewData();
+        for (i = 0, len = children.length; i < len; i++) {
             item = children[i];
             item._level = rowData._level + 1;
             item[parentField] = rowData;
             rowData[childrenField].push(currRowIndex);
 
             row = $("<tr />");
-            this.gridview.dataTable.splice(currRowIndex, 0, item);
+            viewData.splice(currRowIndex, 0, item);
             this.gridview._createCells(row, item, currRowIndex);
-            if (currRowIndex < this.gridview.dataTable.length - 1) {
+            if (currRowIndex < viewData.length - 1) {
                 $(this.gridview.tableBody[0].rows[currRowIndex]).before(row);
             } else {
                 this.gridview.tableBody.append(row);
@@ -347,29 +361,31 @@ GridViewTree.prototype = {
         this._fixParentIndexes(rowData, rowIndex, len);
         this._fixTreeIndexes(
             rowIndex + 1 + len, 
-            this.gridview.dataTable.length,
-            this.gridview.dataTable, 
+            viewData.length,
+            viewData, 
             len);
     },
     /** 调整节点的缩进 */
     changeLevel: function(rowIndex, cellIndex, value, changeChildrenLevel) {
         var rowData,
-            dataTable = this.gridview.dataTable, 
+            viewData, 
             level,
             i;
-        if(ui.core.type(rowIndex) !== "number" || rowIndex < 0 || rowIndex >= dataTable.length) {
+        
+        viewData = this.gridview.getViewData();
+        if(ui.core.type(rowIndex) !== "number" || rowIndex < 0 || rowIndex >= viewData.length) {
             return;
         }
-        rowData = dataTable[rowIndex];
         
+        rowData = viewData[rowIndex];
         changeChildrenLevel = !!changeChildrenLevel;
         
         level = rowData._level;
         this._changeLevel(rowIndex, cellIndex, rowData, value); 
         if(changeChildrenLevel) {
             i = rowIndex + 1;
-            while(i < dataTable.length) {
-                rowData = dataTable[i];
+            while(i < viewData.length) {
+                rowData = viewData[i];
                 if(rowData._level <= level) {
                     return;
                 }
