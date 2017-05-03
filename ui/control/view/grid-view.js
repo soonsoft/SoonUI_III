@@ -823,9 +823,9 @@ ui.define("ui.ctrls.GridView", {
             c = this.option.columns[j];
             colGroup.append(this._createCol(c));
         }
-        for (i = 0; i < dataTable.length; i++) {
+        for (i = 0; i < viewData.length; i++) {
             tr = $("<tr />");
-            this._createRowCells(tr, dataTable[i], i);
+            this._createRowCells(tr, viewData[i], i);
             tbody.append(tr);
         }
         this.tableBody.append(tbody);
