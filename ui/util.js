@@ -4,11 +4,13 @@
  * 修复javascript中四舍五入方法的bug
  */ 
 ui.fixedNumber = function (number, precision) {
-    var b = 1;
+    var multiplier,
+        b = 1;
     if (isNaN(number)) return number;
     if (number < 0) b = -1;
     if (isNaN(precision)) precision = 0;
-    var multiplier = Math.pow(10, precision);
+    
+    multiplier = Math.pow(10, precision);
     return Math.round(Math.abs(number) * multiplier) / multiplier * b;
 };
 
