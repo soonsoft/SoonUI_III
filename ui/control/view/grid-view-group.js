@@ -1,4 +1,5 @@
 // GridViewGroup
+
 function defaultCreateGroupItem(groupKey) {
     return {
         groupText: groupKey
@@ -16,7 +17,8 @@ function renderGroupItemCell(data, column, index, td) {
 }
 
 function onGropRowClick(e) {
-    var td,
+    var viewData,
+        td,
         groupItem;
 
     e.stopPropagation();
@@ -27,7 +29,9 @@ function onGropRowClick(e) {
         }
         td = td.parent();
     }
-    groupItem = this.gridview.dataTable[td.parent().get(0).rowIndex];
+
+    viewData = this.gridview.getViewData();
+    groupItem = viewData[td.parent()[0].rowIndex];
     if(td.hasClass("group-fold")) {
         td.removeClass("group-fold");
         this._operateChildren(groupItem.itemIndexes, function(item, row) {
@@ -55,16 +59,16 @@ GridViewGroup.prototype = {
         this.onGroupRowClickHandler = $.proxy(onGropRowClick, this);
     },
     _operateChildren: function (list, action) {
-        var i = 0,
-            len = list.length,
-            rowIndex;
-        var dataTable = this.gridview.dataTable,
-            rows = this.gridview.tableBody[0].rows,
-            item,
-            result;
-        for (; i < len; i++) {
+        var viewData,
+            rowIndex,
+            rows, item, result,
+            i, len;
+
+        viewData = this.gridview.getViewData();
+        rows = this.gridview.tableBody[0].rows;
+        for (i = 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
-            item = dataTable[rowIndex];
+            item = viewData[rowIndex];
             action.call(this, item, rows[rowIndex]);
         }
     },
@@ -115,7 +119,12 @@ GridViewGroup.prototype = {
     },
     /** 分组行号格式化器，每个分组都会自动调用分组格式化器，并从1开始 */
     rowNumber: function(value, column, index, td) {
-        var data = this.dataTable[index];
+        var viewData,
+            data;
+
+        viewData = this.getViewData();
+        data = viewData[index];
+
         if(isGroupItem.call(data)) {
             return renderGroupItemCell.call(this, data, column, index, td);
         } else {
@@ -124,7 +133,12 @@ GridViewGroup.prototype = {
     },
     /** 分组文本格式化器，每次开始新分组都会自动调用分组格式化器 */
     formatText: function(value, column, index, td) {
-        var data = this.dataTable[index];
+        var viewData,
+            data;
+        
+        viewData = this.getViewData();
+        data = viewData[index];
+        
         if(isGroupItem.call(data)) {
             return renderGroupItemCell.call(this, data, column, index, td);
         } else {
