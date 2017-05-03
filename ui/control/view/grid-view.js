@@ -380,10 +380,17 @@ ui.define("ui.ctrls.GridView", {
         this._initPagerPanel();
 
         this.setSize(this.option.width, this.option.height);
+        // 修正selection设置项
         if(!this.option.selection) {
             this.option.selection = {
                 type: "disabled"
             };
+        } else {
+            if(ui.core.isString(this.option.selection.type)) {
+                this.option.selection.type = this.option.selection.type.toLowerCase();
+            } else {
+                this.option.selection.type = "disabled";
+            }
         }
 
         // event handlers
@@ -1150,3 +1157,10 @@ ui.define("ui.ctrls.GridView", {
         }
     }
 });
+
+$.fn.gridView = function(option) {
+    if(this.length === 0) {
+        return;
+    }
+    return ui.ctrls.GridView(option, this);
+};
