@@ -357,6 +357,26 @@ ui.define("ui.ctrls.CardView", {
             }
         }
     },
+    _getItemElement: function(index) {
+        if(!this.bodyPanel) {
+            return null;
+        }
+        var items = this.bodyPanel.children();
+        var item = items[index];
+        if(item) {
+            return $(item);
+        }
+        return null;
+    },
+    _updateIndexes: function(start) {
+        if(start < 0) {
+            start = 0;
+        }
+        children = this.bodyPanel.children();
+        for(var i = start, len = children.length; i < len; i++) {
+            $(children[i]).attr("data-index", i);
+        }
+    },
     _promptIsShow: function() {
         return this._hasPrompt 
             && this._dataPrompt.css("display") === "block";
@@ -423,6 +443,7 @@ ui.define("ui.ctrls.CardView", {
             this.fire("rebind");
         }
     },
+    /** 获取选中的数据，单选返回单个对象，多选返回数组 */
     getSelection: function() {
         var result,
             i, len;
@@ -443,6 +464,7 @@ ui.define("ui.ctrls.CardView", {
         }
         return result;
     },
+    /** 取消选中项 */
     cancelSelection: function() {
         var i, len;
         if(!this.isSelectable()) {
@@ -466,6 +488,92 @@ ui.define("ui.ctrls.CardView", {
             this._current = null;    
         }
         this.fire("cancel");
+    },
+    /** 根据索引移除项目 */
+    removeAt: function(index) {
+        var elem;
+
+        if(!ui.core.isNumber(index) || index < 0 || index >= this.count()) {
+            return;
+        }
+
+        elem = this._getItemElement(index);
+        if(elem) {
+            if(this._current && this._current[0] === elem[0]) {
+                this._current = null;
+            }
+            item.remove();
+            this._updateIndexes(index);
+
+            this.option.viewData.splice(index, 1);
+            this._recomposeItems();
+        }
+    },
+    /** 根据索引更新项目 */
+    updateItem: function(index, itemData) {
+        var elem;
+
+        if(!ui.core.isNumber(index) || index < 0 || index >= this.count()) {
+            return;
+        }
+
+        elem = this._getItemElement(index);
+        if(elem) {
+            elem.empty();
+            this.option.viewData[index] = itemData;
+            this._renderItem(elem, itemData, index);
+        }
+    },
+    /** 添加项目 */
+    addItem: function(itemData) {
+        var viewData,
+            elem;
+        if(!itemData) {
+            return;
+        }
+
+        viewData = this.option.viewData;
+        if(!Array.isArray(viewData) || viewData.length === 0) {
+            if (this.bodyPanel) {
+                this.bodyPanel.remove();
+                this.bodyPanel = null;
+            }
+            this.fill([itemData]);
+            return;
+        }
+
+        elem = this._createItem(itemData, viewData.length);
+        this._renderItem(elem, itemData, viewData.length);
+        this.bodyPanel.append(elem);
+        viewData.push(itemData);
+        this._recomposeItems();
+    },
+    /** 插入项目 */
+    insertItem: function(index, itemData) {
+        var elem,
+            viewData;
+        if(!itemData) {
+            return;
+        }
+        viewData = this.option.viewData;
+        if (!Array.isArray(viewData) || viewData.length === 0) {
+            this.addItem(itemData);
+            return;
+        }
+        if (index < 0) {
+            index = 0;
+        }
+        if(index >= 0 && index < viewData.length) {
+            elem = this._createItem(itemData, index);
+            this._renderItem(elem, itemData, index);
+            this._getItemElement(index).before(elem);
+            viewData.splice(index, 0, itemData);
+            
+            this._updateIndexes();
+            this._recomposeItems();
+        } else {
+            this.addItem(itemData);
+        }
     },
     /** 获取视图数据 */
     getViewData: function() {
@@ -534,3 +642,10 @@ ui.define("ui.ctrls.CardView", {
         }
     }
 });
+
+$.fn.cardView = function() {
+    if(this.length === 0) {
+        return;
+    }
+    return ui.ctrls.CardView(option, this);
+};
