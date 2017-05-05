@@ -900,7 +900,7 @@ ui.define("ui.ctrls.GridView", {
             columnIndex, checkboxClass, fn,
             i, len;
 
-        if (this.option.selection.type === "disabled") {
+        if (!this.isSelectable()) {
             return;
         }
 
