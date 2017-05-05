@@ -815,6 +815,7 @@ ui.define("ui.ctrls.GridView", {
         }
 
         if(!Array.isArray(viewData) || viewData.length == 0) {
+            viewData = [];
             this._showDataPrompt();
             return;
         } else {
