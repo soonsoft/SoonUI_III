@@ -1,0 +1,139 @@
+.ui-card-view {
+    overflow: hidden;
+}
+
+.ui-card-view-body {
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+    .ui-card-view-body .body-panel {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    .ui-card-view-body .view-item {
+        position: absolute;
+        overflow: hidden;
+        background-color: @panel-color;
+    }
+
+        .ui-card-view-body .view-item .frame-panel {
+            position: absolute;
+            background-color: transparent;
+            border-style: solid;
+            border-width: 4px;
+            opacity: .6;
+            display: none;
+            top: 0;
+            left: 0;
+        }
+
+        .ui-card-view-body .view-item .check-marker {
+            position: absolute;
+            width: 0;
+            height: 0;
+            display: none;
+            border-width: 16px;
+            border-top-color: @tool-color;
+            border-right-color: @tool-color;
+            border-left-color: transparent !important;
+            border-bottom-color: transparent !important;
+            border-style: solid solid dashed dashed;
+            top: 0;
+            right: 0;
+        }
+
+        .ui-card-view-body .view-item .check-icon {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: none;
+            width: 12px;
+            height: 12px;
+            line-height: 12px;
+            text-align: center;
+            color: #fff;
+        }
+
+            .ui-card-view-body .view-item:hover .frame-panel {
+                display: block;
+            }
+
+        .ui-card-view-body .ui-card-view-selection .check-marker {
+            display: block;
+        }
+
+        .ui-card-view-body .ui-card-view-selection .check-icon {
+            display: block;
+        }
+
+        .ui-card-view-body .ui-card-view-selection .frame-panel {
+            display: block;
+            opacity: 1;
+        }
+
+        .ui-card-view-body .data-prompt {
+            position: absolute;
+            overflow:hidden;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            line-height: 30px;
+            text-align: center;
+            display: none;
+            font-size: 16px;
+        }
+
+.ui-card-view-foot {
+    height: 30px;
+    background-color: @panel-color;
+    line-height: 30px;
+}
+
+    .ui-card-view-foot .data-info {
+        width: 40%;
+        float: left;
+        overflow: hidden;
+    }
+
+        .ui-card-view-foot .data-info span {
+            font-size: 1em;
+            margin-left: 10px;
+        }
+
+    .ui-card-view-foot .page-panel {
+        width: 60%;
+        float: right;
+        text-align: right;
+        overflow: hidden;
+    }
+
+        .ui-card-view-foot .page-panel .pager-button {
+            font-size: 1.3em;
+            color: @tool-color;
+            margin-left: 0px;
+            margin-right: 0px;
+            padding-left: 10px;
+            padding-right: 10px;
+            cursor: pointer;
+        }
+
+            .ui-card-view-foot .page-panel .pager-button:hover {
+                text-decoration: none;
+            }
+
+        .ui-card-view-foot .page-panel .pager-current {
+            font-size: 1.3em;
+            padding-left: 10px;
+            padding-right: 10px;
+            cursor: default;
+        }
