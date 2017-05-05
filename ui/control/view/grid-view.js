@@ -923,7 +923,6 @@ ui.define("ui.ctrls.GridView", {
             if(this._selectList.length === 0) {
                 return;
             }
-            eventData = [];
             for(i = 0, len = this._selectList.length; i < len; i++) {
                 elem = $(this._selectList[i]);
                 fn.call(this, elem);
