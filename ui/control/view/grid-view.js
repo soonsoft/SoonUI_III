@@ -289,9 +289,9 @@ ui.define("ui.ctrls.GridView", {
                 sort:       boolean|function    是否支持排序，true支持，false不支持，默认为false
             */
             columns: [],
-            // gridview视图数据
+            // 视图数据
             viewData: null,
-            // 显示的提示信息
+            // 没有数据时显示的提示信息
             promptText: "没有数据",
             // 高度
             height: false,
