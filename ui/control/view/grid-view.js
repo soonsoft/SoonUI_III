@@ -878,6 +878,9 @@ ui.define("ui.ctrls.GridView", {
     getSelection: function() {
         var result,
             i, len;
+        if(!this.isSelectable()) {
+            return null;
+        }
         if(this.isMultiple()) {
             result = [];
             for(i = 0, len = this._selectList.length; i < len; i++) {
