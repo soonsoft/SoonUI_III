@@ -376,6 +376,8 @@ ui.define("ui.ctrls.GridView", {
         if (Array.isArray(this.option.viewData)) {
             this.createGridBody(
                 this.option.viewData, this.option.viewData.length);
+        } else {
+            this.option.viewData = [];
         }
         this._initPagerPanel();
 
@@ -814,14 +816,17 @@ ui.define("ui.ctrls.GridView", {
             isRebind = true;
         }
 
-        if(!Array.isArray(viewData) || viewData.length == 0) {
+        if(!Array.isArray(viewData)) {
             viewData = [];
+        }
+        this.option.viewData = viewData;
+
+        if(viewData.length == 0) {
             this._showDataPrompt();
             return;
         } else {
             this._hideDataPrompt();
         }
-        this.option.viewData = viewData;
 
         colGroup = $("<colgroup />"),
         tbody = $("<tbody />");
