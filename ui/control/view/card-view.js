@@ -29,8 +29,8 @@ function preparePager(option) {
 // 选择事件
 function onBodyClick(e) {
     var elem = $(e.target);
-    while(!elem.hasClass("ui-card-view-item")) {
-        if(elem.hasClass("ui-card-view-panel")) {
+    while(!elem.hasClass("view-item")) {
+        if(elem.hasClass("ui-card-view-body")) {
             return;
         }
         elem = elem.parent();
@@ -402,7 +402,7 @@ ui.define("ui.ctrls.CardView", {
 
         isRebind = false;
         if(!this.bodyPanel) {
-            this.bodyPanel = $("<div class='ui-card-view-panel'/>");
+            this.bodyPanel = $("<div class='body-panel'/>");
             if(this.option.selection)
                 this.bodyPanel.click(this.onBodyClickHandler);
             this.viewBody.append(this.bodyPanel);
