@@ -371,7 +371,7 @@ ui.define("ui.ctrls.GridView", {
         this.element.append(this.gridHead);
         this.createGridHead();
 
-         this.gridBody = $("<div class='ui-grid-body' />");
+        this.gridBody = $("<div class='ui-grid-body' />");
         this.element.append(this.gridBody);
         if (Array.isArray(this.option.viewData)) {
             this.createGridBody(
@@ -1107,7 +1107,9 @@ ui.define("ui.ctrls.GridView", {
     },
     /** 获取项目数 */
     count: function() {
-        return this.viewData.length;
+        return Array.isArray(this.option.viewData)
+            ? 0
+            : this.option.viewData.length;
     },
     /** 是否可以选择 */
     isSelectable: function() {
