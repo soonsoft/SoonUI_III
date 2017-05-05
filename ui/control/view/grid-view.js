@@ -1114,7 +1114,7 @@ ui.define("ui.ctrls.GridView", {
     /** 是否可以选择 */
     isSelectable: function() {
         var type = this.option.selection.type;
-        return type === "row" || type === "cell"
+        return type === "row" || type === "cell";
     },
     /** 是否支持多选 */
     isMultiple: function() {
