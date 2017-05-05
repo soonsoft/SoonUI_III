@@ -1138,8 +1138,12 @@ ui.define("ui.ctrls.GridView", {
             this._showDataPrompt();
         }
     },
-    /** 设置表格的尺寸, height: 高度， width: 宽度 */
-    setSize: function(height, width) {
+    /** 设置表格的尺寸, width: 宽度, height: 高度 */
+    setSize: function(width, height) {
+        if(arguments.length === 1) {
+            height = width;
+            width = null;
+        }
         if(ui.core.isNumber(height)) {
             height -= this.columnHeight + this.borderHeight;
             if(this.pager) {
