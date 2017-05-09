@@ -100,6 +100,10 @@ ui.define("ui.ctrls.CardView", {
             this.option.height = false;
         }
 
+        /// 事件处理程序
+        // 项目选中处理程序
+        this.onBodyClickHandler = $.proxy(onBodyClick, this);
+
         this._init();
     },
     _init: function() {
@@ -127,9 +131,6 @@ ui.define("ui.ctrls.CardView", {
         if(Array.isArray(this.option.viewData)) {
             this.fill(this.option.viewData, this.option.viewData.length);
         }
-
-        // 项目选中处理程序
-        this.onBodyClickHandler = $.proxy(onBodyClick, this);
     },
     _initBorderWidth: function() {
         var getBorderWidth = function(key) {
