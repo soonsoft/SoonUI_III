@@ -393,12 +393,10 @@ ui.define("ui.ctrls.GridView", {
         // 表头
         this.gridHead = $("<div class='ui-grid-head' />");
         this.element.append(this.gridHead);
-
         // 表体
         this.gridBody = $("<div class='ui-grid-body' />");
         this.gridBody.scroll(this.onScrollingXHandler);
         this.element.append(this.gridBody);
-
         // 分页栏
         this._initPagerPanel();
         // 设置容器大小
