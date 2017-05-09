@@ -377,21 +377,6 @@ ui.define("ui.ctrls.GridView", {
         this._initBorderWidth();
         this._initDataPrompt();
 
-        this.gridHead = $("<div class='ui-grid-head' />");
-        this.element.append(this.gridHead);
-        this.createGridHead();
-
-        this.gridBody = $("<div class='ui-grid-body' />");
-        this.element.append(this.gridBody);
-        if (Array.isArray(this.option.viewData)) {
-            this.createGridBody(
-                this.option.viewData, this.option.viewData.length);
-        } else {
-            this.option.viewData = [];
-        }
-        this._initPagerPanel();
-
-        this.setSize(this.option.width, this.option.height);
         // 修正selection设置项
         if(!this.option.selection) {
             this.option.selection = {
@@ -403,6 +388,30 @@ ui.define("ui.ctrls.GridView", {
             } else {
                 this.option.selection.type = "disabled";
             }
+        }
+
+        // 表头
+        this.gridHead = $("<div class='ui-grid-head' />");
+        this.element.append(this.gridHead);
+
+        // 表体
+        this.gridBody = $("<div class='ui-grid-body' />");
+        this.gridBody.scroll(this.onScrollingXHandler);
+        this.element.append(this.gridBody);
+
+        // 分页栏
+        this._initPagerPanel();
+        // 设置容器大小
+        this.setSize(this.option.width, this.option.height);
+
+        // 创建表头
+        this.createGridHead();
+        // 创建表体
+        if (Array.isArray(this.option.viewData)) {
+            this.createGridBody(
+                this.option.viewData, this.option.viewData.length);
+        } else {
+            this.option.viewData = [];
         }
     },
     _initBorderWidth: function() {
