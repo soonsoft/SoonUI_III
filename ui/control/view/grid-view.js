@@ -358,6 +358,16 @@ ui.define("ui.ctrls.GridView", {
         // checkbox勾选计数器
         this._checkedCount = 0;
 
+        // event handlers
+        // 排序按钮点击事件
+        this.onSortHandler = $.proxy(onSort, this);
+        // 行或者单元格点击事件
+        this.onTableBodyClickHandler = $.proxy(onTableBodyClick, this);
+        // 全选按钮点击事件
+        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
+        // 横向滚动条同步事件
+        this.onScrollingXHandler = $.proxy(onScrollingX, this);
+
         this._init();
     },
     _init: function() {
@@ -394,16 +404,6 @@ ui.define("ui.ctrls.GridView", {
                 this.option.selection.type = "disabled";
             }
         }
-
-        // event handlers
-        // 排序按钮点击事件
-        this.onSortHandler = $.proxy(onSort, this);
-        // 行或者单元格点击事件
-        this.onTableBodyClickHandler = $.proxy(onTableBodyClick, this);
-        // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
-        // 横向滚动条同步事件
-        this.onScrollingXHandler = $.proxy(onScrollingX, this);
     },
     _initBorderWidth: function() {
         var getBorderWidth = function(key) {
