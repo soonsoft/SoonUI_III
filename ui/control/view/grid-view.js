@@ -709,6 +709,8 @@ ui.define("ui.ctrls.GridView", {
                 if(selectValue === true) {
                     return;
                 }
+                selectValue = false;
+
                 for(i = 0, len = this._selectList.length; i < len; i++) {
                     if(this._selectList[i] === elem[0]) {
                         this._selectList.splice(i, 1);
@@ -722,6 +724,8 @@ ui.define("ui.ctrls.GridView", {
                 if(selectValue === false) {
                     return;
                 }
+                selectValue = true;
+                
                 this._selectList.push(elem[0]);
                 elem.addClass(selectedClass).addClass("background-highlight");
                 this.fire("selected", eventData);
