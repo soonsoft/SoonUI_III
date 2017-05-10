@@ -469,6 +469,7 @@ ui.define("ui.ctrls.GridView", {
     _createRowCells: function(tr, rowData, rowIndex) {
         var i, len, 
             c, cval, td, el,
+            formatter,
             isRowHover;
         
         isRowHover = this.option.selection.type !== "cell";
@@ -477,6 +478,7 @@ ui.define("ui.ctrls.GridView", {
         }
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.gridColumns[i];
+            formatter = c.formatter;
             if (!ui.core.isFunction(c.formatter)) {
                 formatter = textFormatter;
             }
