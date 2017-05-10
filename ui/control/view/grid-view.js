@@ -555,7 +555,7 @@ ui.define("ui.ctrls.GridView", {
         if (column.sort === true || ui.core.isFunction(column.sort)) {
             cell.click(this.onSortHandler);
             cell.addClass("sorter");
-            cell.append("<i class='fa fa-sort'></i>");
+            cell.append("<i class='fa fa-sort' />");
             this.sorterIndexes.push(index);
         }
     },
