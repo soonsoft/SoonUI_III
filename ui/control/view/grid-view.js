@@ -93,6 +93,39 @@ function defaultSorting(v1, v2) {
         return 0;
     }
 }
+function resetColumnState() {
+    var fn, key;
+    for(key in this.resetColumnStateHandlers) {
+        if(this.resetColumnStateHandlers.hasOwnProperty(key)) {
+            fn = this.resetColumnStateHandlers[key];
+            if(ui.core.isFunction(fn)) {
+                try {
+                    fn.call(this);
+                } catch (e) { }
+            }
+        }
+    }
+}
+function resetSortColumnState (tr) {
+    var icon, 
+        cells,
+        i, 
+        len;
+
+    if (!tr) {
+        tr = this.tableHead.find("tr");
+    }
+
+    cells = tr.children();
+    for (i = 0, len = this._sorterIndexes.length; i < len; i++) {
+        icon = $(cells[this._sorterIndexes[i]]);
+        icon = icon.find("i");
+        if (!icon.hasClass(sortClass)) {
+            icon.attr("class", "fa fa-sort");
+            return;
+        }
+    }
+}
 function setChecked(cbx, checked) {
     if(checked) {
         cbx.removeClass("fa-square")
@@ -154,7 +187,7 @@ function onSort(e) {
     column = this.option.columns[columnIndex];
 
     if (this._lastSortColumn !== column) {
-        this.resetSortColumnState(elem.parent());
+        resetSortColumnState.call(this, elem.parent());
     }
 
     fn = $.proxy(sorting, this);
@@ -578,39 +611,6 @@ ui.define("ui.ctrls.GridView", {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
-        }
-    },
-    _resetColumnState: function() {
-        var fn, key;
-        for(key in this.resetColumnStateHandlers) {
-            if(this.resetColumnStateHandlers.hasOwnProperty(key)) {
-                fn = this.resetColumnStateHandlers[key];
-                if(ui.core.isFunction(fn)) {
-                    try {
-                        fn.call(this);
-                    } catch (e) { }
-                }
-            }
-        }
-    },
-    _resetSortColumnState: function (tr) {
-        var icon, 
-            cells,
-            i, 
-            len;
-
-        if (!tr) {
-            tr = this.tableHead.find("tr");
-        }
-
-        cells = tr.children();
-        for (i = 0, len = this._sorterIndexes.length; i < len; i++) {
-            icon = $(cells[this._sorterIndexes[i]]);
-            icon = icon.find("i");
-            if (!icon.hasClass(sortClass)) {
-                icon.attr("class", "fa fa-sort");
-                return;
-            }
         }
     },
     _refreshRowNumber: function(startRowIndex, endRowIndex) {
@@ -1150,10 +1150,10 @@ ui.define("ui.ctrls.GridView", {
             this.option.listView = null;
             this._selectList = [];
             this._current = null;
-            this._resetColumnState();
+            resetColumnState.call(this);
         }
         if (this.tableHead) {
-            this._resetSortColumnState();
+            resetSortColumnState.call(this);
             this._lastSortColumn = null;
         }
         if (this.pager) {
