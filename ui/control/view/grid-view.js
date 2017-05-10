@@ -277,6 +277,7 @@ function onCheckboxAllClick(e) {
         selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
         
         if(checkedValue) {
+            // 如果是要选中，需要同步行状态
             fn = function(elem) {
                 var nodeName;
                 while((nodeName = elem.nodeName()) !== tagName) {
@@ -288,7 +289,7 @@ function onCheckboxAllClick(e) {
                 this._selectItem(elem, selectedClass, checkedValue);
             };
         } else {
-            // 如果是取消选择
+            // 如果是取消选中，直接清空选中行状态
             for(i = 0, len = this._selectList.length; i < len; i++) {
                 $(this._selectList[i])
                     .removeClass(selectedClass)
