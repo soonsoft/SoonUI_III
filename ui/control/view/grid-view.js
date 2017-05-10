@@ -536,7 +536,7 @@ ui.define("ui.ctrls.GridView", {
     },
     _createCol: function(column) {
         var col = $("<col />");
-        if (!isNaN(parseInt(column.len))) {
+        if (ui.core.isNumber(column.len)) {
             col.css("width", column.len + "px");
         }
         return col;
