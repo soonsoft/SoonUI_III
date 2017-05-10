@@ -275,25 +275,27 @@ function onCheckboxAllClick(e) {
     if(this.option.selection.isRelateCheckbox === true && this.isMultiple()) {
         tagName = this.option.selection.type === "cell" ? "TD" : "TR";
         selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
-        // 如果是取消选择
+        
         if(checkedValue) {
-            for(i = 0, keb = this._selectList.length; i < len; i++) {
+            fn = function(elem) {
+                var nodeName;
+                while((nodeName = elem.nodeName()) !== tagName) {
+                    if(nodeName === "TBODY") {
+                        return;
+                    }
+                    elem = elem.parent();
+                }
+                this._selectItem(elem, selectedClass, checkedValue);
+            };
+        } else {
+            // 如果是取消选择
+            for(i = 0, len = this._selectList.length; i < len; i++) {
                 $(this._selectList[i])
                     .removeClass(selectedClass)
                     .removeClass("background-highlight");
             }
             this._selectList = [];
         }
-        fn = function(elem) {
-            var nodeName;
-            while((nodeName = elem.nodeName()) !== tagName) {
-                if(nodeName === "TBODY") {
-                    return;
-                }
-                elem = elem.parent();
-            }
-            this._selectItem(elem, selectedClass, checkedValue);
-        };
     }
 
     rows = this.tableBody[0].tBodies[0].rows;
@@ -685,7 +687,7 @@ ui.define("ui.ctrls.GridView", {
             }
         }
     },
-    _selectItem: function(elem, selectedClass, checkedValue) {
+    _selectItem: function(elem, selectedClass, selectValue) {
         var eventData, result,
             colIndex, checkbox,
             i, len;
@@ -699,21 +701,13 @@ ui.define("ui.ctrls.GridView", {
             return;
         }
 
-        if(this.option.selection.isRelateCheckbox) {
-            colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
-            if(colIndex > -1) {
-                checkbox = this.option.selection.type === "cell"
-                    ? $(elem.parent()[0].cells[colIndex])
-                    : $(elem[0].cells[colIndex]);
-                checkbox = checkbox.find("." + cellCheckbox);
-                if(checkbox.length > 0) {
-                    changeChecked.call(this, checkbox);
-                }
-            }
-        }
-
         if(this.isMultiple()) {
+            // 多选
             if(elem.hasClass(selectedClass)) {
+                // 如果当前已经选中了
+                if(selectValue === true) {
+                    return;
+                }
                 for(i = 0, len = this._selectList.length; i < len; i++) {
                     if(this._selectList[i] === elem[0]) {
                         this._selectList.splice(i, 1);
@@ -723,11 +717,37 @@ ui.define("ui.ctrls.GridView", {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
                 this.fire("deselected", eventData);
             } else {
+                // 如果当前本来就没选中
+                if(selectValue === false) {
+                    return;
+                }
                 this._selectList.push(elem[0]);
                 elem.addClass(selectedClass).addClass("background-highlight");
                 this.fire("selected", eventData);
             }
+
+            // 同步checkbox状态
+            if(this.option.selection.isRelateCheckbox) {
+                // 用过用户点击的是checkbox则保存变量，不用重新去获取了
+                if(eventData.originElement && eventData.originElement.hasClass(cellCheckbox)) {
+                    checkbox = eventData.originElement;
+                }
+                // 如果用户点击的不是checkbox则找出对于的checkbox
+                if(!checkbox) {
+                    colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
+                    if(colIndex > -1) {
+                        checkbox = this.option.selection.type === "cell"
+                            ? $(elem.parent()[0].cells[colIndex])
+                            : $(elem[0].cells[colIndex]);
+                        checkbox = checkbox.find("." + cellCheckbox);
+                    }
+                }
+                if(checkbox && checkbox.length > 0) {
+                    setChecked.call(this, checkbox, selectValue);
+                }
+            }
         } else {
+            // 单选
             if(this._current) {
                 this._current.removeClass(selectedClass).removeClass("background-highlight");
                 if(this_current[0] === elem[0]) {
@@ -735,10 +755,10 @@ ui.define("ui.ctrls.GridView", {
                     this.fire("deselected", eventData);
                     return;
                 }
-                this._current = elem;
-                elem.addClass(selectedClass).addClass("background-highlight");
-                this.fire("selected", eventData);
             }
+            this._current = elem;
+            elem.addClass(selectedClass).addClass("background-highlight");
+            this.fire("selected", eventData);
         }
     },
     _promptIsShow: function() {
