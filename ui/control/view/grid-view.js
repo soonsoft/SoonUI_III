@@ -776,17 +776,15 @@ ui.define("ui.ctrls.GridView", {
             this.tableHead.html("");
         }
 
-        colGroup = $("<colgroup />"),
+        colGroup = $("<colgroup />");
         thead = $("<thead />");
-        this.tableHead.append(colGroup);
-
         tr = $("<tr />");
         for (i = 0; i < columns.length; i++) {
             c = columns[i];
             if (!c._columnKeys) {
                 c._columnKeys = {};
             }
-            colGroup.append(this.createCol(c));
+            colGroup.append(this._createCol(c));
             th = this._createCell("th", c);
             th.addClass("ui-table-head-cell");
             if ($.isFunction(c.text)) {
@@ -806,8 +804,9 @@ ui.define("ui.ctrls.GridView", {
         this._headScrollCol = $("<col style='width:0' />");
         colGroup.append(this._headScrollCol);
         tr.append($("<th class='scroll-cell' />"));
-
         thead.append(tr);
+
+        this.tableHead.append(colGroup);
         this.tableHead.append(thead);
     },
     /** 创建内容 */
