@@ -290,7 +290,7 @@ ui.define("ui.ctrls.GridView", {
                 column:     string|Array        绑定字段名，默认为null
                 len:        number              列宽度，默认为auto
                 align:      center|left|right   列对齐方式，默认为left(但是表头居中)
-                formatter:  function            格式化器(别名：handler)，默认为null
+                formatter:  function            格式化器，默认为null
                 sort:       boolean|function    是否支持排序，true支持，false不支持，默认为false
             */
             columns: [],
