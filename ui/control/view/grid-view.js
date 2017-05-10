@@ -489,10 +489,12 @@ ui.define("ui.ctrls.GridView", {
                 td.addClass("table-body-cell-hover");
             }
             el = formatter.call(this, cval, c, rowIndex, td);
-            if (td.isAnnulment)
+            if (td.isAnnulment) {
                 continue;
-            if (el)
+            }
+            if (el) {
                 td.append(el);
+            }
             if (i === len - 1) {
                 td.addClass(lastCell);
             }
