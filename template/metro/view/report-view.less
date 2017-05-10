@@ -1,0 +1,337 @@
+.ui-report-view {
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-color: @border-color;
+    position: relative;
+}
+
+    .ui-report-view th,
+    .ui-report-view td {
+        overflow: hidden;
+        white-space: nowrap;
+        -ms-text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+    }
+
+/* 表头 */
+.ui-report-head {
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+    .ui-report-head .fixed-head {
+        min-height: 30px;
+        overflow: hidden;
+        position: absolute;
+        width: auto;
+    }
+
+    .ui-report-head .data-head {
+        min-height: 30px;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        left: 0;
+    }
+
+    .ui-report-head .table-fixed-head,
+    .ui-report-head .table-data-head {
+        table-layout: fixed;
+        width: 100%;
+        color: @font-color;
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    .ui-report-head tr {
+        height: 30px;
+    }
+
+    .ui-report-head-cell {
+        padding: 0px;
+        height: 29px;
+        line-height: 29px;
+        font-weight: normal;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        border-bottom: solid 1px @border-color;
+        border-right: solid 1px @border-color;
+        position: relative;
+    }
+
+    .ui-report-head .last-cell,
+    .ui-report-head .scroll-cell {
+        border-right: none 0;
+    }
+
+    .ui-report-head span {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .ui-report-head .sorter {
+        cursor: pointer;
+    }
+
+        .ui-report-head .sorter:hover {
+            background-color: @panel-color;
+        }
+
+        .ui-report-head .sorter .fa {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            color: @tool-color;
+            margin-right: 5px;
+            vertical-align: baseline;
+        }
+
+        .ui-report-head .sorter .fa-sort-asc {
+            vertical-align: middle;
+        }
+
+        .ui-report-head .sorter .fa-sort-desc {
+            vertical-align: text-top;
+        }
+
+/* 表体 */
+.ui-report-body {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    position: relative;
+}
+
+    .ui-report-body .data-prompt {
+        position: absolute;
+        overflow:hidden;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        line-height: 30px;
+        text-align: center;
+        display: none;
+        font-size: 16px;
+    }
+
+    .ui-report-body .fixed-body {
+        overflow: hidden;
+        position: absolute;
+        width: auto;
+        height: auto;
+    }
+
+    .ui-report-body .fixed-body-scroll {
+        overflow: hidden;
+        position: absolute;
+        height: 17px;
+        display: none;
+        bottom: 0;
+        left: 0;
+        background-color: @panel-color;
+    }
+
+    .ui-report-body .data-body {
+        width: auto;
+        height: auto;
+        overflow: auto;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+    }
+
+    .ui-report-body .table-fixed-body,
+    .ui-report-body .table-data-body {
+        table-layout: fixed;
+        width: 100%;
+        color: @tool-color;
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    .ui-report-body .ui-table-body-cell {
+        padding: 0;
+        height: 29px;
+        line-height: 20px;
+        font-weight: normal;
+        text-align: left;
+        border-bottom: solid 1px @border-color;
+        border-right: solid 1px @border-color;
+    }
+
+    .ui-report-body .table-body-row-hover:hover,
+    .ui-report-body .table-body-cell-hover:hover {
+        background-color: @panel-color;
+    }
+
+    .ui-report-body .last-cell {
+        border-right: none 0;
+    }
+
+    .ui-report-body .row-selected,
+    .ui-report-body .cell-selected {
+        color: #ffffff;
+    }
+
+    .ui-report-body .row-selected td {
+        border-right-color: transparent;
+    }
+
+    .ui-report-body .row-selected a,
+    .ui-report-body .cell-selected a {
+        color: #ffffff;
+    }
+
+    .ui-report-body span,
+    .ui-report-body a {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .ui-report-body a {
+        text-decoration: none;
+    }
+    
+        .ui-report-body a:hover {
+            text-decoration: underline;
+        }
+
+    /* 多行文字 */
+    .ui-report-body p {
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    /* 文字块样式 */
+    .ui-report-body .state-text {
+        margin-left: 0;
+        margin-right: 0;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        text-align: center;
+        color: #ffffff;
+        line-height: 18px;
+        font-size: 12px;
+    }
+
+    .ui-report-body .state-true {
+        background-color: #54c70c;
+    }
+
+    .ui-report-body .state-false {
+        background-color: #ff2968;
+    }
+
+    /* 进度条样式 */
+    .ui-report-body .progress-panel {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .ui-report-body .progress-bar {
+        margin-top: 5px;
+        float: left;
+        height: 12px;
+        background-color: @panel-hover-color;
+        overflow: hidden;
+    }
+
+    .ui-report-body .progress-value {
+        height: 12px;
+    }
+
+    .ui-report-body .progress-text {
+        float: right;
+        text-align: right;
+        width: 52px;
+    }
+
+        .ui-report-body .progress-text span {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+            .ui-report-body .row-selected .progress-text span,
+            .ui-report-body .cell-selected .progress-text span {
+                color: #fff;
+            }
+
+    .ui-report-body .fit-column-handle {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 2px;
+        height: 100%;
+        display: block;
+        margin: 0;
+        padding: 0;
+        background-color: @background-color;
+        opacity: .01;
+        cursor: col-resize;
+    }
+
+    .ui-report-body .fit-line {
+        position: absolute;
+        width: 1px;
+        height: 100%;
+        border: none 0;
+        margin: 0;
+        padding: 0;
+        display: none;
+        top: 0;
+        left: 0;
+    }
+
+/* 底栏 */
+.ui-report-foot {
+    height: 30px;
+    background: @panel-color;
+    line-height: 30px;
+}
+
+    .ui-report-foot .data-info {
+        width: 40%;
+        float: left;
+        overflow: hidden;
+    }
+
+        .ui-report-foot .data-info span {
+            font-size: 1em;
+            margin-left: 10px;
+        }
+
+    .ui-report-foot .page-panel {
+        width: 60%;
+        float: right;
+        text-align: right;
+        overflow: hidden;
+    }
+
+        .ui-report-foot .page-panel .pager-button {
+            font-size: 1.3em;
+            color: @tool-color;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+            cursor: pointer;
+        }
+
+            .ui-report-foot .page-panel .pager-button:hover {
+                text-decoration: none;
+            }
+
+        .ui-report-foot .page-panel .pager-current {
+            font-size: 1.3em;
+            padding-left: 10px;
+            padding-right: 10px;
+            cursor: default;
+        }
