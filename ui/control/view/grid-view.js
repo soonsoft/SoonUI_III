@@ -10,6 +10,12 @@ var cellCheckbox = "grid-checkbox",
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
 
+var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
+    checkboxFormatter = ui.ColumnStyle.cfn.checkbox,
+    columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
+    textFormatter = ui.ColumnStyle.cfn.text,
+    rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
+
 function preparePager(option) {
     if(option.showPageInfo === true) {
         if(!option.pageInfoFormatter) {
@@ -101,8 +107,7 @@ function changeChecked(cbx) {
         colIndex;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(
-                ui.ColumnStyle.cnfn.columnCheckboxAll);
+        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
         if(colIndex === -1) {
             return;
         }
@@ -473,7 +478,7 @@ ui.define("ui.ctrls.GridView", {
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.gridColumns[i];
             if (!ui.core.isFunction(c.formatter)) {
-                formatter = ui.ColumnStyle.cfn.text;
+                formatter = textFormatter;
             }
             cval = this._prepareValue(rowData, c);
             td = this._createCell("td", c);
@@ -615,7 +620,7 @@ ui.define("ui.ctrls.GridView", {
             return;
         }
 
-        rowNumber = ui.ColumnStyle.cfn.rowNumber;
+        rowNumber = rowNumberFormatter;
         colIndex = this._getColumnIndexByFormatter(rowNumber);
         
         if (colIndex == -1) return;
@@ -691,7 +696,7 @@ ui.define("ui.ctrls.GridView", {
         }
 
         if(this.option.selection.isRelateCheckbox) {
-            colIndex = this._getColumnIndexByFormatter(ui.ColumnStyle.cfn.checkbox);
+            colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
             if(colIndex > -1) {
                 checkbox = this.option.selection.type === "cell"
                     ? $(elem.parent()[0].cells[colIndex])
@@ -788,7 +793,7 @@ ui.define("ui.ctrls.GridView", {
                 th.append(c.text.call(this, c, th));
             } else {
                 if(c.text) {
-                    th.append(ui.ColumnStyle.cnfn.columnText.call(this, c, th));
+                    th.append(columnTextFormatter.call(this, c, th));
                 }
             }
             this._setSorter(th, c, i);
@@ -867,7 +872,7 @@ ui.define("ui.ctrls.GridView", {
             result = [],
             i, len;
 
-        columnIndex = this._getColumnIndexByFormatter(ui.ColumnStyle.cnfn.columnCheckboxAll);
+        columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
         if(columnIndex === -1) {
             return result;
         }
@@ -913,7 +918,7 @@ ui.define("ui.ctrls.GridView", {
 
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         checkboxClass = "." + cellCheckbox;
-        columnIndex = this._getColumnIndexByFormatter(ui.ColumnStyle.cnfn.columnCheckboxAll);
+        columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
         if(this.option.selection.isRelateCheckbox) {
             fn = function(elem) {
                 var checkbox;
