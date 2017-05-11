@@ -260,32 +260,29 @@ function onScrollingX(e) {
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
-    var cbxAll, cbx, 
+    var cbxAll, cbx, cell,
         checkedValue, cellIndex,
-        rows, tagName, selectedClass, fn, 
+        rows, selectedClass, fn, 
         i, len;
 
     e.stopPropagation();
 
     cbxAll = $(e.target);
-    cellIndex = cbxAll.parent().prop("cellIndex");
     checkedValue = !cbxAll.hasClass("fa-check-square");
     setChecked.call(this, cbxAll, checkedValue);
 
     if(this.option.selection.isRelateCheckbox === true && this.isMultiple()) {
-        tagName = this.option.selection.type === "cell" ? "TD" : "TR";
         selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
-        
         if(checkedValue) {
             // 如果是要选中，需要同步行状态
-            fn = function(elem) {
-                var nodeName;
-                while((nodeName = elem.nodeName()) !== tagName) {
-                    if(nodeName === "TBODY") {
-                        return;
-                    }
+            fn = function(td, checkbox) {
+                var elem;
+                if(this.option.selection.type === "cell") {
+                    elem = td;
+                } else {
                     elem = elem.parent();
                 }
+                elem.context = checkbox[0];
                 this._selectItem(elem, selectedClass, checkedValue);
             };
         } else {
@@ -299,12 +296,14 @@ function onCheckboxAllClick(e) {
         }
     }
 
+    cellIndex = cbxAll.parent().prop("cellIndex");
     rows = this.tableBody[0].tBodies[0].rows;
     for(i = 0, len = rows.length; i < len; i++) {
-        cbx = $(rows[i].cells[cellIndex]).find("." + cellCheckbox);
+        cell = $(rows[i].cells[cellIndex]);
+        cbx = cell.find("." + cellCheckbox);
         if(cbx.length > 0) {
             if(ui.core.isFunction(fn)) {
-                fn.call(this, cbx);
+                fn.call(this, cell, cbx);
             } else {
                 setChecked.call(this, cbx, checkedValue);
             }
