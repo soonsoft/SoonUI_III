@@ -2,6 +2,8 @@
 var doc = document;
 var body = $(doc.body);
 var defaultOption = {
+    // 上下文
+    context: null,
     // 拖动的目标
     target: null,
     // 把手，拖拽事件附加的元素
@@ -27,6 +29,7 @@ function MouseDragger(option) {
 MouseDragger.prototype = {
     constructor: MouseDragger,
     initialize: function(option) {
+        var context;
         this.doc = document;
         this.shield = null;
 
@@ -46,9 +49,11 @@ MouseDragger.prototype = {
             });
         }
 
-        this.onMouseDown = $.proxy(this.mouseDownHandler, this);
-        this.onMouseMove = $.proxy(this.mouseMoveHandler, this);
-        this.onMouseUp = $.proxy(this.mouseUpHandler, this);
+        context = option.context || this;
+
+        this.onMouseDown = $.proxy(this.mouseDownHandler, context);
+        this.onMouseMove = $.proxy(this.mouseMoveHandler, context);
+        this.onMouseUp = $.proxy(this.mouseUpHandler, context);
     },
     on: function() {
         var target = this.option.target,
