@@ -84,7 +84,8 @@ MouseDragger.prototype = {
         if (e.which !== 1) return;
 
         eventArg = {
-            target: e.target
+            target: e.target,
+            option: this.option
         };
         eventArg.currentX = this.currentX = e.pageX;
         eventArg.currentY = this.currentY = e.pageY;
@@ -116,7 +117,8 @@ MouseDragger.prototype = {
     },
     mouseMoveHandler: function(e) {
         var eventArg = {
-            target: e.target
+            target: e.target,
+            option: this.option
         };
         if(!this._isDragStart) return;
         
@@ -131,7 +133,8 @@ MouseDragger.prototype = {
     },
     mouseUpHandler: function(e) {
         var eventArg = {
-            target: e.target
+            target: e.target,
+            option: this.option
         };
         if (e.which !== 1) return;
         if(!this._isDragStart) return;
