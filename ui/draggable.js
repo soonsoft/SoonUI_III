@@ -30,7 +30,6 @@ function MouseDragger(option) {
 MouseDragger.prototype = {
     constructor: MouseDragger,
     initialize: function(option) {
-        var context;
         this.doc = document;
         this.shield = null;
 
@@ -50,11 +49,9 @@ MouseDragger.prototype = {
             });
         }
 
-        context = option.context || this;
-
-        this.onMouseDown = $.proxy(this.mouseDownHandler, context);
-        this.onMouseMove = $.proxy(this.mouseMoveHandler, context);
-        this.onMouseUp = $.proxy(this.mouseUpHandler, context);
+        this.onMouseDown = $.proxy(this.mouseDownHandler, this);
+        this.onMouseMove = $.proxy(this.mouseMoveHandler, this);
+        this.onMouseUp = $.proxy(this.mouseUpHandler, this);
     },
     on: function() {
         var target = this.option.target,
