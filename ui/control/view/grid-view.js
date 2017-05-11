@@ -1051,7 +1051,7 @@ ui.define("ui.ctrls.GridView", {
             return;
         }
 
-        row = $("<tr class='grid-view-tr' />");
+        row = $("<tr />");
         this._createCell(row, rowData, viewData.length);
         $(this.tableBody[0].tBodies[0]).append(row);
         viewData.push(rowData);
@@ -1072,7 +1072,7 @@ ui.define("ui.ctrls.GridView", {
             rowIndex = 0;
         }
         if(rowIndex < viewData.length) {
-            row = $("<tr class='grid-view-tr' />");
+            row = $("<tr />");
             this._createRowCells(row, rowData, rowIndex);
             $(this.tableBody[0].rows[rowIndex]).before(row);
             viewData.splice(rowIndex, 0, rowData);
