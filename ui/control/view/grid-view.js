@@ -956,11 +956,13 @@ ui.define("ui.ctrls.GridView", {
             columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
             fn = function(elem) {
                 var checkbox;
-                checkbox = this.option.selection.type === "cell"
-                    ? $(elem.parent()[0].cells[columnIndex])
-                    : $(elem[0].cells[columnIndex]);
-                checkbox = checkbox.find(checkboxClass);
-                setChecked(checkbox, false);
+                if(columnIndex !== -1) {
+                    checkbox = this.option.selection.type === "cell"
+                        ? $(elem.parent()[0].cells[columnIndex])
+                        : $(elem[0].cells[columnIndex]);
+                    checkbox = checkbox.find(checkboxClass);
+                    setChecked(checkbox, false);
+                }
                 elem.removeClass(selectedClass).removeClass("background-highlight");
             };
         } else {
