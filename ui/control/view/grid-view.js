@@ -706,7 +706,8 @@ ui.define("ui.ctrls.GridView", {
         if(this.isMultiple()) {
             // 多选
             if(elem.hasClass(selectedClass)) {
-                // 如果当前已经选中了
+                // 现在要取消
+                // 如果selectValue定义了选中，则不要执行取消逻辑
                 if(selectValue === true) {
                     return;
                 }
@@ -721,7 +722,8 @@ ui.define("ui.ctrls.GridView", {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
                 this.fire("deselected", eventData);
             } else {
-                // 如果当前本来就没选中
+                // 现在要选中
+                // 如果selectValue定义了取消，则不要执行选中逻辑
                 if(selectValue === false) {
                     return;
                 }
