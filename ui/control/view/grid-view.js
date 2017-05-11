@@ -951,9 +951,9 @@ ui.define("ui.ctrls.GridView", {
         }
 
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
-        checkboxClass = "." + cellCheckbox;
-        columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
         if(this.option.selection.isRelateCheckbox) {
+            checkboxClass = "." + cellCheckbox;
+            columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
             fn = function(elem) {
                 var checkbox;
                 checkbox = this.option.selection.type === "cell"
@@ -963,6 +963,10 @@ ui.define("ui.ctrls.GridView", {
                 setChecked(checkbox, false);
                 elem.removeClass(selectedClass).removeClass("background-highlight");
             };
+        } else {
+            fn = function(elem) {
+                elem.removeClass(selectedClass).removeClass("background-highlight");
+            }
         }
 
         if(this.isMultiple()) {
