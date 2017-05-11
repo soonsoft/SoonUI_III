@@ -82,14 +82,21 @@ MouseDragger.prototype = {
         this.option.parent.css("position", this.option.originParentPosition);
     },
     mouseDownHandler: function(e) {
-        var eventArg = {};
+        var eventArg,
+            result;
         if (e.which !== 1) return;
 
+        eventArg = {
+            target: e.target
+        };
         eventArg.currentX = this.currentX = e.pageX;
         eventArg.currentY = this.currentY = e.pageY;
 
         if(ui.core.isFunction(this.option.onBeginDrag)) {
-            this.option.onBeginDrag.call(this, eventArg);
+            result = this.option.onBeginDrag.call(this, eventArg);
+            if(result === false) {
+                return;
+            }
         }
         doc.on("mousemove", this.onMouseMove)
             .on("mouseup", this.onMouseUp)
@@ -111,7 +118,9 @@ MouseDragger.prototype = {
         }
     },
     mouseMoveHandler: function(e) {
-        var eventArg = {};
+        var eventArg = {
+            target: e.target
+        };
         if(!this._isDragStart) return;
         
         eventArg.x = e.pageX - this.currentX;
@@ -124,7 +133,9 @@ MouseDragger.prototype = {
         }
     },
     mouseUpHandler: function(e) {
-        var eventArg = {};
+        var eventArg = {
+            target: e.target
+        };
         if (e.which !== 1) return;
         if(!this._isDragStart) return;
 
