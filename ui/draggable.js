@@ -10,6 +10,7 @@ var defaultOption = {
     handle: null,
     // 范围元素，默认是$(body)
     parent: body,
+    // 是否需要做Iframe屏蔽
     hasIframe: false,
     // 开始拖拽处理函数
     onBeginDrag: null,
