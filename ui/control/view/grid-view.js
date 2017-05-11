@@ -267,6 +267,11 @@ function onCheckboxAllClick(e) {
 
     e.stopPropagation();
 
+    cellIndex = cbxAll.parent().prop("cellIndex");
+    if(cellIndex === -1) {
+        return;
+    }
+
     cbxAll = $(e.target);
     checkedValue = !cbxAll.hasClass("fa-check-square");
     setChecked.call(this, cbxAll, checkedValue);
@@ -296,7 +301,6 @@ function onCheckboxAllClick(e) {
         }
     }
 
-    cellIndex = cbxAll.parent().prop("cellIndex");
     rows = this.tableBody[0].tBodies[0].rows;
     for(i = 0, len = rows.length; i < len; i++) {
         cell = $(rows[i].cells[cellIndex]);
