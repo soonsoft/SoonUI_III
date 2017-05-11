@@ -303,9 +303,10 @@ function onCheckboxAllClick(e) {
     for(i = 0, len = rows.length; i < len; i++) {
         cbx = $(rows[i].cells[cellIndex]).find("." + cellCheckbox);
         if(cbx.length > 0) {
-            setChecked.call(this, cbx, checkedValue);
             if(ui.core.isFunction(fn)) {
                 fn.call(this, cbx);
+            } else {
+                setChecked.call(this, cbx, checkedValue);
             }
         }
     }
@@ -725,7 +726,7 @@ ui.define("ui.ctrls.GridView", {
                     return;
                 }
                 selectValue = true;
-                
+
                 this._selectList.push(elem[0]);
                 elem.addClass(selectedClass).addClass("background-highlight");
                 this.fire("selected", eventData);
