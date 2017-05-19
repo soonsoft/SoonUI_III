@@ -214,7 +214,9 @@ function showMessage(msg) {
 ui.define("ui.ctrls.Uploader", {
     _defineOption: function() {
         return {
+            // 上传文件服务的路径
             url: null,
+            // 文件过滤器，默认可以上传所有文件。例：*.txt|*.docx|*.xlsx|*.pptx
             filter: "*.*"
         };
     },
