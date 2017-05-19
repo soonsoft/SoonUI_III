@@ -67,6 +67,35 @@ module.exports = function(grunt) {
             "shadow-color": "#999999"
         }
     ];
+    // layer indexes
+    var layerIndexes = {
+        // 遮罩层
+        "mask-layer": 9999,
+        // 弹出控件层
+        "ctrl-layer": 10000,
+        // 最高层
+        "highest-layer": 10001
+    };
+    var themeFiles = [];
+    // 主题色
+    for(i = 0, len = themeColor.length; i < len; i++) {
+        item = themeColor[i];
+        // 合并参数
+        for(key in layerIndexes) {
+            item[key] = layerIndexes[key];
+        }
+        // 构建输出文件
+        key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
+        value = "theme/site." + item.name + ".less";
+        item = {};
+        item[key] = value;
+        themeFiles.push(item);
+    }
+
+    // 控件主题色
+    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/light/**/*.less" });
+    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/dark/**/*.less" });
+
     // 高亮色
     var highlights = [
         {
@@ -238,22 +267,6 @@ module.exports = function(grunt) {
             "highlight-second-color": "#797979"
         }
     ];
-    var themeFiles = [];
-
-    // 主题色
-    for(i = 0, len = themeColor.length; i < len; i++) {
-        item = themeColor[i];
-        key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
-        value = "theme/site." + item.name + ".less";
-        item = {};
-        item[key] = value;
-        themeFiles.push(item);
-    }
-
-    // 控件主题色
-    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/light/**/*.less" });
-    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/dark/**/*.less" });
-
     // 高亮色
     for(i = 0, len = highlights.length; i < len; i++) {
         item = highlights[i];
@@ -307,11 +320,7 @@ module.exports = function(grunt) {
 
     // 控件文件
     var controlFiles = [
-        "ui/control/base/**/*.js",
-        "ui/control/box/**/*.js",
-        "ui/control/view/**/*.js",
-        "ui/control/tools/**/*.js",
-        "ui/control/images/**/*.js"
+        "ui/control/**/*.js"
     ];
     var controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
@@ -323,9 +332,9 @@ module.exports = function(grunt) {
 
     // 视图文件
     var viewFiles = [
-        "ui/viewpage/**/*.js"
+        "ui/view/**/*.js"
     ];
-    var viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
+    var viewDestFile = "dist/ui-views.<%= pkg.version %>.js";
     
     var wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {
@@ -467,7 +476,7 @@ module.exports = function(grunt) {
     });
 
     //加载自定义命令，用于创建主题样式文件
-	grunt.loadTasks( "command/theme_factory" );
+    grunt.loadTasks( "command/theme_factory" );
     //注册其它命令
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-concat");
@@ -484,7 +493,7 @@ module.exports = function(grunt) {
     // 在命令行上输入"grunt test"，test task就会被执行。
     grunt.registerTask("test", ["jshint", "qunit"]);
     // 在命令行上输入"grunt"，就会执行default task
-    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat"]);
+    grunt.registerTask("default", ["clean", "less:production", "concat"]);
     // 在命令行上输入"grunt release，就会执行"
     grunt.registerTask("release", ["clean", "less:devlopment", "concat", "uglify"]);
 };
