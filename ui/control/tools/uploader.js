@@ -112,9 +112,9 @@ function ajaxUpload() {
 }
 // 表单无刷新上传
 function fromUpload() {
-    var div = $("<div class='simple-uploader-panel' />"),
+    var div = $("<div class='ui-uploader-panel' />"),
         iframeId = "uploadFrameId_" + this._uploaderId;
-    this._iframe = $("<iframe />");
+    this._iframe = $("<iframe class='form-upload-iframe' />");
 
     this._form = $("<form />");
     this._form.attr("method", "post");
@@ -255,7 +255,7 @@ ui.define("ui.ctrls.Uploader", {
             upBtn = this.element,
             wrapper;
 
-        this._inputFile = $("<input type='file' class='simple-input-file' value='' />");
+        this._inputFile = $("<input type='file' class='ui-uploader-input-file' value='' />");
         this._inputFile.prop("id", "inputFile_" + this._uploaderId);
         this._inputFile
             .attr("name", this._uploaderId)
@@ -288,7 +288,7 @@ ui.define("ui.ctrls.Uploader", {
             "bottom": "auto"
         }).wrap(wrapper).parent();
 
-        this._uploadPanel = $("<div class='simple-uploader-file' />");
+        this._uploadPanel = $("<div class='ui-uploader-file' />");
         this._uploadPanel.append(this._inputFile);
         wrapper.append(this._uploadPanel);
     },
