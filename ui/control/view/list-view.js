@@ -617,7 +617,7 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 清空列表 */
     clear: function() {
-        this.viewData = [];
+        this.option.viewData = [];
         this.listPanel.empty();
         this._current = null;
         this._selectList = [];
