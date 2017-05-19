@@ -644,7 +644,7 @@ ui.define("ui.ctrls.CardView", {
     }
 });
 
-$.fn.cardView = function() {
+$.fn.cardView = function(option) {
     if(this.length === 0) {
         return;
     }
