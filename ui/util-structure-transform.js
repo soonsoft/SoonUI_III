@@ -3,7 +3,7 @@
 var flagFieldKey = "_from-list";
 
 function getFieldMethod(field, fieldName) {
-    if (!$.isFunction(field)) {
+    if (!ui.core.isFunction(field)) {
         if (ui.core.isString(field)) {
             return function () {
                 return this[field];
