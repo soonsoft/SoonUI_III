@@ -339,7 +339,7 @@ ui.define("ui.ctrls.ListView", {
         result = this.fire("selecting", eventData);
         if(result === false) return;
 
-        if(arguments.length === 3) {
+        if(arguments.length === 2) {
             // 用户点击的项接下来是要选中还是取消选中，还没有作用，所以取反
             checked = !elem.hasClass(selectionClass);
         } else {
