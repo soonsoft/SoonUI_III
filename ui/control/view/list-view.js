@@ -1,7 +1,7 @@
 //list view
 
 var indexAttr = "data-index";
-var selectionClass = "ui-list-view-selection";
+var selectedClass = "ui-list-view-selection";
 // 默认的格式化器
 function defaultItemFormatter(item, index) {
     return "<span class='ui-list-view-item-text'>" + item + "</span>";
@@ -340,8 +340,9 @@ ui.define("ui.ctrls.ListView", {
         if(result === false) return;
 
         if(arguments.length === 2) {
-            // 用户点击的项接下来是要选中还是取消选中，还没有作用，所以取反
-            checked = !elem.hasClass(selectionClass);
+            // 设置点击的项接下来是要选中还是取消选中
+            // 因为还没有真正作用，所以取反
+            checked = !elem.hasClass(selectedClass);
         } else {
             checked = !!checked;
         }
@@ -349,7 +350,7 @@ ui.define("ui.ctrls.ListView", {
         if(this.isMultiple()) {
             if(checked) {
                 this._selectList.push(elem[0]);
-                elem.addClass(selectionClass);
+                elem.addClass(selectedClass);
             } else {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(this._selectList[i] === elem[0]) {
@@ -357,19 +358,19 @@ ui.define("ui.ctrls.ListView", {
                         break;
                     }
                 }
-                elem.removeClass(selectionClass);
+                elem.removeClass(selectedClass);
             }
         } else {
             if(checked) {
                 if(this._current) {
                     this._current
-                        .removeClass(selectionClass);
+                        .removeClass(selectedClass);
                 }
                 this._current = elem;
                 this._current
-                    .addClass(selectionClass);
+                    .addClass(selectedClass);
             } else {
-                elem.removeClass(selectionClass);
+                elem.removeClass(selectedClass);
                 this._current = null;
             }
         }
@@ -571,12 +572,12 @@ ui.define("ui.ctrls.ListView", {
         if(this.isMultiple()) {
             for(i = 0, len = this._selectList.length; i < len; i++) {
                 li = $(this._selectList[i]);
-                li.removeClass(selectionClass);
+                li.removeClass(selectedClass);
             }
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass);
+                    .removeClass(selectedClass);
                 this._current = null;
             }
         }
