@@ -4,7 +4,7 @@
  * 可以支持多选
  */
 
-var selectedClass = "",
+var selectedClass = "ui-selection-list-selected",
     checkboxClass = "ui-selection-list-checkbox";
 
 // 获取值
@@ -49,29 +49,33 @@ function defaultItemFormatter() {
     }
     return $("<span />").text(text);
 }
+function setChecked(cbx, checked) {
+    if(checked) {
+        cbx.removeClass("fa-square")
+            .addClass("fa-check-square").addClass("font-highlight");
+    } else {
+        cbx.removeClass("fa-check-square").removeClass("font-highlight")
+            .addClass("fa-square");
+    }
+}
 
 // 项目点击事件
 function onItemClick(e) {
     var elem,
-        nodeName,
-        isCheckbox;
+        nodeName;
 
     if(this.isMultiple()) {
         e.stopPropagation();
     }
 
     elem = $(e.target);
-    isCheckbox = elem.hasClass(checkboxClass);
     while((nodeName = elem.nodeName()) !== "LI") {
         if(elem.hasClass("ui-selection-list-panel")) {
             return;
         }
         elem = elem.parent();
     }
-    //viewData = this.getViewData();
-    //index = parseInt(elem.attr("data-index"), 10);
-    //data = viewData
-    this._selectItem(elem, isCheckbox);
+    this._selectItem(elem);
 }
 
 ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
@@ -90,7 +94,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "canceled"];
+        return ["selecting", "selected", "cancel"];
     },
     _create: function() {
         this._super();
@@ -146,11 +150,11 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         var ul, li, i;
 
         this.clear();
-        ul = $("<ul />").addClass(listUL);
+        ul = $("<ul class='ui-selection-list-ul' />");
         for (i = 0; i < data.length; i++) {
             this.option.viewData.push(data[i]);
 
-            li = $("<li />");
+            li = $("<li class='ui-selection-list-li' />");
             if (this.isMultiple()) {
                 li.append(this._createCheckbox());
             }
@@ -161,7 +165,9 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         this.listPanel.append(ul);
     },
     _createCheckbox: function() {
-        return $("<input type='checkbox' />");
+        var checkbox = $("<i class='fa fa-square' />");
+        checkbox.addClass(checkboxClass);
+        return checkbox;
     },
     _getItemIndex: function(li) {
         return parseInt(li.getAttribute(indexAttr), 10);
@@ -174,20 +180,40 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         data.itemIndex = index;
         return data;
     },
-    _selectItem: function(elem, isCheckbox, checked, isFire) {
-        var eventData;
+    _selectItem: function(elem, isFire) {
+        var eventData,
+            checkbox,
+            i, len;
 
         eventData = this._getSelectionData(elem[0]);
-        eventData.isSelected = false;
-        eventData.itemElement = elem;
+        eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
-    
+        // 当前是要选中还是取消选中
+        if(this.isMultiple()) {
+            eventData.selectionStatus = !elem.hasClass(selectedClass);
+        } else {
+            eventData.selectionStatus = true;
+        }
+        
         if(this.fire("selecting", eventData) === false) {
             return;
         }
 
         if(this.isMultiple()) {
             // 多选
+            checkbox = elem.find("." + checkboxClass);
+            if(!eventData.selectionStatus) {
+                for(i = 0, len = this._selectList.length; i < len; i++) {
+                    if(this._selectList[i] === elem[0]) {
+                        setChecked.call(this, checkbox, false);
+                        this._selectList.splice(i, 1);
+                        return;
+                    }
+                }
+            } else {
+                setChecked.call(this, checkbox, true);
+                this._selectList.push(elem[0]);
+            }
         } else {
             // 单选
             if (this._current) {
@@ -202,7 +228,6 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             this._current
                     .addClass(selectionClass)
                     .addClass("background-highlight");
-            eventData.isSelected = true;
         }
 
         if(isFire === false) {
@@ -210,24 +235,129 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }
         this.fire("selected", eventData);
     },
+    _setSelectionValues: function(values, outArguments) {
+        var count,
+            viewData,
+            item,
+            i, j, len;
 
-    /// API
-    /** 重新设置数据 */
-    setData: function(data) {
-        if(Array.isArray(data)) {
-            this._fill(data);
+        count = values.length;
+        values = values.slice(0);
+        viewData = this.getViewData();
+        for(i = 0, len = viewData.length; i < len; i++) {
+            item = viewData[i];
+            for(j = 0; j < count; j++) {
+                if(this._equalValue(item, values[j])) {
+                    outArguments.elem = 
+                        $(this.listPanel.children("ul").children()[i]);
+                    this._selectItem(outArguments.elem, false);
+                    count--;
+                    values.splice(j, 1);
+                    break;
+                }
+            }
         }
     },
+    _equalValue: function(item, value) {
+        if(ui.core.isString(item)) {
+            return item === value + "";
+        } else if (ui.core.isObject(item) && !ui.core.isObject(value)) {
+            return this._getValue.call(item, this.option.valueField) === value;
+        } else {
+            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField)
+        }
+    },
+
+    /// API
     /** 获取选中项 */
     getSelection: function() {
-
+        var result = null,
+            i, len;
+        if(this.isMultiple()) {
+            result = [];
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                result.push(this._getSelectionData(this._selectList[i]).itemData);
+            }
+        } else {
+            if(this._current) {
+                result = this._getSelectionData(this._current[0]).itemData;
+            }
+        }
+        return result;
+    },
+    /** 获取选中项的值 */
+    getSelectionValues: function() {
+        var result = null,
+            item,
+            i, len;
+        if(this.isMultiple()) {
+            result = [];
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                item = this._getSelectionData(this._selectList[i]).itemData;
+                result.push(this._getValue.call(item, this.option.valueField));
+            }
+        } else {
+            if(this._current) {
+                item = this._getSelectionData(this._current[0]).itemData;
+                result = this._getValue.call(item, this.option.valueField);
+            }
+        }
+        return result;
     },
     /** 设置选中项 */
-    setSelection: function() {
+    setSelection: function(values) {
+        var outArguments,
+            eventData;
+
+        this.cancelSelection();
+        if(this.isMultiple()) {
+            if(!Array.isArray(values)) {
+                values = [values];
+            }
+        } else {
+            if(Array.isArray(values)) {
+                values = [values[0]];
+            } else {
+                values = [values];
+            }
+        }
+
+        outArguments = {
+            elem: null
+        };
+        this._setSelectionValues(values, outArguments);
+        if(outArguments.elem) {
+            eventData = this._getSelectionData(outArguments.elem[0]);
+            eventData.element = outArguments.elem;
+            eventData.originElement = null;
+            this.fire("selected", eventData);
+        }
     },
     /** 取消选中 */
     cancelSelection: function() {
-
+        var elem,
+            i, len;
+        if(this.isMultiple()) {
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                elem = $(this._selectList[i]);
+                setChecked.call(this, elem.find("." + checkboxClass), false);
+            }
+            this._selectList = [];
+        } else {
+            if(this._current) {
+                this._current
+                    .removeClass(selectionClass)
+                    .removeClass("background-highlight");
+                this._current = null;
+            }
+        }
+        this.fire("cancel");
+    },
+    /** 设置视图数据 */
+    setViewData: function(data) {
+        if(Array.isArray(data)) {
+            this._fill(data);
+        }
     },
     /** 获取视图数据 */
     getViewData: function() {
