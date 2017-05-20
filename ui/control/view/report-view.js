@@ -1191,7 +1191,7 @@ ui.define("ui.ctrls.ReportView", {
             i, len;
 
         eventData = this._getSelectionData(elem);
-        eventData.itemElement = elem;
+        eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         result = this.fire("selecting", eventData);
