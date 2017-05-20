@@ -97,25 +97,24 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         return ["selecting", "selected", "cancel"];
     },
     _create: function() {
+        var fields, fieldMethods;
         this._super();
 
         this._current = null;
         this._selectList = [];
 
-        if(Array.isArray(this.option.valueField)) {
-            this._getValue = getArrayValue;
-        } else if(ui.core.isFunction(this.option.valueField)) {
-            this._getValue = this.option.valueField;
-        } else {
-            this._getValue = getValue;
-        }
-        if(Array.isArray(this.option.textField)) {
-            this._getText = getArrayValue;
-        } else if(ui.core.isFunction(this.option.textField)) {
-            this._getText = this.option.textField;
-        } else {
-            this._getText = getValue;
-        }
+        fields = [this.option.valueField, this.option.textField],
+        fieldMethods = ["_getValue", "_getText"];
+
+        fields.forEach(function(item) {
+            if(Array.isArray(item, index)) {
+                this[fieldMethods[index]] = getArrayValue;
+            } else if($.isFunction(item)) {
+                this[fieldMethods[index]] = item;
+            } else {
+                this[fieldMethods[index]] = getValue;
+            }
+        }, this);
 
         //事件函数初始化
         this.onItemClickHandler = $.proxy(this.onItemClick);
