@@ -264,7 +264,7 @@ ui.define("ui.ctrls.ListView", {
         viewData = this.getViewData();
 
         eventData = this._getSelectionData(elem[0]);
-        eventData.itemElement = elem;
+        eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         result = this.fire("removing", eventData);
@@ -333,7 +333,7 @@ ui.define("ui.ctrls.ListView", {
             result,
             i;
         eventData = this._getSelectionData(elem[0]);
-        eventData.itemElement = elem;
+        eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         result = this.fire("selecting", eventData);
@@ -630,7 +630,7 @@ ui.define("ui.ctrls.ListView", {
     }
 });
 
-$.fn.createListView = function(option) {
+$.fn.listView = function(option) {
     if(this.length === 0) {
         return null;
     }
