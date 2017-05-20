@@ -1,7 +1,7 @@
 
 /**
  * 自定义下拉列表
- * 可以支持多选
+ * 可以支持单项选择和多项选则
  */
 
 var selectedClass = "ui-selection-list-selected",
