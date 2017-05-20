@@ -1,43 +1,39 @@
-
-var docClickHideHandler = [];
-
-function hideDropdownPanels(current) {
-    var handler, 
-        retain;
-    if (docClickHideHandler.length === 0) {
-        return;
-    }
-    retain = [];
-    while (handler = docClickHideHandler.shift()) {
-        if (current && current === handler.ctrl) {
-            continue;
+var docClickHideHandler = [],
+    hideCtrls = function (currentCtrl) {
+        var handler, retain;
+        if (docClickHideHandler.length === 0) {
+            return;
         }
-        if (handler.fn.call(handler.ctrl) === "retain") {
-            retain.push(handler);
+        retain = [];
+        while (handler = docClickHideHandler.shift()) {
+            if (currentCtrl && currentCtrl === handler.ctrl) {
+                continue;
+            }
+            if (handler.func.call(handler.ctrl) === "retain") {
+                retain.push(handler);
+            }
         }
-    }
 
-    docClickHideHandler.push.apply(docClickHideHandler, retain);
-}
-
-// 添加隐藏的处理方法
-function addHideHandler(ctrl, fn) {
-    if (ctrl && ui.core.isFunction(fn)) {
-        docClickHideHandler.push({
-            ctrl: ctrl,
-            fn: fn
-        });
-    }
-}
-// 隐藏所有显示出来的下拉框
-function hideAll(current) {
-    hideDropdownPanels(current);
-}
+        docClickHideHandler.push.apply(docClickHideHandler, retain);
+    };
 
 // 注册document点击事件
-ui.page.docclick(function (e) {
-    hideDropdownPanels();
+ui.docclick(function (e) {
+    hideCtrls();
 });
+// 添加隐藏的处理方法
+ui.addHideHandler = function (ctrl, func) {
+    if (ctrl && ui.core.isFunction(func)) {
+        docClickHideHandler.push({
+            ctrl: ctrl,
+            func: func
+        });
+    }
+};
+// 隐藏所有显示出来的下拉框
+ui.hideAll = function (currentCtrl) {
+    hideCtrls(currentCtrl);
+};
 
 // 下拉框基础类
 ui.define("ui.ctrls.DropDownBase", {
@@ -89,7 +85,7 @@ ui.define("ui.ctrls.DropDownBase", {
             }
         }
         this.element.focus(function (e) {
-            hideAll(that);
+            ui.hideAll(that);
             that.show();
         }).click(function (e) {
             e.stopPropagation();
@@ -167,7 +163,7 @@ ui.define("ui.ctrls.DropDownBase", {
         }
     },
     initPanelWidth: function(width) {
-        if(!$.isNumeric(width)) {
+        if(!ui.core.isNumber(width)) {
             width = this.element 
                 ? (this.element.width()) 
                 : 100;
@@ -186,7 +182,7 @@ ui.define("ui.ctrls.DropDownBase", {
         return this._panel.hasClass(this._showClass);
     },
     show: function(fn) {
-        addHideHandler(this, this.hide);
+        ui.addHideHandler(this, this.hide);
         var parent, pw, ph,
             p, w, h,
             panelWidth, panelHeight,
@@ -272,6 +268,3 @@ ui.define("ui.ctrls.DropDownBase", {
     },
     _clear: null
 });
-
-ui.ctrls.DropDownBase.addHideHandler = addHideHandler;
-ui.ctrls.DropDownBase.hideAll = hideAll;
