@@ -321,7 +321,7 @@ ui.define("ui.ctrls.CardView", {
             i, len;
 
         eventData = this._getSelectionData(elem);
-        eventData.itemElement = elem;
+        eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         result = this.fire("selecting", eventData);
@@ -644,7 +644,7 @@ ui.define("ui.ctrls.CardView", {
     }
 });
 
-$.fn.cardView = function(option) {
+$.fn.cardView = function() {
     if(this.length === 0) {
         return;
     }
