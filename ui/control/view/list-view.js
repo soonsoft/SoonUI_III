@@ -386,12 +386,6 @@ ui.define("ui.ctrls.ListView", {
     },
 
     /// API
-    /** 重新设置数据 */
-    setData: function(data) {
-        if(Array.isArray(data)) {
-            this._fill(data);
-        }
-    },
     /** 添加 */
     add: function(item) {
         var li;
@@ -606,6 +600,12 @@ ui.define("ui.ctrls.ListView", {
         }
         this.listPanel.empty();
         this.listPanel[0].appendChild(fragment);
+    },
+    /** 设置视图数据 */
+    setViewData: function(viewData) {
+        if(Array.isArray(viewData)) {
+            this._fill(viewData);
+        }
     },
     /** 获取视图数据 */
     getViewData: function() {
