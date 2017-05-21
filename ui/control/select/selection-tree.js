@@ -66,6 +66,9 @@ function setChecked(cbx, checked) {
             .addClass("fa-square");
     }
 }
+function isChecked(cbx) {
+    return cbx.hasClass("fa-check-square");
+}
 
 // 事件处理函数
 // 树节点点击事件
@@ -276,19 +279,19 @@ ui.define("ui.ctrls.SelectionTree", {
             delete this.originalViewData;
         }
     },
-    _renderTree: function(viewData, dl, level, idValue, parentData) {
+    _renderTree: function(list, dl, level, idValue, parentData) {
         var id, text, children,
             item, i, len, tempMargin,
             childDL, dt, dd, cbx,
             path;
-        if(!Array.isArray(viewData) || viewData.length === 0) {
+        if(!Array.isArray(list) || list.length === 0) {
             return;
         }
 
         path = idValue;
-        for(i = 0, len = viewData.length; i < len; i++) {
+        for(i = 0, len = list.length; i < len; i++) {
             tempMargin = 0;
-            item = viewData[i];
+            item = list[i];
             item[parentNode] = parentData || null;
             item.getParent = getParent;
 
@@ -417,7 +420,7 @@ ui.define("ui.ctrls.SelectionTree", {
         data.children = this._getChildren(nodeData);
         return data;
     },
-    _selectItem: function(elem, nodeData, isFire) {
+    _selectItem: function(elem, nodeData, selectionStatus, isFire) {
         var eventData,
             checkbox,
             i, len;
@@ -427,10 +430,14 @@ ui.define("ui.ctrls.SelectionTree", {
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         // 当前是要选中还是取消选中
-        if(this.isMultiple()) {
-            eventData.selectionStatus = !elem.hasClass(selectedClass);
+        if(ui.core.isBoolean(selectionStatus)) {
+            eventData.selectionStatus = selectionStatus;
         } else {
-            eventData.selectionStatus = true;
+            if(this.isMultiple()) {
+                eventData.selectionStatus = !elem.hasClass(selectedClass);
+            } else {
+                eventData.selectionStatus = true;
+            }
         }
 
         if(this.fire("selecting", eventData) === false) {
@@ -441,6 +448,10 @@ ui.define("ui.ctrls.SelectionTree", {
             // 多选
             checkbox = elem.find("." + checkboxClass);
             if(!eventData.selectionStatus) {
+                // 当前要取消选中，如果本来就没选中则不用取消选中状态了
+                if(!isChecked.call(this, checkbox)) {
+                    return;
+                }
                 for(i = 0, len = this._selectList.length; i < len; i++) {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
@@ -449,6 +460,10 @@ ui.define("ui.ctrls.SelectionTree", {
                     }
                 }
             } else {
+                // 当前要选中，如果已经是选中状态了就不再选中
+                if(isChecked.call(this, checkbox)) {
+                    return;
+                }
                 setChecked.call(this, checkbox, true);
                 this._selectList.push(elem[0]);
             }
@@ -473,8 +488,262 @@ ui.define("ui.ctrls.SelectionTree", {
         }
         this.fire("selected", eventData);
     },
+    _selectTreeByValues: function(list, values, level, path, outArguments) {
+        var i, j, len,
+            item, id;
+
+        if(!Array.isArray(list) || list.length === 0) {
+            return;
+        }
+        if(!Array.isArray(values) || values.length === 0) {
+            return;
+        }
+
+        for(i = 0, len = viewData.length; i < len; i++) {
+            item = viewData[i];
+            id = path ? (path + "_" + i) : ("" + i);
+            
+            for(j = 0; j < values.length; j++) {
+                if(this._equalValue(item, values[j])) {
+                    outArguments.dt = this._selectNodeByValue(item, id);
+                    values.splice(j, 1);
+                    break;
+                }
+            }
+            if(values.length === 0) {
+                break;
+            }
+            this._selectTreeByValues(
+                this._getChildren(item), values, level + 1, id, outArguments);
+        }
+    },
+    _equalValue: function(item, value) {
+        if (ui.core.isObject(item) && !ui.core.isObject(value)) {
+            return this._getValue.call(item, this.option.valueField) === value;
+        } else {
+            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField);
+        }
+    },
+    _selectNodeByValue: function(nodeData, path) {
+        var dt, tempId, needAppendElements, athArray,
+            i, treeNodeDT, treeNodeDD;
+        
+        if(this.option.lazy) {
+            needAppendElements = [];
+            pathArray = path.split("_");
+
+            tempId = "#" + this._treePrefix + path;
+            dt = $(tempId);
+            while(dt.length === 0) {
+                needAppendElements.push(tempId);
+                pathArray.splice(pathArray.length - 1, 1);
+                if(pathArray.length === 0) {
+                    break;
+                }
+                tempId = "#" + this._treePrefix + pathArray.join("_")
+                dt = $(tempId);
+            }
+            if (dt.length === 0) {
+                return;
+            }
+            for (i = needAppendElements.length - 1; i >= 0; i--) {
+                treeNodeDT = dt;
+                treeNodeDD = treeNodeDT.next();
+                this._loadChildren(treeNodeDT, treeNodeDD, this._getNodeData(treeNodeDT));
+                dt = $(needAppendElements[i]);
+            }
+        } else {
+            dt = $("#" + this._treePrefix + path);
+        }
+
+        treeNodeDD = dt.parent().parent();
+        while (treeNodeDD.nodeName() === "DD" 
+                && treeNodeDD.hasClass("ui-selection-tree-dd")) {
+
+            treeNodeDT = treeNodeDD.prev();
+            if (treeNodeDD.css("display") === "none") {
+                this._setChildrenExpandStatus(treeNodeDT, true);
+            }
+            treeNodeDD = treeNodeDT.parent().parent();
+        }
+        this._selectItem(dt, nodeData, true, false);
+        return dt;
+    },
+    _selectChildNode: function (nodeData, dt, selectionStatus) {
+        var children,
+            parentId,
+            dd,
+            i, len;
+
+        children = this._getChildren(nodeData);
+        if (!Array.isArray(children) || children.length === 0) {
+            return;
+        }
+        parentId = dt.prop("id");
+        dd = dt.next();
+
+        if (this.option.lazy && dd.children().length === 0) {
+            this._loadChildren(dt, dd, nodeData);
+        }
+        for (i = 0, len = children.length; i < len; i++) {
+            nodeData = children[i];
+            dt = $("#" + parentId + "_" + i);
+            this._selectItem(dt, nodeData, selectionStatus, false);
+            this._selectChildNode(nodeData, dt, selectionStatus);
+        }
+    },
+    _selectParentNode: function (nodeData, nodeId, selectionStatus) {
+        var parentNodeData, parentId,
+            elem, nextElem, dtList, 
+            i, len, checkbox;
+
+        parentNodeData = nodeData[parentNode];
+        if (!parentNodeData) {
+            return;
+        }
+        parentId = nodeId.substring(0, nodeId.lastIndexOf("_"));
+        elem = $("#" + parentId);
+        if (!selectionStatus) {
+            nextElem = elem.next();
+            if (nextElem.nodeName() === "DD") {
+                dtList = nextElem.find("dt");
+                for (i = 0, len = dtList.length; i < len; i++) {
+                    checkbox = $(dtList[i]).find("." + checkboxClass);
+                    if (isChecked.call(this, checkbox)) {
+                        return;
+                    }
+                }
+            }
+        }
+        this._selectItem(elem, parentNodeData, selectionStatus, false);
+        this._selectParentNode(parentNodeData, parentId, selectionStatus);
+    },
 
     /// API
+    /** 获取选中项 */
+    getSelection: function() {
+        var result = null,
+            i, len;
+        if(this.isMultiple()) {
+            result = [];
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                result.push(this._getNodeData($(this._selectList[i])));
+            }
+        } else {
+            if(this._current) {
+                result = this._getNodeData(this._current);
+            }
+        }
+        return result;
+    },
+    /** 获取选中项的值 */
+    getSelectionValues: function() {
+        var result = null,
+            item,
+            i, len;
+        if(this.isMultiple()) {
+            result = [];
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                item = this._getNodeData($(this._selectList[i]));
+                result.push(this._getValue.call(item, this.option.valueField));
+            }
+        } else {
+            if(this._current) {
+                item = this._getNodeData(this._current);
+                result = this._getValue.call(item, this.option.valueField);
+            }
+        }
+        return result;
+    },
+    /** 设置选中项 */
+    setSelection: function(values) {
+        var outArguments,
+            viewData,
+            eventData;
+
+        this.cancelSelection();
+        if(this.isMultiple()) {
+            if(!Array.isArray(values)) {
+                values = [values];
+            }
+        } else {
+            if(Array.isArray(values)) {
+                values = [values[0]];
+            } else {
+                values = [values];
+            }
+        }
+
+        outArguments = {
+            elem: null
+        };
+        viewData = this.getViewData();
+        this._selectTreeByValues(viewData, values, 0, null, outArguments);
+        if(outArguments.elem) {
+            eventData = this._getSelectionData(outArguments.elem);
+            eventData.element = outArguments.elem;
+            eventData.originElement = null;
+            this.fire("selected", eventData);
+        }
+    },
+    /** 选择一个节点的所有子节点 */
+    selectChildNode: function(nodeElement, selectionStatus) {
+        var nodeData;
+        if(arguments.length === 1) {
+            selectionStatus = true;
+        } else {
+            selectionStatus = !!selectionStatus;
+        }
+
+        nodeData = this._getNodeData(nodeElement);
+        if(nodeData) {
+            return;
+        }
+        if(!this.isMultiple() || this.option.nodeSelectable !== true) {
+            return;
+        }
+        this._selectChildNode(nodeData, nodeElement, selectionStatus);
+    },
+    /** 选择一个节点的所有父节点 */
+    selectParentNode: function(nodeElement) {
+        var nodeData,
+            nodeId;
+        if(arguments.length === 1) {
+            selectionStatus = true;
+        } else {
+            selectionStatus = !!selectionStatus;
+        }
+
+        nodeData = this._getNodeData(nodeElement);
+        if(nodeData) {
+            return;
+        }
+        if(!this.isMultiple() || this.option.nodeSelectable !== true) {
+            return;
+        }
+        nodeId = nodeElement.prop("id");
+        this._selectParentNode(nodeData, nodeId, selectionStatus);
+    },
+    /** 取消选中 */
+    cancelSelection: function() {
+        var elem,
+            i, len;
+        if(this.isMultiple()) {
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                elem = $(this._selectList[i]);
+                setChecked.call(this, elem.find("." + checkboxClass), false);
+            }
+            this._selectList = [];
+        } else {
+            if(this._current) {
+                this._current
+                    .removeClass(selectionClass)
+                    .removeClass("background-highlight");
+                this._current = null;
+            }
+        }
+        this.fire("cancel");
+    },
     /** 设置视图数据 */
     setViewData: function(data) {
         if(Array.isArray(data)) {
