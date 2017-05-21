@@ -61,13 +61,17 @@ function setChecked(cbx, checked) {
 
 // 项目点击事件
 function onItemClick(e) {
-    var elem;
+    var elem,
+        nodeName;
+
     if(this.isMultiple()) {
         e.stopPropagation();
     }
 
     elem = $(e.target);
-    while(!elem.hasClass("ui-selection-list-li")) {
+    while((nodeName = elem.nodeName()) !== "LI" 
+            && !elem.hasClass("ui-selection-list-li")) {
+                
         if(elem.hasClass("ui-selection-list-panel")) {
             return;
         }
