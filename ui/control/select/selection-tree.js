@@ -6,7 +6,7 @@
 var selectedClass = "ui-selection-tree-selected",
     checkboxClass = "ui-selection-tree-checkbox",
     flodClass = "fold-button",
-    unflodClass = "unfold-button";
+    expandClass = "expand-button";
 
 var instanceCount = 0,
     parentNode = "_selectionTreeParentNode";
@@ -70,7 +70,9 @@ function setChecked(cbx, checked) {
 // 事件处理函数
 // 树节点点击事件
 function onTreeItemClick(e) {
-    var elem;
+    var elem,
+        nodeName,
+        nodeData;
 
     if(this.isMultiple()) {
         e.stopPropagation();
@@ -82,15 +84,49 @@ function onTreeItemClick(e) {
         return;
     }
 
-    // TODO
+    while((nodeName = elem.nodeName()) !== "DT"
+            && !elem.hasClass("ui-selection-tree-dt")) {
+        
+        if(elem.hasClass("ui-selection-tree-panel")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    nodeData = this._getNodeData(elem);
+    if(this.option.nodeSelectable === true || !this._hasChildren(nodeData)) {
+        this._selectItem(elem, nodeData);
+    } else {
+        e.stopPropagation();
+    }
 }
 // 折叠按钮点击事件
 function onTreeFoldClick(e) {
+    var elem, dt;
 
+    elem = $(e.target);
+    dt = elem.parent();
+    if(elem.hasClass(expandClass)) {
+        this._setChildrenExpandStatus(dt, false, elem);
+    } else {
+        this._setChildrenExpandStatus(dt, true, elem);
+    }
 }
 // 异步状态点击折叠按钮事件
 function onTreeFoldLazyClick(e) {
+    var elem, dt, dd;
 
+    elem = $(e.target);
+    dt = elem.parent();
+    dd = dt.next();
+    if(elem.hasClass(expandClass)) {
+        this._setChildrenExpandStatus(dt, false, elem);
+    } else {
+        this._setChildrenExpandStatus(dt, true, elem);
+        if(dd.children().length === 0) {
+            this._loadChildren(dt, dd, this._getNodeData(dt));
+        }
+    }
 }
 
 ui.define("ui.ctrls.SelectionTree", {
@@ -271,7 +307,7 @@ ui.define("ui.ctrls.SelectionTree", {
                 dd = $("<dd class='ui-selection-tree-dd' />");
 
                 if(level + 1 <= this.expandLevel) {
-                    dt.append(this._createFoldButton(level, unflodClass, "fa-angle-down"));
+                    dt.append(this._createFoldButton(level, expandClass, "fa-angle-down"));
                 } else {
                     dt.append(this._createFoldButton(level, "fa-angle-right"));
                     dd.css("display", "none");
@@ -317,16 +353,125 @@ ui.define("ui.ctrls.SelectionTree", {
         btn.css("margin-left", (level * (flodButtonWidth + flodButtonLeft) + flodButtonLeft) + "px");
         return btn;
     },
-    _getChildren: function (treeNode) {
-        return treeNode[this.option.childField];
+    _setChildrenExpandStatus: function(dt, isOpen, btn) {
+        var dd = dt.next();
+        if(!btn || btn.length === 0) {
+            btn = dt.children(".fold-button");
+        }
+        if(isOpen) {
+            btn.addClass(expandClass)
+                .removeClass("fa-angle-right")
+                .addClass("fa-angle-down");
+            dd.css("display", "block");
+        } else {
+            btn.removeClass(expandClass)
+                .removeClass("fa-angle-down")
+                .addClass("fa-angle-right");
+            dd.css("display", "none");
+        }
     },
-    _hasChildren: function(treeNode) {
-        var children = this._getChildren(treeNode);
+    _getChildren: function (nodeData) {
+        return nodeData[this.option.childField] || null;
+    },
+    _hasChildren: function(nodeData) {
+        var children = this._getChildren(nodeData);
         return Array.isArray(children) && children.length > 0;
     },
-    _loadChildren: function(dt, dd, treeNode) {
-        var children = this._getChildren(treeNode);
-        this._appendChildren(dt, dd, treeNode, children);
+    _loadChildren: function(dt, dd, nodeData) {
+        var children = this._getChildren(nodeData);
+        this._appendChildren(dt, dd, nodeData, children);
+    },
+    _getNodeData: function(elem) {
+        var id;
+        if(!elem) {
+            return null;
+        }
+        id = elem.prop("id");
+        if(id.length === 0 || id.indexOf(this._treePrefix) !== 0) {
+            return null;
+        }
+        id = id.substring(this._treePrefix.length);
+        return this._getNodeDataByPath(id);
+    },
+    _getNodeDataByPath: function(path) {
+        var arr, data, viewData,
+            i, len;
+        if(!path) {
+            return null;
+        }
+        arr = path.split("_");
+        viewData = this.getViewData();
+        data = viewData[parseInt(arr[0], 10)];
+        for(i = 1, len = arr.length; i < len; i++) {
+            data = this._getChildren(data)[parseInt(arr[i], 10)];
+        }
+        return data;
+    },
+    _getSelectionData: function(dt, nodeData) {
+        var data = {};
+        if(!nodeData) {
+            nodeData = this._getNodeData(dt);
+        }
+        data.nodeData = nodeData;
+        data.parent = nodeData[parentNode];
+        data.children = this._getChildren(nodeData);
+        return data;
+    },
+    _selectItem: function(elem, nodeData, isFire) {
+        var eventData,
+            checkbox,
+            i, len;
+
+        eventData = this._getSelectionData(elem, nodeData);
+        eventData.element = elem;
+        eventData.originElement = elem.context ? $(elem.context) : null;
+
+        // 当前是要选中还是取消选中
+        if(this.isMultiple()) {
+            eventData.selectionStatus = !elem.hasClass(selectedClass);
+        } else {
+            eventData.selectionStatus = true;
+        }
+
+        if(this.fire("selecting", eventData) === false) {
+            return;
+        }
+
+        if(this.isMultiple()) {
+            // 多选
+            checkbox = elem.find("." + checkboxClass);
+            if(!eventData.selectionStatus) {
+                for(i = 0, len = this._selectList.length; i < len; i++) {
+                    if(this._selectList[i] === elem[0]) {
+                        setChecked.call(this, checkbox, false);
+                        this._selectList.splice(i, 1);
+                        return;
+                    }
+                }
+            } else {
+                setChecked.call(this, checkbox, true);
+                this._selectList.push(elem[0]);
+            }
+        } else {
+            // 单选
+            if (this._current) {
+                if (this._current[0] == elem[0]) {
+                    return;
+                }
+                this._current
+                    .removeClass(selectionClass)
+                    .removeClass("background-highlight");
+            }
+            this.current = elem;
+            this._current
+                .addClass(selectionClass)
+                .addClass("background-highlight");
+        }
+
+        if(isFire === false) {
+            return;
+        }
+        this.fire("selected", eventData);
     },
 
     /// API
