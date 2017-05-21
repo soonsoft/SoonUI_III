@@ -71,7 +71,7 @@ function onItemClick(e) {
     elem = $(e.target);
     while((nodeName = elem.nodeName()) !== "LI" 
             && !elem.hasClass("ui-selection-list-li")) {
-                
+
         if(elem.hasClass("ui-selection-list-panel")) {
             return;
         }
@@ -227,8 +227,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             }
             this.current = elem;
             this._current
-                    .addClass(selectionClass)
-                    .addClass("background-highlight");
+                .addClass(selectionClass)
+                .addClass("background-highlight");
         }
 
         if(isFire === false) {
