@@ -58,6 +58,9 @@ function setChecked(cbx, checked) {
             .addClass("fa-square");
     }
 }
+function isChecked(cbx) {
+    return cbx.hasClass("fa-check-square");
+}
 
 // 项目点击事件
 function onItemClick(e) {
@@ -181,7 +184,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         data.itemIndex = index;
         return data;
     },
-    _selectItem: function(elem, isFire) {
+    _selectItem: function(elem, selectionStatus, isFire) {
         var eventData,
             checkbox,
             i, len;
@@ -189,11 +192,16 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         eventData = this._getSelectionData(elem[0]);
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
+        
         // 当前是要选中还是取消选中
-        if(this.isMultiple()) {
-            eventData.selectionStatus = !elem.hasClass(selectedClass);
+        if(ui.core.isBoolean(selectionStatus)) {
+            eventData.selectionStatus = selectionStatus;
         } else {
-            eventData.selectionStatus = true;
+            if(this.isMultiple()) {
+                eventData.selectionStatus = !elem.hasClass(selectedClass);
+            } else {
+                eventData.selectionStatus = true;
+            }
         }
         
         if(this.fire("selecting", eventData) === false) {
@@ -204,6 +212,10 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             // 多选
             checkbox = elem.find("." + checkboxClass);
             if(!eventData.selectionStatus) {
+                // 当前要取消选中，如果本来就没选中则不用取消选中状态了
+                if(!isChecked.call(this, checkbox)) {
+                    return;
+                }
                 for(i = 0, len = this._selectList.length; i < len; i++) {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
@@ -212,6 +224,10 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                     }
                 }
             } else {
+                // 当前要选中，如果已经是选中状态了就不再选中
+                if(isChecked.call(this, checkbox)) {
+                    return;
+                }
                 setChecked.call(this, checkbox, true);
                 this._selectList.push(elem[0]);
             }
@@ -251,7 +267,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                 if(this._equalValue(item, values[j])) {
                     outArguments.elem = 
                         $(this.listPanel.children("ul").children()[i]);
-                    this._selectItem(outArguments.elem, false);
+                    this._selectItem(outArguments.elem, true, false);
                     count--;
                     values.splice(j, 1);
                     break;
@@ -335,7 +351,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }
     },
     /** 取消选中 */
-    cancelSelection: function() {
+    cancelSelection: function(isFire) {
         var elem,
             i, len;
         if(this.isMultiple()) {
@@ -352,7 +368,9 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                 this._current = null;
             }
         }
-        this.fire("cancel");
+        if(isFire !== false) {
+            this.fire("cancel");
+        }
     },
     /** 设置视图数据 */
     setViewData: function(data) {
