@@ -236,7 +236,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }
         this.fire("selected", eventData);
     },
-    _setSelectionValues: function(values, outArguments) {
+    _selectByValues: function(values, outArguments) {
         var count,
             viewData,
             item,
@@ -326,7 +326,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         outArguments = {
             elem: null
         };
-        this._setSelectionValues(values, outArguments);
+        this._selectByValues(values, outArguments);
         if(outArguments.elem) {
             eventData = this._getSelectionData(outArguments.elem[0]);
             eventData.element = outArguments.elem;
