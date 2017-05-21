@@ -92,6 +92,8 @@ core.isNumber = function(obj) {
     return (type === "number" || type === "string") &&
         !isNaN(obj - parseFloat(obj));
 };
+// 设置一个别名，符合jquery的习惯
+core.isNumeric = core.isNumber;
 
 // window对象判断
 core.isWindow = function (obj) {
