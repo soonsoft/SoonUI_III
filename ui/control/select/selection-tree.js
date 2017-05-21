@@ -773,3 +773,10 @@ ui.define("ui.ctrls.SelectionTree", {
         delete this.originalViewData;
     }
 });
+
+$.fn.selectionTree = function (option) {
+    if (this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.SelectionTree(option, this);
+};
