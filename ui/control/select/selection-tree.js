@@ -725,7 +725,7 @@ ui.define("ui.ctrls.SelectionTree", {
         this._selectParentNode(nodeData, nodeId, selectionStatus);
     },
     /** 取消选中 */
-    cancelSelection: function() {
+    cancelSelection: function(isFire) {
         var elem,
             i, len;
         if(this.isMultiple()) {
@@ -742,7 +742,10 @@ ui.define("ui.ctrls.SelectionTree", {
                 this._current = null;
             }
         }
-        this.fire("cancel");
+
+        if(isFire !== false) {
+            this.fire("cancel");
+        }
     },
     /** 设置视图数据 */
     setViewData: function(data) {
