@@ -1,18 +1,30 @@
 // jquery extends
 
-var rword = /[^, ]+/g;;
+var rword = /[^, ]+/g,
+    ieVersion,
+    DOC = document;
+//判断IE版本
+function IE() {
+    if (window.VBArray) {
+        var mode = DOC.documentMode;
+        return mode ? mode : (window.XMLHttpRequest ? 7 : 6);
+    } else {
+        return 0;
+    }
+}
+ieVersion = IE();
 
-//为jquery添加一个获取元素标签类型的方法
+/** 为jquery添加一个获取元素标签类型的方法 */
 $.fn.nodeName = function () {
     return this.prop("nodeName");
 };
 
-//判断元素的tagName，不区分大小写
+/** 判断元素的tagName，不区分大小写 */
 $.fn.isNodeName = function(nodeName) {
     return this.nodeName() === (nodeName + "").toUpperCase();
 };
 
-//判断一个元素是否出现了横向滚动条
+/** 判断一个元素是否出现了横向滚动条 */
 $.fn.hasHorizontalScroll = function() {
     var overflowValue = this.css("overflow");
     if(overflowValue === "visible" || overflowValue === "hidden") {
@@ -24,7 +36,7 @@ $.fn.hasHorizontalScroll = function() {
     }
 };
 
-//判断一个元素是否出现了纵向滚动条
+/** 判断一个元素是否出现了纵向滚动条 */
 $.fn.hasVerticalScroll = function() {
     var overflowValue = this.css("overflow");
     if(overflowValue === "visible" || overflowValue === "hidden") {
@@ -36,7 +48,7 @@ $.fn.hasVerticalScroll = function() {
     }
 };
 
-//获取对象的z-index值
+/** 获取对象的z-index值 */
 $.fn.zIndex = function (zIndex) {
     if (zIndex !== undefined) {
         return this.css("zIndex", zIndex);
@@ -65,7 +77,7 @@ $.fn.zIndex = function (zIndex) {
     return 0;
 };
 
-//填充select下拉框的选项
+/** 填充select下拉框的选项 */
 $.fn.bindOptions = function (arr, valueField, textField) {
     if (this.nodeName() !== "SELECT") {
         return this;
@@ -92,7 +104,7 @@ $.fn.bindOptions = function (arr, valueField, textField) {
     return this;
 };
 
-//获取一个select元素当前选中的value和text
+/** 获取一个select元素当前选中的value和text */
 $.fn.selectOption = function () {
     if (this.nodeName() !== "SELECT") {
         return null;
@@ -105,7 +117,7 @@ $.fn.selectOption = function () {
     return option;
 };
 
-//动态设置图片的src并自动调整图片的尺寸和位置
+/** 动态设置图片的src并自动调整图片的尺寸和位置 */
 $.fn.setImage = function (src, width, height, fillMode) {
     var option,
         parent,
@@ -164,7 +176,7 @@ $.fn.setImage = function (src, width, height, fillMode) {
             });
 };
 
-//为jquery添加mousewheel事件
+/** 为jquery添加鼠标滚轮事件 */
 $.fn.mousewheel = function (data, fn) {
     var mouseWheelEventName = eventSupported("mousewheel", this) ? "mousewheel" : "DOMMouseScroll";
     return arguments.length > 0 ?
@@ -222,3 +234,81 @@ function eventSupported(eventName, elem) {
     }
     return isSupported;
 }
+
+
+if(ieVersion) {
+    $(DOC).on("selectionchange", function(e) {
+        var el = DOC.activeElement;
+        if (el && typeof el.uiEventSelectionChange === "function") {
+            el.uiEventSelectionChange();
+        }
+    });
+}
+/** 为jquery添加文本框输入事件 */
+$.fn.textinput = function(data, fn) {
+    var eventData,
+        composing,
+        nodeName;
+
+    if(this.length === 0) {
+        return;
+    }
+    if(ui.core.isFunction(data)) {
+        fn = data;
+        data = null;
+    }
+    if(!ui.core.isFunction(fn)) {
+        return;
+    }
+
+    eventMock = { data: data, target: this[0] };
+    composing = false;
+    nodeName = this.nodeName();
+    if(nodeName !== "INPUT" && nodeName !== "TEXTAREA") {
+        return;
+    }
+
+    if(ieVersion) {
+        //监听IE点击input右边的X的清空行为
+        if(ieVersion === 9) {
+            //IE9下propertychange不监听粘贴，剪切，删除引发的变动
+            this[0].uiEventSelectionChange = function() {
+                fn(eventMock);
+            };
+        }
+        if (ieVersion > 8) {
+            //IE9使用propertychange无法监听中文输入改动
+            this.on("input", null, data, fn);
+        } else {
+            //IE6-8下第一次修改时不会触发,需要使用keydown或selectionchange修正
+            this.on("propertychange", function(e) {
+                var propertyName = e.originalEvent ? e.originalEvent.propertyName : e.propertyName;
+                if (propertyName === "value") {
+                    fn(eventMock);
+                }
+            });
+            this.on("dragend", null, data, function (e) {
+                setTimeout(function () {
+                    fn(e);
+                });
+            });
+        }
+    } else {
+        this.on("input", null, data, function(e) {
+            //处理中文输入法在maxlengh下引发的BUG
+            if(composing) {
+                return;
+            }
+            fn(e);
+        });
+        //非IE浏览器才用这个
+        this.on("compositionstart", function(e) {
+            composing = true;
+        });
+        this.on("compositionend", function(e) {
+            composing = false;
+            fn(e);
+        });
+    }
+    return this;
+};
