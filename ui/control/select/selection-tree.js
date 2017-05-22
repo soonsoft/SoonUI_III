@@ -248,6 +248,7 @@ ui.define("ui.ctrls.SelectionTree", {
             viewData;
 
         this.clear();
+        this.option.viewData = data;
 
         dl = $("<dl class='ui-selection-tree-dl' />");
         viewData = this.getViewData();
