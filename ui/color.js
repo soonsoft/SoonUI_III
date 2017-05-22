@@ -21,7 +21,7 @@ function toDec (hexchar) {
     return this.hexchars.indexOf(hexchar.toUpperCase());
 }
 
-var color = ui.color = {
+ui.color = {
     parseRGB: function (rgb) {
         var valArr,
         	color;
