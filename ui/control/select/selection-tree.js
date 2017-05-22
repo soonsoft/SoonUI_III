@@ -416,8 +416,9 @@ ui.define("ui.ctrls.SelectionTree", {
             nodeData = this._getNodeData(dt);
         }
         data.nodeData = nodeData;
-        data.parent = nodeData[parentNode];
         data.children = this._getChildren(nodeData);
+        data.parent = nodeData[parentNode];
+        data.isRoot = !nodeData[parentNode];
         return data;
     },
     _selectItem: function(elem, nodeData, selectionStatus, isFire) {
