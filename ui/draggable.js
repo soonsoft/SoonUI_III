@@ -157,6 +157,7 @@ MouseDragger.prototype = {
 
 ui.MouseDragger = MouseDragger;
 
+/** 拖动效果 */
 $.fn.draggable = function(option) {
     var dragger;
     if (!option || !option.target || !option.parent) {
