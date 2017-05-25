@@ -1,0 +1,89 @@
+.ui-chooser-panel {
+    background-color: @background-color;
+    border-style: solid;
+    border-width: 2px;
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    width: auto;
+    height: auto;
+    z-index: @ctrl-layer;
+}
+
+.ui-chooser-title-panel {
+    background-color: @panel-color;
+    height: 30px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+    .ui-chooser-title-panel .ui-chooser-title-item {
+        position: absolute;
+        top: 0;
+        overflow: hidden;
+        text-align: center;
+        line-height: 30px;
+        font-size: 14px;
+    }
+
+.ui-chooser-list-panel {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+    .ui-chooser-list-panel .focus-choose-element {
+        position: absolute;
+        width: 100%;
+        height: 30px;
+        border-style: solid;
+        border-left-width: 0;
+        border-right-width: 0;
+        border-top-width: 1px;
+        border-bottom-width: 1px;
+        border-color: transparent;
+        left: 0;
+    }
+
+    .ui-chooser-list-panel .ui-chooser-list {
+        position: absolute;
+        top: 0;
+        overflow: hidden;
+        height: 100%;
+    }
+
+        .ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-ul {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: auto;
+        }
+
+        .ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            width: 100%;
+            height: 30px;
+            line-height: 30px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+.ui-chooser-item {
+    border-style: solid;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: transparent;
+    width: 100%;
+    color: @tool-color;
+    text-align: center;
+    font-size: 14px;
+}
+
+.ui-chooser-empty-item {
+    cursor: default;
+} 
