@@ -1,0 +1,154 @@
+.ui-date-chooser-panel {
+    position: absolute;
+    width: 210px;
+    height: auto;
+    border-style: solid;
+    border-width: 2px;
+    background-color: @background-color;
+    color: @font-color;
+    font-size: 12px;
+    display: none;
+    overflow: hidden;
+    z-index: 10000;
+    line-height: 1em;
+}
+
+    /* 通用元素 */
+    .ui-date-chooser-panel .date-chooser-title {
+        width: 186px;
+        float: left;
+        height: 100%;
+        text-align: center;
+    }
+
+    .ui-date-chooser-panel .date-chooser-prev {
+        border-width: 6px;
+        border-color: transparent @tool-color transparent transparent;
+        border-style: dashed solid dashed dashed;
+        margin-top: 5px;
+        float: left;
+        line-height: 0;
+        cursor: pointer;
+    }
+
+    .ui-date-chooser-panel .date-chooser-next {
+        border-width: 6px;
+        border-color: transparent transparent transparent @tool-color;
+        border-style: dashed dashed dashed solid;
+        margin-top: 5px;
+        float: left;
+        line-height: 0px;
+        cursor: pointer;
+    }
+
+    /* 年月设置面板 */
+    .ui-date-chooser-panel .year-month-setting-panel {
+        width: 100%;
+        height: 100%;
+        background-color: @background-color;
+        display: none;
+        position: absolute;
+    }
+
+    .ui-date-chooser-panel .set-title {
+        width: 100%;
+        height: 23px;
+        line-height: 23px;
+        font-size: 12px;
+    }
+
+        .ui-date-chooser-panel .set-title span {
+            margin-left: 5px;
+        }
+
+        .ui-date-chooser-panel .set-title .title-fieldset {
+            border-left: none 0;
+            border-bottom: none 0;
+            border-right: none 0;
+            border-top-style: solid;
+            border-top-width: 1px;
+            overflow: hidden;
+            width: 90%;
+            height: 100%;
+            margin: auto;
+        }
+
+        .ui-date-chooser-panel .set-title .title-legend {
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: auto;
+        }
+
+    .ui-date-chooser-panel .date-chooser-year-panel,
+    .ui-date-chooser-panel .date-chooser-month-panel {
+        width: 100%;
+        height: auto;
+    }
+
+    .ui-date-chooser-panel .date-chooser-year-table,
+    .ui-date-chooser-panel .date-chooser-month-table {
+        table-layout: fixed;
+        border-spacing: 0;
+        border-collapse:collapse;
+    }
+
+    .ui-date-chooser-panel .date-chooser-year-td {
+        padding: 0;
+        width: 42px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .ui-date-chooser-panel .date-chooser-month-td {
+        padding: 0;
+        width: 52px;
+        border-top-style: none;
+        border-top-width: 0;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    /* 日历内容 */
+    .ui-date-chooser-panel .date-chooser-calendar-title {
+        width: 100%;
+        height: 27px;
+        line-height: 27px;
+        background-color: @panel-color;
+    }
+
+    .ui-date-chooser-panel .date-chooser-title-text {
+        text-decoration: none;
+    }
+
+    /* 操作面板 */
+    .ui-date-chooser-panel .date-chooser-operate-panel {
+        width: 100%;
+        background-color: @panel-color;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .ui-date-chooser-panel .date-chooser-button i {
+        font-size: 14px;
+    }
+    
+/*日历框样式*/
+input.date-text {
+    background-image: url(../../images/form-info.png);
+    background-position:right -48px;
+    background-repeat:no-repeat;
+    padding-right: 24px;
+}
+
+input.date-text::-ms-clear {
+    display: none;
+}
+
+input.dateChooser-clear {
+    background-position: right -144px !important;
+}
