@@ -320,7 +320,13 @@ module.exports = function(grunt) {
 
     // 控件文件
     var controlFiles = [
-        "ui/control/**/*.js"
+        "ui/control/base/**/*.js",
+        "ui/control/common/**/*.js",
+        "ui/control/box/**/*.js",
+        "ui/control/select/**/*.js",
+        "ui/control/view/**/*.js",
+        "ui/control/tools/**/*.js",
+        "ui/control/images/**/*.js"
     ];
     var controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
@@ -332,9 +338,9 @@ module.exports = function(grunt) {
 
     // 视图文件
     var viewFiles = [
-        "ui/view/**/*.js"
+        "ui/viewpage/**/*.js"
     ];
-    var viewDestFile = "dist/ui-views.<%= pkg.version %>.js";
+    var viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
     
     var wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {

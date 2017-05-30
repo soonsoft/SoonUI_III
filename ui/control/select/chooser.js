@@ -77,7 +77,7 @@ chooserTypes = {
         data = getTimeData(true, true, false);
         this.option.spliter = ":";
         this.defaultSelectValue = function () {
-            var now = new Date(),
+            var now = new Date();
             return [
                 addZero(now.getHours()), 
                 addZero(now.getMinutes())
@@ -91,7 +91,7 @@ chooserTypes = {
         data = getTimeData(true, true, true);
         this.option.spliter = ":";
         this.defaultSelectValue = function () {
-            var now = new Date(),
+            var now = new Date();
             return [
                 addZero(now.getHours()), 
                 addZero(now.getMinutes()),
