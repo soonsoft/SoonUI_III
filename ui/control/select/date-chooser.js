@@ -1,6 +1,8 @@
 
 var language,
-    selectedClass = "";
+    selectedClass = "date-selected",
+    yearSelectedClass = "year-selected",
+    monthSelectedClass = "month-selected";
 
 var formatYear = /y+/i,
     formatMonth = /M+/,
@@ -17,7 +19,8 @@ language["zh-CN"] = {
     month: "月份",
     weeks: ["日", "一", "二", "三", "四", "五", "六"],
     months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-    seasons: ["一季", "二季", "三季", "四季"]
+    today: "今",
+    todayTooltip: "今日"
 };
 //英文
 language["en-US"] = {
@@ -26,55 +29,282 @@ language["en-US"] = {
     month: "Month",
     weeks: ["S", "M", "T", "W", "T", "F", "S"],
     months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    seasons: ["S I", "S II", "S III", "S IV"]
+    today: "T",
+    todayTooltip: "Today"
+};
+
+function Day(year, month, day, dateChooser) {
+    if(this instanceof Day) {
+        this.initialize(year, month, day, dateChooser);
+    } else {
+        return new Day();
+    }
+}
+Day.prototype = {
+    initialize: function(year, month, day, dateChooser) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.dateChooser = dateChooser;
+        this.today = null;
+        this._isCurrentMonth = true;
+    },
+    isCurrentMonth: function(value) {
+        if(arguments.length > 0) {
+            this._isCurrentMonth = value;
+            return this;
+        } else {
+            return this._isCurrentMonth;
+        }
+    },
+    setToday: function(today) {
+        this.today = today;
+    },
+    isToday: function() {
+        if(!this.today) {
+            this.today = new Date();
+        }
+        return this.year === this.today.getFullYear()
+            && this.month === this.today.getMonth()
+            && this.day === this.today.getDate();
+    },
+    isTheDay: function(year, month, day) {
+        return this.year === year
+            && this.month === month
+            && this.day === day;
+    },
+    isDisabled: function() {
+        if(this.dateChooser) {
+            return this.dateChooser._isDisabledDay(
+                this.year, this.month, this.day);
+        }
+        return false;
+    },
+    //小于
+    lt: function(year, month, day) {
+        var d1 = new Date(this.year, this.month, this.day),
+            d2 = new Date(year, month, day);
+        return d1.getTime() < d2.getTime();
+    },
+    //大于
+    gt: function(year, month, day) {
+        var d1 = new Date(this.year, this.month, this.day),
+            d2 = new Date(year, month, day);
+        return d1.getTime() > d2.getTime();
+    },
+    toDate: function() {
+        return new Date(this.year, this.month, this.day, 0, 0, 0);
+    }
 };
 
 // 格式化器
 function twoNumberFormatter(number) {
     return number < 10 ? "0" + number : "" + number;
 }
-function calendarTitleFormatter(year, month) {
+function formatCalendarTitle(year, month) {
     month += 1;
     return year + "-" + twoNumberFormatter.call(this, number) + "&nbsp;▼";
+}
+function formatDateItem(r, value, format) {
+    var result;
+    result = r.exec(format);
+    if(result != null) {
+        if(result[0].length > 1) {
+            value = twoNumberFormatter(value);
+        }
+    }
+    return format.replace(r, value);
 } 
+function findDateItem(r, value, format) {
+    var result;
+    result = r.exec(format);
+    if(result) {
+        return parseInt(value.substring(result.index, result.index + result[0].length), 10);
+    } else {
+        return NaN;
+    }
+}
+function createDay(value) {
+    var year,
+        month,
+        day;
+    year = findDateItem.call(this, formatYear, value, format);
+    month = findDateItem.call(this, formatMonth, value, format);
+    day = findDateItem.call(this, formatDay, value, format);
+
+    if(isNaN(year) || isNaN(month) || isNaN(day)) {
+        return null;
+    }
+    return Day(year, month, day, this);
+}
 
 // 事件处理函数
 function onYearChanged(e) {
-
+    var value = e.data.value,
+        year;
+    if(this._currentYear) {
+        year = parseInt(this._currentYear.attr("data-year"), 10);
+    } else {
+        year = this._selYear;
+    }
+    this._fillYear(year + value);
 }
 function onYearSelected(e) {
-
+    var elem;
+    
+    e.stopPropagation();
+    elem = $(e.target);
+    if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(this._currentYear) {
+        if(this._currentYear[0] === elem[0]) {
+            return;
+        }
+        this._currentYear
+            .removeClass(yearSelectedClass)
+            .removeClass("background-highlight");
+    }
+    this._currentYear = elem;
+    this._currentYear
+        .addClass(yearSelectedClass)
+        .addClass("background-highlight");
 }
 function onMonthSelected(e) {
-
+    var elem;
+    
+    e.stopPropagation();
+    elem = $(e.target);
+    if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(this._currentMonth) {
+        if(this._currentMonth[0] === elem[0]) {
+            return;
+        }
+        this._currentMonth
+            .removeClass(monthSelectedClass)
+            .removeClass("background-highlight");
+    }
+    this._currentMonth = elem;
+    this._currentMonth
+        .addClass(monthSelectedClass)
+        .addClass("background-highlight");
 }
 function onApplyYearMonth(e) {
+    e.stopPropagation();
+    this._selYear = parseInt(
+        this._currentYear.attr("data-year"), 10);
+    this._selMonth = parseInt(
+        this._currentMonth.attr("data-month"), 10);
+    this._fillMonth(this._currentDays, this._selYear, this._selMonth);
 
+    this._closeYearMonthPanel();
 }
 function onCancelYearMonth(e) {
-    
+    e.stopPropagation();
+    this._closeYearMonthPanel();
 }
 function onMonthChanged(e) {
-
+    var value = e.data.value;
 }
 function onCalendarTitleClick(e) {
+    e.stopPropagation();
+    this._fillYear(this._selYear, this._selMonth);
+    this._openYearMonthPanel();
+}
+function onDayItemClick(e) {
+    
+}
+function onTodayButtonClick(e) {
 
+}
+function onTimeMousewheel(e) {
+    var elem,
+        max,
+        val,
+        h, m, s;
+
+    elem = $(e.target);
+    if(elem.nodeName() !== "INPUT") {
+        return;
+    }
+    if(elem.hasClass("hour")) {
+        max = 24;
+    } else {
+        max = 60;
+    }
+    val = elem.val();
+    val = parseFloat(val);
+    val += -e.delta;
+    if (val < 0) {
+        val = max - 1;
+    } else if (val >= max) {
+        val = 0;
+    }
+    elem.val(twoNumberFormatter(val));
+    
+    h = parseInt(this.hourText.val(), 10);
+    m = parseInt(this.minuteText.val(), 10);
+    s = parseInt(this.secondText.val(), 10);
+    this.selectedDate(
+        new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
+}
+function onTimeTextinput(e) {
+    var elem,
+        now,
+        h, m, s;
+
+    elem = $(e.target);
+    if(elem.val().length == 0) {
+        return;
+    }
+    now = new Date();
+    h = parseInt(this.hourText.val(), 10);
+    if(isNaN(h) || h < 0 || h >= 24) {
+        h = now.getHours();
+        this.hourText.val(twoNumberFormatter(h));
+        return;
+    }
+    m = parseInt(this.minuteText.val(), 10);
+    if(isNaN(m) ||m < 0 || m >= 60) {
+        m = now.getMinutes();
+        this.minuteText.val(twoNumberFormatter(m));
+        return;
+    }
+    s = parseInt(this.secondText.val(), 10);
+    if(isNaN(s) || s < 0 || s >= 60) {
+        s = now.getSeconds();
+        this.secondText.val(twoNumberFormatter(s));
+        return;
+    }
+    this.selectedDate(
+        new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
 ui.define("ui.ctrls.DateChooser", {
     _defineOption: function() {
         return {
+            // 日期格式化样式
             dateFormat: "yyyy-MM-dd",
+            // 显示语言 zh-CN: 中文, en-US: 英文
             language: "zh-CN",
+            // 放置日历的容器
             calendarPanel: null,
-            isDateTime: false
+            // 是否要显示时间
+            isDateTime: false,
+            // 起始日期 不填则表示没有限制
+            startDate: null,
+            // 结束日期 不填则表示没有限制
+            endDate: null
         };
     },
     _defineEvents: function() {
         return ["selecting", "selected", "cancel"];
     },
     _create: function() {
-        var defaultFormat;
+        var defaultFormat,
+            now;
         this._super();
 
         defaultFormat = "yyyy-MM-dd";
@@ -85,11 +315,21 @@ ui.define("ui.ctrls.DateChooser", {
         this.option.defaultFormat = this.option.defaultFormat || defaultFormat;
 
         // 日期参数
-        this._now = new Date();
-        this._year = this._now.getFullYear();
-        this._month = this._now.getMonth();
-        this._selDay = this._now.getDate();
+        now = new Date();
+        this._selYear = now.getFullYear();
+        this._selMonth = now.getMonth();
+        this._selDay = now.getDate();
 
+        // 限制
+        this.startDay = null;
+        if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
+            this.startDay = createDay(this.option.startDate);
+        }
+        this.endDay = null;
+        if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
+            this.endDay = createDay(this.option.endDate);
+        }
+         
         // 文字显示
         this._language = language[this.option.language];
         if (!this._language) {
@@ -113,6 +353,16 @@ ui.define("ui.ctrls.DateChooser", {
         this.onMonthChangedHandler = $.proxy(onMonthChanged, this);
         // 日历标题点击事件
         this.onCalendarTitleClickHandler = $.proxy(onCalendarTitleClick, this);
+        // 日期项点击事件
+        this.onDayItemClickHandler = $.proxy(onDayItemClick, this);
+        // 今日日期点击事件
+        this.onTodayButtonClickHandler = $.proxy(onTodayButtonClick, this);
+        if(this.isDateTime()) {
+            // 时间滚轮选择事件
+            this.onTimeMousewheelHandler = $.proxy(onTimeMousewheel, this);
+            // 时间输入事件
+            this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
+        }
 
         this._init();
     },
@@ -135,12 +385,39 @@ ui.define("ui.ctrls.DateChooser", {
         this._clear = $.proxy(function () {
             this.cancelSelection();
         }, this);
-        
 
         // 创建日历内容面板
         this._initCalendarPanel();
         // 创建年月选择面板
         this._initYearMonthPanel();
+        
+        // 创建动画
+        this._initYearMonthPanelAnimator();
+        this._initCalendarChangeAnimator();
+    },
+    _initYearMonthPanelAnimator: function() {
+        this.ymAnimator = ui.animator({
+            target: this._settingPanel,
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("top", val + "px");
+            }
+        });
+        this.ymAnimator.duration = 240;
+    },
+    _initCalendarChangeAnimator: function() {
+        this.mcAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        }).addTarget({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        });
+        this.mcAnimator.duration = 240;
     },
     _initYearMonthPanel: function() {
         var yearTitle, monthTitle,
@@ -185,7 +462,7 @@ ui.define("ui.ctrls.DateChooser", {
             i, j;
 
         yearPanel = $("<div class='date-chooser-year-panel' />");
-        this._yearsTable = $("<table class='date-chooser-year-table' cellpadding='0' cellspacing='0' />");
+        this._yearsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
         this._yearsTable.click(this.onYearSelectedHandler);
         tbody = $("<tbody />");
         for(i = 0; i < 3; i++) {
@@ -207,7 +484,7 @@ ui.define("ui.ctrls.DateChooser", {
             i, j, index;
 
         monthPanel = $("<div class='date-chooser-month-panel' />");
-        this._monthsTable = $("<table class='date-chooser-month-table' cellpadding='0' cellspacing='0' />");
+        this._monthsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
         this._monthsTable.click(this.onMonthSelectedHandler);
         tbody = $("<tbody />");
         index = 0;
@@ -216,7 +493,7 @@ ui.define("ui.ctrls.DateChooser", {
             for (j = 0; j < 4; j++) {
                 td = $("<td class='date-chooser-month-td' />");
                 td.html(this._language.months[index]);
-                    td.data("month", index++);
+                    td.attr("data-month", index++);
                 tr.append(td);
             }
             tbody.append(tr);
@@ -256,29 +533,126 @@ ui.define("ui.ctrls.DateChooser", {
         titlePanel = $("<div class='date-chooser-calendar-title' />");
         // 后退
         prev = $("<div class='date-chooser-prev' />");
-        prev.click({ month: -1 }, this.onMonthChangedHandler);
+        prev.click({ value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.html(calendarTitleFormatter.call(this, this._year, this._month));
+        this._linkBtn.html(formatCalendarTitle.call(this, this._selYear, this._selMonth));
         this._linkBtn.click(this.onCalendarTitleClickHandler);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
-        next.click({ month: 1 }, this.onMonthChangedHandler);
+        next.click({ value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
 
         return titlePanel;
     },
     _createDatePanel: function() {
+        var datePanel = $("<div class='date-chooser-calendar-panel' />");
+        datePanel.append(this._createWeekHead());
+        datePanel.append(this._createDaysBody());
+        return datePanel;
+    },
+    _createWeekHead: function() {
+        var weekPanel,
+            weekTable,
+            tbody, tr, th,
+            i;
+        
+        weekPanel = $("<div class='date-chooser-week-panel'/>");
+        weekTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
+        tbody = $("<tbody />");
+        tr = $("<tr />");
+        for (i = 0; i < 7; i++) {
+            th = $("<th class='date-chooser-calendar-th' />");
+            th.text(this._language.weeks[i]);
+            if (i === 0 || i === 6) {
+                th.addClass("date-chooser-weekend");
+            }
+            tr.append(th);
+        }
+        tbody.append(tr);
+        weekTable.append(tbody);
+        weekPanel.append(weekTable);
 
+        return weekPanel;
+    },
+    _createDaysBody: function() {
+        var daysPanel;
+
+        daysPanel = $("<div class='date-chooser-days-panel' />");
+        this._currentDays = this._createDaysTable();
+        this._nextDays = this._createDaysTable();
+
+        daysPanel.append(this._currentDays);
+        daysPanel.append(this._nextDays);
+
+        daysPanel.click(this.onDayItemClickHandler);
+
+        return daysPanel;
+    },
+    _createDaysTable: function() {
+        var table, tbody, 
+            tr, td, 
+            i, j;
+
+        table = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
+        tbody = $("<tbody />");
+        for (i = 0; i < 6; i++) {
+            tr = $("<tr />");
+            for (var j = 0; j < 7; j++) {
+                tr.append($("<td class='date-chooser-calendar-td' />"));
+            }
+            tbody.append(tr);
+        }
+        table.append(tbody);
+        return table;
     },
     _createCtrlPanel: function() {
+        var ctrlPanel,
+            now,
+            temp;
+        ctrlPanel = $("<div class='date-chooser-operate-panel' />");
+        
+        if(this.isDateTime()) {
+            now = new Date();
+            temp = twoNumberFormatter(now.getHours());
+            this.hourText = $("<input type='text' class='hour date-chooser-time-input font-highlight-hover' />");
+            this.hourText.val(temp);
+            this.hourText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.hourText);
+            
+            ctrlPanel.append("<span style='margin-left:2px;margin-right:2px;'>:</span>");
+            
+            temp = twoNumberFormatter(now.getMinutes());
+            this.minuteText = $("<input type='text' class='minute date-chooser-time-input font-highlight-hover' />");
+            this.minuteText.val(temp);
+            this.minuteText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.minuteText);
 
+            ctrlPanel.append("<span style='margin-left:2px;margin-right:2px;'>:</span>");
+            
+            temp = twoNumberFormatter(now.getSeconds());
+            this.secondText = $("<input type='text' class='second date-chooser-time-input font-highlight-hover' />");
+            this.secondText.val(temp);
+            this.secondText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.secondText);
+
+            ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
+        } else {
+            temp = this._createButton(
+                this.onTodayButtonClickHandler,
+                "<span>" + this._language.today + "</span>"
+            );
+            temp.attr("title", this._language.todayTooltip);
+            ctrlPanel.append(temp);
+        }
+
+        return ctrlPanel;
     },
 
-    _createButton: function (eventFn, innerHtml, className, css) {
+    _createButton: function(eventFn, innerHtml, className, css) {
         var btn = $("<button class='icon-button date-chooser-button' />");
         if(innerHtml) {
             btn.html(innerHtml);
@@ -291,6 +665,221 @@ ui.define("ui.ctrls.DateChooser", {
         }
         btn.click(eventFn);
         return btn;
+    },
+    _setCurrentDate: function(value) {
+        var format = this.option.dateFormat,
+            now = new Date();
+
+        this._selYear = findDateItem.call(this, formatYear, value, format);
+        this._selMonth = findDateItem.call(this, formatMonth, value, format);
+        this._selDay = findDateItem.call(this, formatDay, value, format);
+        
+        if (isNaN(this._selYear) || this._selYear <= 1970 || this._selYear > 9999) {
+            this._selYear = now.getFullYear();
+        }
+        this._selMonth--;
+        if (isNaN(this._selMonth) || this._selMonth < 0 || this._selMonth > 11) {
+            this._selMonth = now.getMonth();
+        }
+        if (isNaN(this._selDay) || this._selDay <= 0 || this._selDay > 31) {
+            this._selDay = now.getDate();
+        }
+    },
+    _setCurrentTime: function(value) {
+        var h, m, s,
+            format,
+            now;
+        if(!this.isDateTime()) {
+            return;
+        }
+
+        format = this.option.dateFormat;
+        now = new Date();
+        h = findDateItem.call(this, formatHour, value, format);
+        m = findDateItem.call(this, formatMinute, value, format);
+        s = findDateItem.call(this, formatSecond, value, format);
+        if(isNaN(h) || h < 0 || h >= 24) {
+            h = now.getHours();
+        }
+        if(isNaN(m) || m < 0 || m >= 60) {
+            m = now.getMinutes();
+        }
+        if(isNaN(s) || s < 0 || s >= 60) {
+            s = now.getSeconds();
+        }
+        this.hourText.val(twoNumberFormatter(h));
+        this.minuteText.val(twoNumberFormatter(m));
+        this.secondText.val(twoNumberFormatter(s));
+    },
+    _fillMonth: function(daysTable, currentYear, currentMonth) {
+        var days,
+            prevMonthDate,
+            currentMonthDate,
+            nextMonthDate,
+            firstWeekDay,
+            y, m, d, i, j, index,
+            rows, td, today,
+            lastDay;
+
+        days = [];
+        // 当前月的第一天
+        currentMonthDate = new Date(currentMonth, currentMonth, 1);
+        // 当前月的第一天是星期几
+        firstWeekDay = currentMonthDate.getDay();
+
+        if(firstWeekDay > 0) {
+            // 填充上个月的日期
+            // 上一个月的最后一天
+            prevMonthDate = new Date(currentMonth, currentMonth, 0);
+            // 需要显示上个月的日期
+            y = prevMonthDate.getFullYear();
+            m = prevMonthDate.getMonth();
+            d = prevMonthDate.getDate();
+            for(i = d - (firstWeekDay - 1); i <= d; i++) {
+                days.push(Day(y, m, d, this).isCurrentMonth(false));
+            }
+        }
+
+        // 填充当前月的日期
+        lastDay = new Date(currentMonth, currentMonth + 1, 0).getDate();
+        for(i = 1; i <= lastDay; i++) {
+            days.push(Day(y, m, d, this));
+        }
+
+        // 填充下个月的日期
+        // 下一个月的第一天
+        nextMonthDate = new Date(currentMonth, currentMonth + 1, 1);
+        y = nextMonthDate.getFullYear();
+        m = nextMonthDate.getMonth();
+        lastDay = 6 * 7 - days.length;
+        for(i = 1; i < lastDay; i++) {
+            days.push(Day(y, m, i, this).isCurrentMonth(false));
+        }
+
+        today = new Date();
+        daysTable.data("days", days);
+        rows = daysTable[0].rows;
+        for(i = 0; i < 6; i++) {
+            for(j = 0; j < 7; j++) {
+                index = (i * 7) + j;
+                d = days[index];
+                d.setToday(today);
+                td = $(rows[i].cells[j]);
+                if(d.isDisabled()) {
+                    td.addClass("disabled-day");
+                } else {
+                    td.html("<span>" + d.day + "</span>");
+                }
+                td.attr("data-index", index);
+
+                // 判断是否是选中的日期
+                if(d.isTheDay(this._selYear, this._selMonth, this._selDay)) {
+                    this._currentDate = td;
+                    td.addClass(selectedClass)
+                        .addClass("background-highlight");
+                }
+                // 高亮显示今日
+                if(d.isToday()) {
+                    td.addClass("font-highlight");
+                }
+                // 不是当前月的日期
+                if(!d.isCurrentMonth()) {
+                    td.addClass("other-month-day");
+                }
+            }
+        }
+    },
+    _fillYear: function(year, month) {
+        var startYear, yearCount,
+            rows, td, value,
+            i, j;
+
+        yearCount = 15;
+        startYear = Math.floor(year / 15) * 15;
+        $("#yearTitle").text(
+            startYear + "年 ~ " + (startYear + yearCount - 1) + "年");
+        
+        rows = this._yearsTable[0].rows;
+        for(i = 0; i < 3; i++) {
+            for(j = 0; j < 5; j++) {
+                td = $(rows[i].cells[j]);
+                value = startYear + (i * 5 + j);
+                td.html(value);
+                td.attr("data-year", value);
+                if(value === year) {
+                    td.addClass(yearSelectedClass)
+                        .addClass("background-highlight");
+                    this._currentYear = td;
+                }
+            }
+        }
+
+        if(month) {
+            rows = this._monthsTable[0].rows;
+            for(i = 0; i < 3; i++) {
+                for(j = 0; j < 4; j++) {
+                    td = $(rows[i].cells[j]);
+                    value = parseInt(td.attr("data-month"), 10);
+                    if(value === month) {
+                        this._currentMonth = td;
+                        td.addClass(monthSelectedClass)
+                            .addClass("background-highlight");
+                    }
+                }
+            }
+        }
+    },
+    _isDisabledDay: function(year, month, day) {
+        if(this.startDay && this.startDay.gt(year, month, day)) {
+            // 日期小于起始日期
+            return true;
+        }
+        if(this.endDay && this.endDay.lt(year, month, day)) {
+            // 日期大于结束日期
+            return true;
+        }
+        return false;
+    },
+    _openYearMonthPanel: function() {
+        var option;
+        option = this.ymAnimator[0];
+        option.target.css("display", "block");
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = 0;
+        this.ymAnimator.start();
+    },
+    _closeYearMonthPanel: function() {
+        var option;
+        option = this.ymAnimator[0];
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = -option.target.height();
+        this.ymAnimator.start().done(function() {
+            option.target.css("display", "none");
+        });
+
+        this._currentYear
+            .removeClass(yearSelectedClass)
+            .removeClass("background-highlight");
+        this._currentMonth
+            .removeClass(monthSelectedClass)
+            .removeClass("background-highlight");
+        this._currentYear = null;
+        this._currentMonth = null;
+    },
+    _changeMonth: function() {
+
+    },
+    _formatDateValue: function(date) {
+        var dateValue = this.dateFormat;
+        dateValue = formatDateItem(formatYear, date.getFullYear(), dateValue);
+        dateValue = formatDateItem(formatMonth, date.getMonth() + 1, dateValue);
+        dateValue = formatDateItem(formatDay, date.getDate(), dateValue);
+        if(this.isDateTime()) {
+            dateValue = formatDateItem(formatHour, date.getHours(), dateValue);
+            dateValue = formatDateItem(formatMinute, date.getMinutes(), dateValue);
+            dateValue = formatDateItem(formatSecond, date.getSeconds(), dateValue);
+        }
+        return dateValue;
     },
 
     // API
