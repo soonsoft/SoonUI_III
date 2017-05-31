@@ -41,6 +41,12 @@
         cursor: pointer;
     }
 
+    .ui-date-chooser-panel .date-chooser-table {
+        table-layout: fixed;
+        border-spacing: 0;
+        border-collapse:collapse;
+    }
+
     /* 年月设置面板 */
     .ui-date-chooser-panel .year-month-setting-panel {
         width: 100%;
@@ -85,13 +91,6 @@
         height: auto;
     }
 
-    .ui-date-chooser-panel .date-chooser-year-table,
-    .ui-date-chooser-panel .date-chooser-month-table {
-        table-layout: fixed;
-        border-spacing: 0;
-        border-collapse:collapse;
-    }
-
     .ui-date-chooser-panel .date-chooser-year-td {
         padding: 0;
         width: 42px;
@@ -113,6 +112,7 @@
     }
 
     /* 日历内容 */
+    /* 日历标题 */
     .ui-date-chooser-panel .date-chooser-calendar-title {
         width: 100%;
         height: 27px;
@@ -124,6 +124,46 @@
         text-decoration: none;
     }
 
+    /* 日历主体 */
+    .ui-date-chooser-panel .date-chooser-calendar-panel {
+        width: 100%;
+        height: auto;
+        overflow: hidden;
+    }
+
+    .ui-date-chooser-panel .date-chooser-week-panel {
+        width: 100%;
+        background: @panel-color;
+    }
+
+    .ui-date-chooser-panel .date-chooser-days-panel {
+        width: 100%;
+        background: @background-color;
+    }
+
+    .ui-date-chooser-panel .date-chooser-calendar-th,
+    .ui-date-chooser-panel .date-chooser-calendar-td {
+        padding:0;
+        text-align: center;
+        font-weight: normal;
+        color: @font-color;
+        width: 30px;
+        height: 24px;
+        overflow: hidden;
+    }
+
+    .ui-date-chooser-panel .date-chooser-weekend {
+        color:#b41313;
+    }
+
+    .ui-date-chooser-panel .other-month-day {
+        color: @tool-color;
+    }
+
+    .ui-date-chooser-panel .disabled-day {
+        color: @disabled-color;
+    }
+
     /* 操作面板 */
     .ui-date-chooser-panel .date-chooser-operate-panel {
         width: 100%;
@@ -133,8 +173,25 @@
         line-height: 30px;
     }
 
-    .ui-date-chooser-panel .date-chooser-button i {
+    .ui-date-chooser-panel .date-chooser-button i,
+    .ui-date-chooser-panel .date-chooser-button span {
         font-size: 14px;
+    }
+
+    .ui-date-chooser-panel .date-chooser-time-input {
+        border: none 0;
+        height: 24px;
+        width: 24px;
+        font-size: 14px;
+        color: @tool-color;
+        vertical-align: top;
+        padding: 0;
+        margin-top: 4px;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        text-align: center;
+        background-color: transparent !important;
     }
     
 /*日历框样式*/
