@@ -1,22 +1,27 @@
 //侧滑面板基类
-ui.define("ui.ctrls.Sidebar", {
+ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
-    _defineOption: function() {
+    _getOption: function() {
         return {
             parent: null,
             width: 240
         };
     },
-    _defineEvents: function () {
+    _getEvents: function () {
         return ["showing", "showed", "hiding", "hided", "resize"];
     },
     _create: function() {
-        var that = this;
+        this.parent = ui.getJQueryElement(this.option.parent);
 
         this._showClass = "sidebar-show";
-        
-        this.parent = ui.getJQueryElement(this.option.parent);
+        this.height = 0;
+        this.width = this.option.width || 240;
+        this.borderWidth = 0;
+    },
+    _render: function() {
+        var that = this;
+
         this._panel = $("<aside class='sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
@@ -28,19 +33,15 @@ ui.define("ui.ctrls.Sidebar", {
             "right": "10px",
             "z-index": 999
         });
-        
-        this.height = 0;
-        this.width = this.option.width || 240;
-        this.borderWidth = 0;
-
-        this.parent.append(this._panel);
-        if(this.element) {
-            this._panel.append(this.element);
-        }
         this._closeButton.click(function(e) {
             that.hide();
         });
+
+        if(this.element) {
+            this._panel.append(this.element);
+        }
         this._panel.append(this._closeButton);
+        this.parent.append(this._panel);
         
         this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
         this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
@@ -49,7 +50,7 @@ ui.define("ui.ctrls.Sidebar", {
         setTimeout(function() {
             that.setSizeLocation();
         });
-        ui.resize(function() {
+        ui.page.resize(function() {
             that.setSizeLocation();
         }, ui.eventPriority.ctrlResize);
         
