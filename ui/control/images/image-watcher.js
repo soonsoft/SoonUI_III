@@ -22,7 +22,8 @@ ui.define("ui.ctrls.ImageWatcher", {
         
         this.zoomView.append(this.zoomImage);
         this.element.append(this.focusView).append(this.zoomView);
-        
+    },
+    _render: function() {
         this._initImage();
         this._initZoomer();
     },
