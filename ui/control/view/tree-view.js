@@ -4,7 +4,7 @@
  */
 
 ui.define("ui.ctrls.TreeView", {
-    _init: function() {
+    _render: function() {
         var position;
 
         this.treePanel = this.element;
