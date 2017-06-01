@@ -18,9 +18,7 @@ language["zh-CN"] = {
     year: "年份",
     month: "月份",
     weeks: ["日", "一", "二", "三", "四", "五", "六"],
-    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-    today: "今",
-    todayTooltip: "今日"
+    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
 };
 //英文
 language["en-US"] = {
@@ -28,9 +26,7 @@ language["en-US"] = {
     year: "Year",
     month: "Month",
     weeks: ["S", "M", "T", "W", "T", "F", "S"],
-    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    today: "T",
-    todayTooltip: "Today"
+    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 };
 
 function Day(year, month, day, dateChooser) {
@@ -197,6 +193,7 @@ function onApplyYearMonth(e) {
         this._currentYear.attr("data-year"), 10);
     this._selMonth = parseInt(
         this._currentMonth.attr("data-month"), 10);
+    this._updateCalendarTitle();
     this._fillMonth(this._currentDays, this._selYear, this._selMonth);
 
     this._closeYearMonthPanel();
@@ -206,7 +203,10 @@ function onCancelYearMonth(e) {
     this._closeYearMonthPanel();
 }
 function onMonthChanged(e) {
-    var value = e.data.value;
+    var value = e.data.value,
+        date;
+    date = new Date(this._selYear, this._selMonth + value, 1);
+    this._changeMonth(date, value > 0);
 }
 function onCalendarTitleClick(e) {
     e.stopPropagation();
@@ -214,10 +214,35 @@ function onCalendarTitleClick(e) {
     this._openYearMonthPanel();
 }
 function onDayItemClick(e) {
-    
+    var elem,
+        nodeName;
+    elem = $(e.target);
+    if(this._currentDays.parent().hasClass("click-disabled")) {
+        return;
+    }
+    while((nodeName = elem.nodeName()) !== "TD") {
+        if(elem.hasClass("date-chooser-days-panel")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+    this._selectItem(elem);
 }
 function onTodayButtonClick(e) {
-
+    var now = new Date(),
+        year, month;
+    year = now.getFullYear();
+    month = now.getMonth();
+    if(year === this._selYear && month === this._selMonth) {
+        this.setSelection(now);
+    } else {
+        this._changeMonth(
+            now, 
+            year * 12 + month > this._selYear * 12 + this._selMonth,
+            function() {
+                this.setSelection(now);
+            });
+    }
 }
 function onTimeMousewheel(e) {
     var elem,
@@ -282,7 +307,7 @@ function onTimeTextinput(e) {
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
-ui.define("ui.ctrls.DateChooser", {
+ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 日期格式化样式
@@ -363,10 +388,8 @@ ui.define("ui.ctrls.DateChooser", {
             // 时间输入事件
             this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
         }
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this._calendarPanel = ui.getJQueryElement(this.option.calendarPanel);
         if(!this._calendarPanel) {
             this._calendarPanel = $("<div />");
@@ -615,8 +638,8 @@ ui.define("ui.ctrls.DateChooser", {
             temp;
         ctrlPanel = $("<div class='date-chooser-operate-panel' />");
         
+        now = new Date();
         if(this.isDateTime()) {
-            now = new Date();
             temp = twoNumberFormatter(now.getHours());
             this.hourText = $("<input type='text' class='hour date-chooser-time-input font-highlight-hover' />");
             this.hourText.val(temp);
@@ -643,12 +666,12 @@ ui.define("ui.ctrls.DateChooser", {
         } else {
             temp = this._createButton(
                 this.onTodayButtonClickHandler,
-                "<span>" + this._language.today + "</span>"
+                now.getDate()
             );
-            temp.attr("title", this._language.todayTooltip);
+            temp.attr("title", this._formatDateValue(now));
+            this._todayButton = temp;
             ctrlPanel.append(temp);
         }
-
         return ctrlPanel;
     },
 
@@ -710,6 +733,10 @@ ui.define("ui.ctrls.DateChooser", {
         this.hourText.val(twoNumberFormatter(h));
         this.minuteText.val(twoNumberFormatter(m));
         this.secondText.val(twoNumberFormatter(s));
+    },
+    _updateCalendarTitle: function() {
+        this._linkBtn.html(
+            formatCalendarTitle.call(this._selYear, this._selMonth));
     },
     _fillMonth: function(daysTable, currentYear, currentMonth) {
         var days,
@@ -840,6 +867,52 @@ ui.define("ui.ctrls.DateChooser", {
         }
         return false;
     },
+    _getSelectionData: function(elem) {
+        var h = 0, m = 0, s = 0,
+            index, days, day,
+            data;
+        data = {};
+        if(this.isDateTime()) {
+            h = parseInt(this.hourText.val(), 10) || 0;
+            m = parseInt(this.minuteText.val(), 10) || 0;
+            s = parseInt(this.secondText.val(), 10) || 0;
+        }
+
+        index = parseInt(elem.attr("data-index"), 10);
+        days = elem.parent().parent().parent();
+        days = days.data("days");
+        day = days[index];
+        
+        data.date = new Date(day.year, day.month, day.day, h, m, s);
+        data.value = this._formatDateValue(data.date);
+        return data;
+    },
+    _selectItem: function(elem) {
+        var eventData;
+        
+        eventData = this._getSelectionData(elem);
+        elem.element = elem;
+        eventData.originElement = elem.context ? $(elem.context) : null;
+
+        if(this.fire("selecting", eventData) === false) {
+            return;
+        }
+
+        this._selYear = eventData.date.getFullYear();
+        this._selMonth = eventData.date.getMonth();
+        this._selDay = eventData.date.getDate();
+
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
+        this._currentDate = elem;
+        this._currentDate
+            .addClass(selectedClass)
+            .addClass("background-highlight");
+        this.fire("selected", eventData);
+    },
     _openYearMonthPanel: function() {
         var option;
         option = this.ymAnimator[0];
@@ -866,8 +939,57 @@ ui.define("ui.ctrls.DateChooser", {
         this._currentYear = null;
         this._currentMonth = null;
     },
-    _changeMonth: function() {
+    _changeMonth: function(date, isNext, callback) {
+        var option,
+            daysPanel,
+            currentLeft,
+            width,
+            that;
 
+        if(this.mcAnimator.isStarted) {
+            return;
+        }
+
+        this.mcAnimator.stop();
+
+        daysPanel = this._currentDays.parent();
+        width = daysPanel.width();
+        currentLeft = parseFloat(this._currentDays.css("left")) || 0;
+        
+        option = this.mcAnimator[0];
+        option.target = this._currentDays;
+        option.begin = currentLeft;
+        option.end = isNext ? -width : width;
+
+        option = this.mcAnimator[1];
+        option.target = this._nextDays;
+        option.target.css("display", "block");
+        if(isNext) {
+            option.begin = width - currentLeft;
+            option.target.css("left", option.begin + "px");
+        } else {
+            option.begin = currentLeft - width;
+            option.target.css("left", option.begin + "px");
+        }
+        option.end = 0;
+
+        this._selYear = date.getFullYear();
+        this._selMonth = date.getMonth();
+        this._updateCalendarTitle();
+        this._fillMonth(this._nextDays, this._selYear, this._selMonth);
+        
+        daysPanel.addClass("click-disabled");
+        that = this;
+        this.mcAnimator.start().done(function() {
+            var temp = that._currentDays;
+            that._currentDays = _nextDays;
+            that._currentDays = temp;
+            that._nextDays.css("display", "none");
+            daysPanel.removeClass("click-disabled");
+            if(ui.core.isFunction(callback)) {
+                callback.call(that);
+            }
+        });
     },
     _formatDateValue: function(date) {
         var dateValue = this.dateFormat;
@@ -885,9 +1007,227 @@ ui.define("ui.ctrls.DateChooser", {
     // API
     isDateTime: function() {
         return !!this.option.isDateTime;
+    },
+    setSelection: function(date) {
+        var index,
+            rowIndex,
+            cellIndex;
+            td;
+        index = date.getDay() + date.getDate() - 1;
+        rowIndex = Math.floor(index / 7);
+        cellIndex = index - rowIndex * 7;
+
+        td = $(this._currentDays[0].rows[rowIndex].cells[cellIndex]);
+        if(td.length > 0) {
+            this._selectItem(td);
+        }
+    },
+    getSelection: function() {
+        if(this._currentDate) {
+            return this._getSelectionData(this._currentDate);
+        }
+        return null;
+    },
+    cancelSelection: function() {
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
+        this.fire("cancel");
+    },
+    setDateValue: function(value) {
+        this._setCurrentDate(value);
+        if(this.isDateTime()) {
+            this._setCurrentTime(value);
+        }
+        this._fillMonth(this._currentDays, this._selYear, this._selMonth);
+    },
+    show: function() {
+        var that,
+            superShow,
+            today, now,
+            fn;
+
+        // 更新今日按钮日期
+        if(this._todayButton) {
+            now = new Date();
+            today = parseInt(this._todayButton.text(), 10);
+            if(now.getDate() !== today) {
+                this._todayButton
+                    .html(now.getDate())
+                    .attr("title", this._formatDateValue(now));
+            }
+        }
+
+        that = this;
+        superShow = this._super;
+        fn = function() {
+            that.moveToElement(that.element, true);
+            superShow.call(that);
+        };
+        if(this.isShow()) {
+            this.hide(fn);
+        } else {
+            fn();
+        }
     }
 });
 
-$.fn.dateChooser = function() {
+/* 构造可以重用的日历选择器 */
+var dateChooser,
+    dateTimeChooser;
 
+function noop() {}
+function createDateChooser(option, element) {
+    var dc = ui.ctrls.DateChooser(option, element);
+    dc.selecting(function() {
+        if(ui.core.isFunction(this.selectingHandler)) {
+            return this.selectingHandler.apply(this, arguments);
+        }
+    });
+    dc.selected(function() {
+        if(ui.core.isFunction(this.selectedHandler)) {
+            this.selectedHandler.apply(this, arguments);
+        } else {
+            if (this.element.nodeName() === "INPUT") {
+                this.element.val(value);
+            } else {
+                this.element.html(value);
+            }
+        }
+    });
+    dc.cancel(function() {
+        if(ui.core.isFunction(this.cancelHandler)) {
+            this.cancelHandler.apply(this, arguments);
+        } else {
+            if(this.element.nodeName() === "INPUT") {
+                this.element.val("");
+            } else {
+                this.element.html("");
+            }
+        }
+    });
+    return dc;
+}
+function onMousemoveHandler(e) {
+    var eWidth,
+        offsetX;
+    if(!this.isShow()) {
+        this.element.css("cursor", "auto");
+        this._clearable = false;
+        return;
+    }
+    eWidth = this.element.width();
+    offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0) {
+        this.element.css("cursor", "pointer");
+        this._clearable = true;
+    } else {
+        this.element.css("cursor", "auto");
+        this._clearable = false;
+    }
+}
+function onMouseupHandler(e) {
+    var eWidth,
+        offsetX;
+    if(!this._clearable) {
+        return;
+    }
+    eWidth = this.element.width();
+    offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0) {
+        if ($.isFunction(this._clear)) {
+            this._clear();
+        }
+    }
+}
+function setOptions(elem, option) {
+    // 修正配置信息
+    this.option = option;
+    this.setLayoutPanel(option.layoutPanel);
+    this.dateFormat = option.dateFormat;
+    this.element = elem;
+    // 修正事件引用
+    this.selectingHandler = option.selectingHandler;
+    this.selectedHandler = option.selectedHandler;
+    this.clearHandler = option.cancelHandler;
+    // 修正事件处理函数
+    if(elem.nodeName() === "INPUT") {
+        this.onMousemoveHandler = $.proxy(onMousemoveHandler, this);
+        this.onMouseupHandler = $.proxy(onMouseupHandler, this);
+    } else {
+        this.onMousemoveHandler = noop;
+        this.onMouseupHandler = noop;
+    }
+}
+
+$.fn.dateChooser = function() {
+    var nodeName,
+        valueFn,
+        currentDateChooser;
+
+    if(this.length === 0) {
+        return null;
+    }
+
+    if(this.hasClass("date-text")) {
+        this.css("width", parseFloat(this.css("width"), 10) - 23 + "px");
+    }
+    nodeName = this.nodeName();
+    if(nodeName !== "INPUT" && nodeName !== "A" && nodeName !== "SELECT") {
+        this.attr("tabindex", 0);
+    }
+
+    if(nodeName === "INPUT") {
+        valueFn = function() {
+            return this.val();
+        };
+    } else {
+        valueFn = function() {
+            return this.text();
+        };
+    }
+
+    if(option && option.isDateTime) {
+        if(!dateTimeChooser) {
+            dateTimeChooser = createDateChooser({
+                isDateTime: true
+            }, this);
+        }
+        currentDateChooser = dateTimeChooser;
+    } else {
+        if(!dateChooser) {
+            dateChooser = createDateChooser(null, this);
+        }
+        currentDateChooser = dateChooser;
+    }
+    option = $.extend({}, currentDateChooser.option, option);
+    this.focus(function(e) {
+        var elem = $(e.target),
+            value;
+        if(currentDateChooser.isShow() 
+            && currentDateChooser.element 
+            && currentDateChooser.element[0] === elem[0]) {
+            return;
+        }
+        if(currentDateChooser.element) {
+            currentDateChooser.element.removeClass(currentDateChooser._clearClass);
+        }
+        setOptions.call(currentDateChooser, elem, option);
+        value = valueFn.call(elem);
+        currentDateChooser.setDateValue(value);
+
+        ui.hideAll(currentDateChooser);
+        currentDateChooser.show();
+    }).click(function(e) {
+        e.stopPropagation();
+    });
+    return currentDateChooser;
 };
