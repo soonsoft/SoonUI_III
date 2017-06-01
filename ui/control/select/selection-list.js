@@ -123,10 +123,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
 
         //事件函数初始化
         this.onItemClickHandler = $.proxy(this.onItemClick);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
         this.listPanel.click(this.onItemClickHandler);
 
