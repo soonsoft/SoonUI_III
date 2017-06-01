@@ -52,44 +52,8 @@ ui.define("ui.ctrls.ExtendButton", {
                 this.centerIcon.append(this.option.centerIcon);
             }
         }
-        
-        this._createAnimator();
-        this._init();
     },
-    _createAnimator: function() {
-        this.buttonPanelAnimator = ui.animator({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css("top", val + "px");
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css("left", val + "px");
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css({
-                    "width": val + "px",
-                    "height": val + "px"
-                });
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
-            }
-        });
-        this.buttonPanelAnimator.duration =240;
-
-        this.buttonAnimator = ui.animator();
-        this.buttonAnimator.duration = 240;
-    },
-    _init: function() {
+    _render: function() {
         var i = 0,
             len,
             that = this;
@@ -146,6 +110,41 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
+        
+        this._createAnimator();
+    },
+    _createAnimator: function() {
+        this.buttonPanelAnimator = ui.animator({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css("top", val + "px");
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css({
+                    "width": val + "px",
+                    "height": val + "px"
+                });
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(op) {
+                this.target.css({
+                    "opacity": op / 100,
+                    "filter": "Alpha(opacity=" + op + ")"
+                });
+            }
+        });
+        this.buttonPanelAnimator.duration =240;
+
+        this.buttonAnimator = ui.animator();
+        this.buttonAnimator.duration = 240;
     },
     bindShowEvent: function() {
         var that = this;
