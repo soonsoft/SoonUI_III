@@ -528,10 +528,8 @@ ui.define("ui.ctrls.ReportView", {
         this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick);
         // 数据行点击事件
         this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element.hasClass("ui-report-view")) {
             this.element.addClass("ui-report-view");
         }
