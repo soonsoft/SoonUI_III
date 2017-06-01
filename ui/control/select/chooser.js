@@ -291,10 +291,8 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         this.onFocusHandler = $.proxy(onFocus, this);
         this.onItemClickHandler = $.proxy(onItemClick, this);
         this.onMousewheelHandler = $.proxy(onMousewheel, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
         this.chooserPanel.css("width", this.width + "px");
 
