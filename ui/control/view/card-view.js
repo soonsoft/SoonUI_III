@@ -103,10 +103,8 @@ ui.define("ui.ctrls.CardView", {
         /// 事件处理程序
         // 项目选中处理程序
         this.onBodyClickHandler = $.proxy(onBodyClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element || this.element.length === 0) {
             return;
         }
