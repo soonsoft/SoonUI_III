@@ -53,7 +53,7 @@ StyleSheet.prototype = {
         }
     },
     disabled: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.styleSheet.prop("disabled");
         }
 
@@ -66,7 +66,7 @@ StyleSheet.prototype = {
         if(ui.str.isEmpty(selector)) {
             return null;
         }
-        if(!this.styleSheet || this.styleSheet.length == 0) {
+        if(!this.styleSheet || this.styleSheet.length === 0) {
             return null;
         }
 
@@ -109,7 +109,7 @@ StyleSheet.prototype = {
         if(ui.str.isEmpty(selector)) {
             return;
         }
-        if(!this.styleSheet || this.styleSheet.length == 0) {
+        if(!this.styleSheet || this.styleSheet.length === 0) {
             return;
         }
 

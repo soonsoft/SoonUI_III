@@ -29,7 +29,7 @@ ui.define("ui.ctrls.ImageWatcher", {
     },
     _initImage: function() {
         this.image = $(this.element.children("img")[0]);
-        if(this.image.length == 0) {
+        if(this.image.length === 0) {
             throw new Error("元素中没有图片，无法使用图片局部查看器");
         }
         this.imageOffsetWidth = this.image.width();
@@ -150,7 +150,7 @@ ui.define("ui.ctrls.ImageWatcher", {
 });
 
 $.fn.imageWatcher = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImageWatcher(option, this);

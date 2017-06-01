@@ -73,7 +73,7 @@ ui.define("ui.ctrls.ConfirmButton", {
             }
         }
         var that = this;
-        if(this.state == 0) {
+        if(this.state === 0) {
             this.next();
             this.backTimeHandler = setTimeout(function() {
                 that.back();
@@ -110,7 +110,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
         var that = this,
             option;
-        if(this.state == 0) {
+        if(this.state === 0) {
             option = this.changeAnimator[0];
             option.target.css("margin-left", "0%");
             option.begin = 0;
@@ -139,7 +139,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         });
     },
     disabled: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.disabled;
         } else {
             this.option.disabled = !!arguments[0];
@@ -151,7 +151,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
     },
     readonly: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.readonly;
         } else {
             this.option.readonly = !!arguments[0];
@@ -164,7 +164,7 @@ ui.define("ui.ctrls.ConfirmButton", {
     },
     text: function() {
         var span = this.element.children(".text-state");
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return span.text();
         } else {
             return span.text(ui.str.trim(arguments[0] + ""));
@@ -172,7 +172,7 @@ ui.define("ui.ctrls.ConfirmButton", {
     }
 });
 $.fn.confirmClick = function(option) {
-    if (!this || this.length == 0) {
+    if (!this || this.length === 0) {
         return null;
     }
     if(ui.core.isFunction(option)) {

@@ -20,7 +20,7 @@ ui.define("ui.ctrls.ImageViewer", {
             this.option.images = [];
         }
         if(ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
-            this.isAutoView = false
+            this.isAutoView = false;
         } else {
             this.isAutoView = true;
         }
@@ -83,7 +83,7 @@ ui.define("ui.ctrls.ImageViewer", {
         this.viewAnimator.duration = 500;
     },
     setImages: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return;
         }
         this.empty();
@@ -102,7 +102,7 @@ ui.define("ui.ctrls.ImageViewer", {
         this._loadImages(images);
     },
     _loadImages: function(images) {
-        if(images.length == 0) {
+        if(images.length === 0) {
             return;
         }
         
@@ -226,7 +226,7 @@ ui.define("ui.ctrls.ImageViewer", {
         });
     },
     showImage: function(index) {
-        if(this.images.length == 0) {
+        if(this.images.length === 0) {
             return;
         }
         if(this._autoViewHandler) {
@@ -310,7 +310,7 @@ ui.define("ui.ctrls.ImageViewer", {
 });
 
 $.fn.imageViewer = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImageViewer(option, this);

@@ -47,12 +47,12 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.parentContent = this.option.parentContent;
         this.closeButton = null;
         this.mask = null;
-        this.width;
-        this.height;
+        this.width = null;
+        this.height = null;
 
         this.target = null;
-        this.targetTop;
-        this.targetLeft;
+        this.targetTop = null;
+        this.targetLeft = null;
 
         if($.isFunction(this.option.getLargeImageSrc)) {
             this._getLargeImageSrc = this.option.getLargeImageSrc;
@@ -170,7 +170,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         
         var that = this;
         ui.mask.open({
-            opacity: .8
+            opacity: 0.8
         });
         img.animate({
             "left": left + "px",
@@ -372,7 +372,7 @@ ui.define("ui.ctrls.ImageZoomer", {
 });
 
 $.fn.addImageZoomer = function (image) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return;
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
@@ -391,7 +391,7 @@ $.fn.addImageZoomer = function (image) {
                         },
                         //failed
                         function(size) {
-                            image.show(target)
+                            image.show(target);
                         }
                     );
             }

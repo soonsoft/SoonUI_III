@@ -60,14 +60,14 @@ Day.prototype = {
         if(!this.today) {
             this.today = new Date();
         }
-        return this.year === this.today.getFullYear()
-            && this.month === this.today.getMonth()
-            && this.day === this.today.getDate();
+        return this.year === this.today.getFullYear() && 
+            this.month === this.today.getMonth() && 
+            this.day === this.today.getDate();
     },
     isTheDay: function(year, month, day) {
-        return this.year === year
-            && this.month === month
-            && this.day === day;
+        return this.year === year && 
+            this.month === month && 
+            this.day === day;
     },
     isDisabled: function() {
         if(this.dateChooser) {
@@ -104,7 +104,7 @@ function formatCalendarTitle(year, month) {
 function formatDateItem(r, value, format) {
     var result;
     result = r.exec(format);
-    if(result != null) {
+    if(result !== null) {
         if(result[0].length > 1) {
             value = twoNumberFormatter(value);
         }
@@ -281,7 +281,7 @@ function onTimeTextinput(e) {
         h, m, s;
 
     elem = $(e.target);
-    if(elem.val().length == 0) {
+    if(elem.val().length === 0) {
         return;
     }
     now = new Date();
@@ -470,7 +470,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         html = [];
         html.push("<fieldset class='title-fieldset border-highlight'>");
         html.push("<legend class='title-legend font-highlight'>", this._language.month, "</legend>");
-        html.push("</fieldset>")
+        html.push("</fieldset>");
         monthTitle.html(html.join(""));
         this._settingPanel.append(monthTitle);
         // 月
@@ -624,7 +624,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         tbody = $("<tbody />");
         for (i = 0; i < 6; i++) {
             tr = $("<tr />");
-            for (var j = 0; j < 7; j++) {
+            for (j = 0; j < 7; j++) {
                 tr.append($("<td class='date-chooser-calendar-td' />"));
             }
             tbody.append(tr);
@@ -1011,7 +1011,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     setSelection: function(date) {
         var index,
             rowIndex,
-            cellIndex;
+            cellIndex,
             td;
         index = date.getDay() + date.getDate() - 1;
         rowIndex = Math.floor(index / 7);
@@ -1212,9 +1212,9 @@ $.fn.dateChooser = function() {
     this.focus(function(e) {
         var elem = $(e.target),
             value;
-        if(currentDateChooser.isShow() 
-            && currentDateChooser.element 
-            && currentDateChooser.element[0] === elem[0]) {
+        if(currentDateChooser.isShow() && 
+            currentDateChooser.element && 
+            currentDateChooser.element[0] === elem[0]) {
             return;
         }
         if(currentDateChooser.element) {

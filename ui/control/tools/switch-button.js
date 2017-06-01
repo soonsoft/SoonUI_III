@@ -148,7 +148,7 @@ ui.define("ui.ctrls.SwitchButton", {
         return this.switchBox.hasClass("switch-open");  
     },
     readonly: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.readonly;
         } else {
             this.option.readonly = !!arguments[0];
@@ -160,7 +160,7 @@ ui.define("ui.ctrls.SwitchButton", {
         }
     },
     val: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.element.val();
         } else {
             this.element.val(arguments[0]);
@@ -168,12 +168,11 @@ ui.define("ui.ctrls.SwitchButton", {
     },
     checked: function() {
         var checked;
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.element.prop("checked");
         } else {
-            arguments[0] = !!arguments[0];
             checked = this.element.prop("checked");
-            if(arguments[0] !== checked) {
+            if((!!arguments[0]) !== checked) {
                 this.element.prop("checked", arguments[0]);
                 this.onChange();
             } else {
@@ -188,7 +187,7 @@ ui.define("ui.ctrls.SwitchButton", {
     }
 });
 $.fn.switchButton = function(option) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     if(this.nodeName() !== "INPUT" && this.prop("type") !== "checkbox") {

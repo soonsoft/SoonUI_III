@@ -5,7 +5,11 @@ var docClickHideHandler = [],
             return;
         }
         retain = [];
-        while (handler = docClickHideHandler.shift()) {
+        while (true) {
+            handler = docClickHideHandler.shift();
+            if(!handler) {
+                break;
+            }
             if (currentCtrl && currentCtrl === handler.ctrl) {
                 continue;
             }
@@ -162,9 +166,7 @@ ui.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element 
-                ? (this.element.width()) 
-                : 100;
+            width = this.element ? this.element.width() : 100;
         }
         this.panelWidth = width;
         this._panel.css("width", width + "px");

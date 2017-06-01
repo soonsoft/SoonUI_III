@@ -165,7 +165,7 @@ ui.define("ui.ctrls.CardView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.gridFoot.append(this.pager.pageInfoPanel)
+                this.gridFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -186,12 +186,12 @@ ui.define("ui.ctrls.CardView", {
             isFunction,
             rows;
 
-        if(arr.length == 0) {
+        if(arr.length === 0) {
             return;
         }
         marginInfo = this._getMargin(arr.length);
         this._columnCount = marginInfo.count;
-        if(marginInfo.count == 0) return;
+        if(marginInfo.count === 0) return;
         
         isFunction = ui.core.isFunction(fn);
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
@@ -217,7 +217,7 @@ ui.define("ui.ctrls.CardView", {
             restWidth,
             flag,
             checkOverflow = function(len, res) {
-                if(res.count == 0) {
+                if(res.count === 0) {
                     return res;
                 }
                 var sh = Math.floor((len + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
@@ -416,7 +416,7 @@ ui.define("ui.ctrls.CardView", {
         }
         this.option.viewData = viewData;
 
-        if(viewData.length == 0) {
+        if(viewData.length === 0) {
             this._showDataPrompt();
             return;
         } else {

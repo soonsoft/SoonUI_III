@@ -111,8 +111,7 @@ ui.str = {
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
-        return str === undefined 
-            || str === null
+        return str === undefined || str === null
             || (ui.core.isString(str) && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
@@ -230,7 +229,7 @@ ui.str = {
         var val = null;
         if (isNaN(date)) {
             val = /Date\(([^)]+)\)/.exec(jsonDate);
-            if (val != null) {
+            if (val !== null) {
                 date = new Date(Number(val[1]));
             } else {
                 date = this.convertDate(jsonDate, "yyyy-MM-ddTHH:mm:ss");

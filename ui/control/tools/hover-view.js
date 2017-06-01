@@ -24,8 +24,8 @@ ui.define("ui.ctrls.HoverView", {
         this.height = this.viewPanel.outerHeight();
 
         this.target = null;
-        this.targetWidth;
-        this.targetHeight;
+        this.targetWidth = null;
+        this.targetHeight = null;
 
         this.hasDocMousemoveEvent = false;
 

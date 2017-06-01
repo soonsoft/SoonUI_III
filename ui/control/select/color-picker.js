@@ -73,12 +73,12 @@ function farbtastic(container, callback) {
             }
         }
         return this;
-    }
+    };
     fb.updateValue = function (event) {
         if (this.value && this.value != fb.color) {
             fb.setColor(this.value);
         }
-    }
+    };
 
     /**
      * Change color with HTML syntax #123456
@@ -92,7 +92,7 @@ function farbtastic(container, callback) {
             fb.updateDisplay();
         }
         return this;
-    }
+    };
 
     /**
      * Change color with HSL triplet [0..1, 0..1, 0..1]
@@ -103,7 +103,7 @@ function farbtastic(container, callback) {
         fb.color = fb.pack(fb.rgb);
         fb.updateDisplay();
         return this;
-    }
+    };
 
     /////////////////////////////////////////////////////
 
@@ -115,7 +115,7 @@ function farbtastic(container, callback) {
         var x, y;
         var el = event.target || event.srcElement;
         var reference = fb.wheel;
-        var pos;
+        var pos, offset;
 
         if (typeof event.offsetX != 'undefined') {
             // Use offset coordinates and find common offsetParent
@@ -133,7 +133,7 @@ function farbtastic(container, callback) {
 
             // Look for the coordinates starting from the wheel widget.
             e = reference;
-            var offset = { x: 0, y: 0 }
+            offset = { x: 0, y: 0 };
             while (e) {
                 if (typeof e.mouseX != 'undefined') {
                     x = e.mouseX - offset.x;
@@ -152,8 +152,7 @@ function farbtastic(container, callback) {
                 e.mouseY = undefined;
                 e = e.offsetParent;
             }
-        }
-        else {
+        } else {
             // Use absolute coordinates
             pos = fb.absolutePosition(reference);
             x = (event.pageX || 0 * (event.clientX + $('html').get(0).scrollLeft)) - pos.x;
@@ -161,7 +160,7 @@ function farbtastic(container, callback) {
         }
         // Subtract distance to middle
         return { x: x - fb.width / 2, y: y - fb.width / 2 };
-    }
+    };
 
     /**
      * Mousedown handler
@@ -180,7 +179,7 @@ function farbtastic(container, callback) {
         // Process
         fb.mousemove(event);
         return false;
-    }
+    };
 
     /**
      * Mousemove handler
@@ -201,7 +200,7 @@ function farbtastic(container, callback) {
             fb.setHSL([fb.hsl[0], sat, lum]);
         }
         return false;
-    }
+    };
 
     /**
      * Mouseup handler
@@ -211,7 +210,7 @@ function farbtastic(container, callback) {
         $(document).unbind('mousemove', fb.mousemove);
         $(document).unbind('mouseup', fb.mouseup);
         document.dragging = false;
-    }
+    };
 
     /**
      * Update the markers and styles
@@ -252,7 +251,7 @@ function farbtastic(container, callback) {
         }
 
         this.fire(selected, fb.color);
-    }
+    };
 
     /**
      * Get absolute position of element
@@ -276,20 +275,19 @@ function farbtastic(container, callback) {
         return '#' + (r < 16 ? '0' : '') + r.toString(16) +
                 (g < 16 ? '0' : '') + g.toString(16) +
                 (b < 16 ? '0' : '') + b.toString(16);
-    }
+    };
 
     fb.unpack = function (color) {
         if (color.length == 7) {
             return [parseInt('0x' + color.substring(1, 3)) / 255,
                 parseInt('0x' + color.substring(3, 5)) / 255,
                 parseInt('0x' + color.substring(5, 7)) / 255];
-        }
-        else if (color.length == 4) {
+        } else if (color.length == 4) {
             return [parseInt('0x' + color.substring(1, 2)) / 15,
                 parseInt('0x' + color.substring(2, 3)) / 15,
                 parseInt('0x' + color.substring(3, 4)) / 15];
         }
-    }
+    };
 
     fb.HSLToRGB = function (hsl) {
         var m1, m2;
@@ -299,7 +297,7 @@ function farbtastic(container, callback) {
         return [this.hueToRGB(m1, m2, h + 0.33333),
             this.hueToRGB(m1, m2, h),
             this.hueToRGB(m1, m2, h - 0.33333)];
-    }
+    };
 
     fb.hueToRGB = function (m1, m2, h) {
         h = (h < 0) ? h + 1 : ((h > 1) ? h - 1 : h);
@@ -307,7 +305,7 @@ function farbtastic(container, callback) {
         if (h * 2 < 1) return m2;
         if (h * 3 < 2) return m1 + (m2 - m1) * (0.66666 - h) * 6;
         return m1;
-    }
+    };
 
     fb.RGBToHSL = function (rgb) {
         var min, max, delta, h, s, l;
@@ -328,7 +326,7 @@ function farbtastic(container, callback) {
             h /= 6;
         }
         return [h, s, l];
-    }
+    };
 
     // Install mousedown handler (the others are set on the document on-demand)
     $('*', e).mousedown(fb.mousedown);

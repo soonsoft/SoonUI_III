@@ -172,7 +172,7 @@ function onSort(e) {
 
     e.stopPropagation();
     viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length == 0) {
+    if (!Array.isArray(viewData) || viewData.length === 0) {
         return;
     }
     elem = $(e.target);
@@ -490,7 +490,7 @@ ui.define("ui.ctrls.GridView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.gridFoot.append(this.pager.pageInfoPanel)
+                this.gridFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -567,7 +567,7 @@ ui.define("ui.ctrls.GridView", {
             c._columnKeys[column] = column.split(".");
         }
         arr = c._columnKeys[column];
-        var value = rowData[arr[i]];
+        value = rowData[arr[i]];
         for (i = 1; i < arr.length; i++) {
             value = value[arr[i]];
             if (value === undefined || value === null) {
@@ -681,7 +681,7 @@ ui.define("ui.ctrls.GridView", {
             if(match) {
                 ex = ex.match(tag)[1];
                 if(ex === tagName) {
-                    return !(elem.attr(match[1]) === match[4]);
+                    return elem.attr(match[1]) !== match[4];
                 }
             } else {
                 if(ex.toLowerCase() === tagName) {
@@ -865,7 +865,7 @@ ui.define("ui.ctrls.GridView", {
         }
         this.option.viewData = viewData;
 
-        if(viewData.length == 0) {
+        if(viewData.length === 0) {
             this._showDataPrompt();
             return;
         } else {
@@ -966,7 +966,7 @@ ui.define("ui.ctrls.GridView", {
         } else {
             fn = function(elem) {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
-            }
+            };
         }
 
         if(this.isMultiple()) {

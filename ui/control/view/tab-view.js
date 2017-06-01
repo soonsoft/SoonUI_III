@@ -125,7 +125,7 @@ View.prototype = {
         });
     },
     showIndex: function(index, animation) {
-        var tabView;
+        var tabView,
             views;
 
         tabView = this.tabView;
@@ -269,7 +269,7 @@ Tab.prototype = {
         }
     },
     showIndex: function(index, animation) {
-        var tabView;
+        var tabView,
             views;
 
         tabView = this.tabView;
@@ -447,7 +447,7 @@ TabManager.prototype = {
                 elem = [];
                 for (j = 0; j < id.length; j++) {
                     elem.push($("#" + id[j]));
-                    if (elem[elem.length - 1].length == 0) {
+                    if (elem[elem.length - 1].length === 0) {
                         elem.pop();
                     }
                 }
@@ -488,8 +488,8 @@ TabManager.prototype = {
         }
         
         args = [];
-        i = 3, len = arguments.length;
-        for(; i < len; i++) {
+        len = arguments.length;
+        for(i = 3; i < len; i++) {
             args.push(arguments[i]);
         }
         if(!this.tabLoadStates[index]) {

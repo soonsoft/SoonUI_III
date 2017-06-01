@@ -85,7 +85,7 @@ cellFormatter = {
         if(val === undefined || val === null || isNaN(val)) {
             return null;
         }
-        p = $("<p class='table-cell-block' />")
+        p = $("<p class='table-cell-block' />");
         p.text(val + "");
         return p;
     },
@@ -198,7 +198,7 @@ cellParameterFormatter = {
             nullText = "";
         }
 
-        trueWidth = width * trueText.length || width,
+        trueWidth = width * trueText.length || width;
         falseWidth = width * falseText.length || width;
 
         return function (val, col) {

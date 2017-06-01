@@ -86,7 +86,7 @@ GridViewGroup.prototype = {
         var groupList = [];
         var dict = {};
         
-        if(!Array.isArray(list) || list.length == 0) {
+        if(!Array.isArray(list) || list.length === 0) {
             return groupList;
         }
         createGroupItem = $.isFunction(createGroupItem) ? createGroupItem : defaultCreateGroupItem;

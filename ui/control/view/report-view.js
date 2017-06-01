@@ -210,7 +210,7 @@ function onSort(e) {
 
     e.stopPropagation();
     viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length == 0) {
+    if (!Array.isArray(viewData) || viewData.length === 0) {
         return;
     }
     elem = $(e.target);
@@ -714,7 +714,7 @@ ui.define("ui.ctrls.ReportView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.reportFoot.append(this.pager.pageInfoPanel)
+                this.reportFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -849,7 +849,7 @@ ui.define("ui.ctrls.ReportView", {
             for (i = 0; i < groupColumns.length; i++) {
                 row = groupColumns[i];
                 tr = $("<tr />");
-                if (!row || row.length == 0) {
+                if (!row || row.length === 0) {
                     tr.addClass(emptyRow);
                 }
                 columnIndex = 0;
@@ -1011,7 +1011,7 @@ ui.define("ui.ctrls.ReportView", {
             c._columnKeys[column] = column.split(".");
         }
         arr = c._columnKeys[column];
-        var value = rowData[arr[i]];
+        value = rowData[arr[i]];
         for (i = 1; i < arr.length; i++) {
             value = value[arr[i]];
             if (value === undefined || value === null) {
@@ -1392,7 +1392,7 @@ ui.define("ui.ctrls.ReportView", {
         } else {
             fn = function(elem) {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
-            }
+            };
         }
 
         if(this.isMultiple()) {

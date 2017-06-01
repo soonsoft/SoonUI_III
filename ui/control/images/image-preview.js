@@ -16,10 +16,10 @@ ui.define("ui.ctrls.ImagePreview", {
         this.viewer = this.element.children(".image-view-panel");
         this.chooser = this.element.children(".image-preview-chooser");
         
-        if(this.viewer.length == 0) {
+        if(this.viewer.length === 0) {
             throw new Error("需要设置一个class为image-view-panel的元素");
         }
-        if(this.chooser.length == 0) {
+        if(this.chooser.length === 0) {
             throw new Error("需要设置一个class为image-preview-chooser的元素");
         }
         
@@ -257,7 +257,7 @@ ui.define("ui.ctrls.ImagePreview", {
         }
     },
     setImages: function(images) {
-        if(!Array.isArray(images) || images.length == 0) {
+        if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
@@ -355,7 +355,7 @@ ui.define("ui.ctrls.ImagePreview", {
 });
 
 $.fn.imagePreview = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImagePreview(option, this);

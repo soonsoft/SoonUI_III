@@ -5,7 +5,7 @@ function Toolbar(option) {
     } else {
         return new Toolbar(option);
     }
-};
+}
 Toolbar.prototype = {
     constructor: Toolbar,
     initialize: function(option) {
@@ -29,7 +29,7 @@ Toolbar.prototype = {
         for(; i < len; i++) {
             buttons = $(this.tools[i]).children(".action-buttons");
             if(buttons.length > 0) {
-                buttons.children(".tool-action-button").addClass("font-highlight-hover")
+                buttons.children(".tool-action-button").addClass("font-highlight-hover");
             }
         }
     },
@@ -76,11 +76,11 @@ Toolbar.prototype = {
         this.extendButton = this.toolbarPanel.find(".tool-extend-button");
         var moreTool,
             moreActions;
-        if(this.extendButton.length == 0) {
+        if(this.extendButton.length === 0) {
             moreTool = $("<ul class='tools' style='float:right;margin-left:0px;'></ul>");
             moreActions = $("<li class='action-buttons'></li>");
             moreTool.append(moreActions);
-            if(this.tools.length == 0) {
+            if(this.tools.length === 0) {
                 this.extendPanel.parent().before(moreTool);
             } else {
                 $(this.tools[0]).before(moreTool);

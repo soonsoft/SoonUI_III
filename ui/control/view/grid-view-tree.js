@@ -18,7 +18,7 @@ function onFoldButtonClick(e) {
     e.stopPropagation();
 
     btn = $(e.target),
-    rowIndex = btn.parent().parent()[0].rowIndex,
+    rowIndex = btn.parent().parent()[0].rowIndex;
     rowData = this.gridview.getRowData(rowIndex);
 
     if (btn.hasClass("unfold")) {
@@ -185,7 +185,7 @@ GridViewTree.prototype = {
         var listTree = [];
         var getParentValue = getValue,
             getChildValue = getValue;
-        if (!Array.isArray(list) || list.length == 0)
+        if (!Array.isArray(list) || list.length === 0)
             return listTree;
 
         if ($.isFunction(parentField)) {
@@ -239,7 +239,7 @@ GridViewTree.prototype = {
         var listTree = [];
         var getParentValue = getValue,
             getChildValue = getValue;
-        if (!Array.isArray(list) || list.length == 0)
+        if (!Array.isArray(list) || list.length === 0)
             return listTree;
         
         var parents = [],
@@ -263,7 +263,7 @@ GridViewTree.prototype = {
             
             level = item._level;
             parents[level] = item;
-            if(level == 0) {
+            if(level === 0) {
                 rootChildren.push(item);
                 continue;
             }

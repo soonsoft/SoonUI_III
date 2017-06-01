@@ -224,4 +224,4 @@ if (/native code/.test(nativePromise)) {
         nativePromise.defer = defer;
     }
 }
-return window.Promise = nativePromise || uiPromise;
+window.Promise = nativePromise || uiPromise;

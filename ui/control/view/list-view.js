@@ -142,7 +142,7 @@ ui.define("ui.ctrls.ListView", {
     },
     _createItemHtml: function(builder, item, index) {
         var content,
-            index,
+            idx,
             temp;
         builder.push("<li ", indexAttr, "='", index, "' class='ui-list-view-item'>");
         content = this.option.itemFormatter.call(this, item, index);
@@ -152,8 +152,8 @@ ui.define("ui.ctrls.ListView", {
             builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
-            index = temp.lastIndexOf("'");
-            builder[builder.length - 1] = temp.substring(0, index);
+            idx = temp.lastIndexOf("'");
+            builder[builder.length - 1] = temp.substring(0, idx);
             // 添加class
             if(ui.core.isString(content.class)) {
                 builder.push(" ", content.class);
@@ -474,7 +474,7 @@ ui.define("ui.ctrls.ListView", {
 
         viewData = this.getViewData();
         size = this.count();
-        if(size == 0) {
+        if(size === 0) {
             return;
         }
         if(sourceIndex < 0 || sourceIndex >= size) {
@@ -552,7 +552,7 @@ ui.define("ui.ctrls.ListView", {
             index = indexes[i];
             li = liList[index];
             if(li) {
-                this._selectItem($(li), index, true, !(i < len - 1));
+                this._selectItem($(li), index, true, (i >= len - 1));
             }
         }
     },

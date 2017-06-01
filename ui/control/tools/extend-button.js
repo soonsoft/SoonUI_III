@@ -399,7 +399,7 @@ ui.define("ui.ctrls.ExtendButton", {
 });
 
 $.fn.extendButton = function(option) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     return ui.ctrls.ExtendButton(option, this);

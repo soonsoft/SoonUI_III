@@ -72,8 +72,8 @@ function onItemClick(e) {
     }
 
     elem = $(e.target);
-    while((nodeName = elem.nodeName()) !== "LI" 
-            && !elem.hasClass("ui-selection-list-li")) {
+    while((nodeName = elem.nodeName()) !== "LI" && 
+        !elem.hasClass("ui-selection-list-li")) {
 
         if(elem.hasClass("ui-selection-list-panel")) {
             return;
@@ -108,7 +108,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         this._current = null;
         this._selectList = [];
 
-        fields = [this.option.valueField, this.option.textField],
+        fields = [this.option.valueField, this.option.textField];
         fieldMethods = ["_getValue", "_getText"];
 
         fields.forEach(function(item) {
@@ -279,7 +279,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         } else if (ui.core.isObject(item) && !ui.core.isObject(value)) {
             return this._getValue.call(item, this.option.valueField) === value;
         } else {
-            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField)
+            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField);
         }
     },
 

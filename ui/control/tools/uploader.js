@@ -101,7 +101,7 @@ function ajaxUpload() {
     this.doUpload = function () {
         var files = this.inputFile[0].files,
             file = files[0];
-        if (!files || files.length == 0) {
+        if (!files || files.length === 0) {
             return;
         }
         var fileName = file.fileName || file.name,
@@ -141,7 +141,7 @@ function fromUpload() {
         this.fire("progressing", this.percent);
 
         contentWindow = this._iframe[0].contentWindow;
-        fileInfo = contentWindow.fileInfo,
+        fileInfo = contentWindow.fileInfo;
         errorMsg = contentWindow.error;
         if (!fileInfo && !errorMsg) {
             return;
@@ -306,10 +306,8 @@ ui.define("ui.ctrls.Uploader", {
         if (index === -1) {
             return false;
         }
-        this.fileName = 
-            path.substring(path.lastIndexOf("\\") + 1, index),
-        this.extension = 
-            path.substring(index).toLowerCase().trim();
+        this.fileName = path.substring(path.lastIndexOf("\\") + 1, index);
+        this.extension = path.substring(index).toLowerCase().trim();
 
         if (this.option.filter === "*.*") {
             return true;

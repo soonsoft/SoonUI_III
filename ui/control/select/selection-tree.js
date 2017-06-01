@@ -539,7 +539,7 @@ ui.define("ui.ctrls.SelectionTree", {
                 if(pathArray.length === 0) {
                     break;
                 }
-                tempId = "#" + this._treePrefix + pathArray.join("_")
+                tempId = "#" + this._treePrefix + pathArray.join("_");
                 dt = $(tempId);
             }
             if (dt.length === 0) {
