@@ -59,10 +59,8 @@ ui.define("ui.ctrls.ImageZoomer", {
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         this.imagePanel = $("<div class='show-image-panel' />");
         this.currentView = $("<div class='image-view-panel' style='display:none;' />");
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
