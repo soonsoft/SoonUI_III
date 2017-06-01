@@ -30,10 +30,8 @@ ui.define("ui.ctrls.ImageViewer", {
         
         this.isHorizontal = this.option.direction === "horizontal";
         this.animationCssItem = this.isHorizontal ? "left" : "top";
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         var that = this;
         this.element.addClass("image-view-panel");
         this.currentView = null;
