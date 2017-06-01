@@ -28,10 +28,8 @@ ui.define("ui.ctrls.ImagePreview", {
             this.option.chooserButtonSize = 16;
         }
         this.item = [];
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
