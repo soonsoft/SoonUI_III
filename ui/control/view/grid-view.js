@@ -412,10 +412,8 @@ ui.define("ui.ctrls.GridView", {
         this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
         // 横向滚动条同步事件
         this.onScrollingXHandler = $.proxy(onScrollingX, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
