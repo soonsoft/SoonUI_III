@@ -18,7 +18,7 @@ var docClickHideHandler = [],
     };
 
 // 注册document点击事件
-ui.page.docclick(function (e) {
+ui.docclick(function (e) {
     hideCtrls();
 });
 // 添加隐藏的处理方法
@@ -70,10 +70,8 @@ ui.define("ui.ctrls.DropDownBase", {
                 }
             }
         }, this);
-
-        this._initElements();
     },
-    _initElements: function() {
+    _render: function() {
         if(!this.element) {
             return;
         }
