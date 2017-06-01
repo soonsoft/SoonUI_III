@@ -1,4 +1,5 @@
-
+function noop() {
+}
 function getNamespace(namespace) {
     var spaces,
         spaceRoot,
@@ -16,7 +17,6 @@ function getNamespace(namespace) {
     }
     return spaceRoot;
 }
-
 function getConstructor(name, constructor) {
     var namespace,
         constructorInfo = {
@@ -47,7 +47,6 @@ function getConstructor(name, constructor) {
 
     return constructorInfo;
 }
-
 function define(name, base, prototype, constructor) {
     var constructorInfo,
         // 代理原型
@@ -200,11 +199,13 @@ CtrlBase.prototype = {
         }
 
         this._create();
+        this._render();
         return this;
     },
-    _defineOption: ui.core.noop,
-    _defineEvents: ui.core.noop,
-    _create: ui.core.noop,
+    _defineOption: noop,
+    _defineEvents: noop,
+    _create: noop,
+    _render: noop,
     toString: function() {
         return this.fullName;
     }
