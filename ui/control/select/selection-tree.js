@@ -216,11 +216,8 @@ ui.define("ui.ctrls.SelectionTree", {
         }
 
         this.onTreeItemClickHandler = $.proxy(onTreeItemClick, this);
-
-        this._init();
     },
-    
-    _init: function() {
+    _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
         this.treePanel.click(this.onTreeItemClickHandler);
         this.wrapElement(this.element, this.treePanel);
