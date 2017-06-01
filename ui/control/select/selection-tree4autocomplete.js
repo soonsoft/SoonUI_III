@@ -88,7 +88,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
 
         this._super();
     },
-    _init: function() {
+    _render: function() {
         var oldFireFn;
 
         this._super();
