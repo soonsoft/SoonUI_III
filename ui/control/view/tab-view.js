@@ -358,9 +358,8 @@ ui.define("ctrls.TabView", {
         }
 
         this.isHorizontal = this.option.direction !== "vertical";
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(this.option.type === "view") {
             this.model = View(this);
         } else {
