@@ -385,7 +385,7 @@ $.fn.colorPicker = function (option) {
     colorPicker._showClass = "color-picker-show";
     
     colorPicker.wrapElement(this, colorPickerPanel);
-    colorPicker._init();
+    colorPicker._render();
     oldHideFn = colorPicker.hide;
 
     createFarbtastic(colorPickerPanel, this);
