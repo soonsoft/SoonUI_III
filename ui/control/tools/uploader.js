@@ -232,10 +232,8 @@ ui.define("ui.ctrls.Uploader", {
         this.onInputFileChangeHandler = $.proxy(onInputFileChange, this);
 
         this._reset();
-        this._init();
     },
-
-    _init: function() {
+    _render: function() {
         this._prepareUploadMode();
         this._initUploadButton();
         this._initUpload();
