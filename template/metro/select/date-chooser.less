@@ -138,8 +138,16 @@
 
     .ui-date-chooser-panel .date-chooser-days-panel {
         width: 100%;
+        position: relative;
         background: @background-color;
+        overflow: hidden;
     }
+
+        .ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
     .ui-date-chooser-panel .date-chooser-calendar-th,
     .ui-date-chooser-panel .date-chooser-calendar-td {
