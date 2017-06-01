@@ -76,10 +76,8 @@ ui.define("ui.ctrls.ListView", {
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
         this.onListItemClickHandler = $.proxy(onListItemClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.element.addClass("ui-list-view");
 
         this.listPanel = $("<ul class='ui-list-view-ul' />");
