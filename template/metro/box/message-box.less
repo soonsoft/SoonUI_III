@@ -1,0 +1,77 @@
+/* message box */
+.ui-message-box {
+    display: none;
+    position: absolute;
+    left: 0px;
+    min-height: 80px;
+    height: auto;
+    width: 320px;
+    overflow:hidden;
+    border-top-width: 4px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    z-index:999999;
+}
+
+    .ui-message-box .message-item {
+        padding-left: 36px;
+        padding-top: 8px;
+        padding-right: 24px;
+        padding-bottom: 8px; 
+        height: auto;
+        position: relative;
+    }
+
+    .ui-message-box .message-icon {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .ui-message-box .mb-message {
+        color: #0A91F0;
+    }
+
+    .ui-message-box .mb-warn {
+        color: #F1B436;
+    }
+
+    .ui-message-box .mb-error {
+        color: #BB1337;
+    }
+
+    .ui-message-box .mb-success {
+        color: #2ECC71;
+    }
+
+    .ui-message-box .mb-failed {
+        color: #DC3160;
+    }
+
+    .ui-message-box .message-content {
+        line-height: 1.5em;
+    }
+
+    .ui-message-box a {
+        filter: Alpha(opacity=70);
+        opacity: .7;
+    }
+
+    .ui-message-box a:hover {
+        filter: Alpha(opacity=100);
+        opacity: 1;
+    }
+
+.ui-message-box a.close-button{
+    right: 2px;
+    top: 2px;
+    z-index: 99999;
+}
