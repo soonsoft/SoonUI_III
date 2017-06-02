@@ -1,4 +1,3 @@
-
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
@@ -93,7 +92,6 @@ Day.prototype = {
     }
 };
 
-// 格式化器
 function twoNumberFormatter(number) {
     return number < 10 ? "0" + number : "" + number;
 }
@@ -133,24 +131,42 @@ function createDay(value) {
     }
     return Day(year, month, day, this);
 }
+function checkButtonDisabled(btn) {
+    return btn.hasClass("date-chooser-prev-disabled") || btn.hasClass("date-chooser-next-disabled");
+}
 
 // 事件处理函数
 function onYearChanged(e) {
-    var value = e.data.value,
+    var elem,
+        value = e.data.value,
         year;
+    
+    elem = $(e.target);
+    if(checkButtonDisabled(elem)) {
+        return;
+    }
     if(this._currentYear) {
         year = parseInt(this._currentYear.attr("data-year"), 10);
     } else {
         year = this._selYear;
     }
-    this._fillYear(year + value);
+
+    year = year + value;
+    this._fillYear(year);
 }
 function onYearSelected(e) {
-    var elem;
+    var elem,
+        year,
+        startMonth,
+        endMonth,
+        i, disabledArray;
     
     e.stopPropagation();
     elem = $(e.target);
     if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(elem.hasClass("disabled-year")) {
         return;
     }
     if(this._currentYear) {
@@ -165,6 +181,21 @@ function onYearSelected(e) {
     this._currentYear
         .addClass(yearSelectedClass)
         .addClass("background-highlight");
+
+    year = parseInt(this._currentYear.attr("data-year"), 10);
+    disabledArray = new Array(12);
+    startMonth = 0;
+    endMonth = 0;
+    if(this.startDay && this.startDay.year === year) {
+        startMonth = this.startDay.month;
+    }
+    if(this.endDay && this.endDay.year === year) {
+        endMonth = this.endDay.month;
+    }
+    for(i = startMonth; i <= endMonth; i++) {
+        disabledArray[i] = false;
+    }
+    this._updateMonthsStatus(disabledArray);
 }
 function onMonthSelected(e) {
     var elem;
@@ -203,8 +234,14 @@ function onCancelYearMonth(e) {
     this._closeYearMonthPanel();
 }
 function onMonthChanged(e) {
-    var value = e.data.value,
+    var elem,
+        value = e.data.value,
         date;
+    
+    elem = $(e.target);
+    if(checkButtonDisabled(elem)) {
+        return;
+    }
     date = new Date(this._selYear, this._selMonth + value, 1);
     this._changeMonth(date, value > 0);
 }
@@ -238,7 +275,7 @@ function onTodayButtonClick(e) {
     } else {
         this._changeMonth(
             now, 
-            year * 12 + month > this._selYear * 12 + this._selMonth,
+            year * 12 + month + 1 > this._selYear * 12 + this._selMonth + 1,
             function() {
                 this.setSelection(now);
             });
@@ -339,21 +376,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         // 日期格式化
         this.option.defaultFormat = this.option.defaultFormat || defaultFormat;
 
-        // 日期参数
-        now = new Date();
-        this._selYear = now.getFullYear();
-        this._selMonth = now.getMonth();
-        this._selDay = now.getDate();
-
-        // 限制
-        this.startDay = null;
-        if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
-            this.startDay = createDay(this.option.startDate);
-        }
-        this.endDay = null;
-        if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
-            this.endDay = createDay(this.option.endDate);
-        }
+        this._initDateRange();
+        now = this.formatDateValue(new Date());
+        this._setCurrentDate(now);
          
         // 文字显示
         this._language = language[this.option.language];
@@ -387,6 +412,16 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             this.onTimeMousewheelHandler = $.proxy(onTimeMousewheel, this);
             // 时间输入事件
             this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
+        }
+    },
+    _initDateRange: function() {
+        this.startDay = null;
+        if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
+            this.startDay = createDay(this.option.startDate);
+        }
+        this.endDay = null;
+        if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
+            this.endDay = createDay(this.option.endDate);
         }
     },
     _render: function() {
@@ -455,12 +490,14 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         prev = $("<div class='date-chooser-prev'/>");
         prev.click({ value: -10 }, this.onYearChangedHandler);
         yearTitle.append(prev);
+        this._yearPrev = prev;
         // 标题文字
         yearTitle.append("<div class='date-chooser-title'><span id='yearTitle'>" + this._language.year + "</span></div>");
         // 前进
         next = $("<div class='date-chooser-next'/>");
         next.click({ value: 10 }, this.onYearChangedHandler);
         yearTitle.append(next);
+        this._yearNext = next;
         // 清除浮动
         yearTitle.append($("<br clear='left' />"));
         // 年
@@ -558,6 +595,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         prev = $("<div class='date-chooser-prev' />");
         prev.click({ value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
+        this._monthPrev = prev;
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
@@ -568,6 +606,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         next = $("<div class='date-chooser-next' />");
         next.click({ value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
+        this._monthNext = next;
 
         return titlePanel;
     },
@@ -668,7 +707,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 this.onTodayButtonClickHandler,
                 now.getDate()
             );
-            temp.attr("title", this._formatDateValue(now));
+            temp.attr("title", this.formatDateValue(now));
             this._todayButton = temp;
             ctrlPanel.append(temp);
         }
@@ -706,6 +745,12 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         }
         if (isNaN(this._selDay) || this._selDay <= 0 || this._selDay > 31) {
             this._selDay = now.getDate();
+        }
+
+        if(this._isDisabledDay(this._selYear, this._selMonth, this._selDay)) {
+            this._selYear = this.startDay.year;
+            this._selMonth = this.startDay.month;
+            this._selDay = this.startDay.day;
         }
     },
     _setCurrentTime: function(value) {
@@ -826,12 +871,27 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         $("#yearTitle").text(
             startYear + "年 ~ " + (startYear + yearCount - 1) + "年");
         
+        // 检查年的切换按钮
+        this._checkNext(startYear - 1, -1, this._yearNext);
+        this._checkPrev(startYear + yearCount, -1, this._yearPrev);
+
+        if(this._currentYear) {
+            this._currentYear
+                .removeClass(yearSelectedClass)
+                .removeClass("background-highlight");
+            this._currentYear = null;
+        }
         rows = this._yearsTable[0].rows;
         for(i = 0; i < 3; i++) {
             for(j = 0; j < 5; j++) {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
-                td.html(value);
+                if((this.startDay && value < this.startDay.year) 
+                    || (this.endDay && value > this.endDay)) {
+                    td.addClass("disabled-year");
+                } else {
+                    td.html(value);
+                }
                 td.attr("data-year", value);
                 if(value === year) {
                     td.addClass(yearSelectedClass)
@@ -841,18 +901,72 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             }
         }
 
-        if(month) {
-            rows = this._monthsTable[0].rows;
-            for(i = 0; i < 3; i++) {
-                for(j = 0; j < 4; j++) {
-                    td = $(rows[i].cells[j]);
-                    value = parseInt(td.attr("data-month"), 10);
-                    if(value === month) {
-                        this._currentMonth = td;
-                        td.addClass(monthSelectedClass)
-                            .addClass("background-highlight");
-                    }
+        if(ui.core.isNumber(month)) {
+            this._updateMonthsStatus();
+        }
+    },
+    _updateMonthsStatus: function(disabledArray) {
+        var rows, td, value,
+            index, i, j;
+        if(!Array.isArray(disabledArray)) {
+            disabledArray = new Array(12);
+        }
+        if(this._currentMonth) {
+            this._currentMonth
+                .removeClass(monthSelectedClass)
+                .removeClass("background-highlight");
+            this._currentMonth = null;
+        }
+        rows = this._monthsTable[0].rows;
+        for(i = 0; i < 3; i++) {
+            for(j = 0; j < 4; j++) {
+                index = (i * 4) + j;
+                td = $(rows[i].cells[j]);
+                if(disabledArray[index] === false) {
+                    td.addClass("month-disabled");
+                } else {
+                    td.removeClass("month-disabled");
                 }
+                value = parseInt(td.attr("data-month"), 10);
+                if(value === month) {
+                    this._currentMonth = td;
+                    td.addClass(monthSelectedClass)
+                        .addClass("background-highlight");
+                }
+            }
+        }
+    },
+    _checkPrev: function(year, month, prevBtn) {
+        var startMonthCount,
+            monthCount;
+        if(this.startDay) {
+            startMonthCount = this.startDay.year * 12;
+            monthCount = year * 12;
+            if(month >= 0) {
+                startMonthCount += this.startDay.month + 1;
+                monthCount += month + 1;
+            }
+            if(monthCount <= startMonthCount) {
+                prevBtn.addClass("date-chooser-prev-disabled");
+            } else {
+                prevBtn.removeClass("date-chooser-prev-disabled");
+            }
+        }
+    },
+    _checkNext: function(year, month, nextBtn) {
+        var endMonthCount,
+            monthCount;
+        if(this.endDay) {
+            endMonthCount = this.endDay.year * 12;
+            monthCount = year * 12;
+            if(month >= 0) {
+                endMonthCount += this.endDay.month + 1;
+                monthCount += month + 1;
+            }
+            if(monthCount >= endMonthCount) {
+                prevBtn.addClass("date-chooser-next-disabled");
+            } else {
+                prevBtn.removeClass("date-chooser-next-disabled");
             }
         }
     },
@@ -884,12 +998,15 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         day = days[index];
         
         data.date = new Date(day.year, day.month, day.day, h, m, s);
-        data.value = this._formatDateValue(data.date);
+        data.value = this.formatDateValue(data.date);
         return data;
     },
     _selectItem: function(elem) {
         var eventData;
         
+        if(elem.hasClass("disabled-day")) {
+            return;
+        }
         eventData = this._getSelectionData(elem);
         elem.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
@@ -946,6 +1063,12 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             width,
             that;
 
+        if(isNext) {
+            this._checkNext(date.getFullYear(), date.getMonth(), this._monthNext);
+        } else {
+            this._checkPrev(date.getFullYear(), date.getMonth(), this._monthPrev);
+        }
+
         if(this.mcAnimator.isStarted) {
             return;
         }
@@ -991,7 +1114,58 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             }
         });
     },
-    _formatDateValue: function(date) {
+
+    // API
+    /** 是否能选择时间 */
+    isDateTime: function() {
+        return !!this.option.isDateTime;
+    },
+    /** 设置日期 */
+    setSelection: function(date) {
+        var index,
+            rowIndex,
+            cellIndex,
+            td;
+
+        if(!date || this._isDisabledDay(date.getFullYear(), date.getMonth(), date.getDate())) {
+            return;
+        }
+        
+        index = date.getDay() + date.getDate() - 1;
+        rowIndex = Math.floor(index / 7);
+        cellIndex = index - rowIndex * 7;
+
+        td = $(this._currentDays[0].rows[rowIndex].cells[cellIndex]);
+        if(td.length > 0) {
+            this._selectItem(td);
+        }
+    },
+    /** 获取当前选择的数据 */
+    getSelection: function() {
+        if(this._currentDate) {
+            return this._getSelectionData(this._currentDate);
+        }
+        return null;
+    },
+    /** 取消选择 */
+    cancelSelection: function() {
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
+        this.fire("cancel");
+    },
+    /** 设置日期值，初始化日历 */
+    setDateValue: function(value) {
+        this._setCurrentDate(value);
+        if(this.isDateTime()) {
+            this._setCurrentTime(value);
+        }
+        this._fillMonth(this._currentDays, this._selYear, this._selMonth);
+    },
+    /** 将date格式化为对应格式的文本 */
+    formatDateValue: function(date) {
         var dateValue = this.dateFormat;
         dateValue = formatDateItem(formatYear, date.getFullYear(), dateValue);
         dateValue = formatDateItem(formatMonth, date.getMonth() + 1, dateValue);
@@ -1003,46 +1177,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         }
         return dateValue;
     },
-
-    // API
-    isDateTime: function() {
-        return !!this.option.isDateTime;
-    },
-    setSelection: function(date) {
-        var index,
-            rowIndex,
-            cellIndex,
-            td;
-        index = date.getDay() + date.getDate() - 1;
-        rowIndex = Math.floor(index / 7);
-        cellIndex = index - rowIndex * 7;
-
-        td = $(this._currentDays[0].rows[rowIndex].cells[cellIndex]);
-        if(td.length > 0) {
-            this._selectItem(td);
-        }
-    },
-    getSelection: function() {
-        if(this._currentDate) {
-            return this._getSelectionData(this._currentDate);
-        }
-        return null;
-    },
-    cancelSelection: function() {
-        if(this._currentDate) {
-            this._currentDate
-                .removeClass(selectedClass)
-                .removeClass("background-highlight");
-        }
-        this.fire("cancel");
-    },
-    setDateValue: function(value) {
-        this._setCurrentDate(value);
-        if(this.isDateTime()) {
-            this._setCurrentTime(value);
-        }
-        this._fillMonth(this._currentDays, this._selYear, this._selMonth);
-    },
+    /** 显示 */
     show: function() {
         var that,
             superShow,
@@ -1056,7 +1191,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             if(now.getDate() !== today) {
                 this._todayButton
                     .html(now.getDate())
-                    .attr("title", this._formatDateValue(now));
+                    .attr("title", this.formatDateValue(now));
             }
         }
 
