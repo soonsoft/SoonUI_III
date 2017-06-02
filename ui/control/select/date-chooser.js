@@ -923,9 +923,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 index = (i * 4) + j;
                 td = $(rows[i].cells[j]);
                 if(disabledArray[index] === false) {
-                    td.addClass("month-disabled");
+                    td.addClass("disabled-month");
                 } else {
-                    td.removeClass("month-disabled");
+                    td.removeClass("disabled-month");
                 }
                 value = parseInt(td.attr("data-month"), 10);
                 if(value === month) {
