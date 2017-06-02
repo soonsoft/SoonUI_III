@@ -60,7 +60,7 @@ MessageBox.prototype = {
                 "left": clientWidth + "px",
                 "max-height": clientHeight - (this.top * 2) + "px"
             });
-            var close = $("<a href='javascript:void(0)' class='close-button'>×</a>");
+            var close = $("<a href='javascript:void(0)' class='closable-button'>×</a>");
             var that = this;
             close.click(function (e) {
                 that.hide(true);
