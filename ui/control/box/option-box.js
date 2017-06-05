@@ -1,7 +1,7 @@
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
-    buttonPanelHeight = 0;
+    operatePanelHeight = 0;
 ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _defineOption: function() {
         return $.extend(this._super(), {
@@ -15,7 +15,7 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.contentHeight = 0;
         this.contentTop = 40;
         this.buttonTop = 0;
-        this.buttonPanelHeight = 0;
+        this.operatePanelHeight = 0;
         this.buttons = [];
 
         this.opacityOption = {
@@ -62,15 +62,15 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
             return;
         }
         this.buttons.push(button);
-        if(!this.buttonPanel) {
-            this.buttonPanel = $("<section class='ui-option-box-buttons' />");
+        if(!this.operatePanel) {
+            this.operatePanel = $("<section class='ui-option-box-buttons' />");
             buttonContainer = $("<div class='ui-form' />");
-            this.buttonPanel.append(buttonContainer);
-            this._panel.append(this.buttonPanel);
+            this.operatePanel.append(buttonContainer);
+            this._panel.append(this.operatePanel);
             this.buttonTop = 24;
-            this.buttonPanelHeight = 24;
+            this.operatePanelHeight = 24;
         } else {
-            buttonContainer = this.buttonPanel.children(".ui-form");
+            buttonContainer = this.operatePanel.children(".ui-form");
         }
         buttonContainer.append(button);
         return this;
@@ -89,15 +89,15 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 
         this._super(width);
         // 调整内容的对齐方式
-        contentMaxheight = this.height - this.contentTop - this.buttonTop - this.buttonPanelHeight - this.buttonTop;
+        contentMaxheight = this.height - this.contentTop - this.buttonTop - this.operatePanelHeight - this.buttonTop;
         this.contentPanel.css({
             "max-height": contentMaxheight + "px"
         });
-        if (this.buttonPanel) {
+        if (this.operatePanel) {
             if (contentMaxheight < this.contentHeight) {
-                this.buttonPanel.css("width", this.width - ui.scrollbarWidth + "px");
+                this.operatePanel.css("width", this.width - ui.scrollbarWidth + "px");
             } else {
-                this.buttonPanel.css("width", "100%");
+                this.operatePanel.css("width", "100%");
             }
         }
     },
