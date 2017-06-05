@@ -16,15 +16,7 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.contentTop = 40;
         this.buttonTop = 0;
         this.buttonPanelHeight = 0;
-
         this.buttons = [];
-        if(!Array.isArray(this.option.buttons)) {
-            if(ui.core.isString(this.option.buttons)) {
-                this.option.buttons = [this.option.buttons];
-            } else {
-                this.option.buttons = [];
-            }
-        }
 
         this.opacityOption = {
             target: this.panel,
@@ -52,6 +44,13 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     },
     _initButtons: function() {
         var i, len;
+        if(!Array.isArray(this.option.buttons)) {
+            if(ui.core.isString(this.option.buttons)) {
+                this.option.buttons = [this.option.buttons];
+            } else {
+                this.option.buttons = [];
+            }
+        }
         for(i = 0, len = this.option.buttons.length; i < len; i++) {
             this.addButton(this.option.buttons[i]);
         }
