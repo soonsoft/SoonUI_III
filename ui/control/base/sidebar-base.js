@@ -14,7 +14,7 @@ ui.define("ui.ctrls.SidebarBase", {
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
 
-        this._showClass = "sidebar-show";
+        this._showClass = "ui-sidebar-show";
         this.height = 0;
         this.width = this.option.width || 240;
         this.borderWidth = 0;
