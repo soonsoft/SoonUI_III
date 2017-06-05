@@ -13,6 +13,9 @@ ui.define("ui.ctrls.SidebarBase", {
     },
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
+        if(!this.parent) {
+            this.parent = $(document.body);
+        }
 
         this._showClass = "ui-sidebar-show";
         this.height = 0;
@@ -22,10 +25,7 @@ ui.define("ui.ctrls.SidebarBase", {
     _render: function() {
         var that = this;
 
-        this._panel = $("<aside class='sidebar-panel border-highlight' />");
-        if(!this.parent) {
-            this.parent = $(document.body);
-        }
+        this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
         this._closeButton = $("<button class='icon-button' />");
@@ -51,10 +51,10 @@ ui.define("ui.ctrls.SidebarBase", {
         
         //进入异步调用，给resize事件绑定的时间
         setTimeout(function() {
-            that.setSizeLocation();
+            that.setWidth();
         });
         ui.page.resize(function() {
-            that.setSizeLocation();
+            that.setWidth();
         }, ui.eventPriority.ctrlResize);
         
         this.animator = ui.animator({
@@ -88,7 +88,7 @@ ui.define("ui.ctrls.SidebarBase", {
             this.element = elem;
         }
     },
-    setSizeLocation: function(width, resizeFire) {
+    setWidth: function(width, resizeFire) {
         var parentWidth = this.parent.width(),
             parentHeight = this.parent.height();
         
@@ -97,7 +97,7 @@ ui.define("ui.ctrls.SidebarBase", {
             height: this.height + "px"
         };
         var right = this.width;
-        if ($.isNumeric(width)) {
+        if (ui.core.isNumber(width)) {
             this.width = width;
             sizeCss["width"] = this.width + "px";
             right = width;
