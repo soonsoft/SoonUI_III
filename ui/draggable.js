@@ -167,6 +167,7 @@ $.fn.draggable = function(option) {
         return;
     }
 
+    option.handle = this;
     option.getParentCssNum = function(prop) {
         return parseFloat(option.parent.css(prop)) || 0;
     };
