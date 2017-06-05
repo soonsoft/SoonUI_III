@@ -69,6 +69,8 @@ module.exports = function(grunt) {
     ];
     // layer indexes
     var layerIndexes = {
+        // 内容边栏
+        "container-aside": 9000,
         // 遮罩层
         "mask-layer": 9999,
         // 弹出面板层
