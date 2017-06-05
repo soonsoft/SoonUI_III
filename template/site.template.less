@@ -492,6 +492,15 @@ textarea {
     overflow: auto;
 }
 
+.ui-form {
+    margin: 0;
+    padding: 0;
+}
+    .ui-form span.required {
+        color: #f00921;
+        margin-left: 3px;
+    }
+
 /* 操作按钮，会改变后台数据的按钮，实心的 */
 .button {
     min-width: 80px;
@@ -514,6 +523,9 @@ textarea {
         color: @readonly-color;
     }
 
+
+
+/* 通用的关闭按钮 */
 .closable-button {
     position: absolute;
     right: 10px;
@@ -527,6 +539,7 @@ textarea {
     cursor: pointer;
 }
 
+/* 不能选择 */
 .cancel-user-select {
 	-ms-user-select: none;
 	-moz-user-select: none;
