@@ -1,0 +1,113 @@
+.ui-dialog-box {
+    position: absolute;
+    border-top-width: 4px;
+    border-top-style: solid;
+    border-color: transparent;
+    background-color: @panel-color;
+    display: none;
+    z-index: @box-layer;
+}
+
+.ui-dialog-box-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    opacity: 0;
+    z-index: @mask-layer;
+    display: none;
+}
+
+.closable-button {
+    right: 5px;
+    top: 5px;
+}
+
+/* 标题部分 */
+.ui-dialog-box-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 48px;
+}
+
+    .ui-dialog-box-title .title-inner-panel {
+        padding-left: 16px;
+        padding-right: 16px;
+        height: 100%;
+    }
+
+    .ui-dialog-box-title .title-inner-panel .text-text {
+        font-size: 16px;
+        line-height: 40px;
+    }
+
+.ui-dialog-box-spline {
+    margin: 0;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none 0;
+    height: 1px;
+}
+
+/* 内容部分 */
+.ui-dialog-box-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: auto;
+}
+
+    .ui-dialog-box-content .content-frame {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+
+.ui-dialog-box .resize-handle {
+    text-decoration: none;
+    display: block;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: none 0;
+    width: 0;
+    height: 0;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    z-index: 100;
+    border-width: 5px;
+    border-color: transparent @tool-color @tool-color transparent;
+    border-style: dashed solid solid dashed;
+}
+
+/* 操作台部分 */
+.ui-dialog-box-operate {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    overflow: hidden;
+    height: 48px;
+    overflow: hidden;
+    text-align: right;
+    line-height: 48px;
+}
+
+    .ui-dialog-box-operate button,
+    .ui-dialog-box-operate input[type="button"] {
+        margin-right: 16px;
+    }
