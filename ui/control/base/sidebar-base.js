@@ -24,7 +24,7 @@ ui.define("ui.ctrls.SidebarBase", {
 
         this._panel = $("<aside class='sidebar-panel border-highlight' />");
         if(!this.parent) {
-            this.parent = $("<div style='position:relative;width:100%;height:100%' />");
+            this.parent = $(document.body);
         }
         this._panel.css("width", this.width + "px");
         
