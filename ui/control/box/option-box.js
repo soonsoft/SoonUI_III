@@ -39,10 +39,10 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this._panel
             .append(this.titlePanel)
             .append(this.contentPanel);
-        this._initButtons();
+        this._initOperateButtons();
         this.setTitle(this.option.title);
     },
-    _initButtons: function() {
+    _initOperateButtons: function() {
         var i, len;
         if(!Array.isArray(this.option.buttons)) {
             if(ui.core.isString(this.option.buttons)) {
