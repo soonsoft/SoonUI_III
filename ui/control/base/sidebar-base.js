@@ -23,6 +23,9 @@ ui.define("ui.ctrls.SidebarBase", {
         var that = this;
 
         this._panel = $("<aside class='sidebar-panel border-highlight' />");
+        if(!this.parent) {
+            this.parent = $("<div style='position:relative;width:100%;height:100%' />");
+        }
         this._panel.css("width", this.width + "px");
         
         this._closeButton = $("<button class='icon-button' />");
