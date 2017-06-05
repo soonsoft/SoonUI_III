@@ -71,6 +71,8 @@ module.exports = function(grunt) {
     var layerIndexes = {
         // 遮罩层
         "mask-layer": 9999,
+        // 弹出面板层
+        "box-layer": 9999,
         // 弹出控件层
         "ctrl-layer": 10000,
         // 最高层
