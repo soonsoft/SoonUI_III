@@ -36,6 +36,7 @@ function Day(year, month, day, dateChooser) {
     }
 }
 Day.prototype = {
+    constructor: Day,
     initialize: function(year, month, day, dateChooser) {
         this.year = year;
         this.month = month;
