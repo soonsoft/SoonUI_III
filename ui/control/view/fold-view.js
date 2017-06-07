@@ -36,6 +36,7 @@ function FoldView(element) {
     }
 }
 FoldView.prototype = {
+    constructor: FoldView,
     initialize: function(element) {
         this.element = element;
         this.onFoldTitleClickHandler = $.proxy(onFoldTitleClick, this);
