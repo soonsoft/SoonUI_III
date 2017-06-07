@@ -17,6 +17,7 @@ function MessageBox() {
     }
 }
 MessageBox.prototype = {
+    constructor: MessageBox,
     initialize: function() {
         this.box = null;
         this.type = MessageType;
