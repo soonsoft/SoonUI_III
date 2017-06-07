@@ -9,6 +9,7 @@ function LoadingBox(option) {
     }
 }
 LoadingBox.prototype = {
+    constructor: LoadingBox,
     initialize: function(option) {
         if(!option) {
             option = {};
