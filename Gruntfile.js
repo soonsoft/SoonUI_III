@@ -13,6 +13,10 @@ module.exports = function(grunt) {
             description: "光明",
             // 背景色
             "background-color": "#ffffff",
+            "first-bg-color": "#f6f6f6",
+            "second-bg-color": "#eaeaea",
+            "third-bg-color": "#e1e1e1",
+            "fouth-bg-color": "#dedede",
             // 字体颜色
             "font-color": "#333333",
             // 边框颜色
@@ -43,6 +47,10 @@ module.exports = function(grunt) {
             description: "暗夜",
             // 背景色
             "background-color": "#1d1f21",
+            "first-bg-color": "#2e3032",
+            "second-bg-color": "#37383a",
+            "third-bg-color": "#434547",
+            "fouth-bg-color": "#505253",
             // 字体颜色
             "font-color": "#aaaaaa",
             // 边框颜色
