@@ -25,6 +25,8 @@ module.exports = function(grunt) {
             "fouth-color": "#bababa",
             // 边框颜色
             "border-color": "#dcdcdc",
+            "first-border-color": "#cccccc",
+            "second-border-color": "#efefef",
             // 面板颜色
             "panel-color": "#f1f1f1",
             // 面板悬停色
@@ -63,6 +65,8 @@ module.exports = function(grunt) {
             "fouth-color": "#676767",
             // 边框颜色
             "border-color": "#5d5f60",
+            "first-border-color": "#3c3f41",
+            "second-border-color": "#4b4d4f",
             // 面板颜色
             "panel-color": "#3c3f41",
             // 面板悬停色
