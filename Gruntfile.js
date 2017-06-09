@@ -19,6 +19,10 @@ module.exports = function(grunt) {
             "fouth-bg-color": "#dedede",
             // 字体颜色
             "font-color": "#333333",
+            "first-color": "#525252",
+            "second-color": "#747474",
+            "third-color": "#979797",
+            "fouth-color": "#bababa",
             // 边框颜色
             "border-color": "#dcdcdc",
             // 面板颜色
@@ -53,6 +57,10 @@ module.exports = function(grunt) {
             "fouth-bg-color": "#505253",
             // 字体颜色
             "font-color": "#aaaaaa",
+            "first-color": "#949494",
+            "second-color": "#808080",
+            "third-color": "#737373",
+            "fouth-color": "#676767",
             // 边框颜色
             "border-color": "#5d5f60",
             // 面板颜色
