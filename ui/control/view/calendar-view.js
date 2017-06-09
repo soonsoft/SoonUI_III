@@ -29,6 +29,9 @@ function formatTime (date, beginDate) {
         ":",
         twoNumberFormatter(s)].join("");
 }
+function defaultFormatDateHeadText(date) {
+    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + sundayFirstWeek[date.getDay()] + "）";
+}
 
 // 事件处理
 // 年视图日期点击事件
@@ -56,6 +59,22 @@ function onMouseItemClick(e) {
     }
 
     this._selectItem(elem);
+}
+// 周视图标题点击事件
+function onWeekHeadItemClick(e) {
+    var th = $(e.target),
+        nodeName;
+    while ((nodeName = th.nodeName()) !== "TH") {
+        if(nodeName === "TABLE") {
+            return;
+        }
+        th = th.parent();
+    }
+    this.calendar.fire("weekTitleClick", this, th[0].cellIndex);
+}
+// 日视图标题点击事件
+function onDayHeadItemClick(e) {
+    this.calendar.fire("weekTitleClick", this, 0);
 }
 
 // 年视图
@@ -724,9 +743,8 @@ MonthView.prototype = {
     },
     _changeMonth: function(monthDate) {
         this.calendar.currentDate = monthDate;
-        this.year = this.calendar.currentDate.getFullYear();
-        this.month = this.calendar.currentDate.getMonth();
 
+        this._setCurrent();
         this._createDays();
         this._setCellSize(this.viewPanel.width(), this.viewPanel.height() - 26);
 
@@ -838,6 +856,10 @@ MonthView.prototype = {
             data = option.data;
             dateField = option.dateField;
             action = option.action;
+        } else {
+            option = {
+                textField: "text"
+            };
         }
         if(ui.core.isFunction(option.idField)) {
             getValueFn = option.idField;
@@ -884,6 +906,12 @@ MonthView.prototype = {
             data = option.data;
             dateField = option.dateField;
             action = option.action;
+        } else {
+            option = {
+                idField: function() {
+                    return this;
+                }
+            };
         }
         if(ui.core.isFunction(option.idField)) {
             getValueFn = option.idField;
@@ -1008,9 +1036,612 @@ WeekView.prototype = {
     constructor: WeekView,
     initialize: function(calendar) {
         this.calendar = calendar;
+        this.startDate = null;
+        this.endDate = null;
+        this.year = null;
+        this.month = null;
+
+        this.todayIndex = -1;
+        this.weekDays = null;
+        this.weekHours = [];
+        this.initialled = false;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
     },
     render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        this._formatDayText = this.calendar.option.formatWeekDayHead; 
+        if(!ui.core.isFunction(this._formatDayText)) {
+            this._formatDayText = defaultFormatDateHeadText;
+        }
+        // 事件
+        this.onWeekHeadItemClickHandler = $.proxy(onWeekHeadItemClick, this);
+
+        this.weekDays = this.calendar.getWeek(this.calendar.currentDate);
+        this._setCurrent();
+
+        this.weekDayPanel = $("<div class='ui-calendar-week-view' />");
+        this._createWeek();
+
+        this.hourPanel = $("<div class='ui-calendar-hour-panel' />");
+        this._createHourName();
+        this._createHour();
+
+        this._setTodayStyle();
+        this.viewPanel
+            .append(this.weekDayPanel)
+            .append(this.hourPanel);
+
+        this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.active();
+
+        this.hourAnimator = ui.animator(this.hourPanel, {
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function (val, elem) {
+                elem.scrollTop(val);
+            }
+        });
+        this.hourAnimator.duration = 800;
+        this.initialled = true;
+    },
+    _setCurrent: function() {
+        var day = this.weekDays[0];
+        this.startDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0);
+        day = this.weekDays[6];
+        this.endDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+
+        this.year = day.getFullYear();
+        this.month = day.getMonth();
+    },
+    _createWeek: function() {
+        var thead, 
+            colgroup,
+            tr, th, date, i;
+
+        this.weekTable = $("<table class='ui-calendar-weekday unselectable' cellspacing='0' cellpadding='0' />");
+        thead = $("<thead />");
+        colgroup = $("<colgroup />");
+        tr = $("<tr />");
+        for(i = 0; i < 7; i++) {
+            day = this.weekDays[i];
+            colgroup.append("<col />");
+
+            th = $("<th class='weekday-cell' />");
+            th.text(this._formatDayText(day));
+            tr.append(th);
+        }
+
+        thead.append(tr);
+        this.weekTable.append(colgroup).append(thead);
+        this.weekDayPanel.append(this.weekTable);
+
+        this.weekTable.click(this.onWeekHeadItemClickHandler);
+    },
+    _createHourName: function() {
+        var table, colgroup, tbody, 
+            tr, td,
+            i, j, unitCount;
+
+        this.hourNames = $("<div class='hour-name-panel' />");
+        table = $("<table class='hour-name-table unselectable' cellspacing='0' cellpadding='0' />");
+        colgroup = $("<colgroup />");
+        // 特殊的结构，保持表格高度一致，包括边框的高度
+        colgroup
+            .append("<col style='width:0px;' />")
+            .append("<col />");
+        table.append(colgroup);
+        tbody = $("<tbody />");
+
+        unitCount = this.calendar._getTimeCellCount();
+        for (; i < 24; i++) {
+            for(j = 0; j < unitCount; j++) {
+                tr = $("<tr />");
+                td = $("<td class='hour-name-cell' />");
+                if((j + 1) % unitCount) {
+                    td.addClass("hour-name-cell-odd");
+                }
+                tr.append(td);
+                if(j === 0) {
+                    td = $("<td class='hour-name-cell' rowspan='" + unitCount + "' />");
+                    td.append("<h3 class='hour-name-text'>" + i + "</h3>");
+                    tr.append(td);
+                }
+                tbody.append(tr);
+            }
+        }
+        table.append(tbody);
+        this.hourNames.append(table);
+        this.hourPanel.append(this.hourNames);
+    },
+    _createHour: function() {
+        var tbody, colgroup, tr, td,
+            i, len, unitCount;
+
+        this.weekHour = $("<div class='week-hour-panel' />");
+        this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
+        tbody = $("<tbody />");
+        colgroup = $("<colgroup />");
+        for (i = 0; i < 7; i++) {
+            colgroup.append("<col />");
+        }
+
+        unitCount = this.calendar._getTimeCellCount();
+        len = 24 * count;
+        for (i = 0; i < len; i++) {
+            tr = $("<tr />");
+            for (j = 0; j < 7; j++) {
+                td = $("<td class='week-hour-cell' />");
+                if (this.calendar.isWeekend(j)) {
+                    td.addClass("week-hour-cell-weekend");
+                }
+                if ((i + 1) % count) {
+                    td.addClass("week-hour-cell-odd");
+                }
+                tr.append(td);
+            }
+            tbody.append(tr);
+        }
+        this.hourTable.append(colgroup).append(tbody);
+        this.weekHour.append(this.hourTable);
+        this.hourPanel.append(this.weekHour);
+    },
+    _setTodayStyle: function() {
+        var today, date,
+            table, row,
+            i, len;
+
+        today = new Date();
+        this.todayIndex = -1;
+        for (i = 0; i < 7; i++) {
+            date = this.weekDays[i];
+            if (date.getFullYear() == today.getFullYear() && date.getMonth() == today.getMonth() && date.getDate() == today.getDate()) {
+                this.todayIndex = i;
+                break;
+            }
+        }
+        if (this.todayIndex < 0) {
+            return;
+        }
+
+        table = this.hourTable[0];
+        for (i = 0, len = table.rows.length; i < len; i++) {
+            row = table.rows[i];
+            $(row.cells[this.todayIndex]).addClass("week-hour-cell-today");
+        }
+    },
+    _clearTodayStyle: function() {
+        var rows, cell,
+            todayIndex,
+            i, len;
+        rows = this.hourTable[0].tBodies[0].rows;
+        todayIndex = -1;
+        for(i = 0, len = rows[0].cells.length; i < len; i++) {
+            cell = $(rows[0].cells[i]);
+            if(cell.hasClass("week-hour-cell-today")) {
+                todayIndex = i;
+                break;
+            }
+        }
+        if(todayIndex < 0) {
+            return;
+        }
+        for(i = 0, len = rows.length; i < len; i++) {
+            cell = $(rows[i].cells[todayIndex]);
+            cell.removeClass("week-hour-cell-today");
+        }
+    },
+    _setCellSize: function (width, height) {
+        var scrollWidth = 0,
+            realWidth, unitWidth,
+            wcols, hcols;
         
+        if (height < this.hourPanel[0].scrollHeight) {
+            scrollWidth = ui.scrollbarWidth;
+        }
+        realWidth = width - timeTitleWidth - scrollWidth;
+        unitWidth = Math.floor(realWidth / 7);
+        if (unitWidth < 95) {
+            unitWidth = 95;
+        }
+
+        wcols = this.weekTable.find("col");
+        hcols = this.hourTable.find("col");
+        this.weekTable.css("width", unitWidth * 7 + "px");
+        this.hourTable.css("width", unitWidth * 7 + "px");
+        wcols.css("width", unitWidth + "px");
+        hcols.css("width", unitWidth + "px");
+
+        if (this.selector.cellWidth > 1) {
+            this._restoreSchedules(unitWidth - this.selector.cellWidth);
+        }
+
+        this.selector.cellWidth = unitWidth;
+        this.selector.cancelSelection();
+    },
+    _updateWeek: function() {
+        var tr, th, day, i;
+        tr = this.weekTable[0].tHead.rows[0];
+        for (i = 0; i < 7; i++) {
+            day = this.weekDays[i];
+            th = $(tr.cells[i]);
+            th.text(this._formatDayText(day));
+            // 将样式恢复成初始值
+            th.attr("class", "weekday-cell");
+        }
+    },
+    _addScheduleItem: function(beginCell, endCell, formatAction, scheduleInfo, titleText) {
+        var scheduleItem,
+            title,
+            container,
+            bp, ep;
+        
+        scheduleItem = $("<div class='schedule-item-panel' />");
+        title = $("<div class='time-title' />");
+        title.html("<span class='time-title-text'>" + titleText + "</span>");
+        container = $("<div class='schedule-container' />");
+        scheduleItem.append(title).append(container);
+
+        bp = this.getPositionAndSize(beginCell);
+        ep = this.getPositionAndSize(endCell);
+        scheduleItem.css({
+            "top": bp.top + "px",
+            "left": bp.left + "px",
+            "width": bp.width + "px",
+            "height": ep.height + ep.top - bp.top + "px"
+        });
+        $(this.hourPanel).append(scheduleItem);
+
+        scheduleInfo.itemPanel = scheduleItem;
+        this._setScheduleInfo(scheduleInfo.columnIndex, scheduleInfo);
+        if (ui.core.isFunction(formatAction)) {
+            formatAction.call(this, scheduleInfo, container);
+        }
+    },
+    _findSchedules: function(beginDateArray, action) {
+        var i, j, date,
+            weekIndex, beginRowIndex, dayItems,
+            actionIsFunction;
+
+        actionIsFunction = ui.core.isFunction(action);
+        for (i = 0; i < beginDateArray.length; i++) {
+            date = beginDateArray[i];
+            if (date instanceof Date) {
+                weekIndex = this.calendar.getWeekIndexOf(date);
+                beginRowIndex = this.calendar.timeToIndex(formatTime(date));
+                dayItems = this._getScheduleInfo(weekIndex);
+                if (dayItems) {
+                    for (j = dayItems.length - 1; j >= 0 ; j--) {
+                        if (beginRowIndex === dayItems[j].beginRowIndex) {
+                            if(actionIsFunction) {
+                                action.call(this, dayItems[j], j, dayItems);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    _restoreSchedules: function(value) {
+        var column, left, width,
+            i, j, weekDay, panel;
+
+        for (i = 0; i < this.weekHours.length; i++) {
+            weekDay = this.weekHours[i];
+            if (weekDay) {
+                for (j = 0; j < weekDay.length; j++) {
+                    panel = weekDay[j].itemPanel;
+                    column = weekDay[j].weekIndex;
+                    left = parseFloat(panel.css("left"));
+                    width = parseFloat(panel.css("width"));
+                    panel.css({
+                        "left": (left + column * val) + "px",
+                        "width": (width + val) + "px"
+                    });
+                }
+            }
+        }
+    },
+    _setScheduleInfo: function(weekIndex, info) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            weekDay = [];
+            this.weekHours[weekIndex] = weekDay;
+        }
+        info.weekIndex = weekIndex;
+        weekDay.push(info);
+    },
+    _getScheduleInfo: function (weekIndex) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            return null;
+        }
+        return weekDay;
+    },
+    _changeWeek: function () {
+        this._setCurrent();
+        this.clearSchedules();
+        this.selector.cancelSelection();
+        this._updateWeek();
+        
+        // 重新标出今天
+        this._clearTodayStyle();
+        this._setTodayStyle();
+    },
+    _getUnitHourNameHeight: function() {
+        var table;
+        if(!this.hourNames) {
+            return hourHeight;
+        }
+        table = this.hourNames.children("table")[0];
+        return $(table.tBodies[0].rows[0].cells[1]).outerHeight() / this.calendar._getTimeCellCount();
+    },
+    _getPositionAndSize: function(td) {
+        var position = td.position();
+        position.left = position.left + timeTitleWidth;
+        position.top = position.top;
+        return {
+            top: position.top,
+            left: position.left,
+            width: td.outerWidth() - 1,
+            height: td.outerHeight() - 1
+        };
+    },
+    // API
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        var day = this.calendar.currentDate;
+        this.calendar.showTimeLine(this.hourPanel, this._getUnitHourNameHeight());
+        if (day >= this.startDate && day <= this.endDate) {
+            return false;
+        }
+        this.weekDays = this.calendar.getWeek(day);
+        this._changeWeek();
+        return true;
+    },
+    /** 激活 */
+    active: function() {
+        this.selector.active();
+    },
+    /** 休眠 */
+    dormant: function() {
+        this.selector.dormant();
+    },
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        this.weekDays = this.calendar.getWeek(
+            new Date(day.getFullYear(), day.getMonth(), day.getDate() - 7));
+        this._changeWeek();
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        this.weekDays = this.calendar.getWeek(
+            new Date(day.getFullYear(), day.getMonth(), day.getDate() + 7));
+        this._changeWeek();
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this.weekDays = this.calendar.getWeek(day);
+        this._changeWeek();
+    },
+    /** 设置显示的时间 */
+    setBeginTime: function (beginTime) {
+        var height, scrollHeight,
+            index, count,
+            maxTop, scrollTop,
+            option;
+
+        height = this.hourPanel.height();
+        scrollHeight = this.hourPanel[0].scrollHeight;
+        if (height >= scrollHeight) {
+            return;
+        }
+        this.hourAnimator.stop();
+        index = this.calendar.timeToIndex(beginTime);
+        count = this.calendar._getTimeCellCount();
+        if (index > count) {
+            index -= count;
+        }
+        maxTop = scrollHeight - height;
+        scrollTop = index * hourHeight;
+        if (scrollTop > maxTop) {
+            scrollTop = maxTop;
+        }
+        option = this.hourAnimator[0];
+        option.begin = this.hourPanel.scrollTop();
+        option.end = scrollTop;
+        this.hourAnimator.start();
+    },
+    /** 添加日程信息 */
+    addSchedules: function(data, beginDateTimeField, endDateTimeField, formatAction, getColumnFn) {
+        var getBeginDateTimeFn,
+            getEndDateTimeFn,
+            scheduleInfo, beginTime, endTime,
+            i, len, item;
+        if(!Array.isArray(data)) {
+            return;
+        }
+
+        if(ui.core.isFunction(beginDateTimeField)) {
+            getBeginDateTimeFn = beginDateTimeField;
+        } else {
+            getBeginDateTimeFn = function() {
+                return this[beginDateTimeField + ""] || null;
+            };
+        }
+        if(ui.core.isFunction(endDateTimeField)) {
+            getEndDateTimeFn = endDateTimeField;
+        } else {
+            getEndDateTimeFn = function() {
+                return this[endDateTimeField + ""] || null;
+            };
+        }
+
+        if(!ui.core.isFunction(getColumnFn)) {
+            getColumnFn = function(date) {
+                return this.calendar.getWeekIndexOf(date);
+            };
+        }
+
+        for(i = 0, len = data.length; i < len; i++) {
+            item = date[i];
+            scheduleInfo = {
+                data: item
+            };
+            scheduleInfo.beginDate = getBeginDateTimeFn.call(item);
+            scheduleInfo.endDate = getEndDateTimeFn.call(item);
+            if(!(scheduleInfo.beginDate instanceof Date) || !(scheduleInfo.endDate instanceof Date)) {
+                continue;
+            }
+            scheduleInfo.columnIndex = getColumnFunc.call(this, scheduleInfo.beginDate);
+            beginTime = formatTime(scheduleInfo.beginDate);
+            endTime = formatTime(scheduleInfo.endDate, scheduleInfo.beginDate);
+            scheduleInfo.beginRowIndex = this.calendar.timeToIndex(beginTime);
+            scheduleInfo.endRowIndex = this.calendar.timeToIndex(endTime) - 1;
+
+            this._addScheduleItem(
+                    $(this.hourTable[0].rows[scheduleInfo.beginRowIndex].cells[scheduleInfo.columnIndex]),
+                    $(this.hourTable[0].rows[scheduleInfo.endRowIndex].cells[scheduleInfo.columnIndex]),
+                    formatAction, scheduleInfo,
+                    beginTime.substring(0, 5) + " - " + endTime.substring(0, 5));
+        }
+    },
+    /** 移除日程信息 */
+    removeSchedules: function(beginDateArray) {
+        this._findSchedules(beginDateArray, function (scheduleInfo, index, itemArray) {
+            scheduleInfo.itemPanel.remove();
+            itemArray.splice(index, 1);
+        });
+    },
+    /** 查找日程信息并做相应的处理 */
+    findSchedules: function(beginDateArray, callback, caller) {
+        var action;
+        if (beginDateArray instanceof Date) {
+            beginDateArray = [beginDateArray];
+        }
+        if (!Array.isArray(beginDateArray)) {
+            return;
+        }
+        if (!caller) {
+            caller = this;
+        }
+        if (ui.core.isFunction(callback)) {
+            action = function() {
+                callback.apply(caller, arguments);
+            };
+        } else {
+            action = null;
+        }
+        this._findSchedules(beginDateArray, action);
+    },
+    /** 清空日程信息 */
+    clearSchedules: function() {
+        var i, j,
+            weekDay;
+        for (i = 0; i < this.weekHours.length; i++) {
+            weekDay = this.weekHours[i];
+            if (weekDay) {
+                for (j = 0; j < weekDay.length; j++) {
+                    weekDay[j].itemPanel.remove();
+                }
+            }
+        }
+        this.weekHours = [];
+    },
+    /** 判断是否已经有日程信息 */
+    hasSchedule: function(weekIndex) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            return false;
+        }
+        return weekDay.length > 0;
+    },
+    /** 设置选中的元素 返回数组 */
+    getSelection: function() {
+        var cells,
+            unitTime, unitCount,
+            getDateFn,
+            i, len,
+            result;
+
+        unitTime = this.calendar.option.unitTime;
+        result = [];
+        cells = this.selector.getSelectedCells();
+        if(cells.length === 0) {
+            return result;
+        }
+
+        unitCount = this._getTimeCellCount();
+        getDateFn = function(hourIndex, weekIndex) {
+            var h, m,
+                date;
+            date = this.weekDays[weekIndex];
+            h = Math.floor(hourIndex / unitCount);
+            m = (hourIndex / unitCount - h) * 60;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0);
+        };
+
+        result.push(getDateFn.call(this, cells[0].hourIndex, cells[0].weekIndex));
+        for(i = 0, len = cells.length; i < len; i++) {
+            result.push(getDateFn.call(this, cells[0].hourIndex + 1, cells[0].weekIndex));
+        }
+        return result;
+    },
+    /** 设置选中状态 */
+    setSelection: function(start, end) {
+        var weekIndex,
+            startTime, endTime,
+            i, len, date;
+        if(!(start instanceof Date) || !(end instanceof Date)) {
+            return;
+        }
+        weekIndex = -1;
+        for (i = 0, len = this.weekDays.length; i < len; i++) {
+            date = this.weekDays[i];
+            if (date.getFullYear() == start.getFullYear() && date.getMonth() == start.getMonth() && date.getDate() == start.getDate()) {
+                weekIndex = i;
+                break;
+            }
+        }
+        if(weekIndex < 0) {
+            return;
+        }
+
+        startTime = ui.str.dateFormat(start, "hh:mm:ss");
+        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        this.selector.selectCellByTime(weekIndex, startTime, endTime);
+    },
+    /** 取消选中状态 */
+    cancelSelection: function() {
+        this.selector.cancelSelection();
+    },
+    /** 这是周视图尺寸 */
+    setSize: function (width, height) {
+        this.hourPanel.css("height", height - hourHeight + "px");
+        this._setCellSize(width, height);
+    },
+    /** 获取周视图标题 */
+    getTitle: function () {
+        return ui.str.textFormat(
+            "{0}年{1}月{2}日 ~ {3}年{4}月{5}日",
+            this.startDate.getFullYear(), 
+            this.startDate.getMonth() + 1, 
+            this.startDate.getDate(),
+            this.endDate.getFullYear(), 
+            this.endDate.getMonth() + 1, 
+            this.endDate.getDate());
+    },
+    /** 重写toString方法 */
+    toString: function () {
+        return "ui.ctrls.CalendarView.WeekView";
     }
 };
 // 日视图
@@ -1025,12 +1656,216 @@ DayView.prototype = {
     constructor: DayView,
     initialize: function(calendar) {
         this.calendar = calendar;
+        this.year = null;
+        this.month = null;
+        this.day = null;
+        this.dayHours = [];
+        this.initialled = false;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
     },
     render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        this._formatDayText = this.calendar.option.formatDayHead; 
+        if(!ui.core.isFunction(this._formatDayText)) {
+            this._formatDayText = defaultFormatDateHeadText;
+        }
+
+        // 事件
+        this.onDayHeadItemClickHandler = $.proxy(onDayHeadItemClick, this);
+
+        this._setCurrent();
+
+        this.dayPanel = $("<div class='ui-calendar-day-view' />");
+        this._createDay();
+
+        this.hourPanel = $("<div class='ui-calendar-hour-panel' />");
+        this._createHourName();
+        this._createHour();
+
+        this.viewPanel
+            .append(this.dayPanel)
+            .append(this.hourPanel);
+
+        this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.active();
         
+        this.hourAnimator = ui.animator(this.hourPanel, {
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function (val, elem) {
+                elem.scrollTop(val);
+            }
+        });
+        this.hourAnimator.duration = 800;
+        this.initialled = true;
+    },
+    _setCurrent: function () {
+        var day = this.calendar.currentDate;
+        this.year = day.getFullYear();
+        this.month = day.getMonth();
+        this.day = day.getDate();
+    },
+    _createDay: function () {
+        this.dayTitle = $("<div class='ui-calendar-day-title' />");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayPanel.append(this.dayTitle);
+
+        this.dayTitle.click(this.onDayHeadItemClickHandler);
+    },
+    _createHourName: WeekView.prototype._createHourName,
+    _createHour: function() {
+        var tbody, tr, td, 
+            count, i, len;
+
+        this.hourTable = $("<table class='weekhour unselectable' cellspacing='0' cellpadding='0' />");
+        tbody = $("<tbody />");
+        count = this.calendar._getTimeCellCount();
+        len = 24 * count, i;
+
+        for (i = 0; i < len; i++) {
+            tr = $("<tr />");
+            td = $("<td class='hour-name-cell' style='width:100%' />");
+            if ((i + 1) % count) {
+                td.addClass("hour-name-cell-odd");
+            }
+            tr.append(td);
+            tbody.append(tr);
+        }
+        this.hourTable.append(tbody);
+        this.hourPanel.append(this.hourTable);
+    },
+    _setCellSize: function (width, height) {
+        var scrollWidth = 0,
+            realWidth;
+        if (height < this.hourPanel[0].scrollHeight) {
+            scrollWidth = ui.scrollbarWidth;
+        }
+        realWidth = width - timeTitleWidth - scrollWidth - 2;
+        this.dayTitle.css("width", realWidth + "px");
+        this.hourTable.css("width", realWidth + "px");
+
+        if (this.selector.cellWidth > 1) {
+            this._restoreSchedules(realWidth - this.selector.cellWidth);
+        }
+
+        this.selector.cellWidth = realWidth;
+        this.selector.cancelSelection();
+    },
+    _addScheduleItem: WeekView.prototype._addScheduleItem,
+    _restoreSchedules: function(value) {
+        var column, left, width,
+            i, panel;
+        for (i = 0; i < this.dayHours.length; i++) {
+            panel = this.dayHours[i].itemPanel;
+            column = this.dayHours[i].weekIndex;
+            left = parseFloat(panel.css("left"));
+            width = parseFloat(panel.css("width"));
+            panel.css({
+                "left": (left + column * val) + "px",
+                "width": (width + val) + "px"
+            });
+        }
+    },
+    _setScheduleInfo: function(weekIndex, info) {
+        this.dayHours.push(info);
+    },
+    _getScheduleInfo: function (weekIndex) {
+        return this.dayHours;
+    },
+    _changeDay: function() {
+        this._setCurrent();
+        this.clearSchedules();
+        this.selector.cancelSelection();
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+    },
+    _getUnitHourNameHeight: WeekView.prototype._getUnitHourNameHeight,
+    _getPositionAndSize: WeekView.prototype._getPositionAndSize,
+
+    // API
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        var day = this.calendar.currentDate;
+        this.calendar.showTimeLine(this.hourPanel, this._getUnitHourNameHeight());
+        if (this.year == day.getFullYear() && this.month == day.getMonth() && this.day == day.getDate()) {
+            return false;
+        }
+        this._changeDay();
+        return true;
+    },
+    /** 激活 */
+    active: function() {
+        this.selector.active();
+    },
+    /** 休眠 */
+    dormant: function() {
+        this.selector.dormant();
+    },
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        day.setDate(day - 1);
+        this._changeDay();
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        day.setDate(day + 1);
+        this._changeDay();
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this.calendar.currentDate = new Date(day.getTime());
+        this._changeDay();
+    },
+    setBeginTime: WeekView.prototype.setBeginTime,
+    /** 添加日程信息 */
+    addSchedules: function(data, beginDateTimeField, endDateTimeField, formatAction, getColumnFn) {
+        WeekView.prototype.addSchedules.call(this,
+            data, 
+            beginDateTimeField, 
+            endDateTimeField, 
+            formatAction,
+            function () {
+                return 0;
+            }
+        );
+    },
+    /** 清空日程信息 */
+    clearSchedules: function() {
+        var i = 0;
+        for (; i < this.dayHours.length; i++) {
+            this.dayHours[i].itemPanel.remove();
+        }
+        this.dayHours = [];
+    },
+    /** 判断是否已经有日程信息 */
+    hasSchedule: function () {
+        return this.dayHours.length > 0;
+    },
+    /** 设置日视图尺寸 */
+    setSize: function (width, height) {
+        this.hourPanel.css("height", height - hourHeight + "px");
+        this._setCellSize(width, height);
+    },
+    /** 获取日视图标题 */
+    getTitle: function () {
+        return ui.str.stringFormat("{0}年{1}月{2}日",
+            this.year, this.month + 1, this.day);
+    },
+    /** 重写toString方法 */
+    toString: function () {
+        return "ui.ctrls.CalendarView.DayView";
     }
 };
 // 选择器
+// TODO 废除locationInGrid对象，改为直接访问hourIndex, weekIndex
 function Selector() {
     if(this instanceof Selector) {
         this.initialize();
@@ -1067,7 +1902,11 @@ ui.define("ui.ctrls.CalendarView", {
             // 年是否可以多选
             yearMultipleSelect: false,
             // 月是否可以多选
-            monthMultipleSelect: false
+            monthMultipleSelect: false,
+            // 周视图标题格式化器
+            formatWeekDayHead: null,
+            // 日视图标题格式化器
+            formatDayHead: null
         };
     },
     _defineEvents: function() {
