@@ -239,11 +239,204 @@
         }
 
 /* 周视图 */
-.ui-calendar-week-view {
-
-}
-
+.ui-calendar-week-view,
 /* 日视图 */
 .ui-calendar-day-view {
+    width: 100%;
+    height: 24px;
+    position: relative;
+    left: 0;
+    top: 0;
+}
 
+/* 周视图日期头 */
+.ui-calendar-weekday {
+    position: absolute;
+    left: 80px;
+    top: 0;
+    table-layout:fixed; 
+    width:auto;
+    height: 100%;
+}
+
+    .ui-calendar-weekday .weekday-cell {
+        padding: 0;
+        margin: 0;
+        height: 24px;
+        overflow: hidden;
+        text-align: center;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+        .ui-calendar-weekday .weekday-cell:hover {
+            background-color: @panel-active-color;
+        }
+
+        .ui-calendar-weekday .weekday-cell:active {
+            background-color: @active-color;
+            color: #fff;
+        }
+
+/* 日视图日期头 */
+.ui-calendar-day-title {
+    position: absolute;
+    left: 80px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    line-height: 24px;
+}
+
+    .ui-calendar-day-title:hover {
+        background-color: @panel-active-color;
+    }
+
+    .ui-calendar-day-title:active {
+        background-color: @active-color;
+        color: #fff;
+    }
+
+    .ui-calendar-day-title-text {
+        margin-left: 10px;
+    }
+
+/* 周视图和月视图共用的小时视图 */
+.ui-calendar-hour-panel {
+    width: 100%;
+    position: relative;
+    left: 0;
+    top: 0;
+    overflow: auto;
+    border-top: solid 1px @panel-color;
+}
+
+    .ui-calendar-hour-panel .hour-name-panel {
+        position: absolute;
+        background-color: @panel-color;
+        width: 80px;
+        height: auto;
+        top: 0;
+        padding: 0;
+        margin: 0;
+    }
+
+    .ui-calendar-hour-panel .hour-name-table {
+        table-layout:fixed;
+        width: 100%;
+        height: auto;
+    }
+
+    .ui-calendar-hour-panel .hour-name-cell {
+        height: 24px;
+        text-align: center;
+        border-right: solid 1px transparent;
+        border-bottom: solid 1px transparent;
+    }
+
+    .ui-calendar-hour-panel .hour-name-cell-odd {
+        border-bottom: dotted 1px transparent;
+    }
+
+    .ui-calendar-hour-panel .hour-name-text {
+        padding: 0;
+        margin: 0;
+        font-weight: normal;
+        font-size: 20px;
+        line-height: 24px;
+        height: 100%;
+        color: @fouth-color;
+        padding-left: 5px;
+        text-align: left;
+    }
+
+    .ui-calendar-hour-panel .week-hour-panel {
+        position: absolute;
+        height: auto;
+        top: 0;
+        left: 80px;
+        right: 0px;
+        padding: 0;
+        margin: 0;
+    }
+
+    .ui-calendar-hour-panel .week-hour-table {
+        table-layout:fixed;
+        width:auto;
+        height: auto;
+    }
+
+    .ui-calendar-hour-panel .week-hour-cell {
+        height: 24px;
+        text-align: center;
+        border-right: solid 1px @second-border-color;
+        border-bottom: solid 1px @first-border-color;
+    }
+
+    .ui-calendar-hour-panel .week-hour-cell-odd {
+        border-bottom: dotted 1px @first-border-color;
+    }
+
+    .ui-calendar-hour-panel .week-hour-cell-weekend {
+        background-color: @first-bg-color;
+    }
+
+    .ui-calendar-hour-panel .week-hour-cell-today {
+        background-color: @panel-color;
+    }
+
+    .ui-calendar-hour-panel .schedule-item-panel {
+        position: absolute;
+        overflow: hidden;
+        background-color: @disabled-color;
+        color: #ffffff;
+    }
+
+        .ui-calendar-hour-panel .schedule-item-panel:hover {
+            background-color: @tool-color;
+        }
+
+        .ui-calendar-hour-panel .schedule-item-panel .time-title {
+            width: 100%;
+            height: 24px;
+            line-height: 24px;
+        }
+
+        .ui-calendar-hour-panel .schedule-item-panel .time-title-text {
+            margin-left: 5px;
+        }
+
+        .ui-calendar-hour-panel .schedule-item-panel .schedule-container {
+            position:absolute;
+            top: 24px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            overflow: hidden;
+        }
+
+        .ui-calendar-hour-panel .schedule-item-panel .schedule-content-text {
+            margin:0px;
+            line-height: 1.5em;
+            text-overflow: ellipsis;
+            text-align: justify;
+        }
+
+/* 选择器 */
+.ui-calendar-selector {
+    position: absolute;
+    background-color: transparent;
+    border: solid 2px @tool-color;
+    display: none;
+    cursor: default;
+    z-index: @ctrl-layer;
+    color: #fff;
+    top: -2px;
+    left: -2px;
+}
+
+.ui-calendar-selector-time {
+    line-height: 24px;
+    margin-left: 5px;
 }
