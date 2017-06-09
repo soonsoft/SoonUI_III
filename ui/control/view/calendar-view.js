@@ -1866,17 +1866,107 @@ DayView.prototype = {
 };
 // 选择器
 // TODO 废除locationInGrid对象，改为直接访问hourIndex, weekIndex
-function Selector() {
+function Selector(view, panel, table) {
     if(this instanceof Selector) {
-        this.initialize();
+        this.initialize(view, panel, table);
     } else {
         return new Selector(calendar);
     }
 }
 Selector.prototype = {
     constructor: Selector,
-    initialize: function() {
+    initialize: function(view, panel, table) {
+        this.view = view;
+        this.panel = panel;
+        this.grid = table;
 
+        this.isBeginSelect = false;
+        this.cellWidth = 1;
+        this.cellHeight = 25;
+
+        this.grid[0].onselectstart = function () { return false; }
+
+        this.selectionBox = $("<div class='ui-calendar-selector unselectable click-enabled border-highlight' />");
+        this.selectionBox.boxTextSpan = $("<span class='ui-calendar-selector-time click-enabled' />");
+        this.selectionBox.append(this.selectionBox.boxTextSpan);
+        this.panel.append(this.selectionBox);
+
+        this._initEvents();
+        this._initAnimator();
+    },
+    _initEvents: function() {
+        this.mouseLeftButtonDownHandler = $.proxy(function (e) {
+            if (e.which !== 1)
+                return;
+            $(document).on("mousemove", this.mouseMove);
+            $(document).on("mouseup", this.mouseLeftButtonUpHandler);
+            this.onMouseDown($(e.target), e.clientX, e.clientY);
+        }, this);
+        this.mouseMoveHandler = $.proxy(function (e) {
+            if (!this.isBeginSelect) {
+                return;
+            }
+            this.onMouseMove(e);
+        }, this);
+        this.mouseLeftButtonUpHandler = $.proxy(function (e) {
+            if (e.which !== 1 || !this.isBeginSelect)
+                return;
+            this.isBeginSelect = false;
+            $(document).off("mousemove", this.mouseMoveHandler);
+            $(document).off("mouseup", this.mouseLeftButtonUpHandler);
+            this.onMouseUp(e);
+        }, this);
+    },
+    _initAnimator: function() {
+        var that = this;
+        this.selectAnimator = ui.animator(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                if (that.selectDirection === "up") {
+                    return;
+                }
+                elem.css("top", val + "px");
+            }
+        });
+        this.selectAnimator.addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                elem.css("left", val + "px");
+            }
+        }).addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                elem.css("width", val + "px");
+            }
+        }).addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                if (that.selectDirection) {
+                    return;
+                }
+                elem.css("height", val + "px");
+            }
+        });
+        this.selectAnimator.onEnd = function () {
+            if (that.animating && !that.isBeginSelect) {
+                that.onSelectCompleted();
+            }
+            that.animating = false;
+        };
+        this.selectAnimator.duration = 200;
+        this.selectAnimator.fps = 60;
+    },
+    active: function (justEvent) {
+        if (!justEvent) {
+            this.selectionBox.css("display", "none");
+        }
+        $(document).on("mousedown", this.mouseLeftButtonDownHandler);
+    },
+    dormant: function (justEvent) {
+        if (!justEvent) {
+            this.cancelSelection();
+        }
+        $(document).off("mousedown", this.mouseLeftButtonDownHandler);
     }
 }
 
