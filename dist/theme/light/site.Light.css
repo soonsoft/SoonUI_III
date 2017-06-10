@@ -442,6 +442,14 @@ textarea {
   resize: none;
   overflow: auto;
 }
+.ui-form {
+  margin: 0;
+  padding: 0;
+}
+.ui-form .required {
+  color: #f00921;
+  margin-left: 3px;
+}
 /* 操作按钮，会改变后台数据的按钮，实心的 */
 .button {
   min-width: 80px;
@@ -461,6 +469,30 @@ textarea {
 .button:disabled {
   background-color: #aaaaaa !important;
   color: #666666;
+}
+/* 通用的关闭按钮 */
+.closable-button {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  text-decoration: none;
+  font: 18px/16px Tahoma, Verdana, sans-serif;
+  width: 14px;
+  height: 14px;
+  line-height: 12px;
+  color: #666666;
+  cursor: pointer;
+}
+/* 可拖动的元素 */
+.draggable-handle {
+  cursor: move;
+}
+/* 不能选择 */
+.unselectable {
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 /*滚动条样式*/
 /*IE*/

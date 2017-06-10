@@ -2,6 +2,666 @@
 	Color: #ffffff
 	Name: 光明
 */
+.ui-calendar-view {
+  position: relative;
+}
+.ui-calendar-view .calendar-view-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  opacity: 0;
+}
+.ui-calendar-view .ui-current-time {
+  position: absolute;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  height: 16px;
+  line-height: 16px;
+  text-align: right;
+  left: 0;
+  top: 10000px;
+}
+.ui-calendar-view .ui-current-time-text {
+  font-size: 12px;
+  margin-right: 3px;
+}
+.ui-calendar-view .ui-current-time-top {
+  border-bottom-style: none;
+  border-bottom-width: 0;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+.ui-calendar-view .ui-calendar-weekend {
+  color: #b41313;
+}
+/* 年视图 */
+.ui-calendar-year-view {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.ui-calendar-year-view .year-month-panel {
+  float: left;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+.ui-calendar-year-view .year-month-odd {
+  background-color: #f6f6f6;
+}
+.ui-calendar-year-view .year-month-title {
+  width: 90%;
+  height: 48px;
+  line-height: 48px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 20px;
+}
+.ui-calendar-year-view .year-month-content {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ui-calendar-year-view .year-month-table {
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.ui-calendar-year-view .year-month-table-head {
+  text-align: center;
+  font-weight: normal;
+  height: 14.2%;
+  font-size: 14px;
+  overflow: hidden;
+}
+.ui-calendar-year-view .year-month-table-cell {
+  text-align: center;
+  font-weight: normal;
+  height: 14.2%;
+  font-size: 13px;
+  vertical-align: top;
+  position: relative;
+  overflow: hidden;
+  line-height: 24px;
+}
+.ui-calendar-year-view .year-month-table .selected {
+  background-color: #666666;
+  color: #ffffff;
+}
+.ui-calendar-year-view .year-month-table .selected .today {
+  display: none;
+}
+.ui-calendar-year-view .year-month-table .today {
+  text-align: center;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+.ui-calendar-year-view .year-day-marker {
+  display: inline-block;
+  width: 0px;
+  height: 0px;
+  border-width: 3px;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-style: solid solid dashed dashed;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+/* 月视图 */
+.ui-calendar-month-week-view {
+  width: 100%;
+  border-top: solid 1px #dcdcdc;
+  border-bottom: solid 1px #dcdcdc;
+  height: 24px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+.ui-calendar-month-week-view .month-week-table {
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+}
+.ui-calendar-month-week-view .month-week-cell {
+  text-align: left;
+  font-weight: normal;
+  height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  border-right: solid 1.4px #dcdcdc;
+  overflow: hidden;
+}
+.ui-calendar-month-week-view .month-week-cell-last {
+  border-right: none 0;
+}
+.ui-calendar-month-week-view .month-week-text {
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view {
+  width: 100%;
+  overflow: auto;
+}
+.ui-calendar-month-day-view .month-days-table {
+  table-layout: fixed;
+  width: 100%;
+  height: auto;
+  color: #666666;
+  cursor: pointer;
+}
+.ui-calendar-month-day-view .month-days-cell {
+  border-right: solid 1px #dcdcdc;
+  border-bottom: solid 1px #dcdcdc;
+  overflow: hidden;
+}
+.ui-calendar-month-day-view .month-days-cell .day-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.ui-calendar-month-day-view .month-days-cell .month-date {
+  font-size: 18px;
+  line-height: 36px;
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-list {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-item {
+  width: 100%;
+  height: 20px;
+  line-height: 14px;
+  margin: 0 0 1px 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  position: relative;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-border {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-text {
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view .month-days-cell-weekend {
+  background-color: #f6f6f6;
+}
+.ui-calendar-month-day-view .month-days-cell-last {
+  border-right: none 0;
+}
+.ui-calendar-month-day-view .month-days-table .selected {
+  background-color: #666666;
+  color: #ffffff;
+}
+/* 周视图 */
+.ui-calendar-week-view,
+.ui-calendar-day-view {
+  width: 100%;
+  height: 24px;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+/* 周视图日期头 */
+.ui-calendar-weekday {
+  position: absolute;
+  left: 80px;
+  top: 0;
+  table-layout: fixed;
+  width: auto;
+  height: 100%;
+}
+.ui-calendar-weekday .weekday-cell {
+  padding: 0;
+  margin: 0;
+  height: 24px;
+  overflow: hidden;
+  text-align: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+.ui-calendar-weekday .weekday-cell:hover {
+  background-color: #aaaaaa;
+}
+.ui-calendar-weekday .weekday-cell:active {
+  background-color: #434343;
+  color: #fff;
+}
+/* 日视图日期头 */
+.ui-calendar-day-title {
+  position: absolute;
+  left: 80px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  line-height: 24px;
+}
+.ui-calendar-day-title:hover {
+  background-color: #aaaaaa;
+}
+.ui-calendar-day-title:active {
+  background-color: #434343;
+  color: #fff;
+}
+.ui-calendar-day-title-text {
+  margin-left: 10px;
+}
+/* 周视图和月视图共用的小时视图 */
+.ui-calendar-hour-panel {
+  width: 100%;
+  position: relative;
+  left: 0;
+  top: 0;
+  overflow: auto;
+  border-top: solid 1px #f1f1f1;
+}
+.ui-calendar-hour-panel .hour-name-panel {
+  position: absolute;
+  background-color: #f1f1f1;
+  width: 80px;
+  height: auto;
+  top: 0;
+  padding: 0;
+  margin: 0;
+}
+.ui-calendar-hour-panel .hour-name-table {
+  table-layout: fixed;
+  width: 100%;
+  height: auto;
+}
+.ui-calendar-hour-panel .hour-name-cell {
+  height: 24px;
+  text-align: center;
+  border-right: solid 1px transparent;
+  border-bottom: solid 1px transparent;
+}
+.ui-calendar-hour-panel .hour-name-cell-odd {
+  border-bottom: dotted 1px transparent;
+}
+.ui-calendar-hour-panel .hour-name-text {
+  padding: 0;
+  margin: 0;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 24px;
+  height: 100%;
+  color: #bababa;
+  padding-left: 5px;
+  text-align: left;
+}
+.ui-calendar-hour-panel .week-hour-panel {
+  position: absolute;
+  height: auto;
+  top: 0;
+  left: 80px;
+  right: 0px;
+  padding: 0;
+  margin: 0;
+}
+.ui-calendar-hour-panel .week-hour-table {
+  table-layout: fixed;
+  width: auto;
+  height: auto;
+}
+.ui-calendar-hour-panel .week-hour-cell {
+  height: 24px;
+  text-align: center;
+  border-right: solid 1px #efefef;
+  border-bottom: solid 1px #cccccc;
+}
+.ui-calendar-hour-panel .week-hour-cell-odd {
+  border-bottom: dotted 1px #cccccc;
+}
+.ui-calendar-hour-panel .week-hour-cell-weekend {
+  background-color: #f6f6f6;
+}
+.ui-calendar-hour-panel .week-hour-cell-today {
+  background-color: #f1f1f1;
+}
+.ui-calendar-hour-panel .schedule-item-panel {
+  position: absolute;
+  overflow: hidden;
+  background-color: #aaaaaa;
+  color: #ffffff;
+}
+.ui-calendar-hour-panel .schedule-item-panel:hover {
+  background-color: #666666;
+}
+.ui-calendar-hour-panel .schedule-item-panel .time-title {
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+}
+.ui-calendar-hour-panel .schedule-item-panel .time-title-text {
+  margin-left: 5px;
+}
+.ui-calendar-hour-panel .schedule-item-panel .schedule-container {
+  position: absolute;
+  top: 24px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  overflow: hidden;
+}
+.ui-calendar-hour-panel .schedule-item-panel .schedule-content-text {
+  margin: 0px;
+  line-height: 1.5em;
+  text-overflow: ellipsis;
+  text-align: justify;
+}
+/* 选择器 */
+.ui-calendar-selector {
+  position: absolute;
+  background-color: transparent;
+  border: solid 2px #666666;
+  display: none;
+  cursor: default;
+  z-index: 10000;
+  color: #fff;
+  top: -2px;
+  left: -2px;
+}
+.ui-calendar-selector-time {
+  line-height: 24px;
+  margin-left: 5px;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-card-view {
+  overflow: hidden;
+}
+.ui-card-view-body {
+  width: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: auto;
+}
+.ui-card-view-body .body-panel {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-card-view-body .view-item {
+  position: absolute;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+.ui-card-view-body .view-item .frame-panel {
+  position: absolute;
+  background-color: transparent;
+  border-style: solid;
+  border-width: 4px;
+  opacity: .6;
+  display: none;
+  top: 0;
+  left: 0;
+}
+.ui-card-view-body .view-item .check-marker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  display: none;
+  border-width: 16px;
+  border-top-color: #666666;
+  border-right-color: #666666;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-style: solid solid dashed dashed;
+  top: 0;
+  right: 0;
+}
+.ui-card-view-body .view-item .check-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff;
+}
+.ui-card-view-body .view-item:hover .frame-panel {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .check-marker {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .check-icon {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .frame-panel {
+  display: block;
+  opacity: 1;
+}
+.ui-card-view-body .data-prompt {
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  display: none;
+  font-size: 16px;
+}
+.ui-card-view-foot {
+  height: 30px;
+  background-color: #f1f1f1;
+  line-height: 30px;
+}
+.ui-card-view-foot .data-info {
+  width: 40%;
+  float: left;
+  overflow: hidden;
+}
+.ui-card-view-foot .data-info span {
+  font-size: 1em;
+  margin-left: 10px;
+}
+.ui-card-view-foot .page-panel {
+  width: 60%;
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.ui-card-view-foot .page-panel .pager-button {
+  font-size: 1.3em;
+  color: #666666;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.ui-card-view-foot .page-panel .pager-button:hover {
+  text-decoration: none;
+}
+.ui-card-view-foot .page-panel .pager-current {
+  font-size: 1.3em;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: default;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-chooser-panel {
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 2px;
+  display: none;
+  overflow: hidden;
+  position: absolute;
+  width: auto;
+  height: auto;
+  z-index: 10000;
+}
+.ui-chooser-title-panel {
+  background-color: #f1f1f1;
+  height: 30px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.ui-chooser-title-panel .ui-chooser-title-item {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  text-align: center;
+  line-height: 30px;
+  font-size: 14px;
+}
+.ui-chooser-list-panel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.ui-chooser-list-panel .focus-choose-element {
+  position: absolute;
+  width: 100%;
+  height: 30px;
+  border-style: solid;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-color: transparent;
+  left: 0;
+}
+.ui-chooser-list-panel .ui-chooser-list {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  height: 100%;
+}
+.ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ui-chooser-item {
+  border-style: solid;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-color: transparent;
+  width: 100%;
+  color: #666666;
+  text-align: center;
+  font-size: 14px;
+}
+.ui-chooser-empty-item {
+  cursor: default;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+/**
+ * Farbtastic Color Picker 1.2
+ * © 2008 Steven Wittens
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+.ui-color-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 195px;
+  height: 195px;
+  background-color: #f1f1f1;
+  border-style: solid;
+  border-width: 2px;
+  display: none;
+  z-index: 10000;
+}
+.ui-color-picker .farbtastic {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.ui-color-picker .farbtastic * {
+  position: absolute;
+  cursor: crosshair;
+}
+.ui-color-picker .farbtastic .color,
+.ui-color-picker .farbtastic .overlay {
+  top: 47px;
+  left: 47px;
+  width: 101px;
+  height: 101px;
+}
+.ui-color-picker .farbtastic .wheel {
+  width: 100%;
+  height: 100%;
+  background: url(../../content/images/wheel.png) no-repeat;
+}
+.ui-color-picker .farbtastic .overlay {
+  background: url(../../content/images/mask.png) no-repeat;
+}
+.ui-color-picker .farbtastic .marker {
+  width: 17px;
+  height: 17px;
+  margin: -8px 0 0 -8px;
+  overflow: hidden;
+  background: url(../../content/images/marker.png) no-repeat;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
 /********* Confirm Button ***********/
 .confirm-button {
   position: relative;
@@ -29,6 +689,318 @@
 .confirm-button:active .confirm-state {
   background-color: transparent !important;
   color: #434343;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-date-chooser-panel {
+  position: absolute;
+  width: 210px;
+  height: auto;
+  border-style: solid;
+  border-width: 2px;
+  background-color: #ffffff;
+  color: #333333;
+  font-size: 12px;
+  display: none;
+  overflow: hidden;
+  z-index: 10000;
+  line-height: 1em;
+}
+/* 通用元素 */
+.ui-date-chooser-panel .date-chooser-title {
+  width: 186px;
+  float: left;
+  height: 100%;
+  text-align: center;
+}
+.ui-date-chooser-panel .date-chooser-prev {
+  border-width: 6px;
+  border-color: transparent #666666 transparent transparent;
+  border-style: dashed solid dashed dashed;
+  margin-top: 5px;
+  float: left;
+  line-height: 0;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-prev-disabled {
+  border-right-color: #aaaaaa;
+}
+.ui-date-chooser-panel .date-chooser-next {
+  border-width: 6px;
+  border-color: transparent transparent transparent #666666;
+  border-style: dashed dashed dashed solid;
+  margin-top: 5px;
+  float: left;
+  line-height: 0px;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-next-disabled {
+  border-left-color: #aaaaaa;
+}
+.ui-date-chooser-panel .date-chooser-table {
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+/* 年月设置面板 */
+.ui-date-chooser-panel .year-month-setting-panel {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  display: none;
+  position: absolute;
+}
+.ui-date-chooser-panel .set-title {
+  width: 100%;
+  height: 23px;
+  line-height: 23px;
+  font-size: 12px;
+}
+.ui-date-chooser-panel .set-title span {
+  margin-left: 5px;
+}
+.ui-date-chooser-panel .set-title .title-fieldset {
+  border-left: none 0;
+  border-bottom: none 0;
+  border-right: none 0;
+  border-top-style: solid;
+  border-top-width: 1px;
+  overflow: hidden;
+  width: 90%;
+  height: 100%;
+  margin: auto;
+}
+.ui-date-chooser-panel .set-title .title-legend {
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: auto;
+}
+.ui-date-chooser-panel .date-chooser-year-panel,
+.ui-date-chooser-panel .date-chooser-month-panel {
+  width: 100%;
+  height: auto;
+}
+.ui-date-chooser-panel .date-chooser-year-td {
+  padding: 0;
+  width: 42px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-month-td {
+  padding: 0;
+  width: 52px;
+  border-top-style: none;
+  border-top-width: 0;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .disabled-year,
+.ui-date-chooser-panel .disabled-month {
+  color: #aaaaaa;
+}
+/* 日历内容 */
+/* 日历标题 */
+.ui-date-chooser-panel .date-chooser-calendar-title {
+  width: 100%;
+  height: 27px;
+  line-height: 27px;
+  background-color: #f1f1f1;
+}
+.ui-date-chooser-panel .date-chooser-title-text {
+  text-decoration: none;
+}
+/* 日历主体 */
+.ui-date-chooser-panel .date-chooser-calendar-panel {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-week-panel {
+  width: 100%;
+  background: #f1f1f1;
+}
+.ui-date-chooser-panel .date-chooser-days-panel {
+  width: 100%;
+  position: relative;
+  background: #ffffff;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.ui-date-chooser-panel .date-chooser-calendar-th,
+.ui-date-chooser-panel .date-chooser-calendar-td {
+  padding: 0;
+  text-align: center;
+  font-weight: normal;
+  color: #333333;
+  width: 30px;
+  height: 24px;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-weekend {
+  color: #b41313;
+}
+.ui-date-chooser-panel .other-month-day {
+  color: #666666;
+}
+.ui-date-chooser-panel .disabled-day {
+  color: #aaaaaa;
+}
+/* 操作面板 */
+.ui-date-chooser-panel .date-chooser-operate-panel {
+  width: 100%;
+  background-color: #f1f1f1;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+}
+.ui-date-chooser-panel .date-chooser-button i,
+.ui-date-chooser-panel .date-chooser-button span {
+  font-size: 14px;
+}
+.ui-date-chooser-panel .date-chooser-time-input {
+  border: none 0;
+  height: 24px;
+  width: 24px;
+  font-size: 14px;
+  color: #666666;
+  vertical-align: top;
+  padding: 0;
+  margin-top: 4px;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  text-align: center;
+  background-color: transparent !important;
+}
+/*日历框样式*/
+input.date-text {
+  background-image: url(../../images/form-info.png);
+  background-position: right -48px;
+  background-repeat: no-repeat;
+  padding-right: 24px;
+}
+input.date-text::-ms-clear {
+  display: none;
+}
+input.dateChooser-clear {
+  background-position: right -144px !important;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-dialog-box {
+  position: absolute;
+  border-top-width: 4px;
+  border-top-style: solid;
+  border-color: transparent;
+  background-color: #f1f1f1;
+  display: none;
+  z-index: 9999;
+}
+.ui-dialog-box-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  opacity: 0;
+  z-index: 9999;
+  display: none;
+}
+.closable-button {
+  right: 5px;
+  top: 5px;
+}
+/* 标题部分 */
+.ui-dialog-box-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  height: 48px;
+}
+.ui-dialog-box-title .title-inner-panel {
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 100%;
+}
+.ui-dialog-box-title .title-inner-panel .text-text {
+  font-size: 16px;
+  line-height: 40px;
+}
+.ui-dialog-box-spline {
+  margin: 0;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none 0;
+  height: 1px;
+}
+/* 内容部分 */
+.ui-dialog-box-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: auto;
+}
+.ui-dialog-box-content .content-frame {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.ui-dialog-box .resize-handle {
+  text-decoration: none;
+  display: block;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none 0;
+  width: 0;
+  height: 0;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+  z-index: 100;
+  border-width: 5px;
+  border-color: transparent #666666 #666666 transparent;
+  border-style: dashed solid solid dashed;
+}
+/* 操作台部分 */
+.ui-dialog-box-operate {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  height: 48px;
+  overflow: hidden;
+  text-align: right;
+  line-height: 48px;
+}
+.ui-dialog-box-operate button,
+.ui-dialog-box-operate input[type="button"] {
+  margin-right: 16px;
 }
 
 /*
@@ -142,6 +1114,287 @@
 .filter-tools-item span {
   margin-left: 10px;
   margin-right: 10px;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+/* fold-view */
+.ui-fold-view {
+  display: block;
+}
+.ui-fold-view-title {
+  font-size: 11pt;
+  margin-top: 10px;
+  height: 30px;
+  line-height: 30px;
+  cursor: pointer;
+}
+.ui-fold-view-icon {
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  display: inline-block;
+  vertical-align: top;
+  height: 16px;
+  width: 16px;
+  margin-top: 6px;
+  margin-right: 5px;
+  line-height: 14px;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-grid-view {
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-color: #dcdcdc;
+}
+/* 表头 */
+.ui-grid-head {
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+}
+.ui-table-head {
+  table-layout: fixed;
+  width: 100%;
+  color: #333333;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-table-head-cell {
+  padding: 0;
+  height: 29px;
+  line-height: 29px;
+  font-weight: normal;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: solid 1px #dcdcdc;
+  border-right: solid 1px #dcdcdc;
+}
+.ui-table-head .last-cell,
+.ui-table-head .scroll-cell {
+  border-right: none 0;
+}
+.ui-table-head span {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-table-head .sorter {
+  cursor: pointer;
+}
+.ui-table-head .sorter:hover {
+  background-color: #f1f1f1;
+}
+.ui-table-head .sorter .fa {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  color: #666666;
+  margin-right: 5px;
+  vertical-align: baseline;
+}
+.ui-table-head .sorter .fa-sort-asc {
+  vertical-align: middle;
+}
+.ui-table-head .sorter .fa-sort-desc {
+  vertical-align: text-top;
+}
+/* 表体 */
+.ui-grid-body {
+  width: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: auto;
+}
+.ui-grid-body .data-prompt {
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  display: none;
+  font-size: 16px;
+}
+.ui-table-body {
+  table-layout: fixed;
+  width: 100%;
+  color: #666666;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-table-body-cell {
+  padding: 0;
+  height: 29px;
+  line-height: 20px;
+  font-weight: normal;
+  text-align: left;
+  border-bottom: solid 1px #dcdcdc;
+  border-right: solid 1px #dcdcdc;
+}
+.ui-table-body .table-body-row-hover:hover,
+.ui-table-body .table-body-cell-hover:hover {
+  background-color: #f1f1f1;
+}
+.ui-table-body .last-cell {
+  border-right: none 0;
+}
+.ui-table-body .row-selected,
+.ui-table-body .cell-selected {
+  color: #ffffff;
+}
+.ui-table-body .row-selected td {
+  border-right-color: transparent;
+}
+.ui-table-body .row-selected a,
+.ui-table-body .cell-selected a {
+  color: #ffffff;
+}
+.ui-table-body span,
+.ui-table-body a {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-table-body a {
+  text-decoration: none;
+}
+.ui-table-body a:hover {
+  text-decoration: underline;
+}
+/* 多行文字 */
+.ui-table-body p {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+/* 文字块样式 */
+.ui-table-body .state-text {
+  margin-left: 0;
+  margin-right: 0;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  color: #ffffff;
+  line-height: 18px;
+  font-size: 12px;
+}
+.ui-table-body .state-true {
+  background-color: #54c70c;
+}
+.ui-table-body .state-false {
+  background-color: #ff2968;
+}
+/* 进度条样式 */
+.ui-table-body .progress-panel {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-table-body .progress-bar {
+  margin-top: 5px;
+  float: left;
+  height: 12px;
+  background-color: #dcdcdc;
+  overflow: hidden;
+}
+.ui-table-body .progress-value {
+  height: 12px;
+}
+.ui-table-body .progress-text {
+  float: right;
+  text-align: right;
+  width: 52px;
+}
+.ui-table-body .progress-text span {
+  margin-left: 0;
+  margin-right: 0;
+}
+.ui-table-body .row-selected .progress-text span,
+.ui-table-body .cell-selected .progress-text span {
+  color: #ffffff;
+}
+/* GridTree 专有样式 */
+.ui-table-body .fold {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  margin-top: 0;
+  margin-left: 5px;
+  vertical-align: middle;
+  overflow: hidden;
+  line-height: 11px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-table-body .row-selected .fold,
+.ui-table-body .cell-selected .fold {
+  color: #ffffff !important;
+}
+.ui-table-body .row-selected .unfold,
+.ui-table-body .cell-selected .unfold {
+  color: #ffffff !important;
+}
+.ui-table-head .grid-checkbox-all,
+.ui-table-body .grid-checkbox {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  color: #666666;
+}
+.ui-table-head .grid-checkbox-all:active,
+.ui-table-body .grid-checkbox:active {
+  color: #434343;
+}
+/* 底栏 */
+.ui-grid-foot {
+  height: 30px;
+  background: #f1f1f1;
+  line-height: 30px;
+}
+.ui-grid-foot .data-info {
+  width: 40%;
+  float: left;
+  overflow: hidden;
+}
+.ui-grid-foot .data-info span {
+  font-size: 1em;
+  margin-left: 10px;
+}
+.ui-grid-foot .page-panel {
+  width: 60%;
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.ui-grid-foot .page-panel .pager-button {
+  font-size: 1.3em;
+  color: #666666;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.ui-grid-foot .page-panel .pager-button:hover {
+  text-decoration: none;
+}
+.ui-grid-foot .page-panel .pager-current {
+  font-size: 1.3em;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: default;
 }
 
 /*
@@ -361,6 +1614,7 @@
 */
 .ui-list-view {
   overflow: auto;
+  position: relative;
 }
 .ui-list-view-ul {
   width: 100%;
@@ -372,6 +1626,846 @@
 .ui-list-view-item {
   width: 100%;
   position: relative;
+  height: auto;
+}
+.ui-list-view-b {
+  position: absolute;
+  width: 4px;
+  display: none;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+}
+.ui-list-view-container {
+  position: absolute;
+  padding-left: 4px;
+  height: auto;
+}
+.ui-list-view-item:hover {
+  background-color: #ffffff;
+}
+.ui-list-view-selection {
+  background-color: #ffffff;
+}
+.ui-list-view-selection .ui-list-view-b {
+  display: block;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+/* 线形加载动画 */
+.c_loadingDots {
+  line-height: 0;
+  white-space: nowrap;
+  position: relative;
+  visibility: hidden;
+}
+div.c_loadingDots.c_dotsPlaying {
+  visibility: visible;
+}
+div.c_loadingDots div.c_loadingDot {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+div.c_flyingDots {
+  width: 100%;
+  height: 8px;
+  font-size: 0;
+  overflow: hidden;
+}
+div.c_flyingDots div.c_loadingTracks {
+  position: absolute;
+  left: -10%;
+  top: 0;
+  right: -15%;
+  bottom: 0;
+}
+div.c_flyingDots div.c_loadingTrack {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 8px;
+}
+div.c_flyingDots div.c_loadingDot {
+  width: 3px;
+  height: 3px;
+  background-color: #FFFFFF;
+}
+div.c_flyingDots.c_dotsPlaying div.c_loadingDot {
+  -moz-animation: makedotfly 3.3s linear .1s infinite normal;
+  -ms-animation: makedotfly 3.3s linear .1s infinite normal;
+  -webkit-animation: makedotfly 3.3s linear .1s infinite normal;
+  animation: makedotfly 3.3s linear .1s infinite normal;
+}
+@-moz-keyframes makedotfly {
+  0% {
+    left: 0;
+    -moz-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -moz-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@-ms-keyframes makedotfly {
+  0% {
+    left: 0;
+    -ms-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -ms-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@-webkit-keyframes makedotfly {
+  0% {
+    left: 0;
+    -webkit-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -webkit-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@keyframes makedotfly {
+  0% {
+    left: 0;
+    animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+div.c_flyingDots div.c_loadingTrack0 {
+  left: -18%;
+  margin-left: 90px;
+}
+div.c_flyingDots div.c_loadingTrack0 div.c_loadingDot {
+  -moz-animation-delay: .15s;
+  -ms-animation-delay: .15s;
+  -o-animation-delay: .15s;
+  -webkit-animation-delay: .15s;
+  animation-delay: .15s;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+div.c_flyingDots div.c_loadingTrack1 {
+  left: -15%;
+  margin-left: 75px;
+}
+div.c_flyingDots div.c_loadingTrack1 div.c_loadingDot {
+  -moz-animation-delay: .3s;
+  -ms-animation-delay: .3s;
+  -webkit-animation-delay: .3s;
+  animation-delay: 0.3s;
+}
+div.c_flyingDots div.c_loadingTrack2 {
+  left: -12%;
+  margin-left: 60px;
+}
+div.c_flyingDots div.c_loadingTrack2 div.c_loadingDot {
+  -moz-animation-delay: .45s;
+  -ms-animation-delay: .45s;
+  -webkit-animation-delay: .45s;
+  animation-delay: 0.45s;
+}
+div.c_flyingDots div.c_loadingTrack3 {
+  left: -9%;
+  margin-left: 45px;
+}
+div.c_flyingDots div.c_loadingTrack3 div.c_loadingDot {
+  -moz-animation-delay: .6s;
+  -ms-animation-delay: .6s;
+  -webkit-animation-delay: .6s;
+  animation-delay: 0.6s;
+}
+div.c_flyingDots div.c_loadingTrack4 {
+  left: -6%;
+  margin-left: 30px;
+}
+div.c_flyingDots div.c_loadingTrack4 div.c_loadingDot {
+  -moz-animation-delay: .75s;
+  -ms-animation-delay: .75s;
+  -webkit-animation-delay: .75s;
+  animation-delay: 0.75s;
+}
+div.c_flyingDots div.c_loadingTrack5 {
+  left: -3%;
+  margin-left: 15px;
+}
+div.c_flyingDots div.c_loadingTrack5 div.c_loadingDot {
+  -moz-animation-delay: .9s;
+  -ms-animation-delay: .9s;
+  -webkit-animation-delay: .9s;
+  animation-delay: 0.9s;
+}
+/* 兼容不支持CSS动画的浏览器，采用gif动画的方式 */
+div.c_flyingDots div.c_loadingFallback {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: transparent url('') no-repeat center center;
+  opacity: 1;
+  filter: alpha(opacity=100);
+  -moz-animation: hidedotsfallback .3s linear .1s 1 normal;
+  -ms-animation: hidedotsfallback .3s linear 0s 1 normal;
+  -webkit-animation: hidedotsfallback .3s linear 0s 1 normal;
+  animation: hidedotsfallback .3s linear 0s 1 normal;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+@-moz-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@-ms-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@-webkit-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+/* message box */
+.ui-message-box {
+  display: none;
+  position: absolute;
+  left: 0px;
+  min-height: 80px;
+  height: auto;
+  width: 320px;
+  overflow: hidden;
+  border-top-width: 4px;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  z-index: 999999;
+}
+.ui-message-box .message-item {
+  padding-left: 36px;
+  padding-top: 8px;
+  padding-right: 24px;
+  padding-bottom: 8px;
+  height: auto;
+  position: relative;
+}
+.ui-message-box .message-icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-message-box .mb-message {
+  color: #0A91F0;
+}
+.ui-message-box .mb-warn {
+  color: #F1B436;
+}
+.ui-message-box .mb-error {
+  color: #BB1337;
+}
+.ui-message-box .mb-success {
+  color: #2ECC71;
+}
+.ui-message-box .mb-failed {
+  color: #DC3160;
+}
+.ui-message-box .message-content {
+  line-height: 1.5em;
+}
+.ui-message-box a {
+  filter: alpha(opacity=70);
+  opacity: .7;
+}
+.ui-message-box a:hover {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.ui-message-box .closable-button {
+  right: 2px;
+  top: 2px;
+  z-index: 99999;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-option-box-panel {
+  z-index: 9000;
+  opacity: 0;
+}
+.ui-option-box-title {
+  width: 100%;
+  height: 40px;
+}
+.ui-option-box-title .option-box-title-text {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-option-box-content {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+}
+.ui-option-box-content .ui-form {
+  width: 190px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ui-option-box-content .ui-form label,
+.ui-option-box-content .ui-form .requried {
+  line-height: 36px;
+}
+.ui-option-box-buttons {
+  width: 100%;
+  text-align: right;
+  overflow: hidden;
+  height: 24px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-report-view {
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-color: #dcdcdc;
+  position: relative;
+}
+.ui-report-view th,
+.ui-report-view td {
+  overflow: hidden;
+  white-space: nowrap;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+/* 表头 */
+.ui-report-head {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.ui-report-head .fixed-head {
+  min-height: 30px;
+  overflow: hidden;
+  position: absolute;
+  width: auto;
+}
+.ui-report-head .data-head {
+  min-height: 30px;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+.ui-report-head .table-fixed-head,
+.ui-report-head .table-data-head {
+  table-layout: fixed;
+  width: 100%;
+  color: #333333;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-report-head tr {
+  height: 30px;
+}
+.ui-report-head-cell {
+  padding: 0px;
+  height: 29px;
+  line-height: 29px;
+  font-weight: normal;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: solid 1px #dcdcdc;
+  border-right: solid 1px #dcdcdc;
+  position: relative;
+}
+.ui-report-head .last-cell,
+.ui-report-head .scroll-cell {
+  border-right: none 0;
+}
+.ui-report-head span {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-report-head .sorter {
+  cursor: pointer;
+}
+.ui-report-head .sorter:hover {
+  background-color: #f1f1f1;
+}
+.ui-report-head .sorter .fa {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  color: #666666;
+  margin-right: 5px;
+  vertical-align: baseline;
+}
+.ui-report-head .sorter .fa-sort-asc {
+  vertical-align: middle;
+}
+.ui-report-head .sorter .fa-sort-desc {
+  vertical-align: text-top;
+}
+/* 表体 */
+.ui-report-body {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+}
+.ui-report-body .data-prompt {
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  display: none;
+  font-size: 16px;
+}
+.ui-report-body .fixed-body {
+  overflow: hidden;
+  position: absolute;
+  width: auto;
+  height: auto;
+}
+.ui-report-body .fixed-body-scroll {
+  overflow: hidden;
+  position: absolute;
+  height: 17px;
+  display: none;
+  bottom: 0;
+  left: 0;
+  background-color: #f1f1f1;
+}
+.ui-report-body .data-body {
+  width: auto;
+  height: auto;
+  overflow: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+.ui-report-body .table-fixed-body,
+.ui-report-body .table-data-body {
+  table-layout: fixed;
+  width: 100%;
+  color: #666666;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-report-body .ui-table-body-cell {
+  padding: 0;
+  height: 29px;
+  line-height: 20px;
+  font-weight: normal;
+  text-align: left;
+  border-bottom: solid 1px #dcdcdc;
+  border-right: solid 1px #dcdcdc;
+}
+.ui-report-body .table-body-row-hover:hover,
+.ui-report-body .table-body-cell-hover:hover {
+  background-color: #f1f1f1;
+}
+.ui-report-body .last-cell {
+  border-right: none 0;
+}
+.ui-report-body .row-selected,
+.ui-report-body .cell-selected {
+  color: #ffffff;
+}
+.ui-report-body .row-selected td {
+  border-right-color: transparent;
+}
+.ui-report-body .row-selected a,
+.ui-report-body .cell-selected a {
+  color: #ffffff;
+}
+.ui-report-body span,
+.ui-report-body a {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-report-body a {
+  text-decoration: none;
+}
+.ui-report-body a:hover {
+  text-decoration: underline;
+}
+/* 多行文字 */
+.ui-report-body p {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+/* 文字块样式 */
+.ui-report-body .state-text {
+  margin-left: 0;
+  margin-right: 0;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  color: #ffffff;
+  line-height: 18px;
+  font-size: 12px;
+}
+.ui-report-body .state-true {
+  background-color: #54c70c;
+}
+.ui-report-body .state-false {
+  background-color: #ff2968;
+}
+/* 进度条样式 */
+.ui-report-body .progress-panel {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-report-body .progress-bar {
+  margin-top: 5px;
+  float: left;
+  height: 12px;
+  background-color: #dcdcdc;
+  overflow: hidden;
+}
+.ui-report-body .progress-value {
+  height: 12px;
+}
+.ui-report-body .progress-text {
+  float: right;
+  text-align: right;
+  width: 52px;
+}
+.ui-report-body .progress-text span {
+  margin-left: 0;
+  margin-right: 0;
+}
+.ui-report-body .row-selected .progress-text span,
+.ui-report-body .cell-selected .progress-text span {
+  color: #fff;
+}
+.ui-report-body .fit-column-handle {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 2px;
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  opacity: .01;
+  cursor: col-resize;
+}
+.ui-report-body .fit-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  border: none 0;
+  margin: 0;
+  padding: 0;
+  display: none;
+  top: 0;
+  left: 0;
+}
+/* 底栏 */
+.ui-report-foot {
+  height: 30px;
+  background: #f1f1f1;
+  line-height: 30px;
+}
+.ui-report-foot .data-info {
+  width: 40%;
+  float: left;
+  overflow: hidden;
+}
+.ui-report-foot .data-info span {
+  font-size: 1em;
+  margin-left: 10px;
+}
+.ui-report-foot .page-panel {
+  width: 60%;
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.ui-report-foot .page-panel .pager-button {
+  font-size: 1.3em;
+  color: #666666;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.ui-report-foot .page-panel .pager-button:hover {
+  text-decoration: none;
+}
+.ui-report-foot .page-panel .pager-current {
+  font-size: 1.3em;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: default;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-selection-list-panel {
+  position: absolute;
+  border-style: solid;
+  border-width: 2px;
+  display: none;
+  background-color: #f1f1f1;
+  min-width: 60px;
+  min-height: 30px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10000;
+}
+.ui-selection-list-ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-selection-list-li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ui-selection-list-li:hover {
+  background-color: #aaaaaa;
+}
+.ui-selection-list-li span {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-selection-list-li .ui-selection-list-checkbox {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 8px;
+  color: #666666;
+}
+/* 对应的文本框样式 */
+input.select-text {
+  background-image: url(../../images/form-info.png);
+  background-position: right -94px;
+  background-repeat: no-repeat;
+  padding-right: 24px;
+}
+input.select-text::-ms-clear {
+  display: none;
+}
+input.ui-selection-list-clear {
+  background-position: right -144px !important;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-selection-tree-panel {
+  position: absolute;
+  border-style: solid;
+  border-width: 2px;
+  display: none;
+  background-color: #f1f1f1;
+  min-width: 60px;
+  min-height: 30px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10000;
+}
+.ui-selection-tree-dl {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+}
+.ui-selection-tree-dt {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+  cursor: default;
+}
+.ui-selection-tree-dt span {
+  line-height: 28px;
+}
+.ui-selection-tree-dt:hover {
+  background-color: #aaaaaa;
+}
+.ui-selection-tree-dt .ui-selection-list-checkbox {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 8px;
+  color: #666666;
+}
+.ui-selection-tree-dt .fold-button {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  margin-top: 8px;
+  margin-right: 3px;
+  vertical-align: top;
+  overflow: hidden;
+  line-height: 11px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-selection-tree-dt .fold-button {
+  color: #fff !important;
+}
+.ui-selection-tree-dt .expand-button {
+  color: #fff !important;
+}
+.ui-selection-tree-dd {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-selection-tree-panel .autocomplete-dl {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.ui-selection-tree-panel .autocomplete-dt {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+  cursor: default;
+}
+.ui-selection-tree-panel .autocomplete-dt .normal-text {
+  margin-left: 5px;
+  margin-right: 5px;
+  line-height: 28px;
+}
+.ui-selection-tree-panel .autocomplete-selected {
+  background-color: #aaaaaa;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-sidebar-panel {
+  position: absolute;
+  background-color: #f1f1f1;
+  width: 240px;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  border-left: solid 1px #dcdcdc;
+  z-index: 9999;
+  overflow: hidden;
+  display: none;
 }
 
 /*
@@ -453,4 +2547,99 @@
   left: 0px;
   background-color: #666666;
   border: solid 2px #666666;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-tab-button {
+  display: inline-block;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  color: #333333;
+  cursor: pointer;
+}
+.ui-tab-button:hover {
+  text-decoration: none;
+}
+.ui-tab-selection {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: transparent;
+}
+.ui-tab-body-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+.ui-tab-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-tree-view-panel {
+  position: relative;
+  border: none 0 transparent;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  z-index: auto;
+  display: block;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-uploader-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  display: none;
+}
+.ui-uploader-panel .form-upload-iframe {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+.ui-uploader-file {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: .0001;
+  -moz-opacity: .0001;
+  z-index: 9999999;
+  cursor: pointer;
+}
+.ui-uploader-input-file {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 100px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
 }

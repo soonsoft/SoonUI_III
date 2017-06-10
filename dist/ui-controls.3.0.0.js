@@ -8,7 +8,11 @@ var docClickHideHandler = [],
             return;
         }
         retain = [];
-        while (handler = docClickHideHandler.shift()) {
+        while (true) {
+            handler = docClickHideHandler.shift();
+            if(!handler) {
+                break;
+            }
             if (currentCtrl && currentCtrl === handler.ctrl) {
                 continue;
             }
@@ -21,7 +25,7 @@ var docClickHideHandler = [],
     };
 
 // 注册document点击事件
-ui.page.docclick(function (e) {
+ui.docclick(function (e) {
     hideCtrls();
 });
 // 添加隐藏的处理方法
@@ -73,10 +77,8 @@ ui.define("ui.ctrls.DropDownBase", {
                 }
             }
         }, this);
-
-        this._initElements();
     },
-    _initElements: function() {
+    _render: function() {
         if(!this.element) {
             return;
         }
@@ -167,9 +169,7 @@ ui.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element 
-                ? (this.element.width()) 
-                : 100;
+            width = this.element ? this.element.width() : 100;
         }
         this.panelWidth = width;
         this._panel.css("width", width + "px");
@@ -275,6 +275,204 @@ ui.define("ui.ctrls.DropDownBase", {
 
 })(jQuery, ui);
 
+// Source: ui/control/base/sidebar-base.js
+
+(function($, ui) {
+//侧滑面板基类
+ui.define("ui.ctrls.SidebarBase", {
+    showTimeValue: 300,
+    hideTimeValue: 300,
+    _getOption: function() {
+        return {
+            parent: null,
+            width: 240
+        };
+    },
+    _getEvents: function () {
+        return ["showing", "showed", "hiding", "hided", "resize"];
+    },
+    _create: function() {
+        this.parent = ui.getJQueryElement(this.option.parent);
+        if(!this.parent) {
+            this.parent = $(document.body);
+        }
+
+        this._showClass = "ui-sidebar-show";
+        this.height = 0;
+        this.width = this.option.width || 240;
+        this.borderWidth = 0;
+    },
+    _render: function() {
+        var that = this;
+
+        this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
+        this._panel.css("width", this.width + "px");
+        
+        this._closeButton = $("<button class='icon-button' />");
+        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
+        this._closeButton.css({
+            "position": "absolute",
+            "top": "6px",
+            "right": "10px",
+            "z-index": 999
+        });
+        this._closeButton.click(function(e) {
+            that.hide();
+        });
+
+        if(this.element) {
+            this._panel.append(this.element);
+        }
+        this._panel.append(this._closeButton);
+        this.parent.append(this._panel);
+        
+        this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
+        this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
+        
+        //进入异步调用，给resize事件绑定的时间
+        setTimeout(function() {
+            that.setWidth();
+        });
+        ui.page.resize(function() {
+            that.setWidth();
+        }, ui.eventPriority.ctrlResize);
+        
+        this.animator = ui.animator({
+            target: this._panel,
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        });
+    },
+    set: function (elem) {
+        if(this.element) {
+            this.element.remove();
+        }
+        if(ui.core.isDomObject(elem)) {
+            elem = $(elem);
+        } else if(!ui.core.isJQueryObject(elem)) {
+            return;
+        }
+        this.element = elem;
+        this._closeButton.before(elem);
+    },
+    append: function(elem) {
+        if(ui.core.isDomObject(elem)) {
+            elem = $(elem);
+        } else if(!ui.core.isJQueryObject(elem)) {
+            return;
+        }
+        this._panel.append(elem);
+        if(!this.element) {
+            this.element = elem;
+        }
+    },
+    setWidth: function(width, resizeFire) {
+        var parentWidth = this.parent.width(),
+            parentHeight = this.parent.height();
+        
+        this.height = parentHeight;
+        var sizeCss = {
+            height: this.height + "px"
+        };
+        var right = this.width;
+        if (ui.core.isNumber(width)) {
+            this.width = width;
+            sizeCss["width"] = this.width + "px";
+            right = width;
+        }
+        this.hideLeft = parentWidth;
+        this.left = parentWidth - this.width - this.borderWidth;
+        this._panel.css(sizeCss);
+        if (this.isShow()) {
+            this._panel.css({
+                "left": this.left + "px",
+                "display": "block"
+            });
+        } else {
+            this._panel.css({
+                "left": this.hideLeft + "px",
+                "display": "none"
+            });
+        }
+        
+        if(resizeFire !== false) {
+            this.fire("resize", this.width, this.height);
+        }
+    },
+    isShow: function() {
+        return this._panel.hasClass(this._showClass);
+    },
+    show: function() {
+        var op, 
+            that = this,
+            i, len;
+        if(!this.isShow()) {
+            this.animator.stop();
+            this.animator.splice(1, this.length - 1);
+            this.animator.duration = this.showTimeValue;
+            
+            op = this.animator[0];
+            op.target.css("display", "block");
+            op.target.addClass(this._showClass);
+            op.begin = parseFloat(op.target.css("left"), 10) || this.hideLeft;
+            op.end = this.left;
+
+            for(i = 0, len = arguments.length; i < len; i++) {
+                if(arguments[i]) {
+                    this.animator.addTarget(arguments[i]);
+                }
+            }
+
+            this.animator.onBegin = function() {
+                that.fire("showing");
+            };
+            this.animator.onEnd = function() {
+                this.splice(1, this.length - 1);
+                that.fire("showed");
+            };
+            return this.animator.start();
+        }
+        return null;
+    },
+    hide: function() {
+        var op,
+            that = this,
+            i, len;
+        if(this.isShow()) {
+            this.animator.stop();
+            this.animator.splice(1, this.length - 1);
+            this.animator.duration = this.hideTimeValue;
+            
+            op = this.animator[0];
+            op.target.removeClass(this._showClass);
+            op.begin = parseFloat(op.target.css("left"), 10) || this.left;
+            op.end = this.hideLeft;
+            
+            for(i = 0, len = arguments.length; i < len; i++) {
+                if(arguments[i]) {
+                    this.animator.addTarget(arguments[i]);
+                }
+            }
+
+            this.animator.onBegin = function() {
+                that.fire("hiding");
+            };
+            this.animator.onEnd = function() {
+                this.splice(1, this.length - 1);
+                op.target.css("display", "none");
+                that.fire("hided");
+            };
+            return this.animator.start();
+        }
+        return null;
+    }
+});
+
+
+})(jQuery, ui);
+
 // Source: ui/control/common/column-style.js
 
 (function($, ui) {
@@ -365,7 +563,7 @@ cellFormatter = {
         if(val === undefined || val === null || isNaN(val)) {
             return null;
         }
-        p = $("<p class='table-cell-block' />")
+        p = $("<p class='table-cell-block' />");
         p.text(val + "");
         return p;
     },
@@ -478,7 +676,7 @@ cellParameterFormatter = {
             nullText = "";
         }
 
-        trueWidth = width * trueText.length || width,
+        trueWidth = width * trueText.length || width;
         falseWidth = width * falseText.length || width;
 
         return function (val, col) {
@@ -897,204 +1095,788 @@ ui.ctrls.Pager = Pager;
 
 })(jQuery, ui);
 
-// Source: ui/control/common/sidebar.js
+// Source: ui/control/box/dialog-box.js
 
 (function($, ui) {
-//侧滑面板基类
-ui.define("ui.ctrls.Sidebar", {
-    showTimeValue: 300,
-    hideTimeValue: 300,
+var defaultWidth = 640,
+    defaultHeight = 480,
+    showStyles,
+    hideStyles;
+
+showStyles = {
+    up: function () {
+        var clientWidth,
+            clientHeight,
+            option,
+            that;
+
+        that = this;
+        clientHeight = document.documentElement.clientHeight;
+        clientWidth = document.documentElement.clientWidth;
+
+        option = this.animator[0];
+        option.begin = clientHeight;
+        option.end = (clientHeight - this.offsetHeight) / 2;
+        option.onChange = function (top) {
+            that.box.css("top", top + "px");
+        };
+        this.openMask();
+        this.animator.onEnd = function () {
+            that.onShowed();
+        };
+
+        this.box.css({
+            "top": option.begin + "px",
+            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "display": "block"
+        });
+    },
+    down: function () {
+        var clientWidth,
+            clientHeight,
+            option,
+            that;
+
+        that = this;
+        clientHeight = document.documentElement.clientHeight;
+        clientWidth = document.documentElement.clientWidth;
+
+        option = this.animator[0];
+        option.begin = -this.offsetHeight;
+        option.end = (clientHeight - this.offsetHeight) / 2;
+        option.onChange = function (top) {
+            that.box.css("top", top + "px");
+        };
+        this.openMask();
+        this.animator.onEnd = function () {
+            that.onShowed();
+        };
+
+        this.box.css({
+            "top": option.begin + "px",
+            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "display": "block"
+        });
+    },
+    left: function () {
+        var clientWidth,
+            clientHeight,
+            option,
+            that;
+
+        that = this;
+        clientHeight = document.documentElement.clientHeight;
+        clientWidth = document.documentElement.clientWidth;
+
+        option = this.animator[0];
+        option.begin = -this.offsetWidth;
+        option.end = (clientWidth - this.offsetWidth) / 2;
+        option.onChange = function (left) {
+            that.box.css("left", left + "px");
+        };
+        this.openMask();
+        this.animator.onEnd = function () {
+            that.onShowed();
+        };
+
+        this.box.css({
+            "top": (clientHeight - this.offsetHeight) / 2 + "px",
+            "left": option.begin + "px",
+            "display": "block"
+        });
+    },
+    right: function () {
+        var clientWidth,
+            clientHeight,
+            option,
+            that;
+
+        that = this;
+        clientHeight = document.documentElement.clientHeight;
+        clientWidth = document.documentElement.clientWidth;
+
+        option = this.animator[0];
+        option.begin = clientWidth;
+        option.end = (clientWidth - this.offsetWidth) / 2;
+        option.onChange = function (left) {
+            that.box.css("left", left + "px");
+        };
+        this.openMask();
+        this.animator.onEnd = function () {
+            that.onShowed();
+        };
+
+        this.box.css({
+            "top": (clientHeight - this.offsetHeight) / 2 + "px",
+            "left": option.begin + "px",
+            "display": "block"
+        });
+    },
+    fadein: function () {
+        var clientWidth,
+            clientHeight,
+            option,
+            that;
+
+        that = this;
+        clientHeight = document.documentElement.clientHeight;
+        clientWidth = document.documentElement.clientWidth;
+
+        option = this.animator[0];
+        option.begin = 0;
+        option.end = 100;
+        option.onChange = function (opacity) {
+            that.box.css("opacity", opacity / 100);
+        };
+        this.openMask();
+        this.animator.onEnd = function () {
+            that.onShowed();
+        };
+
+        this.box.css({
+            "top": (clientHeight - this.offsetHeight) / 2 + "px",
+            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "opacity": 0,
+            "display": "block"
+        });
+    }
+};
+hideStyles = {
+    up: function () {
+        var option,
+            that;
+        
+        that = this;
+        option = this.animator[0];
+        option.begin = parseFloat(this.box.css("top"));
+        option.end = -this.offsetHeight;
+        option.onChange = function (top) {
+            that.box.css("top", top + "px");
+        };
+
+        this.closeMask();
+        this.animator.onEnd = function () {
+            that.onHided();
+        };
+    },
+    down: function () {
+        var option,
+            that;
+        
+        that = this;
+        option = this.animator[0];
+        option.begin = parseFloat(this.box.css("top"), 10);
+        option.end = document.documentElement.clientHeight;
+        option.onChange = function (top) {
+            that.box.css("top", top + "px");
+        };
+
+        this.closeMask();
+        this.animator.onEnd = function () {
+            that.onHided();
+        };
+    },
+    left: function () {
+        var option,
+            that;
+        
+        that = this;
+        option = this.animator[0];
+        option.begin = parseFloat(this.box.css("left"), 10);
+        option.end = -this.offsetWidth;
+        option.onChange = function (left) {
+            that.box.css("left", left + "px");
+        };
+
+        this.closeMask();
+        this.animator.onEnd = function () {
+            that.onHided();
+        };
+    },
+    right: function () {
+        var option,
+            that;
+        
+        that = this;
+        option = this.animator[0];
+        option.begin = parseFloat(this.box.css("left"), 10);
+        option.end = document.documentElement.clientWidth;
+        option.onChange = function (left) {
+            that.box.css("left", left + "px");
+        };
+
+        this.closeMask();
+        this.animator.onEnd = function () {
+            that.onHided();
+        };
+    },
+    fadeout: function () {
+        var option,
+            that;
+        
+        that = this;
+        option = this.animator[0];
+        option.begin = 100;
+        option.end = 0;
+        option.onChange = function (opacity) {
+            that.box.css("opacity", opacity / 100);
+        };
+        this.closeMask();
+        this.animator.onEnd = function () {
+            that.onHided();
+        };
+
+        this.box.css({
+            "opacity": 1,
+            "display": "block"
+        });
+    }
+};
+
+ui.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
-            parent: null,
-            width: 240
+            // 标题
+            title: "",
+            // 标题栏的高度
+            titleHeight: 48,
+            // box显示方式
+            show: "up",
+            // box隐藏方式
+            hide: "down",
+            // box操作完成的方式
+            done: "up",
+            // box内容是否是一个url，可以支持iframe外链
+            src: null,
+            // box的宽度
+            width: defaultWidth,
+            // box的高度
+            height: defaultHeight,
+            // 是否需要显示遮罩层
+            maskable: true,
+            // 操作按钮
+            buttons: [],
+            // 操作栏的高度
+            operatePanelHeight: 48,
+            // 是否自适应
+            suitable: true,
+            // 是否可以调整box大小
+            resizeable: false,
+            // 是否可以拖动box的位置
+            draggable: true,
+            // 窗体样式
+            style: null,
+            // 关闭按钮的样式
+            closeButtonStyle: "closable-button font-highlight-hover"
         };
     },
-    _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided", "resize"];
+    _defineEvents: function() {
+        return ["showing", "showed", "closing", "closed", "resize"];
     },
     _create: function() {
-        var that = this;
+        var that;
+        this.box = null;
+        this.mask = null;
+        this.buttons = [];
+        
+        this.animator = ui.animator();
+        this.animator.duration = 500;
 
-        this._showClass = "sidebar-show";
-        
-        this.parent = ui.getJQueryElement(this.option.parent);
-        this._panel = $("<aside class='sidebar-panel border-highlight' />");
-        this._panel.css("width", this.width + "px");
-        
-        this._closeButton = $("<button class='icon-button' />");
-        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
-        this._closeButton.css({
-            "position": "absolute",
-            "top": "6px",
-            "right": "10px",
-            "z-index": 999
-        });
-        
-        this.height = 0;
-        this.width = this.option.width || 240;
-        this.borderWidth = 0;
-
-        this.parent.append(this._panel);
-        if(this.element) {
-            this._panel.append(this.element);
+        if(!ui.core.isNumber(this.option.width)) {
+            this.option.width = defaultWidth;
         }
-        this._closeButton.click(function(e) {
+        if(!ui.core.isNumber(this.option.height)) {
+            this.option.height = defaultHeight;
+        }
+        this.offsetWidth = this.width = this.option.width;
+        this.offsetHeight = this.height = this.option.height;
+        this.contentWidth = this.width;
+        this.contentHeight = 0;
+
+        that = this;
+        ui.core.each("show,hide,done", function(name) {
+            that[name + "Async"] = function(callback) {
+                this._asyncCall(name, callback);
+            };
+        });
+    },
+    _render: function() {
+        var body;
+
+        this.box = $("<div class='ui-dialog-box border-highlight' />");
+        this.titlePanel = $("<section class='ui-dialog-box-title' />");
+        this.contentPanel = $("<section class='ui-dialog-box-content' />");
+        this.operatePanel = null;
+
+        this._initTitle();
+        this._initContent();
+        this._initOperateButtons();
+        this._initClosableButton();
+
+        body = $(document.body);
+        body.append(this.box);
+        this.animator.addTarget({
+            target: this.box,
+            ease: ui.AnimationStyle.easeFromTo
+        });
+
+        if(this.maskable()) {
+            this.mask = $("<div class='ui-dialog-box-mask' />");
+            body.append(this.mask);
+            this.animator.addTarget({
+                target: this.mask,
+                ease: ui.AnimationStyle.easeFrom
+            });
+        }
+
+        if(this.draggable()) {
+            this._initDraggable();
+        }
+        if(this.resizeable()) {
+            this._initResizeable();
+        }
+        this._initSuitable();
+
+        if(ui.core.isPlainObject(this.option.style)) {
+            this.box.css(this.option.style);
+        }
+        this.contentPanel.css({
+            "height": this.contentHeight + "px",
+            "top": (parseInt(this.option.titleHeight, 10) || 48) + "px"
+        });
+    },
+    _initTitle: function() {
+        var title = this.option.title;
+        if (ui.core.isPlainObject(title)) {
+            this.setTitle(title.text, title.hasHr, title.style);
+        } else if (title) {
+            this.setTitle(title);
+        }
+    },
+    _initClosableButton: function() {
+        var closeBtn,
+            that;
+        closeBtn = $("<a href='javascript:void(0)'>×</a>");
+        closeBtn.attr("class", this.option.closeButtonStyle || "closable-button");
+
+        that = this;
+        closeBtn.click(function() {
             that.hide();
         });
-        this._panel.append(this._closeButton);
-        
-        this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
-        this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
-        
-        //进入异步调用，给resize事件绑定的时间
-        setTimeout(function() {
-            that.setSizeLocation();
-        });
-        ui.resize(function() {
-            that.setSizeLocation();
-        }, ui.eventPriority.ctrlResize);
-        
-        this.animator = ui.animator({
-            target: this._panel,
-            ease: ui.AnimationStyle.easeTo,
-            onChange: function(val) {
-                this.target.css("left", val + "px");
+    },
+    _initContent: function() {
+        if(this.option.src) {
+            this.element = $("<iframe class='content-frame' frameborder='0' scrolling='auto' />");
+            this.element.prop(src, this.option.src);
+        }
+        this.contentPanel.append(this.element);
+    },
+    _initOperateButtons: function() {
+        var i, len;
+        if(!Array.isArray(this.option.buttons)) {
+            if(ui.core.isString(this.option.buttons)) {
+                this.option.buttons = [this.option.buttons];
+            } else {
+                this.option.buttons = [];
             }
-        });
-    },
-    set: function (elem) {
-        if(this.element) {
-            this.element.remove();
         }
-        if(ui.core.isDomObject(elem)) {
-            elem = $(elem);
-        } else if(!ui.core.isJQueryObject(elem)) {
-            return;
-        }
-        this.element = elem;
-        this._closeButton.before(elem);
-    },
-    append: function(elem) {
-        if(ui.core.isDomObject(elem)) {
-            elem = $(elem);
-        } else if(!ui.core.isJQueryObject(elem)) {
-            return;
-        }
-        this._panel.append(elem);
-        if(!this.element) {
-            this.element = elem;
+        for(i = 0, len = this.option.buttons.length; i < len; i++) {
+            this.addButton(this.option.buttons[i]);
         }
     },
-    setSizeLocation: function(width, resizeFire) {
-        var parentWidth = this.parent.width(),
-            parentHeight = this.parent.height();
-        
-        this.height = parentHeight;
-        var sizeCss = {
-            height: this.height + "px"
+    _initDraggable: function() {
+        var option = {
+            target: this.box,
+            parent: $(document.body),
+            hasIframe: this.element.isNodeName("iframe")
         };
-        var right = this.width;
-        if ($.isNumeric(width)) {
-            this.width = width;
-            sizeCss["width"] = this.width + "px";
-            right = width;
-        }
-        this.hideLeft = parentWidth;
-        this.left = parentWidth - this.width - this.borderWidth;
-        this._panel.css(sizeCss);
-        if (this.isShow()) {
-            this._panel.css({
-                "left": this.left + "px",
-                "display": "block"
-            });
+        this.titlePanel
+            .addClass("draggable-handle")
+            .draggable(option);
+    },
+    _initResizeable: function() {
+        var option;
+        this.resizeHandle = $("<u class='resize-handle' />");
+        this.box.append(thsi.resizeHandle);
+
+        option = {
+            target: this,
+            parent: $(document.body),
+            hasIframe: this.element.isNodeName("iframe"),
+            minWidth: 320,
+            minHeight: 240,
+            onMoving: function(arg) {
+                var op = this.option,
+                    width, 
+                    height;
+                width = op.target.offsetWidth + x;
+                height = op.target.offsetHeight + y;
+                if (width < option.minWidth) {
+                    width = option.minWidth;
+                }
+                if (height < option.minHeight) {
+                    height = option.minHeight;
+                }
+                op.target._setSize(width, height);
+            }
+        };
+        this.resizer = ui.MouseDragger(option);
+        this.resizer.on();
+    },
+    _initSuitable: function() {
+        var resizeFn,
+            that = this;
+        if(this.suitable()) {
+            resizeFn = function(e, clientWidth, clientHeight) {
+                that._calculateSize(clientWidth, clientHeight);
+            };
+            resizeFn();
+            ui.page.resize(resizeFn, ui.eventPriority.ctrlResize);
         } else {
-            this._panel.css({
-                "left": this.hideLeft + "px",
-                "display": "none"
-            });
-        }
-        
-        if(resizeFire !== false) {
-            this.fire("resize", this.width, this.height);
+            this._setSize(this.width, this.height, false);
         }
     },
+    _calculateSize: function(parentWidth, parentHeight) {
+        var newWidth,
+            newHeight;
+        if(!ui.core.isNumber(parentWidth)) {
+            parentWidth = document.documentElement.clientWidth;
+        }
+        if(!ui.core.isNumber(parentHeight)) {
+            parentHeight = document.documentElement.clientHeight;
+        }
+        newWidth = this.option.width;
+        newHeight = parentHeight * 0.85;
+        if(this.height > newHeight) {
+            if (this.height > parentHeight) {
+                newHeight = parentHeight;
+            } else {
+                newHeight = this.height;
+            }
+        }
+        if (newWidth > parentWidth) {
+            newWidth = parentWidth;
+        }
+        this.setSize(newWidth, newHeight, parentWidth, parentHeight);
+    },
+    _setSize: function(newWidth, newHeight, isFire) {
+        var borderTop = parseInt(this.box.css("border-top-width"), 10) || 0,
+            borderBottom = parseInt(this.box.css("border-bottom-width"), 10) || 0,
+            borderLeft = parseInt(this.box.css("border-left-width"), 10) || 0,
+            borderRight = parseInt(this.box.css("border-right-width"), 10) || 0;
+
+        if (ui.core.isNumber(newWidth) && newWidth > 0) {
+            this.offsetWidth = newWidth;
+            this.width = this.offsetWidth - borderLeft - borderRight;
+            this.box.css("width", this.width + "px");
+        }
+        if (ui.core.isNumber(newHeight) && newHeight > 0) {
+            this.offsetHeight = newHeight;
+            this.height = this.offsetHeight - borderTop - borderBottom;
+            this.box.css("height", this.height + "px");
+            this._updateContentPanelHeight();
+        }
+        if (isFire !== false)
+            this.fire("resize");
+    },
+    _updateContentPanelHeight: function() {
+        this.contentHeight = this.height - this.option.titleHeight - (this.operatePanel ? this.option.operatePanelHeight : 0);
+        this.contentPanel.css("height", this.contentHeight + "px");
+    },
+    _asyncCall: function(method, callback) {
+        var deferred = null;
+        if(ui.core.isFunction(this[method])) {
+            deferred = this[method].call(this);
+            if (deferred && ui.core.isFunction(callback)) {
+                deferred.done(callback);
+            }
+        }
+    },
+
+    // API
+    /** 是否有遮罩层 */
+    maskable: function() {
+        return !!this.option.maskable;
+    },
+    /** 是否自适应显示 */
+    suitable: function() {
+        return !!this.option.suitable; 
+    },
+    /** 是否可以调整大小 */
+    resizeable: function() {
+        return !!this.option.resizeable;
+    },
+    /** 是否可以拖动 */
+    draggable: function() {
+        return !!this.option.draggable;
+    },
+    /** 设置标题 */
+    setTitle: function(title, hasHr, style) {
+        var titleContent,
+            titleInner,
+            i, len;
+        if(ui.core.isString(title)) {
+            titleContent = $("<span class='title-text font-highlight' />").text(title);
+            if (hasHr !== false) {
+                hasHr = true;
+            }
+        } else if (ui.core.isDomObject(title)) {
+            titleContent = $(title);
+        } else if (ui.core.isJQueryObject(title)) {
+            titleContent = title;
+        }
+
+        this.titlePanel.empty();
+        titleInner = $("<div class='title-inner-panel' />");
+        titleInner.append(titleContent);
+        if(hasHr) {
+            titleInner.apend("<hr class='ui-dialog-box-spline background-highlight' />");
+        }
+        this.titlePanel.append(titleInner);
+
+        if(Array.isArray(style)) {
+            for(i = 0, len = style.length; i < len; i++) {
+                this.titlePanel.addClass(style[i]);
+            }
+        } else if(this.core.isPlainObject(style)) {
+            this.titlePanel.css(style);
+        }
+    },
+    /** 添加操作按钮 */
+    addButton: function(button) {
+        button = ui.getJQueryElement(button);
+        if(!button) {
+            return;
+        }
+        if(!this.operatePanel) {
+            this.operatePanel = $("<section class='ui-dialog-box-operate' />");
+            this.box.append(this.operatePanel);
+            this._updateContentPanelHeight();
+            this.fire("resize");
+        }
+        this.operatePanel.append(button);
+        return this;
+    },
+    /** 显示状态 */
     isShow: function() {
-        return this._panel.hasClass(this._showClass);
+        return this.box.css("display") === "block";
     },
-    show: function() {
-        var op, 
-            that = this,
-            i, len;
-        if(!this.isShow()) {
-            this.animator.stop();
-            this.animator.splice(1, this.length - 1);
-            this.animator.duration = this.showTimeValue;
-            
-            op = this.animator[0];
-            op.target.css("display", "block");
-            op.target.addClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.hideLeft;
-            op.end = this.left;
-
-            for(i = 0, len = arguments.length; i < len; i++) {
-                if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
-                }
-            }
-
-            this.animator.onBegin = function() {
-                that.fire("showing");
-            };
-            this.animator.onEnd = function() {
-                this.splice(1, this.length - 1);
-                that.fire("showed");
-            };
-            return this.animator.start();
+    /** 显示 */
+    show: function(showFn) {
+        if(this.animator.isStarted || this.isShow()) {
+            return;
         }
-        return null;
+
+        if(this.fire("showing") === false) {
+            return;
+        }
+        if(!ui.core.isFunction(showFn)) {
+            showFn = showStyles[this.option.show];
+            if(!ui.core.isFunction(showFn)) {
+                return;
+            }
+        }
+        showFn.call(this);
+        return this.animator.start();
     },
-    hide: function() {
-        var op,
-            that = this,
-            i, len;
-        if(this.isShow()) {
-            this.animator.stop();
-            this.animator.splice(1, this.length - 1);
-            this.animator.duration = this.hideTimeValue;
-            
-            op = this.animator[0];
-            op.target.removeClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.left;
-            op.end = this.hideLeft;
-            
-            for(i = 0, len = arguments.length; i < len; i++) {
-                if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
-                }
-            }
-
-            this.animator.onBegin = function() {
-                that.fire("hiding");
-            };
-            this.animator.onEnd = function() {
-                this.splice(1, this.length - 1);
-                op.target.css("display", "none");
-                that.fire("hided");
-            };
-            return this.animator.start();
+    /** 取消并隐藏 */
+    hide: function(hideFn) {
+        if(this.animator.isStarted || !this.isShow()) {
+            return;
         }
-        return null;
+
+        if(this.fire("hiding") === false) {
+            return;
+        }
+        if(!ui.core.isFunction(hideFn)) {
+            hideFn = hideStyles[this.option.hide];
+            if(!ui.core.isFunction(hideFn)) {
+                return;
+            }
+        }
+        hideFn.call(this);
+        return this.animator.start();
+    },
+    /** 完成并隐藏 */
+    done: function(doneFn) {
+        if(!ui.core.isFunction(doneFn)) {
+            doneFn = hideStyles[this.option.done];
+            if(!ui.core.isFunction(doneFn)) {
+                return;
+            }
+        }
+        return this.hide(doneFn);
+    },
+    /** 显示结束后处理函数，显示动画用 */
+    onShowed: function() {
+        this.fire("showed");
+    },
+    /** 隐藏结束后处理函数，隐藏动画用 */
+    onHided: function() {
+        this.box.css("display", "none");
+        if (this.maskable()) {
+            $(document.body).css("overflow", this._oldBodyOverflow);
+            this.mask.css("display", "none");
+        }
+    },
+    /** 显示遮罩层，显示动画用 */
+    openMask: function() {
+        var body = $(document.body),
+            option;
+        if (this.maskable()) {
+            this._oldBodyOverflow = body.css("overflow");
+            body.css("overflow", "hide");
+            this.mask.css({
+                "display": "block",
+                "opacity": 0,
+                "height": document.documentElement.clientHeight + "px"
+            });
+
+            option = this.animator[1];
+            option.begin = 0;
+            option.end = 70;
+            option.onChange = function (op) {
+                this.target.css("opacity", op / 100);
+            }
+        }
+    },
+    /** 隐藏遮罩层，隐藏动画用 */
+    closeMask: function() {
+        var option;
+        if (this.maskable()) {
+            option = this.animator[1];
+            option.begin = 70;
+            option.end = 0;
+            option.onChange = function (op) {
+                this.target.css("opacity", op / 100);
+            }
+        }
+    },
+    /** 设置大小并居中显示 */
+    setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
+        if(!ui.core.isNumber(parentWidth)) {
+            parentWidth = document.documentElement.clientWidth;
+        }
+        if(!ui.core.isNumber(parentHeight)) {
+            parentHeight = document.documentElement.clientHeight;
+        }
+        this._setSize(newWidth, newHeight);
+        this.box.css({
+            "top": (parentHeight - this.offsetHeight) / 2 + "px",
+            "left": (parentWidth - this.offsetWidth) / 2 + "px"
+        });
+        if (this.maskable()) {
+            this.mask.css("height", parentHeight + "px");
+        }
     }
 });
+
+$.fn.dialogBox = function(option) {
+    if(this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.DialogBox(option, this);
+};
+
+/** 添加显示动画样式 */
+ui.ctrls.DialogBox.setShowStyle = function(name, fn) {
+    if(ui.core.isString(name) && name.length > 0) {
+        if(ui.core.isFunction(fn)) {
+            showStyles[name] = fn;
+        }
+    }
+};
+/** 添加隐藏动画样式 */
+ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
+    if(ui.core.isString(name) && name.length > 0) {
+        if(ui.core.isFunction(fn)) {
+            hideStyles[name] = fn;
+        }
+    }
+};
 
 
 })(jQuery, ui);
 
-// Source: ui/control/box/dialog-box.js
+// Source: ui/control/box/loading-box.js
 
 (function($, ui) {
-// DialogBox
+// 加载提示框
+var loadingBox,
+    loadingClass = "c_dotsPlaying";
+function LoadingBox(option) {
+    if(this instanceof LoadingBox) {
+        this.initialize(option);
+    } else {
+        return new LoadingBox(option);
+    }
+}
+LoadingBox.prototype = {
+    constructor: LoadingBox,
+    initialize: function(option) {
+        if(!option) {
+            option = {};
+        }
+        this.delay = option.delay;
+        if(ui.core.type(this.delay) !== "number" || this.delay < 0) {
+            this.delay = 1000;
+        }
+        this.timeoutHandle = null;
+        this.isOpening = false;
+        this.box = null;
+        this.openCount = 0;
+    },
+    getBox: function() {
+        if(!this.box) {
+            this.box = $("#loadingElement");
+        }
+        return this.box;
+    },
+    isShow: function() {
+        return this.getBox().css("display") === "block";
+    },
+    show: function() {
+        var that;
+        if(this.isOpening || this.isShow()) {
+            this.openCount++;
+            return;
+        }
+        this.isOpening = true;
+        that = this;
+        this.timeoutHandle = setTimeout(function() {
+            that.timeoutHandle = null;
+            that._doShow();
+        }, this.delay);
+    },
+    _doShow: function() {
+        this.getBox();
+        this.box
+            .addClass(loadingClass)
+            .css("display", "block");
+    },
+    hide: function() {
+        if(this.openCount > 0) {
+            this.openCount--;
+            return;
+        }
+        this.isOpening = false;
+        if(this.timeoutHandle) {
+            clearTimeout(this.timeoutHandle);
+            return;
+        }
+        this.getBox();
+        this.box
+            .removeClass(loadingClass)
+            .css("display", "none");
+    }
+};
+loadingBox = LoadingBox();
+ui.loadingShow = function() {
+    loadingBox.show();
+};
+ui.loadingHide = function() {
+    loadingBox.hide();
+};
 
 
 })(jQuery, ui);
@@ -1103,6 +1885,212 @@ ui.define("ui.ctrls.Sidebar", {
 
 (function($, ui) {
 // MessageBox
+var MessageType = {
+        message: 0,
+        warn: 1,
+        error: 3,
+        success: 4,
+        failed: 5
+    },
+    defaultWaitSeconds = 5,
+    messagebox;
+
+function MessageBox() {
+    if(this instanceof MessageBox) {
+        this.initialize();
+    } else {
+        return new MessageBox();
+    }
+}
+MessageBox.prototype = {
+    constructor: MessageBox,
+    initialize: function() {
+        this.box = null;
+        this.type = MessageType;
+        this.isStartHide = false;
+        this.boxAnimator = null;
+        this.width = 322;
+        this.top = 88;
+    },
+    _initAnimator: function() {
+        this.boxAnimator = ui.animator({
+            target: this.box,
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        });
+        this.boxAnimator.duration = 200;
+    },
+    getIcon: function(type) {
+        if(type === MessageType.warn) {
+            return "mb-warn fa fa-exclamation-triangle";
+        } else if(type === MessageType.error) {
+            return "mb-error fa fa-times-circle";
+        } else if(type === MessageType.success) {
+            return "mb-success fa fa-check-circle-o";
+        } else if(type === MessageType.failed) {
+            return "mb-failed fa fa-times-circle-o";
+        } else {
+            return "mb-message fa fa-commenting";
+        }
+    },
+    getBox: function () {
+        var clientWidth,
+            clientHeight;
+        if (!this.box) {
+            clientWidth = ui.core.root.clientWidth;
+            clientHeight = ui.core.root.clientHeight;
+            this.box = $("<div class='ui-message-box theme-action-color border-highlight' />");
+            this.box.css({
+                "top": this.top + "px",
+                "left": clientWidth + "px",
+                "max-height": clientHeight - (this.top * 2) + "px"
+            });
+            var close = $("<a href='javascript:void(0)' class='closable-button'>×</a>");
+            var that = this;
+            close.click(function (e) {
+                that.hide(true);
+            });
+            this.box.mouseenter(function (e) {
+                if (that.isClosing) {
+                    return;
+                }
+                if (that.isStartHide) {
+                    that._show();
+                } else {
+                    clearTimeout(that.hideHandler);
+                }
+            });
+            this.box.mouseleave(function (e) {
+                that.waitSeconds(defaultWaitSeconds);
+            });
+
+            this.box.append(close);
+            $(document.body).append(this.box);
+
+            this._initAnimator();
+        }
+        return this.box;
+    },
+    isShow: function() {
+        return this.getBox().css("display") === "block";
+    },
+    show: function (text, type) {
+        var box,
+            messageItem,
+            htmlBuilder = [];
+        
+        messageItem = $("<div class='message-item' />")
+        htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
+        htmlBuilder.push("<div class='message-content'>");
+        if($.isFunction(text)) {
+            htmlBuilder.push(text());
+        } else {
+            htmlBuilder.push(ui.str.htmlEncode(text + ""));
+        }
+        htmlBuilder.push("</div>");
+        messageItem.html(htmlBuilder.join(""));
+
+        box = this.getBox();
+        if(this.isShow()) {
+            box.append(messageItem);
+            return;
+        }
+        box.children(".message-item").remove();
+        box.append(messageItem);
+        this._show(function () {
+            messagebox.waitSeconds(defaultWaitSeconds);
+        });
+    },
+    _show: function (completedHandler) {
+        var box = this.getBox(),
+            option,
+            clientWidth = ui.core.root.clientWidth;
+        this.isStartHide = false;
+
+        this.boxAnimator.stop();
+        option = this.boxAnimator[0];
+        option.begin = parseFloat(option.target.css("left")) || clientWidth;
+        option.end = clientWidth - this.width;
+        option.target.css("display", "block");
+        this.boxAnimator.start().done(completedHandler);
+    },
+    hide: function (flag) {
+        var box,
+            option,
+            that = this,
+            clientWidth = ui.core.root.clientWidth;
+        if (flag) {
+            this.isClosing = true;
+        }
+        box = this.getBox();
+        this.isStartHide = true;
+
+        this.boxAnimator.stop();
+        option = this.boxAnimator[0];
+        option.begin = parseFloat(option.target.css("left")) || clientWidth - this.width;
+        option.end = clientWidth;
+        this.boxAnimator.start().done(function() {
+            box.css("display", "none");
+            that.isClosing = false;
+            that.isStartHide = false;
+        });
+    },
+    waitSeconds: function (seconds) {
+        var that = this;
+        if (that.hideHandler)
+            window.clearTimeout(that.hideHandler);
+        if (isNaN(parseInt(seconds)))
+            seconds = defaultWaitSeconds;
+        that.hideHandler = window.setTimeout(function () {
+            that.hideHandler = null;
+            if (that.isStartHide === false) {
+                that.hide();
+            }
+        }, seconds * 1000);
+    }
+};
+
+// 初始化全局消息提示框
+messagebox = MessageBox();
+ui.page.resize(function(e) {
+    var box = messagebox.getBox(),
+        clientWidth = ui.core.root.clientWidth,
+        clientHeight = ui.core.root.clientHeight,
+        left;
+    if(messagebox.isShow()) {
+        left = clientWidth - messagebox.width;
+    } else {
+        left = clientWidth;
+    }
+    messagebox.waitSeconds(defaultWaitSeconds);
+    box.css({
+        "left": left + "px",
+        "max-height": clientHeight - (messagebox.top * 2) + "px"
+    });
+});
+function msgshow(text, type) {
+    if(!type) {
+        type = MessageType.message;
+    }
+    messagebox.show(text, type);
+}
+ui.messageShow = function(text) {
+    msgshow(text, MessageType.message);
+};
+ui.warnShow = function(text) {
+    msgshow(text, MessageType.warn);
+};
+ui.errorShow = function(text) {
+    msgshow(text, MessageType.error);
+};
+ui.successShow = function(text) {
+    msgshow(text, MessageType.success);
+};
+ui.failedShow = function(text) {
+    msgshow(text, MessageType.failed);
+};
 
 
 })(jQuery, ui);
@@ -1111,6 +2099,121 @@ ui.define("ui.ctrls.Sidebar", {
 
 (function($, ui) {
 // OptionBox
+var contentTop = 40,
+    buttonTop = 0,
+    operatePanelHeight = 0;
+ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
+    _defineOption: function() {
+        return $.extend(this._super(), {
+            title: "",
+            buttons: null
+        });
+    },
+    _create: function() {
+        this._super();
+        this.contentPanel = null;
+        this.contentHeight = 0;
+        this.contentTop = 40;
+        this.buttonTop = 0;
+        this.operatePanelHeight = 0;
+        this.buttons = [];
+
+        this.opacityOption = {
+            target: this.panel,
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val, elem) {
+                elem.css("opacity", val / 100);
+            }
+        };
+    },
+    _render: function() {
+        this._super();
+
+        this._panel.addClass("ui-option-box-panel");
+        this.titlePanel = $("<section class='ui-option-box-title' />");
+        this.contentPanel = $("<section class='ui-option-box-content' />");
+
+        this.contentPanel.append(this.element);
+        this.contentHeight = this.element.height();
+
+        this._panel
+            .append(this.titlePanel)
+            .append(this.contentPanel);
+        this._initOperateButtons();
+        this.setTitle(this.option.title);
+    },
+    _initOperateButtons: function() {
+        var i, len;
+        if(!Array.isArray(this.option.buttons)) {
+            if(ui.core.isString(this.option.buttons)) {
+                this.option.buttons = [this.option.buttons];
+            } else {
+                this.option.buttons = [];
+            }
+        }
+        for(i = 0, len = this.option.buttons.length; i < len; i++) {
+            this.addButton(this.option.buttons[i]);
+        }
+    },
+    addButton: function(button) {
+        var buttonContainer;
+        button = ui.getJQueryElement(button);
+        if(!button) {
+            return;
+        }
+        this.buttons.push(button);
+        if(!this.operatePanel) {
+            this.operatePanel = $("<section class='ui-option-box-buttons' />");
+            buttonContainer = $("<div class='ui-form' />");
+            this.operatePanel.append(buttonContainer);
+            this._panel.append(this.operatePanel);
+            this.buttonTop = 24;
+            this.operatePanelHeight = 24;
+        } else {
+            buttonContainer = this.operatePanel.children(".ui-form");
+        }
+        buttonContainer.append(button);
+        return this;
+    },
+    setTitle: function(title) {
+        this.titlePanel.empty();
+        if(title) {
+            if(ui.core.isString(title)) {
+                title = "<span class='option-box-title-text font-highlight'>" + title + "<span>";
+            }
+            this.titlePanel.append(title);
+        }
+    },
+    setWidth: function(width) {
+        var contentMaxheight;
+
+        this._super(width);
+        // 调整内容的对齐方式
+        contentMaxheight = this.height - this.contentTop - this.buttonTop - this.operatePanelHeight - this.buttonTop;
+        this.contentPanel.css({
+            "max-height": contentMaxheight + "px"
+        });
+        if (this.operatePanel) {
+            if (contentMaxheight < this.contentHeight) {
+                this.operatePanel.css("width", this.width - ui.scrollbarWidth + "px");
+            } else {
+                this.operatePanel.css("width", "100%");
+            }
+        }
+    },
+    show: function() {
+        this.showTimeValue = 240;
+        this.opacityOption.begin = 0;
+        this.opacityOption.end = 100;
+        this._super(this.opacityOption);
+    },
+    hide: function() {
+        this.hideTimeValue = 240;
+        this.opacityOption.begin = 100;
+        this.opacityOption.end = 0;
+        this._super(this.opacityOption);
+    }
+});
 
 
 })(jQuery, ui);
@@ -1411,10 +2514,8 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         this.onFocusHandler = $.proxy(onFocus, this);
         this.onItemClickHandler = $.proxy(onItemClick, this);
         this.onMousewheelHandler = $.proxy(onMousewheel, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
         this.chooserPanel.css("width", this.width + "px");
 
@@ -1799,12 +2900,12 @@ function farbtastic(container, callback) {
             }
         }
         return this;
-    }
+    };
     fb.updateValue = function (event) {
         if (this.value && this.value != fb.color) {
             fb.setColor(this.value);
         }
-    }
+    };
 
     /**
      * Change color with HTML syntax #123456
@@ -1818,7 +2919,7 @@ function farbtastic(container, callback) {
             fb.updateDisplay();
         }
         return this;
-    }
+    };
 
     /**
      * Change color with HSL triplet [0..1, 0..1, 0..1]
@@ -1829,7 +2930,7 @@ function farbtastic(container, callback) {
         fb.color = fb.pack(fb.rgb);
         fb.updateDisplay();
         return this;
-    }
+    };
 
     /////////////////////////////////////////////////////
 
@@ -1841,7 +2942,7 @@ function farbtastic(container, callback) {
         var x, y;
         var el = event.target || event.srcElement;
         var reference = fb.wheel;
-        var pos;
+        var pos, offset;
 
         if (typeof event.offsetX != 'undefined') {
             // Use offset coordinates and find common offsetParent
@@ -1859,7 +2960,7 @@ function farbtastic(container, callback) {
 
             // Look for the coordinates starting from the wheel widget.
             e = reference;
-            var offset = { x: 0, y: 0 }
+            offset = { x: 0, y: 0 };
             while (e) {
                 if (typeof e.mouseX != 'undefined') {
                     x = e.mouseX - offset.x;
@@ -1878,8 +2979,7 @@ function farbtastic(container, callback) {
                 e.mouseY = undefined;
                 e = e.offsetParent;
             }
-        }
-        else {
+        } else {
             // Use absolute coordinates
             pos = fb.absolutePosition(reference);
             x = (event.pageX || 0 * (event.clientX + $('html').get(0).scrollLeft)) - pos.x;
@@ -1887,7 +2987,7 @@ function farbtastic(container, callback) {
         }
         // Subtract distance to middle
         return { x: x - fb.width / 2, y: y - fb.width / 2 };
-    }
+    };
 
     /**
      * Mousedown handler
@@ -1906,7 +3006,7 @@ function farbtastic(container, callback) {
         // Process
         fb.mousemove(event);
         return false;
-    }
+    };
 
     /**
      * Mousemove handler
@@ -1927,7 +3027,7 @@ function farbtastic(container, callback) {
             fb.setHSL([fb.hsl[0], sat, lum]);
         }
         return false;
-    }
+    };
 
     /**
      * Mouseup handler
@@ -1937,7 +3037,7 @@ function farbtastic(container, callback) {
         $(document).unbind('mousemove', fb.mousemove);
         $(document).unbind('mouseup', fb.mouseup);
         document.dragging = false;
-    }
+    };
 
     /**
      * Update the markers and styles
@@ -1978,7 +3078,7 @@ function farbtastic(container, callback) {
         }
 
         this.fire(selected, fb.color);
-    }
+    };
 
     /**
      * Get absolute position of element
@@ -2002,20 +3102,19 @@ function farbtastic(container, callback) {
         return '#' + (r < 16 ? '0' : '') + r.toString(16) +
                 (g < 16 ? '0' : '') + g.toString(16) +
                 (b < 16 ? '0' : '') + b.toString(16);
-    }
+    };
 
     fb.unpack = function (color) {
         if (color.length == 7) {
             return [parseInt('0x' + color.substring(1, 3)) / 255,
                 parseInt('0x' + color.substring(3, 5)) / 255,
                 parseInt('0x' + color.substring(5, 7)) / 255];
-        }
-        else if (color.length == 4) {
+        } else if (color.length == 4) {
             return [parseInt('0x' + color.substring(1, 2)) / 15,
                 parseInt('0x' + color.substring(2, 3)) / 15,
                 parseInt('0x' + color.substring(3, 4)) / 15];
         }
-    }
+    };
 
     fb.HSLToRGB = function (hsl) {
         var m1, m2;
@@ -2025,7 +3124,7 @@ function farbtastic(container, callback) {
         return [this.hueToRGB(m1, m2, h + 0.33333),
             this.hueToRGB(m1, m2, h),
             this.hueToRGB(m1, m2, h - 0.33333)];
-    }
+    };
 
     fb.hueToRGB = function (m1, m2, h) {
         h = (h < 0) ? h + 1 : ((h > 1) ? h - 1 : h);
@@ -2033,7 +3132,7 @@ function farbtastic(container, callback) {
         if (h * 2 < 1) return m2;
         if (h * 3 < 2) return m1 + (m2 - m1) * (0.66666 - h) * 6;
         return m1;
-    }
+    };
 
     fb.RGBToHSL = function (rgb) {
         var min, max, delta, h, s, l;
@@ -2054,7 +3153,7 @@ function farbtastic(container, callback) {
             h /= 6;
         }
         return [h, s, l];
-    }
+    };
 
     // Install mousedown handler (the others are set on the document on-demand)
     $('*', e).mousedown(fb.mousedown);
@@ -2111,7 +3210,7 @@ $.fn.colorPicker = function (option) {
     colorPicker._showClass = "color-picker-show";
     
     colorPicker.wrapElement(this, colorPickerPanel);
-    colorPicker._init();
+    colorPicker._render();
     oldHideFn = colorPicker.hide;
 
     createFarbtastic(colorPickerPanel, this);
@@ -2138,9 +3237,10 @@ $.fn.colorPicker = function (option) {
 // Source: ui/control/select/date-chooser.js
 
 (function($, ui) {
-
 var language,
-    selectedClass = "";
+    selectedClass = "date-selected",
+    yearSelectedClass = "year-selected",
+    monthSelectedClass = "month-selected";
 
 var formatYear = /y+/i,
     formatMonth = /M+/,
@@ -2156,8 +3256,7 @@ language["zh-CN"] = {
     year: "年份",
     month: "月份",
     weeks: ["日", "一", "二", "三", "四", "五", "六"],
-    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-    seasons: ["一季", "二季", "三季", "四季"]
+    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
 };
 //英文
 language["en-US"] = {
@@ -2165,56 +3264,349 @@ language["en-US"] = {
     year: "Year",
     month: "Month",
     weeks: ["S", "M", "T", "W", "T", "F", "S"],
-    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    seasons: ["S I", "S II", "S III", "S IV"]
+    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 };
 
-// 格式化器
+function Day(year, month, day, dateChooser) {
+    if(this instanceof Day) {
+        this.initialize(year, month, day, dateChooser);
+    } else {
+        return new Day();
+    }
+}
+Day.prototype = {
+    constructor: Day,
+    initialize: function(year, month, day, dateChooser) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.dateChooser = dateChooser;
+        this.today = null;
+        this._isCurrentMonth = true;
+    },
+    isCurrentMonth: function(value) {
+        if(arguments.length > 0) {
+            this._isCurrentMonth = value;
+            return this;
+        } else {
+            return this._isCurrentMonth;
+        }
+    },
+    setToday: function(today) {
+        this.today = today;
+    },
+    isToday: function() {
+        if(!this.today) {
+            this.today = new Date();
+        }
+        return this.year === this.today.getFullYear() && 
+            this.month === this.today.getMonth() && 
+            this.day === this.today.getDate();
+    },
+    isTheDay: function(year, month, day) {
+        return this.year === year && 
+            this.month === month && 
+            this.day === day;
+    },
+    isDisabled: function() {
+        if(this.dateChooser) {
+            return this.dateChooser._isDisabledDay(
+                this.year, this.month, this.day);
+        }
+        return false;
+    },
+    //小于
+    lt: function(year, month, day) {
+        var d1 = new Date(this.year, this.month, this.day),
+            d2 = new Date(year, month, day);
+        return d1.getTime() < d2.getTime();
+    },
+    //大于
+    gt: function(year, month, day) {
+        var d1 = new Date(this.year, this.month, this.day),
+            d2 = new Date(year, month, day);
+        return d1.getTime() > d2.getTime();
+    },
+    toDate: function() {
+        return new Date(this.year, this.month, this.day, 0, 0, 0);
+    }
+};
+
 function twoNumberFormatter(number) {
     return number < 10 ? "0" + number : "" + number;
 }
-function calendarTitleFormatter(year, month) {
+function formatCalendarTitle(year, month) {
     month += 1;
     return year + "-" + twoNumberFormatter.call(this, number) + "&nbsp;▼";
+}
+function formatDateItem(r, value, format) {
+    var result;
+    result = r.exec(format);
+    if(result !== null) {
+        if(result[0].length > 1) {
+            value = twoNumberFormatter(value);
+        }
+    }
+    return format.replace(r, value);
 } 
+function findDateItem(r, value, format) {
+    var result;
+    result = r.exec(format);
+    if(result) {
+        return parseInt(value.substring(result.index, result.index + result[0].length), 10);
+    } else {
+        return NaN;
+    }
+}
+function createDay(value) {
+    var year,
+        month,
+        day;
+    year = findDateItem.call(this, formatYear, value, format);
+    month = findDateItem.call(this, formatMonth, value, format);
+    day = findDateItem.call(this, formatDay, value, format);
+
+    if(isNaN(year) || isNaN(month) || isNaN(day)) {
+        return null;
+    }
+    return Day(year, month, day, this);
+}
+function checkButtonDisabled(btn) {
+    return btn.hasClass("date-chooser-prev-disabled") || btn.hasClass("date-chooser-next-disabled");
+}
 
 // 事件处理函数
 function onYearChanged(e) {
+    var elem,
+        value = e.data.value,
+        year;
+    
+    elem = $(e.target);
+    if(checkButtonDisabled(elem)) {
+        return;
+    }
+    if(this._currentYear) {
+        year = parseInt(this._currentYear.attr("data-year"), 10);
+    } else {
+        year = this._selYear;
+    }
 
+    year = year + value;
+    this._fillYear(year);
 }
 function onYearSelected(e) {
+    var elem,
+        year,
+        startMonth,
+        endMonth,
+        i, disabledArray;
+    
+    e.stopPropagation();
+    elem = $(e.target);
+    if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(elem.hasClass("disabled-year")) {
+        return;
+    }
+    if(this._currentYear) {
+        if(this._currentYear[0] === elem[0]) {
+            return;
+        }
+        this._currentYear
+            .removeClass(yearSelectedClass)
+            .removeClass("background-highlight");
+    }
+    this._currentYear = elem;
+    this._currentYear
+        .addClass(yearSelectedClass)
+        .addClass("background-highlight");
 
+    year = parseInt(this._currentYear.attr("data-year"), 10);
+    disabledArray = new Array(12);
+    startMonth = 0;
+    endMonth = 0;
+    if(this.startDay && this.startDay.year === year) {
+        startMonth = this.startDay.month;
+    }
+    if(this.endDay && this.endDay.year === year) {
+        endMonth = this.endDay.month;
+    }
+    for(i = startMonth; i <= endMonth; i++) {
+        disabledArray[i] = false;
+    }
+    this._updateMonthsStatus(disabledArray);
 }
 function onMonthSelected(e) {
-
+    var elem;
+    
+    e.stopPropagation();
+    elem = $(e.target);
+    if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(this._currentMonth) {
+        if(this._currentMonth[0] === elem[0]) {
+            return;
+        }
+        this._currentMonth
+            .removeClass(monthSelectedClass)
+            .removeClass("background-highlight");
+    }
+    this._currentMonth = elem;
+    this._currentMonth
+        .addClass(monthSelectedClass)
+        .addClass("background-highlight");
 }
 function onApplyYearMonth(e) {
+    e.stopPropagation();
+    this._selYear = parseInt(
+        this._currentYear.attr("data-year"), 10);
+    this._selMonth = parseInt(
+        this._currentMonth.attr("data-month"), 10);
+    this._updateCalendarTitle();
+    this._fillMonth(this._currentDays, this._selYear, this._selMonth);
 
+    this._closeYearMonthPanel();
 }
 function onCancelYearMonth(e) {
-    
+    e.stopPropagation();
+    this._closeYearMonthPanel();
 }
 function onMonthChanged(e) {
-
+    var elem,
+        value = e.data.value,
+        date;
+    
+    elem = $(e.target);
+    if(checkButtonDisabled(elem)) {
+        return;
+    }
+    date = new Date(this._selYear, this._selMonth + value, 1);
+    this._changeMonth(date, value > 0);
 }
 function onCalendarTitleClick(e) {
+    e.stopPropagation();
+    this._fillYear(this._selYear, this._selMonth);
+    this._openYearMonthPanel();
+}
+function onDayItemClick(e) {
+    var elem,
+        nodeName;
+    elem = $(e.target);
+    if(this._currentDays.parent().hasClass("click-disabled")) {
+        return;
+    }
+    while((nodeName = elem.nodeName()) !== "TD") {
+        if(elem.hasClass("date-chooser-days-panel")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+    this._selectItem(elem);
+}
+function onTodayButtonClick(e) {
+    var now = new Date(),
+        year, month;
+    year = now.getFullYear();
+    month = now.getMonth();
+    if(year === this._selYear && month === this._selMonth) {
+        this.setSelection(now);
+    } else {
+        this._changeMonth(
+            now, 
+            year * 12 + month + 1 > this._selYear * 12 + this._selMonth + 1,
+            function() {
+                this.setSelection(now);
+            });
+    }
+}
+function onTimeMousewheel(e) {
+    var elem,
+        max,
+        val,
+        h, m, s;
 
+    elem = $(e.target);
+    if(elem.nodeName() !== "INPUT") {
+        return;
+    }
+    if(elem.hasClass("hour")) {
+        max = 24;
+    } else {
+        max = 60;
+    }
+    val = elem.val();
+    val = parseFloat(val);
+    val += -e.delta;
+    if (val < 0) {
+        val = max - 1;
+    } else if (val >= max) {
+        val = 0;
+    }
+    elem.val(twoNumberFormatter(val));
+    
+    h = parseInt(this.hourText.val(), 10);
+    m = parseInt(this.minuteText.val(), 10);
+    s = parseInt(this.secondText.val(), 10);
+    this.selectedDate(
+        new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
+}
+function onTimeTextinput(e) {
+    var elem,
+        now,
+        h, m, s;
+
+    elem = $(e.target);
+    if(elem.val().length === 0) {
+        return;
+    }
+    now = new Date();
+    h = parseInt(this.hourText.val(), 10);
+    if(isNaN(h) || h < 0 || h >= 24) {
+        h = now.getHours();
+        this.hourText.val(twoNumberFormatter(h));
+        return;
+    }
+    m = parseInt(this.minuteText.val(), 10);
+    if(isNaN(m) ||m < 0 || m >= 60) {
+        m = now.getMinutes();
+        this.minuteText.val(twoNumberFormatter(m));
+        return;
+    }
+    s = parseInt(this.secondText.val(), 10);
+    if(isNaN(s) || s < 0 || s >= 60) {
+        s = now.getSeconds();
+        this.secondText.val(twoNumberFormatter(s));
+        return;
+    }
+    this.selectedDate(
+        new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
-ui.define("ui.ctrls.DateChooser", {
+ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
+            // 日期格式化样式
             dateFormat: "yyyy-MM-dd",
+            // 显示语言 zh-CN: 中文, en-US: 英文
             language: "zh-CN",
+            // 放置日历的容器
             calendarPanel: null,
-            isDateTime: false
+            // 是否要显示时间
+            isDateTime: false,
+            // 起始日期 不填则表示没有限制
+            startDate: null,
+            // 结束日期 不填则表示没有限制
+            endDate: null
         };
     },
     _defineEvents: function() {
         return ["selecting", "selected", "cancel"];
     },
     _create: function() {
-        var defaultFormat;
+        var defaultFormat,
+            now;
         this._super();
 
         defaultFormat = "yyyy-MM-dd";
@@ -2224,12 +3616,10 @@ ui.define("ui.ctrls.DateChooser", {
         // 日期格式化
         this.option.defaultFormat = this.option.defaultFormat || defaultFormat;
 
-        // 日期参数
-        this._now = new Date();
-        this._year = this._now.getFullYear();
-        this._month = this._now.getMonth();
-        this._selDay = this._now.getDate();
-
+        this._initDateRange();
+        now = this.formatDateValue(new Date());
+        this._setCurrentDate(now);
+         
         // 文字显示
         this._language = language[this.option.language];
         if (!this._language) {
@@ -2253,10 +3643,28 @@ ui.define("ui.ctrls.DateChooser", {
         this.onMonthChangedHandler = $.proxy(onMonthChanged, this);
         // 日历标题点击事件
         this.onCalendarTitleClickHandler = $.proxy(onCalendarTitleClick, this);
-
-        this._init();
+        // 日期项点击事件
+        this.onDayItemClickHandler = $.proxy(onDayItemClick, this);
+        // 今日日期点击事件
+        this.onTodayButtonClickHandler = $.proxy(onTodayButtonClick, this);
+        if(this.isDateTime()) {
+            // 时间滚轮选择事件
+            this.onTimeMousewheelHandler = $.proxy(onTimeMousewheel, this);
+            // 时间输入事件
+            this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
+        }
     },
-    _init: function() {
+    _initDateRange: function() {
+        this.startDay = null;
+        if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
+            this.startDay = createDay(this.option.startDate);
+        }
+        this.endDay = null;
+        if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
+            this.endDay = createDay(this.option.endDate);
+        }
+    },
+    _render: function() {
         this._calendarPanel = ui.getJQueryElement(this.option.calendarPanel);
         if(!this._calendarPanel) {
             this._calendarPanel = $("<div />");
@@ -2275,12 +3683,39 @@ ui.define("ui.ctrls.DateChooser", {
         this._clear = $.proxy(function () {
             this.cancelSelection();
         }, this);
-        
 
         // 创建日历内容面板
         this._initCalendarPanel();
         // 创建年月选择面板
         this._initYearMonthPanel();
+        
+        // 创建动画
+        this._initYearMonthPanelAnimator();
+        this._initCalendarChangeAnimator();
+    },
+    _initYearMonthPanelAnimator: function() {
+        this.ymAnimator = ui.animator({
+            target: this._settingPanel,
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("top", val + "px");
+            }
+        });
+        this.ymAnimator.duration = 240;
+    },
+    _initCalendarChangeAnimator: function() {
+        this.mcAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        }).addTarget({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        });
+        this.mcAnimator.duration = 240;
     },
     _initYearMonthPanel: function() {
         var yearTitle, monthTitle,
@@ -2295,12 +3730,14 @@ ui.define("ui.ctrls.DateChooser", {
         prev = $("<div class='date-chooser-prev'/>");
         prev.click({ value: -10 }, this.onYearChangedHandler);
         yearTitle.append(prev);
+        this._yearPrev = prev;
         // 标题文字
         yearTitle.append("<div class='date-chooser-title'><span id='yearTitle'>" + this._language.year + "</span></div>");
         // 前进
         next = $("<div class='date-chooser-next'/>");
         next.click({ value: 10 }, this.onYearChangedHandler);
         yearTitle.append(next);
+        this._yearNext = next;
         // 清除浮动
         yearTitle.append($("<br clear='left' />"));
         // 年
@@ -2310,7 +3747,7 @@ ui.define("ui.ctrls.DateChooser", {
         html = [];
         html.push("<fieldset class='title-fieldset border-highlight'>");
         html.push("<legend class='title-legend font-highlight'>", this._language.month, "</legend>");
-        html.push("</fieldset>")
+        html.push("</fieldset>");
         monthTitle.html(html.join(""));
         this._settingPanel.append(monthTitle);
         // 月
@@ -2325,7 +3762,7 @@ ui.define("ui.ctrls.DateChooser", {
             i, j;
 
         yearPanel = $("<div class='date-chooser-year-panel' />");
-        this._yearsTable = $("<table class='date-chooser-year-table' cellpadding='0' cellspacing='0' />");
+        this._yearsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
         this._yearsTable.click(this.onYearSelectedHandler);
         tbody = $("<tbody />");
         for(i = 0; i < 3; i++) {
@@ -2347,7 +3784,7 @@ ui.define("ui.ctrls.DateChooser", {
             i, j, index;
 
         monthPanel = $("<div class='date-chooser-month-panel' />");
-        this._monthsTable = $("<table class='date-chooser-month-table' cellpadding='0' cellspacing='0' />");
+        this._monthsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
         this._monthsTable.click(this.onMonthSelectedHandler);
         tbody = $("<tbody />");
         index = 0;
@@ -2356,7 +3793,7 @@ ui.define("ui.ctrls.DateChooser", {
             for (j = 0; j < 4; j++) {
                 td = $("<td class='date-chooser-month-td' />");
                 td.html(this._language.months[index]);
-                    td.data("month", index++);
+                    td.attr("data-month", index++);
                 tr.append(td);
             }
             tbody.append(tr);
@@ -2396,29 +3833,128 @@ ui.define("ui.ctrls.DateChooser", {
         titlePanel = $("<div class='date-chooser-calendar-title' />");
         // 后退
         prev = $("<div class='date-chooser-prev' />");
-        prev.click({ month: -1 }, this.onMonthChangedHandler);
+        prev.click({ value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
+        this._monthPrev = prev;
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.html(calendarTitleFormatter.call(this, this._year, this._month));
+        this._linkBtn.html(formatCalendarTitle.call(this, this._selYear, this._selMonth));
         this._linkBtn.click(this.onCalendarTitleClickHandler);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
-        next.click({ month: 1 }, this.onMonthChangedHandler);
+        next.click({ value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
+        this._monthNext = next;
 
         return titlePanel;
     },
     _createDatePanel: function() {
+        var datePanel = $("<div class='date-chooser-calendar-panel' />");
+        datePanel.append(this._createWeekHead());
+        datePanel.append(this._createDaysBody());
+        return datePanel;
+    },
+    _createWeekHead: function() {
+        var weekPanel,
+            weekTable,
+            tbody, tr, th,
+            i;
+        
+        weekPanel = $("<div class='date-chooser-week-panel'/>");
+        weekTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
+        tbody = $("<tbody />");
+        tr = $("<tr />");
+        for (i = 0; i < 7; i++) {
+            th = $("<th class='date-chooser-calendar-th' />");
+            th.text(this._language.weeks[i]);
+            if (i === 0 || i === 6) {
+                th.addClass("date-chooser-weekend");
+            }
+            tr.append(th);
+        }
+        tbody.append(tr);
+        weekTable.append(tbody);
+        weekPanel.append(weekTable);
 
+        return weekPanel;
+    },
+    _createDaysBody: function() {
+        var daysPanel;
+
+        daysPanel = $("<div class='date-chooser-days-panel' />");
+        this._currentDays = this._createDaysTable();
+        this._nextDays = this._createDaysTable();
+
+        daysPanel.append(this._currentDays);
+        daysPanel.append(this._nextDays);
+
+        daysPanel.click(this.onDayItemClickHandler);
+
+        return daysPanel;
+    },
+    _createDaysTable: function() {
+        var table, tbody, 
+            tr, td, 
+            i, j;
+
+        table = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
+        tbody = $("<tbody />");
+        for (i = 0; i < 6; i++) {
+            tr = $("<tr />");
+            for (j = 0; j < 7; j++) {
+                tr.append($("<td class='date-chooser-calendar-td' />"));
+            }
+            tbody.append(tr);
+        }
+        table.append(tbody);
+        return table;
     },
     _createCtrlPanel: function() {
+        var ctrlPanel,
+            now,
+            temp;
+        ctrlPanel = $("<div class='date-chooser-operate-panel' />");
+        
+        now = new Date();
+        if(this.isDateTime()) {
+            temp = twoNumberFormatter(now.getHours());
+            this.hourText = $("<input type='text' class='hour date-chooser-time-input font-highlight-hover' />");
+            this.hourText.val(temp);
+            this.hourText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.hourText);
+            
+            ctrlPanel.append("<span style='margin-left:2px;margin-right:2px;'>:</span>");
+            
+            temp = twoNumberFormatter(now.getMinutes());
+            this.minuteText = $("<input type='text' class='minute date-chooser-time-input font-highlight-hover' />");
+            this.minuteText.val(temp);
+            this.minuteText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.minuteText);
 
+            ctrlPanel.append("<span style='margin-left:2px;margin-right:2px;'>:</span>");
+            
+            temp = twoNumberFormatter(now.getSeconds());
+            this.secondText = $("<input type='text' class='second date-chooser-time-input font-highlight-hover' />");
+            this.secondText.val(temp);
+            this.secondText.textinput(this.onTimeTextinputHandler);
+            ctrlPanel.append(this.secondText);
+
+            ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
+        } else {
+            temp = this._createButton(
+                this.onTodayButtonClickHandler,
+                now.getDate()
+            );
+            temp.attr("title", this.formatDateValue(now));
+            this._todayButton = temp;
+            ctrlPanel.append(temp);
+        }
+        return ctrlPanel;
     },
 
-    _createButton: function (eventFn, innerHtml, className, css) {
+    _createButton: function(eventFn, innerHtml, className, css) {
         var btn = $("<button class='icon-button date-chooser-button' />");
         if(innerHtml) {
             btn.html(innerHtml);
@@ -2432,15 +3968,643 @@ ui.define("ui.ctrls.DateChooser", {
         btn.click(eventFn);
         return btn;
     },
+    _setCurrentDate: function(value) {
+        var format = this.option.dateFormat,
+            now = new Date();
+
+        this._selYear = findDateItem.call(this, formatYear, value, format);
+        this._selMonth = findDateItem.call(this, formatMonth, value, format);
+        this._selDay = findDateItem.call(this, formatDay, value, format);
+        
+        if (isNaN(this._selYear) || this._selYear <= 1970 || this._selYear > 9999) {
+            this._selYear = now.getFullYear();
+        }
+        this._selMonth--;
+        if (isNaN(this._selMonth) || this._selMonth < 0 || this._selMonth > 11) {
+            this._selMonth = now.getMonth();
+        }
+        if (isNaN(this._selDay) || this._selDay <= 0 || this._selDay > 31) {
+            this._selDay = now.getDate();
+        }
+
+        if(this._isDisabledDay(this._selYear, this._selMonth, this._selDay)) {
+            this._selYear = this.startDay.year;
+            this._selMonth = this.startDay.month;
+            this._selDay = this.startDay.day;
+        }
+    },
+    _setCurrentTime: function(value) {
+        var h, m, s,
+            format,
+            now;
+        if(!this.isDateTime()) {
+            return;
+        }
+
+        format = this.option.dateFormat;
+        now = new Date();
+        h = findDateItem.call(this, formatHour, value, format);
+        m = findDateItem.call(this, formatMinute, value, format);
+        s = findDateItem.call(this, formatSecond, value, format);
+        if(isNaN(h) || h < 0 || h >= 24) {
+            h = now.getHours();
+        }
+        if(isNaN(m) || m < 0 || m >= 60) {
+            m = now.getMinutes();
+        }
+        if(isNaN(s) || s < 0 || s >= 60) {
+            s = now.getSeconds();
+        }
+        this.hourText.val(twoNumberFormatter(h));
+        this.minuteText.val(twoNumberFormatter(m));
+        this.secondText.val(twoNumberFormatter(s));
+    },
+    _updateCalendarTitle: function() {
+        this._linkBtn.html(
+            formatCalendarTitle.call(this._selYear, this._selMonth));
+    },
+    _fillMonth: function(daysTable, currentYear, currentMonth) {
+        var days,
+            prevMonthDate,
+            currentMonthDate,
+            nextMonthDate,
+            firstWeekDay,
+            y, m, d, i, j, index,
+            rows, td, today,
+            lastDay;
+
+        days = [];
+        // 当前月的第一天
+        currentMonthDate = new Date(currentMonth, currentMonth, 1);
+        // 当前月的第一天是星期几
+        firstWeekDay = currentMonthDate.getDay();
+
+        if(firstWeekDay > 0) {
+            // 填充上个月的日期
+            // 上一个月的最后一天
+            prevMonthDate = new Date(currentMonth, currentMonth, 0);
+            // 需要显示上个月的日期
+            y = prevMonthDate.getFullYear();
+            m = prevMonthDate.getMonth();
+            d = prevMonthDate.getDate();
+            for(i = d - (firstWeekDay - 1); i <= d; i++) {
+                days.push(Day(y, m, d, this).isCurrentMonth(false));
+            }
+        }
+
+        // 填充当前月的日期
+        lastDay = new Date(currentMonth, currentMonth + 1, 0).getDate();
+        for(i = 1; i <= lastDay; i++) {
+            days.push(Day(y, m, d, this));
+        }
+
+        // 填充下个月的日期
+        // 下一个月的第一天
+        nextMonthDate = new Date(currentMonth, currentMonth + 1, 1);
+        y = nextMonthDate.getFullYear();
+        m = nextMonthDate.getMonth();
+        lastDay = 6 * 7 - days.length;
+        for(i = 1; i < lastDay; i++) {
+            days.push(Day(y, m, i, this).isCurrentMonth(false));
+        }
+
+        today = new Date();
+        daysTable.data("days", days);
+        rows = daysTable[0].rows;
+        for(i = 0; i < 6; i++) {
+            for(j = 0; j < 7; j++) {
+                index = (i * 7) + j;
+                d = days[index];
+                d.setToday(today);
+                td = $(rows[i].cells[j]);
+                if(d.isDisabled()) {
+                    td.addClass("disabled-day");
+                } else {
+                    td.html("<span>" + d.day + "</span>");
+                }
+                td.attr("data-index", index);
+
+                // 判断是否是选中的日期
+                if(d.isTheDay(this._selYear, this._selMonth, this._selDay)) {
+                    this._currentDate = td;
+                    td.addClass(selectedClass)
+                        .addClass("background-highlight");
+                }
+                // 高亮显示今日
+                if(d.isToday()) {
+                    td.addClass("font-highlight");
+                }
+                // 不是当前月的日期
+                if(!d.isCurrentMonth()) {
+                    td.addClass("other-month-day");
+                }
+            }
+        }
+    },
+    _fillYear: function(year, month) {
+        var startYear, yearCount,
+            rows, td, value,
+            i, j;
+
+        yearCount = 15;
+        startYear = Math.floor(year / 15) * 15;
+        $("#yearTitle").text(
+            startYear + "年 ~ " + (startYear + yearCount - 1) + "年");
+        
+        // 检查年的切换按钮
+        this._checkNext(startYear - 1, -1, this._yearNext);
+        this._checkPrev(startYear + yearCount, -1, this._yearPrev);
+
+        if(this._currentYear) {
+            this._currentYear
+                .removeClass(yearSelectedClass)
+                .removeClass("background-highlight");
+            this._currentYear = null;
+        }
+        rows = this._yearsTable[0].rows;
+        for(i = 0; i < 3; i++) {
+            for(j = 0; j < 5; j++) {
+                td = $(rows[i].cells[j]);
+                value = startYear + (i * 5 + j);
+                if((this.startDay && value < this.startDay.year) 
+                    || (this.endDay && value > this.endDay)) {
+                    td.addClass("disabled-year");
+                } else {
+                    td.html(value);
+                }
+                td.attr("data-year", value);
+                if(value === year) {
+                    td.addClass(yearSelectedClass)
+                        .addClass("background-highlight");
+                    this._currentYear = td;
+                }
+            }
+        }
+
+        if(ui.core.isNumber(month)) {
+            this._updateMonthsStatus();
+        }
+    },
+    _updateMonthsStatus: function(disabledArray) {
+        var rows, td, value,
+            index, i, j;
+        if(!Array.isArray(disabledArray)) {
+            disabledArray = new Array(12);
+        }
+        if(this._currentMonth) {
+            this._currentMonth
+                .removeClass(monthSelectedClass)
+                .removeClass("background-highlight");
+            this._currentMonth = null;
+        }
+        rows = this._monthsTable[0].rows;
+        for(i = 0; i < 3; i++) {
+            for(j = 0; j < 4; j++) {
+                index = (i * 4) + j;
+                td = $(rows[i].cells[j]);
+                if(disabledArray[index] === false) {
+                    td.addClass("disabled-month");
+                } else {
+                    td.removeClass("disabled-month");
+                }
+                value = parseInt(td.attr("data-month"), 10);
+                if(value === month) {
+                    this._currentMonth = td;
+                    td.addClass(monthSelectedClass)
+                        .addClass("background-highlight");
+                }
+            }
+        }
+    },
+    _checkPrev: function(year, month, prevBtn) {
+        var startMonthCount,
+            monthCount;
+        if(this.startDay) {
+            startMonthCount = this.startDay.year * 12;
+            monthCount = year * 12;
+            if(month >= 0) {
+                startMonthCount += this.startDay.month + 1;
+                monthCount += month + 1;
+            }
+            if(monthCount <= startMonthCount) {
+                prevBtn.addClass("date-chooser-prev-disabled");
+            } else {
+                prevBtn.removeClass("date-chooser-prev-disabled");
+            }
+        }
+    },
+    _checkNext: function(year, month, nextBtn) {
+        var endMonthCount,
+            monthCount;
+        if(this.endDay) {
+            endMonthCount = this.endDay.year * 12;
+            monthCount = year * 12;
+            if(month >= 0) {
+                endMonthCount += this.endDay.month + 1;
+                monthCount += month + 1;
+            }
+            if(monthCount >= endMonthCount) {
+                prevBtn.addClass("date-chooser-next-disabled");
+            } else {
+                prevBtn.removeClass("date-chooser-next-disabled");
+            }
+        }
+    },
+    _isDisabledDay: function(year, month, day) {
+        if(this.startDay && this.startDay.gt(year, month, day)) {
+            // 日期小于起始日期
+            return true;
+        }
+        if(this.endDay && this.endDay.lt(year, month, day)) {
+            // 日期大于结束日期
+            return true;
+        }
+        return false;
+    },
+    _getSelectionData: function(elem) {
+        var h = 0, m = 0, s = 0,
+            index, days, day,
+            data;
+        data = {};
+        if(this.isDateTime()) {
+            h = parseInt(this.hourText.val(), 10) || 0;
+            m = parseInt(this.minuteText.val(), 10) || 0;
+            s = parseInt(this.secondText.val(), 10) || 0;
+        }
+
+        index = parseInt(elem.attr("data-index"), 10);
+        days = elem.parent().parent().parent();
+        days = days.data("days");
+        day = days[index];
+        
+        data.date = new Date(day.year, day.month, day.day, h, m, s);
+        data.value = this.formatDateValue(data.date);
+        return data;
+    },
+    _selectItem: function(elem) {
+        var eventData;
+        
+        if(elem.hasClass("disabled-day")) {
+            return;
+        }
+        eventData = this._getSelectionData(elem);
+        elem.element = elem;
+        eventData.originElement = elem.context ? $(elem.context) : null;
+
+        if(this.fire("selecting", eventData) === false) {
+            return;
+        }
+
+        this._selYear = eventData.date.getFullYear();
+        this._selMonth = eventData.date.getMonth();
+        this._selDay = eventData.date.getDate();
+
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
+        this._currentDate = elem;
+        this._currentDate
+            .addClass(selectedClass)
+            .addClass("background-highlight");
+        this.fire("selected", eventData);
+    },
+    _openYearMonthPanel: function() {
+        var option;
+        option = this.ymAnimator[0];
+        option.target.css("display", "block");
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = 0;
+        this.ymAnimator.start();
+    },
+    _closeYearMonthPanel: function() {
+        var option;
+        option = this.ymAnimator[0];
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = -option.target.height();
+        this.ymAnimator.start().done(function() {
+            option.target.css("display", "none");
+        });
+
+        this._currentYear
+            .removeClass(yearSelectedClass)
+            .removeClass("background-highlight");
+        this._currentMonth
+            .removeClass(monthSelectedClass)
+            .removeClass("background-highlight");
+        this._currentYear = null;
+        this._currentMonth = null;
+    },
+    _changeMonth: function(date, isNext, callback) {
+        var option,
+            daysPanel,
+            currentLeft,
+            width,
+            that;
+
+        if(isNext) {
+            this._checkNext(date.getFullYear(), date.getMonth(), this._monthNext);
+        } else {
+            this._checkPrev(date.getFullYear(), date.getMonth(), this._monthPrev);
+        }
+
+        if(this.mcAnimator.isStarted) {
+            return;
+        }
+
+        this.mcAnimator.stop();
+
+        daysPanel = this._currentDays.parent();
+        width = daysPanel.width();
+        currentLeft = parseFloat(this._currentDays.css("left")) || 0;
+        
+        option = this.mcAnimator[0];
+        option.target = this._currentDays;
+        option.begin = currentLeft;
+        option.end = isNext ? -width : width;
+
+        option = this.mcAnimator[1];
+        option.target = this._nextDays;
+        option.target.css("display", "block");
+        if(isNext) {
+            option.begin = width - currentLeft;
+            option.target.css("left", option.begin + "px");
+        } else {
+            option.begin = currentLeft - width;
+            option.target.css("left", option.begin + "px");
+        }
+        option.end = 0;
+
+        this._selYear = date.getFullYear();
+        this._selMonth = date.getMonth();
+        this._updateCalendarTitle();
+        this._fillMonth(this._nextDays, this._selYear, this._selMonth);
+        
+        daysPanel.addClass("click-disabled");
+        that = this;
+        this.mcAnimator.start().done(function() {
+            var temp = that._currentDays;
+            that._currentDays = _nextDays;
+            that._currentDays = temp;
+            that._nextDays.css("display", "none");
+            daysPanel.removeClass("click-disabled");
+            if(ui.core.isFunction(callback)) {
+                callback.call(that);
+            }
+        });
+    },
 
     // API
+    /** 是否能选择时间 */
     isDateTime: function() {
         return !!this.option.isDateTime;
+    },
+    /** 设置日期 */
+    setSelection: function(date) {
+        var index,
+            rowIndex,
+            cellIndex,
+            td;
+
+        if(!date || this._isDisabledDay(date.getFullYear(), date.getMonth(), date.getDate())) {
+            return;
+        }
+        
+        index = date.getDay() + date.getDate() - 1;
+        rowIndex = Math.floor(index / 7);
+        cellIndex = index - rowIndex * 7;
+
+        td = $(this._currentDays[0].rows[rowIndex].cells[cellIndex]);
+        if(td.length > 0) {
+            this._selectItem(td);
+        }
+    },
+    /** 获取当前选择的数据 */
+    getSelection: function() {
+        if(this._currentDate) {
+            return this._getSelectionData(this._currentDate);
+        }
+        return null;
+    },
+    /** 取消选择 */
+    cancelSelection: function() {
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
+        this.fire("cancel");
+    },
+    /** 设置日期值，初始化日历 */
+    setDateValue: function(value) {
+        this._setCurrentDate(value);
+        if(this.isDateTime()) {
+            this._setCurrentTime(value);
+        }
+        this._fillMonth(this._currentDays, this._selYear, this._selMonth);
+    },
+    /** 将date格式化为对应格式的文本 */
+    formatDateValue: function(date) {
+        var dateValue = this.dateFormat;
+        dateValue = formatDateItem(formatYear, date.getFullYear(), dateValue);
+        dateValue = formatDateItem(formatMonth, date.getMonth() + 1, dateValue);
+        dateValue = formatDateItem(formatDay, date.getDate(), dateValue);
+        if(this.isDateTime()) {
+            dateValue = formatDateItem(formatHour, date.getHours(), dateValue);
+            dateValue = formatDateItem(formatMinute, date.getMinutes(), dateValue);
+            dateValue = formatDateItem(formatSecond, date.getSeconds(), dateValue);
+        }
+        return dateValue;
+    },
+    /** 显示 */
+    show: function() {
+        var that,
+            superShow,
+            today, now,
+            fn;
+
+        // 更新今日按钮日期
+        if(this._todayButton) {
+            now = new Date();
+            today = parseInt(this._todayButton.text(), 10);
+            if(now.getDate() !== today) {
+                this._todayButton
+                    .html(now.getDate())
+                    .attr("title", this.formatDateValue(now));
+            }
+        }
+
+        that = this;
+        superShow = this._super;
+        fn = function() {
+            that.moveToElement(that.element, true);
+            superShow.call(that);
+        };
+        if(this.isShow()) {
+            this.hide(fn);
+        } else {
+            fn();
+        }
     }
 });
 
-$.fn.dateChooser = function() {
+/* 构造可以重用的日历选择器 */
+var dateChooser,
+    dateTimeChooser;
 
+function noop() {}
+function createDateChooser(option, element) {
+    var dc = ui.ctrls.DateChooser(option, element);
+    dc.selecting(function() {
+        if(ui.core.isFunction(this.selectingHandler)) {
+            return this.selectingHandler.apply(this, arguments);
+        }
+    });
+    dc.selected(function() {
+        if(ui.core.isFunction(this.selectedHandler)) {
+            this.selectedHandler.apply(this, arguments);
+        } else {
+            if (this.element.nodeName() === "INPUT") {
+                this.element.val(value);
+            } else {
+                this.element.html(value);
+            }
+        }
+    });
+    dc.cancel(function() {
+        if(ui.core.isFunction(this.cancelHandler)) {
+            this.cancelHandler.apply(this, arguments);
+        } else {
+            if(this.element.nodeName() === "INPUT") {
+                this.element.val("");
+            } else {
+                this.element.html("");
+            }
+        }
+    });
+    return dc;
+}
+function onMousemoveHandler(e) {
+    var eWidth,
+        offsetX;
+    if(!this.isShow()) {
+        this.element.css("cursor", "auto");
+        this._clearable = false;
+        return;
+    }
+    eWidth = this.element.width();
+    offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0) {
+        this.element.css("cursor", "pointer");
+        this._clearable = true;
+    } else {
+        this.element.css("cursor", "auto");
+        this._clearable = false;
+    }
+}
+function onMouseupHandler(e) {
+    var eWidth,
+        offsetX;
+    if(!this._clearable) {
+        return;
+    }
+    eWidth = this.element.width();
+    offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0) {
+        if ($.isFunction(this._clear)) {
+            this._clear();
+        }
+    }
+}
+function setOptions(elem, option) {
+    // 修正配置信息
+    this.option = option;
+    this.setLayoutPanel(option.layoutPanel);
+    this.dateFormat = option.dateFormat;
+    this.element = elem;
+    // 修正事件引用
+    this.selectingHandler = option.selectingHandler;
+    this.selectedHandler = option.selectedHandler;
+    this.clearHandler = option.cancelHandler;
+    // 修正事件处理函数
+    if(elem.nodeName() === "INPUT") {
+        this.onMousemoveHandler = $.proxy(onMousemoveHandler, this);
+        this.onMouseupHandler = $.proxy(onMouseupHandler, this);
+    } else {
+        this.onMousemoveHandler = noop;
+        this.onMouseupHandler = noop;
+    }
+}
+
+$.fn.dateChooser = function() {
+    var nodeName,
+        valueFn,
+        currentDateChooser;
+
+    if(this.length === 0) {
+        return null;
+    }
+
+    if(this.hasClass("date-text")) {
+        this.css("width", parseFloat(this.css("width"), 10) - 23 + "px");
+    }
+    nodeName = this.nodeName();
+    if(nodeName !== "INPUT" && nodeName !== "A" && nodeName !== "SELECT") {
+        this.attr("tabindex", 0);
+    }
+
+    if(nodeName === "INPUT") {
+        valueFn = function() {
+            return this.val();
+        };
+    } else {
+        valueFn = function() {
+            return this.text();
+        };
+    }
+
+    if(option && option.isDateTime) {
+        if(!dateTimeChooser) {
+            dateTimeChooser = createDateChooser({
+                isDateTime: true
+            }, this);
+        }
+        currentDateChooser = dateTimeChooser;
+    } else {
+        if(!dateChooser) {
+            dateChooser = createDateChooser(null, this);
+        }
+        currentDateChooser = dateChooser;
+    }
+    option = $.extend({}, currentDateChooser.option, option);
+    this.focus(function(e) {
+        var elem = $(e.target),
+            value;
+        if(currentDateChooser.isShow() && 
+            currentDateChooser.element && 
+            currentDateChooser.element[0] === elem[0]) {
+            return;
+        }
+        if(currentDateChooser.element) {
+            currentDateChooser.element.removeClass(currentDateChooser._clearClass);
+        }
+        setOptions.call(currentDateChooser, elem, option);
+        value = valueFn.call(elem);
+        currentDateChooser.setDateValue(value);
+
+        ui.hideAll(currentDateChooser);
+        currentDateChooser.show();
+    }).click(function(e) {
+        e.stopPropagation();
+    });
+    return currentDateChooser;
 };
 
 
@@ -2523,8 +4687,8 @@ function onItemClick(e) {
     }
 
     elem = $(e.target);
-    while((nodeName = elem.nodeName()) !== "LI" 
-            && !elem.hasClass("ui-selection-list-li")) {
+    while((nodeName = elem.nodeName()) !== "LI" && 
+        !elem.hasClass("ui-selection-list-li")) {
 
         if(elem.hasClass("ui-selection-list-panel")) {
             return;
@@ -2559,7 +4723,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         this._current = null;
         this._selectList = [];
 
-        fields = [this.option.valueField, this.option.textField],
+        fields = [this.option.valueField, this.option.textField];
         fieldMethods = ["_getValue", "_getText"];
 
         fields.forEach(function(item) {
@@ -2574,10 +4738,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
 
         //事件函数初始化
         this.onItemClickHandler = $.proxy(this.onItemClick);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
         this.listPanel.click(this.onItemClickHandler);
 
@@ -2732,7 +4894,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         } else if (ui.core.isObject(item) && !ui.core.isObject(value)) {
             return this._getValue.call(item, this.option.valueField) === value;
         } else {
-            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField)
+            return this._getValue.call(item, this.option.valueField) === this._getValue.call(value, this.option.valueField);
         }
     },
 
@@ -3083,11 +5245,8 @@ ui.define("ui.ctrls.SelectionTree", {
         }
 
         this.onTreeItemClickHandler = $.proxy(onTreeItemClick, this);
-
-        this._init();
     },
-    
-    _init: function() {
+    _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
         this.treePanel.click(this.onTreeItemClickHandler);
         this.wrapElement(this.element, this.treePanel);
@@ -3409,7 +5568,7 @@ ui.define("ui.ctrls.SelectionTree", {
                 if(pathArray.length === 0) {
                     break;
                 }
-                tempId = "#" + this._treePrefix + pathArray.join("_")
+                tempId = "#" + this._treePrefix + pathArray.join("_");
                 dt = $(tempId);
             }
             if (dt.length === 0) {
@@ -3749,7 +5908,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
 
         this._super();
     },
-    _init: function() {
+    _render: function() {
         var oldFireFn;
 
         this._super();
@@ -3943,6 +6102,2437 @@ $.fn.autocompleteSelectionTree = function(option) {
 
 (function($, ui) {
 // CalendarView
+var timeTitleWidth = 80,
+    hourHeight = 25,
+    sundayFirstWeek = ["日", "一", "二", "三", "四", "五", "六"],
+    mondayFirstWeek = ["一", "二", "三", "四", "五", "六", "日"],
+    viewTypes;
+
+function noop() {}
+function twoNumberFormatter(number) {
+    return number < 10 ? "0" + number : "" + number;
+}
+function formatTime (date, beginDate) {
+    var h = date.getHours(),
+        m = date.getMinutes(),
+        s = date.getSeconds();
+    var tempDate, value;
+    if (beginDate) {
+        tempDate = new Date(beginDate.getFullYear(), beginDate.getMonth(), beginDate.getDate(), 0, 0, 0);
+        value = date - tempDate;
+        value = value / 1000 / 60 / 60;
+        if (value >= 24) {
+            h = 24;
+        }
+    }
+    return [
+        twoNumberFormatter(h),
+        ":",
+        twoNumberFormatter(m),
+        ":",
+        twoNumberFormatter(s)].join("");
+}
+function defaultFormatDateHeadText(date) {
+    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + sundayFirstWeek[date.getDay()] + "）";
+}
+
+// 事件处理
+// 年视图日期点击事件
+function onYearItemClick(e) {
+    var elem = $(e.target),
+        nodeName;
+    while ((nodeName = elem.nodeName()) !== "TD") {
+        if (nodeName === "TABLE") {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    this._selectItem(elem);
+}
+// 月视图日期点击事件
+function onMouseItemClick(e) {
+    var elem = $(e.target),
+        nodeName;
+    while ((nodeName = elem.nodeName()) !== "TD") {
+        if (nodeName === "TABLE") {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    this._selectItem(elem);
+}
+// 周视图标题点击事件
+function onWeekHeadItemClick(e) {
+    var th = $(e.target),
+        nodeName;
+    while ((nodeName = th.nodeName()) !== "TH") {
+        if(nodeName === "TABLE") {
+            return;
+        }
+        th = th.parent();
+    }
+    this.calendar.fire("weekTitleClick", this, th[0].cellIndex);
+}
+// 日视图标题点击事件
+function onDayHeadItemClick(e) {
+    this.calendar.fire("weekTitleClick", this, 0);
+}
+
+// 年视图
+function YearView(calendar) {
+    if(this instanceof YearView) {
+        this.initialize();
+    } else {
+        return new YearView(calendar);
+    }
+}
+YearView.prototype = {
+    constructor: YearView,
+    initialize: function(calendar) {
+        this.calendar = calendar;
+        this.initialled = false;
+        this.year = null;
+
+        this._selectList = [];
+        this._current = null;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
+    },
+    render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        this.year = this.calendar.currentDate.getFullYear();
+
+        // 日期项点击事件
+        this.onYearItemClickHandler = $.proxy(onYearItemClick, this);
+
+        this.yearPanel = $("<div class='ui-calendar-year-view' />");
+        this._initYear();
+        this.viewPanel.append(this.yearPanel);
+
+        this.initialled = true;
+    },
+    _initYear: function() {
+        var div, i;
+        for (i = 0; i < 12; i++) {
+            div = $("<div class='year-month-panel' />");
+            div.append(
+                $("<div class='year-month-title' />")
+                    .append("<span class='font-highlight'>" + (i + 1) + "月" + "</span>"));
+            div.append("<div class='year-month-content' />");
+            this.yearPanel.append(div);
+        }
+        this.yearPanel.append("<br clear='all' />");
+    },
+    _oddStyle: function (monthPanel, count, i) {
+        if (i % 2) {
+            monthPanel.addClass("year-month-odd");
+        }
+    },
+    _evenStyle: function (monthPanel, count, i) {
+        if (Math.floor(i / count) % 2) {
+            if (i % 2) {
+                monthPanel.addClass("year-month-odd");
+            }
+        } else {
+            if (i % 2 === 0) {
+                monthPanel.addClass("year-month-odd");
+            }
+        }
+    },
+    _setCellSize: function (width, height) {
+        var count,
+            oddFn,
+            cells, cell, 
+            unitWidth, unitHeight,
+            i;
+
+        count = this.getMonthCount(width);
+        if (count % 2) {
+            oddFn = this.oddStyle;
+        } else {
+            oddFn = this.evenStyle;
+        }
+
+        cells = this.yearPanel.children();
+        cells.removeClass("year-month-odd");
+
+        unitWidth = Math.floor(width / count);
+        unitHeight = Math.floor(unitWidth / 4 * 3);
+        if (unitHeight * (12 / count) > height || this.yearPanel[0].scrollHeight > height) {
+            width -= ui.scrollbarWidth;
+            unitWidth = Math.floor(width / count);
+        }
+        if (unitHeight < 248) {
+            unitHeight = 248;
+        }
+        for (i = 0; i < 12; i++) {
+            cell = $(cells[i]);
+            cell.css("width", unitWidth + "px")
+                .css("height", unitHeight + "px");
+            cell.children(".year-month-content")
+                .css("height", unitHeight - 48 + "px");
+            oddFn.call(this, cell, count, i);
+        }
+    },
+    _changeYear: function(yearDate) {
+        this.calendar.currentDate = yearDate;
+        this.year = this.calendar.currentDate.getFullYear();
+        this._setCellSize(
+            this.viewPanel.width(), this.viewPanel.height());
+        this._updateYear();
+
+        this._current = null;
+        this._selectList = [];
+    },
+    _updateYear: function () {
+        var cells = this.yearPanel.children(".year-month-panel"),
+            year = this.calendar.currentDate.getFullYear(),
+            cell = null,
+            today = new Date(), 
+            i;
+        for (i = 0; i < 12; i++) {
+            cell = $(cells[i]);
+            this._createMonth($(cell.children()[1]), year, i, today);
+        }
+    },
+    _createMonth: function (content, year, month, today) {
+        var table, colgroup, thead, tbody, row, cell,
+            week, dayNum, startIndex, last,
+            flag, day, dayVal,
+            i, j, that;
+
+        table = $("<table class='year-month-table unselectable' cellspacing='0' cellpadding='0' />");
+        colgroup = $("<colgroup />");
+        thead = $("<thead />");
+        tbody = $("<tbody />");
+        week = this.calendar.getWeekNames();
+        row = $("<tr />");
+        for(i = 0; i < week.length; i++) {
+            colgroup.append("<col />");
+            if(this.calendar.isWeekend(i)) {
+                flag = "<th class='year-month-table-head ui-calendar-weekend'>";
+            } else {
+                flag = "<th class='year-month-table-head'>";
+            }
+            row.append(flag + week[i] + "</th>");
+        }
+        thead.append(row);
+
+        dayNum = 1;
+        startIndex = this.calendar.getWeekIndexOf(
+            new Date(year, month, dayNum));
+        last = (new Date(year, month + 1, 0)).getDate();
+        flag = false;
+        if (year === today.getFullYear() && month === today.getMonth()) {
+            flag = true;
+            day = today.getDate();
+        }
+
+        for (i = 0; i < 6; i++) {
+            row = $("<tr />");
+            for (j = 0; j < 7; j++) {
+                cell = $("<td class='year-month-table-cell' />");
+                if (i === 0 && j < startIndex) {
+                    cell.addClass("ui-calendar-empty");
+                    continue;
+                } else if (dayNum <= last) {
+                    dayVal = $("<span>" + dayNum + "</span>");
+                    if (flag && dayNum === day) {
+                        dayVal.addClass("today")
+                            .addClass("background-highlight");
+                    }
+                    cell.append(dayVal);
+                    dayNum++;
+                }
+                row.append(cell);
+            }
+            tbody.append(row);
+        }
+        table.append(colgroup).append(thead).append(tbody);
+        content.empty().append(table);
+
+        table.data("month", month);
+        table.click(this.onYearItemClickHandler);
+    },
+    _isDateCell: function(td) {
+        return !td.hasClass("ui-calendar-empty") && td.children().length > 0;
+    },
+    _getDateByCell: function(elem) {
+        var table,
+            month,
+            day;
+        table = elem.parent().parent().parent();
+        month = parseInt(table.data("month"), 10);
+        day = parseInt(elem.children().text(), 10);
+        return new Date(this.year, month, day);
+    },
+    _getCellByDate: function(months, date) {
+        var month,
+            indexer,
+            dayCell;
+
+        month = $($(months[date.getMonth()]).children()[1]);
+        indexer = this.calendar.getTableIndexOfMonth(date);
+        dayCell = $(month.children()[0].tBodies[0].rows[indexer.rowIndex].cells[indexer.cellIndex]);
+        return dayCell;
+    },
+    _selectItem: function(elem) {
+        var eventData,
+            selectedClass = "selected",
+            i, len;
+        if (!this._isDateCell(td)) {
+            return;
+        }
+
+        eventData = {};
+        eventData.date = this._getDateByCell(elem);
+        eventData.view = this;
+        eventData.element = elem;
+        eventData.originElement = elem.context ? $(elem.context) : null;
+        
+        if(this.calendar.fire("selecting", eventData) === false) {
+            return;
+        }
+
+        if(this.isMultiple()) {
+            if(elem.hasClass(selectedClass)) {
+                elem.removeClass(selectedClass);
+                for(i = 0, len = this._selectList.length; i < len; i++) {
+                    if (this._selectList[i] === elem[0]) {
+                        this._selectList.splice(i, 1);
+                        break;
+                    }
+                }
+                this.calendar.fire("deselected", eventData);
+            } else {
+                elem.addClass(selectedClass);
+                this._selectList.push(elem[0]);
+                this.calendar.fire("selected", eventData);
+            }
+        } else {
+            if(this._current) {
+                this._current.removeClass(selectedClass);
+                this._current = null;
+                if(this._current[0] === elem[0]) {
+                    this.calendar.fire("deselected", eventData);
+                    return;
+                }
+            }
+            this._current = elem;
+            this._current.addClass(selectedClass);
+            this.calendar.fire("selected", eventData);
+        }
+    },
+    _updateSchedules: function(data, dateField, action) {
+        var months, getDateFn,
+            date, dayCell,
+            i, len, item, 
+            isFunctionValue;
+
+        if(Array.isArray(data)) {
+            return;
+        }
+        if(!dateField) {
+            dateField = "date";
+        }
+        if(ui.core.isFunction(dateField)) {
+            getDateFn = dateField; 
+        } else {
+            getDateFn = function() {
+                return this[dateField];
+            };
+        }
+        isFunctionValue = ui.core.isFunction(action);
+
+        months = this.yearPanel.children(".year-month-panel");
+        for(i = 0, len = date.length; i < len; i++) {
+            item = data[i];
+            if(!(item instanceof Date)) {
+                date = getDateFn.call(item);
+                if(!(date instanceof Date)) {
+                    continue;
+                }
+            } else {
+                date = item;
+            }
+            dayCell = this._getCellByDate(months, date);
+            if(isFunctionValue) {
+                action.call(dayCell, item);
+            }
+        }
+    },
+    /** 一行放几个月 */
+    getMonthCount: function (width) {
+        if (width >= 1024) {
+            return 4;
+        } else if (width >= 768) {
+            return 3;
+        } else if (width >= 512) {
+            return 2;
+        } else {
+            return 1;
+        }
+    },
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        this.calendar.hideTimeLine();
+        if (this.year === this.calendar.currentDate.getFullYear()) {
+            return false;
+        }
+        this._changeYear(this.calendar.currentDate);
+        return true;
+    },
+    /** 激活 */
+    active: noop,
+    /** 休眠 */
+    dormant: noop,
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        this._changeYear(new Date(day.setFullYear(day.getFullYear() - 1)));
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        this._changeYear(new Date(day.setFullYear(day.getFullYear() + 1)));
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this._changeYear(new Date(day.getTime()));
+    },
+    /** 添加日程信息 */
+    addSchedules: function(data, dateField, action) {
+        var formatterFn;
+
+        if(!ui.core.isFunction(action)) {
+            action = null;
+        }
+        formatterFn = function(item) {
+            var marker = this.children(".year-day-marker");
+            if(marker.length === 0) {
+                this.append("<i class='year-day-marker border-highlight'></i>");
+            }
+            if(action) {
+                action.call(this, item);
+            }
+        };
+        this._updateSchedules(data, dateField, formatterFn);
+    },
+    /** 移除日程信息 */
+    removeSchedules: function() {
+        var formatterFn;
+
+        if(!ui.core.isFunction(action)) {
+            action = null;
+        }
+        formatterFn = function(item) {
+            var marker = this.children(".year-day-marker");
+            if(marker.length > 0) {
+                marker.remove();
+            }
+            if(action) {
+                action.call(this, item);
+            }
+        };
+        this._updateSchedules(data, dateField, formatterFn);
+    },
+    /** 清空日程信息 */
+    clearSchedules: function() {
+        var months,
+            rows, cells, cell, item,
+            i, j, k;
+        
+        months = this.yearPanel.children(".year-month-panel");
+        for(i = 0; i < 12; i++) {
+            rows = $(months[i])
+                        .children(".year-month-content")
+                        .children(".year-month-table")[0].tBodies[0].rows;
+            for(j = 0; j < rows.length; j++) {
+                cells = rows[j].cells;
+                for(k = 0; k < cells.length; k++) {
+                    cell = $(cells[k]);
+                    item = cell.children(".year-day-marker");
+                    if(item.length > 0) {
+                        item.remove();
+                    }
+                }
+            }
+        }
+    },
+    /** 是否可以多选 */
+    isMultiple: function() {
+        return !!this.calendar.option.yearMultipleSelect;
+    },
+    /** 获取选中的数据，单选返回单个对象，多选返回数组 */
+    getSelection: function() {
+        var result = null,
+            i, len;
+        if(this.isMultiple()) {
+            result = [];
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                result.push(this._getDateByCell($(this._selectItem[i])));
+            }
+        } else {
+            if(this._current) {
+                result = this._getDateByCell(this._current);
+            }
+        }
+        return result;
+    },
+    /** 设置选中的元素 */
+    setSelection: function(dateArray) {
+        var months, date, cell,
+            i, len;
+
+        if(!Array.isArray(dateArray)) {
+            dateArray = [dateArray];
+        }
+        months = this.yearPanel.children(".year-month-panel");
+        for(i = 0, len = dateArray.length; i < len; i++) {
+            date = dateArray[i];
+            if(!(date instanceof Date)) {
+                continue;
+            }
+            if (date.getFullYear() !== this.year) {
+                throw new Error(
+                    ui.str.textFormat(
+                        "the date({0}) does not belong to {1}", 
+                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        this.year));
+            }
+            cell = this._getCellByDate(months, date);
+            this._selectItem(cell);
+        }
+    },
+    /** 取消选中项 */
+    cancelSelection: function() {
+        var selectedClass
+            elem,
+            i, len;
+
+        selectedClass = "selected";
+        if(this.isMultiple()) {
+            for(i = 0, len = this._selectList.length; i < len; i++) {
+                elem = $(this._selectList[i]);
+                elem.removeClass(selectedClass);
+            }
+            this._selectItem = [];
+        } else {
+            if(this._current) {
+                this._current.removeClass(selectedClass);
+                this._current = null;
+            }
+        }
+        this.calendar.fire("cancel", this);
+    },
+    /** 设置大小 */
+    setSize: function(width, height) {
+        this._setCellSize(width, height);
+    },
+    /** 获取标题 */
+    getTitle: function() {
+        return this.year + "年";
+    },
+    /** 重写toString */
+    toString: function() {
+        return "ui.ctrls.CalendarView.YearView";
+    }
+};
+// 月视图
+function MonthView(calendar) {
+    if(this instanceof MonthView) {
+        this.initialize();
+    } else {
+        return new MonthView(calendar);
+    }
+}
+MonthView.prototype = {
+    constructor: MonthView,
+    initialize: function(calendar) {
+        this.calendar = calendar;
+        this.year = null;
+        this.month = null;
+        this.initialled = false;
+
+        this._selectList = [];
+        this._current = null;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
+    },
+    render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        // 事件
+        this.onMonthItemClickHandler = $(onMouseItemClick, this);
+
+        this._setCurrent();
+        this.weekPanel = $("<div class='ui-calendar-month-week-view' />");
+        this._createWeek();
+
+        this.daysPanel = $("<div class='ui-calendar-month-day-view' />");
+        this._createDays();
+
+        this.viewPanel
+            .append(this.weekPanel)
+            .append(this.daysPanel);
+        this.initialled = true;
+    },
+    _setCurrent: function() {
+        var date = this.calendar.currentDate;
+        this.year = date.getFullYear();
+        this.month = date.getMonth();
+    },
+    _createWeek: function () {
+        var weekName,
+            colgroup, thead, tr, th,
+            i, len;
+
+        this.weekTable = $("<table class='month-week-table unselectable' cellspacing='0' cellpadding='0' />");
+        thead = $("<thead />");
+        colgroup = $("<colgroup />");
+        this.weekTable
+            .append(colgroup)
+            .append(thead);
+        tr = $("<tr />");
+        weekNames = this.calendar.getWeekName();
+        for(i = 0, len = weekNames.length; i < len; i++) {
+            colgroup.append("<col />");
+            th = $("<th class='month-week-cell' />");
+            if(this.calendar.isWeekend(i)) {
+                th.addClass("ui-calendar-weekend");
+            }
+            th.append("<span class='month-week-text'>星期" + weekNames[i] + "</span>");
+            if(i === len - 1) {
+                th.addClass("month-week-cell-last");
+            }
+            tr.append(th);
+        }
+        thead.append(tr);
+        this.weekPanel.append(this.weekTable);
+    },
+    _createDays: function() {
+        var tbody, colgroup, tr, td,
+            day, first, last, startIndex,
+            today, todayDate, checkTodayFn,
+            i, j, index,
+            isUpdate = false;
+
+        if (!this.daysTable) {
+            this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
+        } else {
+            this.daysTable.html("");
+            isUpdate = true;
+        }
+
+        tbody = $("<tbody />");
+        colgroup = $("<colgroup />");
+        for (i = 0; i < 7; j++) {
+            colgroup.append("<col />");
+        }
+        this.daysTable.append(colgroup).append(tbody);
+
+        day = this.calendar.currentDate;
+        first = new Date(day.getFullYear(), day.getMonth(), 1);
+        last = (new Date(first.getFullYear(), first.getMonth() + 1, 0)).getDate();
+        first = 1;
+
+        startIndex = this.calendar.getWeekIndexOf(first);
+        today = new Date();
+        todayDate = today.getDate();
+        if (today.getFullYear() === day.getFullYear() && today.getMonth() === day.getMonth()) {
+            checkTodayFn = function(elem, d) {
+                if(d === todayDate) {
+                    elem.children().children(".month-date").addClass("font-highlight");
+                }
+            };
+        }
+
+        index = first;
+        for(i = 0; i < 6; i++) {
+            tr = $("<tr />");
+            for (j = 0; j < 7; j++) {
+                td = $("<td class='month-days-cell' />");
+                td.append("<div class='day-container' />");
+                if(this.calendar.isWeekend(j)) {
+                    td.addClass("month-days-cell-weekend");
+                }
+                if(j === 6) {
+                    td.addClass("month-days-cell-last");
+                }
+                tr.append(td);
+                if (i === 0 && j < startIndex) {
+                    continue;
+                } else if (first > last) {
+                    continue;
+                }
+
+                td.children().html("<span class='month-date'>" + first + "</span>");
+                if(checkTodayFn) {
+                    checkTodayFn.call(this, td, index);
+                }
+                index++;
+            }
+            tbody.append(tr);
+            if(index > last) {
+                break;
+            }
+        }
+        this.daysPanel.append(this.daysTable);
+        if(!isUpdate) {
+            this.daysTable.click(this.onMonthItemClickHandler);
+        }
+    },
+    _setCellSize: function (width, height) {
+        var unitWidth,
+            rows, cells,
+            unitHeight,
+            lastHeight,
+            prefix, weekNames,
+            i, len;
+
+        unitWidth = this._setCellWidth(width);
+        rows = this.daysTable[0].rows;
+        len = rows.length;
+        // 减去边框
+        height -= len;
+        unitHeight = Math.floor(height / len);
+        lastHeight = height - unitHeight * (len - 1);
+
+        for(i = 0; i < len; i++) {
+            if(i < len - 1) {
+                $(rows[i]).children().css("min-height", unitHeight + "px");
+            } else {
+                $(rows[i]).children().css("min-height", lastHeight + "px");
+            }
+        }
+
+        cells = this.weekTable[0].tHead.rows[0].cells;
+        prefix = "";
+        weekNames = this.calendar.getWeekNames();
+        if(unitWidth >= 60) {
+            prefix = "星期";
+        }
+        for(i = 0, len = cells.length; i < len; i++) {
+            $(cells[i]).children().text(prefix + weekNames[i]);
+        }
+    },
+    _setCellWidth: function (width) {
+        var unitWidth,
+            wcols,
+            dcols;
+        
+        unitWidth = Math.floor(width / 7);
+        wcols = this.weekTable.chldren("colgroup").children("col");
+        dcols = this.daysTable.chldren("colgroup").children("col");
+
+        wcols.splice(6, 1);
+        dcols.splice(6, 1);
+        wcols.css("width", unitWidth + "px");
+        dcols.css("width", unitWidth + "px");
+
+        return unitWidth;
+    },
+    _changeMonth: function(monthDate) {
+        this.calendar.currentDate = monthDate;
+
+        this._setCurrent();
+        this._createDays();
+        this._setCellSize(this.viewPanel.width(), this.viewPanel.height() - 26);
+
+        this._current = null;
+        this._selectList = [];
+    },
+    _isDateCell: function(td) {
+        return td.children(".day-container").children().length > 0;
+    },
+    _getDateByCell: function(elem) {
+        var container,
+            day;
+
+        container = elem.children(".day-container");
+        day = container.children(".month-date");
+        if(day.length === 0) {
+            return null;
+        }
+
+        day = parseInt(day.text(), 10);
+        return new Date(this.year, this.month, day);
+    },
+    _getCellByDate: function(date) {
+        var rows,
+            indexer,
+            dayCell;
+
+        rows = this.daysTable[0].tBodies[0].rows;
+        indexer = this.calendar.getTableIndexOfMonth(date);
+        dayCell = $(rows[indexer.rowIndex].cells[indexer.cellIndex]);
+        return dayCell;
+    },
+    _selectItem: YearView.prototype._selectItem,
+    _updateSchedules: function(data, dateField, action) {
+        var getDateFn, date, dayCell,
+            i, len, item, 
+            isFunctionValue;
+
+        if(Array.isArray(data)) {
+            return;
+        }
+        if(!dateField) {
+            dateField = "date";
+        }
+        if(ui.core.isFunction(dateField)) {
+            getDateFn = dateField; 
+        } else {
+            getDateFn = function() {
+                return this[dateField];
+            };
+        }
+        isFunctionValue = ui.core.isFunction(action);
+
+        for(i = 0, len = data.length; i < len; i++) {
+            item = data[i];
+            if(!(item instanceof Date)) {
+                date = getDateFn.call(item);
+                if(!(date instanceof Date)) {
+                    continue;
+                }
+            } else {
+                date = item;
+            }
+            dayCell = this._getCellByDate(date);
+            if(isFunctionValue) {
+                action.call(dayCell, item);
+            }
+        }
+    },
+    // API
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        var day;
+        this.calendar.hideTimeLine();
+        day = this.calendar.currentDate;
+        if (this.year === day.getFullYear() && this.month === day.getMonth()) {
+            return false;
+        }
+        this._changeMonth(day);
+        return true;
+    },
+    /** 激活 */
+    active: noop,
+    /** 休眠 */
+    dormant: noop,
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        this._changeMonth(new Date(day.setMonth(day.getMonth() - 1)));
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        this._changeMonth(new Date(day.setMonth(day.getMonth() + 1)));
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this._changeMonth(new Date(day.getTime()));
+    },
+    /** 添加日程信息 */
+    addSchedules: function(data, dateField, action) {
+        var option,
+            getValueFn;
+        if(ui.core.isPlainObject(data)) {
+            option = data;
+            data = option.data;
+            dateField = option.dateField;
+            action = option.action;
+        } else {
+            option = {
+                textField: "text"
+            };
+        }
+        if(ui.core.isFunction(option.idField)) {
+            getValueFn = option.idField;
+        } else {
+            getValueFn = function() {
+                return this[option.idField] || null;
+            };
+        }
+        if(!ui.core.isFunction(action)) {
+            action = function(item) {
+                var scheduleList,
+                    items,
+                    container,
+                    builder;
+                
+                container = this.children("day-container");
+                scheduleList = container.children(".schedule-list");
+                
+                if(scheduleList.length === 0) {
+                    scheduleList = $("<ul class='schedule-list' />");
+                    scheduleList.data("schedule-items", []);
+                    container.append(scheduleList);
+                }
+
+                items = scheduleList.data("schedule-items");
+                items.push(item);
+
+                builder = [];
+                builder.push("<li class='schedule-item'>");
+                builder.push("<b class='schedule-border'></b>");
+                builder.push("<span class='schedule-text'>", getValueFn.call(item), "</span>");
+                builder.push("</li>");
+                scheduleList.append(builder.join(""));
+            };
+        }
+        this._updateSchedules(data, dateField, action);
+    },
+    /** 移除日程信息 */
+    removeSchedules: function(data, dateField, action) {
+        var option,
+            getValueFn;
+        if(ui.core.isPlainObject(data)) {
+            option = data;
+            data = option.data;
+            dateField = option.dateField;
+            action = option.action;
+        } else {
+            option = {
+                idField: function() {
+                    return this;
+                }
+            };
+        }
+        if(ui.core.isFunction(option.idField)) {
+            getValueFn = option.idField;
+        } else {
+            getValueFn = function() {
+                return this[option.idField] || null;
+            };
+        }
+        if(!ui.core.isFunction(action)) {
+            action = function(item) {
+                var container,
+                    scheduleList,
+                    items,
+                    children,
+                    index,
+                    i, len, scheduleItem;
+                
+                container = this.children("day-container");
+                scheduleList = container.children(".schedule-list");
+                
+                if(scheduleList.length === 0) {
+                    return;
+                }
+
+                items = scheduleList.data("schedule-items");
+                index = -1;
+                for(i = 0, len = items.length; i < len; i++) {
+                    scheduleItem = items[i];
+                    if(getValueFn.call(scheduleItem) === getValueFn.call(item)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if(index > -1) {
+                    $(scheduleList.children()[index]).remove();
+                    items.splice(index, 1);
+                }
+            };
+        }
+        this._updateSchedules(data, dateField, action);
+    },
+    /** 清空日程信息 */
+    clearSchedules: function(removeAction) {
+        var cell,
+            scheduleList,
+            i, len;
+        
+        i = 1;
+        len = (new Date(this.year, this.month + 1, 0)).getDate();
+        if(!ui.core.isFunction(removeAction)) {
+            removeAction = function() {
+                var container,
+                    scheduleList;
+                container = this.children("day-container");
+                scheduleList = container.children(".schedule-list");
+                scheduleList.removeData("schedule-items");
+                scheduleList.remove();
+            };
+        }
+        for (; i <= len; i++) {
+            cell = this._getCellByDate(new Date(this.year, this.month, i));
+            removeAction.call(cell);
+        }
+    },
+    /** 是否可以多选 */
+    isMultiple: function() {
+        return !!this.calendar.option.monthMultipleSelect;
+    },
+    /** 获取选中的数据，单选返回单个对象，多选返回数组 */
+    getSelection: YearView.prototype.getSelection,
+    /** 设置选中的元素 */
+    setSelection: function(dateArray) {
+        var date, cell,
+            i, len;
+        if(!Array.isArray(dateArray)) {
+            dateArray = [dateArray];
+        }
+        for(i = 0, len = dateArray.length; i < len; i++) {
+            date = dateArray[i];
+            if(!(date instanceof Date)) {
+                continue;
+            }
+            if (date.getFullYear() !== this.year || date.getMonth() !== this.month) {
+                throw new Error(
+                    ui.str.textFormat(
+                        "the date({0}) does not belong to {1}-{2}", 
+                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        this.year,
+                        this.month));
+            }
+            cell = this._getCellByDate(date);
+            this._selectItem(cell);
+        }
+    },
+    /** 取消选中项 */
+    cancelSelection: YearView.prototype.cancelSelection,
+    /** 设置视图的尺寸 */
+    setSize: function(width, height) {
+        // 减去head的高度
+        height -= 26;
+        this.daysPanel.css("height", height + "px");
+        this._setCellSize(width, height);
+    },
+    /** 获取月视图标题 */
+    getTitle: function() {
+        return this.year + "年" + (this.month + 1) + "月";
+    },
+    /** 重写toString方法 */
+    toString: function() {
+        return "ui.ctrls.CalendarView.MonthView";
+    }
+};
+// 周视图
+function WeekView(calendar) {
+    if(this instanceof WeekView) {
+        this.initialize();
+    } else {
+        return new WeekView(calendar);
+    }
+}
+WeekView.prototype = {
+    constructor: WeekView,
+    initialize: function(calendar) {
+        this.calendar = calendar;
+        this.startDate = null;
+        this.endDate = null;
+        this.year = null;
+        this.month = null;
+
+        this.todayIndex = -1;
+        this.weekDays = null;
+        this.weekHours = [];
+        this.initialled = false;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
+    },
+    render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        this._formatDayText = this.calendar.option.formatWeekDayHead; 
+        if(!ui.core.isFunction(this._formatDayText)) {
+            this._formatDayText = defaultFormatDateHeadText;
+        }
+        // 事件
+        this.onWeekHeadItemClickHandler = $.proxy(onWeekHeadItemClick, this);
+
+        this.weekDays = this.calendar.getWeek(this.calendar.currentDate);
+        this._setCurrent();
+
+        this.weekDayPanel = $("<div class='ui-calendar-week-view' />");
+        this._createWeek();
+
+        this.hourPanel = $("<div class='ui-calendar-hour-panel' />");
+        this._createHourName();
+        this._createHour();
+
+        this._setTodayStyle();
+        this.viewPanel
+            .append(this.weekDayPanel)
+            .append(this.hourPanel);
+
+        this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.active();
+
+        this.hourAnimator = ui.animator(this.hourPanel, {
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function (val, elem) {
+                elem.scrollTop(val);
+            }
+        });
+        this.hourAnimator.duration = 800;
+        this.initialled = true;
+    },
+    _setCurrent: function() {
+        var day = this.weekDays[0];
+        this.startDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0);
+        day = this.weekDays[6];
+        this.endDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+
+        this.year = day.getFullYear();
+        this.month = day.getMonth();
+    },
+    _createWeek: function() {
+        var thead, 
+            colgroup,
+            tr, th, date, i;
+
+        this.weekTable = $("<table class='ui-calendar-weekday unselectable' cellspacing='0' cellpadding='0' />");
+        thead = $("<thead />");
+        colgroup = $("<colgroup />");
+        tr = $("<tr />");
+        for(i = 0; i < 7; i++) {
+            day = this.weekDays[i];
+            colgroup.append("<col />");
+
+            th = $("<th class='weekday-cell' />");
+            th.text(this._formatDayText(day));
+            tr.append(th);
+        }
+
+        thead.append(tr);
+        this.weekTable.append(colgroup).append(thead);
+        this.weekDayPanel.append(this.weekTable);
+
+        this.weekTable.click(this.onWeekHeadItemClickHandler);
+    },
+    _createHourName: function() {
+        var table, colgroup, tbody, 
+            tr, td,
+            i, j, unitCount;
+
+        this.hourNames = $("<div class='hour-name-panel' />");
+        table = $("<table class='hour-name-table unselectable' cellspacing='0' cellpadding='0' />");
+        colgroup = $("<colgroup />");
+        // 特殊的结构，保持表格高度一致，包括边框的高度
+        colgroup
+            .append("<col style='width:0px;' />")
+            .append("<col />");
+        table.append(colgroup);
+        tbody = $("<tbody />");
+
+        unitCount = this.calendar._getTimeCellCount();
+        for (; i < 24; i++) {
+            for(j = 0; j < unitCount; j++) {
+                tr = $("<tr />");
+                td = $("<td class='hour-name-cell' />");
+                if((j + 1) % unitCount) {
+                    td.addClass("hour-name-cell-odd");
+                }
+                tr.append(td);
+                if(j === 0) {
+                    td = $("<td class='hour-name-cell' rowspan='" + unitCount + "' />");
+                    td.append("<h3 class='hour-name-text'>" + i + "</h3>");
+                    tr.append(td);
+                }
+                tbody.append(tr);
+            }
+        }
+        table.append(tbody);
+        this.hourNames.append(table);
+        this.hourPanel.append(this.hourNames);
+    },
+    _createHour: function() {
+        var tbody, colgroup, tr, td,
+            i, len, unitCount;
+
+        this.weekHour = $("<div class='week-hour-panel' />");
+        this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
+        tbody = $("<tbody />");
+        colgroup = $("<colgroup />");
+        for (i = 0; i < 7; i++) {
+            colgroup.append("<col />");
+        }
+
+        unitCount = this.calendar._getTimeCellCount();
+        len = 24 * count;
+        for (i = 0; i < len; i++) {
+            tr = $("<tr />");
+            for (j = 0; j < 7; j++) {
+                td = $("<td class='week-hour-cell' />");
+                if (this.calendar.isWeekend(j)) {
+                    td.addClass("week-hour-cell-weekend");
+                }
+                if ((i + 1) % count) {
+                    td.addClass("week-hour-cell-odd");
+                }
+                tr.append(td);
+            }
+            tbody.append(tr);
+        }
+        this.hourTable.append(colgroup).append(tbody);
+        this.weekHour.append(this.hourTable);
+        this.hourPanel.append(this.weekHour);
+    },
+    _setTodayStyle: function() {
+        var today, date,
+            table, row,
+            i, len;
+
+        today = new Date();
+        this.todayIndex = -1;
+        for (i = 0; i < 7; i++) {
+            date = this.weekDays[i];
+            if (date.getFullYear() == today.getFullYear() && date.getMonth() == today.getMonth() && date.getDate() == today.getDate()) {
+                this.todayIndex = i;
+                break;
+            }
+        }
+        if (this.todayIndex < 0) {
+            return;
+        }
+
+        table = this.hourTable[0];
+        for (i = 0, len = table.rows.length; i < len; i++) {
+            row = table.rows[i];
+            $(row.cells[this.todayIndex]).addClass("week-hour-cell-today");
+        }
+    },
+    _clearTodayStyle: function() {
+        var rows, cell,
+            todayIndex,
+            i, len;
+        rows = this.hourTable[0].tBodies[0].rows;
+        todayIndex = -1;
+        for(i = 0, len = rows[0].cells.length; i < len; i++) {
+            cell = $(rows[0].cells[i]);
+            if(cell.hasClass("week-hour-cell-today")) {
+                todayIndex = i;
+                break;
+            }
+        }
+        if(todayIndex < 0) {
+            return;
+        }
+        for(i = 0, len = rows.length; i < len; i++) {
+            cell = $(rows[i].cells[todayIndex]);
+            cell.removeClass("week-hour-cell-today");
+        }
+    },
+    _setCellSize: function (width, height) {
+        var scrollWidth = 0,
+            realWidth, unitWidth,
+            wcols, hcols;
+        
+        if (height < this.hourPanel[0].scrollHeight) {
+            scrollWidth = ui.scrollbarWidth;
+        }
+        realWidth = width - timeTitleWidth - scrollWidth;
+        unitWidth = Math.floor(realWidth / 7);
+        if (unitWidth < 95) {
+            unitWidth = 95;
+        }
+
+        wcols = this.weekTable.find("col");
+        hcols = this.hourTable.find("col");
+        this.weekTable.css("width", unitWidth * 7 + "px");
+        this.hourTable.css("width", unitWidth * 7 + "px");
+        wcols.css("width", unitWidth + "px");
+        hcols.css("width", unitWidth + "px");
+
+        if (this.selector.cellWidth > 1) {
+            this._restoreSchedules(unitWidth - this.selector.cellWidth);
+        }
+
+        this.selector.cellWidth = unitWidth;
+        this.selector.cancelSelection();
+    },
+    _updateWeek: function() {
+        var tr, th, day, i;
+        tr = this.weekTable[0].tHead.rows[0];
+        for (i = 0; i < 7; i++) {
+            day = this.weekDays[i];
+            th = $(tr.cells[i]);
+            th.text(this._formatDayText(day));
+            // 将样式恢复成初始值
+            th.attr("class", "weekday-cell");
+        }
+    },
+    _addScheduleItem: function(beginCell, endCell, formatAction, scheduleInfo, titleText) {
+        var scheduleItem,
+            title,
+            container,
+            bp, ep;
+        
+        scheduleItem = $("<div class='schedule-item-panel' />");
+        title = $("<div class='time-title' />");
+        title.html("<span class='time-title-text'>" + titleText + "</span>");
+        container = $("<div class='schedule-container' />");
+        scheduleItem.append(title).append(container);
+
+        bp = this.getPositionAndSize(beginCell);
+        ep = this.getPositionAndSize(endCell);
+        scheduleItem.css({
+            "top": bp.top + "px",
+            "left": bp.left + "px",
+            "width": bp.width + "px",
+            "height": ep.height + ep.top - bp.top + "px"
+        });
+        $(this.hourPanel).append(scheduleItem);
+
+        scheduleInfo.itemPanel = scheduleItem;
+        this._setScheduleInfo(scheduleInfo.columnIndex, scheduleInfo);
+        if (ui.core.isFunction(formatAction)) {
+            formatAction.call(this, scheduleInfo, container);
+        }
+    },
+    _findSchedules: function(beginDateArray, action) {
+        var i, j, date,
+            weekIndex, beginRowIndex, dayItems,
+            actionIsFunction;
+
+        actionIsFunction = ui.core.isFunction(action);
+        for (i = 0; i < beginDateArray.length; i++) {
+            date = beginDateArray[i];
+            if (date instanceof Date) {
+                weekIndex = this.calendar.getWeekIndexOf(date);
+                beginRowIndex = this.calendar.timeToIndex(formatTime(date));
+                dayItems = this._getScheduleInfo(weekIndex);
+                if (dayItems) {
+                    for (j = dayItems.length - 1; j >= 0 ; j--) {
+                        if (beginRowIndex === dayItems[j].beginRowIndex) {
+                            if(actionIsFunction) {
+                                action.call(this, dayItems[j], j, dayItems);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    _restoreSchedules: function(value) {
+        var column, left, width,
+            i, j, weekDay, panel;
+
+        for (i = 0; i < this.weekHours.length; i++) {
+            weekDay = this.weekHours[i];
+            if (weekDay) {
+                for (j = 0; j < weekDay.length; j++) {
+                    panel = weekDay[j].itemPanel;
+                    column = weekDay[j].weekIndex;
+                    left = parseFloat(panel.css("left"));
+                    width = parseFloat(panel.css("width"));
+                    panel.css({
+                        "left": (left + column * val) + "px",
+                        "width": (width + val) + "px"
+                    });
+                }
+            }
+        }
+    },
+    _setScheduleInfo: function(weekIndex, info) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            weekDay = [];
+            this.weekHours[weekIndex] = weekDay;
+        }
+        info.weekIndex = weekIndex;
+        weekDay.push(info);
+    },
+    _getScheduleInfo: function (weekIndex) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            return null;
+        }
+        return weekDay;
+    },
+    _changeWeek: function () {
+        this._setCurrent();
+        this.clearSchedules();
+        this.selector.cancelSelection();
+        this._updateWeek();
+        
+        // 重新标出今天
+        this._clearTodayStyle();
+        this._setTodayStyle();
+    },
+    _getUnitHourNameHeight: function() {
+        var table;
+        if(!this.hourNames) {
+            return hourHeight;
+        }
+        table = this.hourNames.children("table")[0];
+        return $(table.tBodies[0].rows[0].cells[1]).outerHeight() / this.calendar._getTimeCellCount();
+    },
+    _getPositionAndSize: function(td) {
+        var position = td.position();
+        position.left = position.left + timeTitleWidth;
+        position.top = position.top;
+        return {
+            top: position.top,
+            left: position.left,
+            width: td.outerWidth() - 1,
+            height: td.outerHeight() - 1
+        };
+    },
+    // API
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        var day = this.calendar.currentDate;
+        this.calendar.showTimeLine(this.hourPanel, this._getUnitHourNameHeight());
+        if (day >= this.startDate && day <= this.endDate) {
+            return false;
+        }
+        this.weekDays = this.calendar.getWeek(day);
+        this._changeWeek();
+        return true;
+    },
+    /** 激活 */
+    active: function() {
+        this.selector.active();
+    },
+    /** 休眠 */
+    dormant: function() {
+        this.selector.dormant();
+    },
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        this.weekDays = this.calendar.getWeek(
+            new Date(day.getFullYear(), day.getMonth(), day.getDate() - 7));
+        this._changeWeek();
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        this.weekDays = this.calendar.getWeek(
+            new Date(day.getFullYear(), day.getMonth(), day.getDate() + 7));
+        this._changeWeek();
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this.weekDays = this.calendar.getWeek(day);
+        this._changeWeek();
+    },
+    /** 设置显示的时间 */
+    setBeginTime: function (beginTime) {
+        var height, scrollHeight,
+            index, count,
+            maxTop, scrollTop,
+            option;
+
+        height = this.hourPanel.height();
+        scrollHeight = this.hourPanel[0].scrollHeight;
+        if (height >= scrollHeight) {
+            return;
+        }
+        this.hourAnimator.stop();
+        index = this.calendar.timeToIndex(beginTime);
+        count = this.calendar._getTimeCellCount();
+        if (index > count) {
+            index -= count;
+        }
+        maxTop = scrollHeight - height;
+        scrollTop = index * hourHeight;
+        if (scrollTop > maxTop) {
+            scrollTop = maxTop;
+        }
+        option = this.hourAnimator[0];
+        option.begin = this.hourPanel.scrollTop();
+        option.end = scrollTop;
+        this.hourAnimator.start();
+    },
+    /** 添加日程信息 */
+    addSchedules: function(data, beginDateTimeField, endDateTimeField, formatAction, getColumnFn) {
+        var getBeginDateTimeFn,
+            getEndDateTimeFn,
+            scheduleInfo, beginTime, endTime,
+            i, len, item;
+        if(!Array.isArray(data)) {
+            return;
+        }
+
+        if(ui.core.isFunction(beginDateTimeField)) {
+            getBeginDateTimeFn = beginDateTimeField;
+        } else {
+            getBeginDateTimeFn = function() {
+                return this[beginDateTimeField + ""] || null;
+            };
+        }
+        if(ui.core.isFunction(endDateTimeField)) {
+            getEndDateTimeFn = endDateTimeField;
+        } else {
+            getEndDateTimeFn = function() {
+                return this[endDateTimeField + ""] || null;
+            };
+        }
+
+        if(!ui.core.isFunction(getColumnFn)) {
+            getColumnFn = function(date) {
+                return this.calendar.getWeekIndexOf(date);
+            };
+        }
+
+        for(i = 0, len = data.length; i < len; i++) {
+            item = date[i];
+            scheduleInfo = {
+                data: item
+            };
+            scheduleInfo.beginDate = getBeginDateTimeFn.call(item);
+            scheduleInfo.endDate = getEndDateTimeFn.call(item);
+            if(!(scheduleInfo.beginDate instanceof Date) || !(scheduleInfo.endDate instanceof Date)) {
+                continue;
+            }
+            scheduleInfo.columnIndex = getColumnFunc.call(this, scheduleInfo.beginDate);
+            beginTime = formatTime(scheduleInfo.beginDate);
+            endTime = formatTime(scheduleInfo.endDate, scheduleInfo.beginDate);
+            scheduleInfo.beginRowIndex = this.calendar.timeToIndex(beginTime);
+            scheduleInfo.endRowIndex = this.calendar.timeToIndex(endTime) - 1;
+
+            this._addScheduleItem(
+                    $(this.hourTable[0].rows[scheduleInfo.beginRowIndex].cells[scheduleInfo.columnIndex]),
+                    $(this.hourTable[0].rows[scheduleInfo.endRowIndex].cells[scheduleInfo.columnIndex]),
+                    formatAction, scheduleInfo,
+                    beginTime.substring(0, 5) + " - " + endTime.substring(0, 5));
+        }
+    },
+    /** 移除日程信息 */
+    removeSchedules: function(beginDateArray) {
+        this._findSchedules(beginDateArray, function (scheduleInfo, index, itemArray) {
+            scheduleInfo.itemPanel.remove();
+            itemArray.splice(index, 1);
+        });
+    },
+    /** 查找日程信息并做相应的处理 */
+    findSchedules: function(beginDateArray, callback, caller) {
+        var action;
+        if (beginDateArray instanceof Date) {
+            beginDateArray = [beginDateArray];
+        }
+        if (!Array.isArray(beginDateArray)) {
+            return;
+        }
+        if (!caller) {
+            caller = this;
+        }
+        if (ui.core.isFunction(callback)) {
+            action = function() {
+                callback.apply(caller, arguments);
+            };
+        } else {
+            action = null;
+        }
+        this._findSchedules(beginDateArray, action);
+    },
+    /** 清空日程信息 */
+    clearSchedules: function() {
+        var i, j,
+            weekDay;
+        for (i = 0; i < this.weekHours.length; i++) {
+            weekDay = this.weekHours[i];
+            if (weekDay) {
+                for (j = 0; j < weekDay.length; j++) {
+                    weekDay[j].itemPanel.remove();
+                }
+            }
+        }
+        this.weekHours = [];
+    },
+    /** 判断是否已经有日程信息 */
+    hasSchedule: function(weekIndex) {
+        var weekDay = this.weekHours[weekIndex];
+        if (!weekDay) {
+            return false;
+        }
+        return weekDay.length > 0;
+    },
+    /** 设置选中的元素 返回数组 */
+    getSelection: function() {
+        var cells,
+            unitTime, unitCount,
+            getDateFn,
+            i, len,
+            result;
+
+        unitTime = this.calendar.option.unitTime;
+        result = [];
+        cells = this.selector.getSelectedCells();
+        if(cells.length === 0) {
+            return result;
+        }
+
+        unitCount = this._getTimeCellCount();
+        getDateFn = function(hourIndex, weekIndex) {
+            var h, m,
+                date;
+            date = this.weekDays[weekIndex];
+            h = Math.floor(hourIndex / unitCount);
+            m = (hourIndex / unitCount - h) * 60;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0);
+        };
+
+        result.push(getDateFn.call(this, cells[0].hourIndex, cells[0].weekIndex));
+        for(i = 0, len = cells.length; i < len; i++) {
+            result.push(getDateFn.call(this, cells[0].hourIndex + 1, cells[0].weekIndex));
+        }
+        return result;
+    },
+    /** 设置选中状态 */
+    setSelection: function(start, end) {
+        var weekIndex,
+            startTime, endTime,
+            i, len, date;
+        if(!(start instanceof Date) || !(end instanceof Date)) {
+            return;
+        }
+        weekIndex = -1;
+        for (i = 0, len = this.weekDays.length; i < len; i++) {
+            date = this.weekDays[i];
+            if (date.getFullYear() == start.getFullYear() && date.getMonth() == start.getMonth() && date.getDate() == start.getDate()) {
+                weekIndex = i;
+                break;
+            }
+        }
+        if(weekIndex < 0) {
+            return;
+        }
+
+        startTime = ui.str.dateFormat(start, "hh:mm:ss");
+        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        this.selector.selectCellByTime(weekIndex, startTime, endTime);
+    },
+    /** 取消选中状态 */
+    cancelSelection: function() {
+        this.selector.cancelSelection();
+    },
+    /** 这是周视图尺寸 */
+    setSize: function (width, height) {
+        this.hourPanel.css("height", height - hourHeight + "px");
+        this._setCellSize(width, height);
+    },
+    /** 获取周视图标题 */
+    getTitle: function () {
+        return ui.str.textFormat(
+            "{0}年{1}月{2}日 ~ {3}年{4}月{5}日",
+            this.startDate.getFullYear(), 
+            this.startDate.getMonth() + 1, 
+            this.startDate.getDate(),
+            this.endDate.getFullYear(), 
+            this.endDate.getMonth() + 1, 
+            this.endDate.getDate());
+    },
+    /** 重写toString方法 */
+    toString: function () {
+        return "ui.ctrls.CalendarView.WeekView";
+    }
+};
+// 日视图
+function DayView(calendar) {
+    if(this instanceof DayView) {
+        this.initialize();
+    } else {
+        return new DayView(calendar);
+    }
+}
+DayView.prototype = {
+    constructor: DayView,
+    initialize: function(calendar) {
+        this.calendar = calendar;
+        this.year = null;
+        this.month = null;
+        this.day = null;
+        this.dayHours = [];
+        this.initialled = false;
+
+        this.viewPanel = $("<div class='calendar-view-panel' />");
+        this.calendar.element.append(this.viewPanel);
+    },
+    render: function() {
+        if (this.initialled) {
+            return;
+        }
+
+        this._formatDayText = this.calendar.option.formatDayHead; 
+        if(!ui.core.isFunction(this._formatDayText)) {
+            this._formatDayText = defaultFormatDateHeadText;
+        }
+
+        // 事件
+        this.onDayHeadItemClickHandler = $.proxy(onDayHeadItemClick, this);
+
+        this._setCurrent();
+
+        this.dayPanel = $("<div class='ui-calendar-day-view' />");
+        this._createDay();
+
+        this.hourPanel = $("<div class='ui-calendar-hour-panel' />");
+        this._createHourName();
+        this._createHour();
+
+        this.viewPanel
+            .append(this.dayPanel)
+            .append(this.hourPanel);
+
+        this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.active();
+        
+        this.hourAnimator = ui.animator(this.hourPanel, {
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function (val, elem) {
+                elem.scrollTop(val);
+            }
+        });
+        this.hourAnimator.duration = 800;
+        this.initialled = true;
+    },
+    _setCurrent: function () {
+        var day = this.calendar.currentDate;
+        this.year = day.getFullYear();
+        this.month = day.getMonth();
+        this.day = day.getDate();
+    },
+    _createDay: function () {
+        this.dayTitle = $("<div class='ui-calendar-day-title' />");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayPanel.append(this.dayTitle);
+
+        this.dayTitle.click(this.onDayHeadItemClickHandler);
+    },
+    _createHourName: WeekView.prototype._createHourName,
+    _createHour: function() {
+        var tbody, tr, td, 
+            count, i, len;
+
+        this.hourTable = $("<table class='weekhour unselectable' cellspacing='0' cellpadding='0' />");
+        tbody = $("<tbody />");
+        count = this.calendar._getTimeCellCount();
+        len = 24 * count, i;
+
+        for (i = 0; i < len; i++) {
+            tr = $("<tr />");
+            td = $("<td class='hour-name-cell' style='width:100%' />");
+            if ((i + 1) % count) {
+                td.addClass("hour-name-cell-odd");
+            }
+            tr.append(td);
+            tbody.append(tr);
+        }
+        this.hourTable.append(tbody);
+        this.hourPanel.append(this.hourTable);
+    },
+    _setCellSize: function (width, height) {
+        var scrollWidth = 0,
+            realWidth;
+        if (height < this.hourPanel[0].scrollHeight) {
+            scrollWidth = ui.scrollbarWidth;
+        }
+        realWidth = width - timeTitleWidth - scrollWidth - 2;
+        this.dayTitle.css("width", realWidth + "px");
+        this.hourTable.css("width", realWidth + "px");
+
+        if (this.selector.cellWidth > 1) {
+            this._restoreSchedules(realWidth - this.selector.cellWidth);
+        }
+
+        this.selector.cellWidth = realWidth;
+        this.selector.cancelSelection();
+    },
+    _addScheduleItem: WeekView.prototype._addScheduleItem,
+    _restoreSchedules: function(value) {
+        var column, left, width,
+            i, panel;
+        for (i = 0; i < this.dayHours.length; i++) {
+            panel = this.dayHours[i].itemPanel;
+            column = this.dayHours[i].weekIndex;
+            left = parseFloat(panel.css("left"));
+            width = parseFloat(panel.css("width"));
+            panel.css({
+                "left": (left + column * val) + "px",
+                "width": (width + val) + "px"
+            });
+        }
+    },
+    _setScheduleInfo: function(weekIndex, info) {
+        this.dayHours.push(info);
+    },
+    _getScheduleInfo: function (weekIndex) {
+        return this.dayHours;
+    },
+    _changeDay: function() {
+        this._setCurrent();
+        this.clearSchedules();
+        this.selector.cancelSelection();
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+    },
+    _getUnitHourNameHeight: WeekView.prototype._getUnitHourNameHeight,
+    _getPositionAndSize: WeekView.prototype._getPositionAndSize,
+
+    // API
+    /** 检查是否需要更新 */
+    checkChange: function () {
+        var day = this.calendar.currentDate;
+        this.calendar.showTimeLine(this.hourPanel, this._getUnitHourNameHeight());
+        if (this.year == day.getFullYear() && this.month == day.getMonth() && this.day == day.getDate()) {
+            return false;
+        }
+        this._changeDay();
+        return true;
+    },
+    /** 激活 */
+    active: function() {
+        this.selector.active();
+    },
+    /** 休眠 */
+    dormant: function() {
+        this.selector.dormant();
+    },
+    /** 向前切换 */
+    previous: function() {
+        var day = this.calendar.currentDate;
+        day.setDate(day - 1);
+        this._changeDay();
+    },
+    /** 向后切换 */
+    next: function() {
+        var day = this.calendar.currentDate;
+        day.setDate(day + 1);
+        this._changeDay();
+    },
+    /** 切换到当前 */
+    today: function(day) {
+        if (!day || !(day instanceof Date)) {
+            day = new Date();
+        }
+        this.calendar.currentDate = new Date(day.getTime());
+        this._changeDay();
+    },
+    setBeginTime: WeekView.prototype.setBeginTime,
+    /** 添加日程信息 */
+    addSchedules: function(data, beginDateTimeField, endDateTimeField, formatAction, getColumnFn) {
+        WeekView.prototype.addSchedules.call(this,
+            data, 
+            beginDateTimeField, 
+            endDateTimeField, 
+            formatAction,
+            function () {
+                return 0;
+            }
+        );
+    },
+    /** 清空日程信息 */
+    clearSchedules: function() {
+        var i = 0;
+        for (; i < this.dayHours.length; i++) {
+            this.dayHours[i].itemPanel.remove();
+        }
+        this.dayHours = [];
+    },
+    /** 判断是否已经有日程信息 */
+    hasSchedule: function () {
+        return this.dayHours.length > 0;
+    },
+    /** 设置日视图尺寸 */
+    setSize: function (width, height) {
+        this.hourPanel.css("height", height - hourHeight + "px");
+        this._setCellSize(width, height);
+    },
+    /** 获取日视图标题 */
+    getTitle: function () {
+        return ui.str.stringFormat("{0}年{1}月{2}日",
+            this.year, this.month + 1, this.day);
+    },
+    /** 重写toString方法 */
+    toString: function () {
+        return "ui.ctrls.CalendarView.DayView";
+    }
+};
+// 选择器
+// TODO 废除locationInGrid对象，改为直接访问hourIndex, weekIndex
+function Selector(view, panel, table) {
+    if(this instanceof Selector) {
+        this.initialize(view, panel, table);
+    } else {
+        return new Selector(calendar);
+    }
+}
+Selector.prototype = {
+    constructor: Selector,
+    initialize: function(view, panel, table) {
+        this.view = view;
+        this.panel = panel;
+        this.grid = table;
+
+        this.isBeginSelect = false;
+        this.cellWidth = 1;
+        this.cellHeight = 25;
+
+        this.grid[0].onselectstart = function () { return false; }
+
+        this.selectionBox = $("<div class='ui-calendar-selector unselectable click-enabled border-highlight' />");
+        this.selectionBox.boxTextSpan = $("<span class='ui-calendar-selector-time click-enabled' />");
+        this.selectionBox.append(this.selectionBox.boxTextSpan);
+        this.panel.append(this.selectionBox);
+
+        this._initEvents();
+        this._initAnimator();
+    },
+    _initEvents: function() {
+        this.mouseLeftButtonDownHandler = $.proxy(function (e) {
+            if (e.which !== 1)
+                return;
+            $(document).on("mousemove", this.mouseMove);
+            $(document).on("mouseup", this.mouseLeftButtonUpHandler);
+            this.onMouseDown($(e.target), e.clientX, e.clientY);
+        }, this);
+        this.mouseMoveHandler = $.proxy(function (e) {
+            if (!this.isBeginSelect) {
+                return;
+            }
+            this.onMouseMove(e);
+        }, this);
+        this.mouseLeftButtonUpHandler = $.proxy(function (e) {
+            if (e.which !== 1 || !this.isBeginSelect)
+                return;
+            this.isBeginSelect = false;
+            $(document).off("mousemove", this.mouseMoveHandler);
+            $(document).off("mouseup", this.mouseLeftButtonUpHandler);
+            this.onMouseUp(e);
+        }, this);
+    },
+    _initAnimator: function() {
+        var that = this;
+        this.selectAnimator = ui.animator(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                if (that.selectDirection === "up") {
+                    return;
+                }
+                elem.css("top", val + "px");
+            }
+        });
+        this.selectAnimator.addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                elem.css("left", val + "px");
+            }
+        }).addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                elem.css("width", val + "px");
+            }
+        }).addTarget(this.selectionBox, {
+            ease: ui.AnimationStyle.swing,
+            onChange: function (val, elem) {
+                if (that.selectDirection) {
+                    return;
+                }
+                elem.css("height", val + "px");
+            }
+        });
+        this.selectAnimator.onEnd = function () {
+            if (that.animating && !that.isBeginSelect) {
+                that.onSelectCompleted();
+            }
+            that.animating = false;
+        };
+        this.selectAnimator.duration = 200;
+        this.selectAnimator.fps = 60;
+    },
+    active: function (justEvent) {
+        if (!justEvent) {
+            this.selectionBox.css("display", "none");
+        }
+        $(document).on("mousedown", this.mouseLeftButtonDownHandler);
+    },
+    dormant: function (justEvent) {
+        if (!justEvent) {
+            this.cancelSelection();
+        }
+        $(document).off("mousedown", this.mouseLeftButtonDownHandler);
+    }
+}
+
+viewTypes = {
+    "YEARVIEW": YearView,
+    "MONTHVIEW": MonthView,
+    "WEEKVIEW": WeekView,
+    "DAYVIEW": DayView
+};
+ui.define("ui.ctrls.CalendarView", {
+    _defineOption: function() {
+        return {
+            // 要包含的日历视图，YearView: 年视图, MonthView: 月视图, WeekView: 周视图, DayView: 天视图
+            views: ["YearView", "MonthView", "WeekView", "DayView"],
+            // 默认显示的视图，如果不写则默认为第一个视图
+            defaultView: "WeekView",
+            // 周视图和天视图的单位时间
+            unitTime: 30,
+            // 星期天是否为一周的第一天
+            sundayFirst: false,
+            // 开始日期
+            startDate: null,
+            // 年是否可以多选
+            yearMultipleSelect: false,
+            // 月是否可以多选
+            monthMultipleSelect: false,
+            // 周视图标题格式化器
+            formatWeekDayHead: null,
+            // 日视图标题格式化器
+            formatDayHead: null
+        };
+    },
+    _defineEvents: function() {
+        return [
+            //日历视图切换前
+            "viewChanging", 
+            //日历视图切换后
+            "viewChanged", 
+            //日历内容更新前
+            "changing", 
+            //日历内容更新后
+            "changed", 
+            //日历选择前
+            "selecting", 
+            //日历选择后
+            "selected",
+            //日历取消选择
+            "deselected",
+            //周和日视图标题点击
+            "weekTitleClick",
+            //取消选中
+            "cancel"
+        ];
+    },
+    _create: function() {
+        var value;
+        if (!ui.core.isNumber(this.option.unitTime)) {
+            this.option.unitTime = 30;
+        } else {
+            value = 60 / this.option.unitTime;
+            if (value % 2) {
+                value -= 1;
+                this.option.unitTime = 60 / value;
+            }
+        }
+
+        this.views = {};
+
+        if(!ui.core.isString(this.option.defaultView) || this.option.defaultView.length === 0) {
+            this.option.defaultView = "WeekView";
+        }
+
+        if (this.option.startDate instanceof Date) {
+            this.currentDate = this.option.startDate;
+        } else {
+            this.currentDate = new Date();
+        }
+
+        this.viewChangeAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function (val, elem) {
+                elem.css("left", val + "px");
+            }
+        });
+        this.viewChangeAnimator.addTarget({
+            ease: ui.AnimationStyle.easeFrom,
+            onChange: function (val, elem) {
+                elem.css("opacity", val / 100);
+            }
+        });
+        this.viewChangeAnimator.duration = 500;
+    },
+    _render: function() {
+        var i, len,
+            viewName;
+
+        this.element
+            .addClass("ui-calendar-view")
+            .css("position", "relative");
+
+        for (i = 0, len = this.option.views.length; i < len; i++) {
+            viewName = this.option.views[i];
+            if(!ui.core.isString(viewName)) {
+                continue;
+            }
+            viewName = viewName.toUpperCase();
+            if (viewTypes.hasOwnProperty(viewName)) {
+                this.views[viewName] = viewTypes[viewName](this);
+            }
+        }
+
+        if(!this.hasView(this.option.defaultView)) {
+            for(i in this.views) {
+                if(this.views.hasOwnProperty(i)) {
+                    this.option.defaultView = i;
+                    break;
+                }
+            }
+        }
+        this.changeView(this.option.defaultView, false);
+    },
+    _getTimeCellCount: function () {
+        return Math.floor(60 / this.option.unitTime) || 1;
+    },
+    _timeToCellNumber: function(time) {
+        var arr,
+            count,
+            hour,
+            minute,
+            second;
+        arr = time.split(":");
+        count = this._getTimeCellCount();
+        hour = parseInt(arr[0], 10);
+        minute = parseInt(arr[1], 10);
+        second = parseInt(arr[2], 10);
+        return (hour + minute / 60) * count;
+    },
+    _doChange: function(actionName) {
+        if(this.fire("changing", this.currentView, actionName) === false) {
+            return;
+        }
+        this.currentView[actionName].call(this.currentView);
+        this.fire("changed", this.currentView, actionName);
+    },
+
+    //API
+    /** 一周的开始是否是星期天 */
+    isSundayFirst: function() {
+        return !!this.option.sundayFirst;
+    },
+    /** 获取一个日期所在周的所有日期 */
+    getWeek: function(date) {
+        var days = null,
+            week, firstDay,
+            i, len;
+        if(date instanceof Date) {
+            date = new Date(date.getTime());
+            days = [];
+            len = 7;
+            if(this.isSundayFirst()) {
+                week = date.getDay();
+                date.setDate(date.getDate() - week);
+            } else {
+                week = date.getDay() || len;
+                date.setDate(date.getDate() - week + 1);
+            }
+            firstDay = new Date(date.getTime());
+            days.push(firstDay);
+            for(i = 1; i < len; i++) {
+                days.push(new Date(date.setDate(date.getDate() + 1)));
+            }
+        }
+        return days;
+    },
+    /** 获取一个日期所在周的第一天日期和最后一天日期 */
+    getWeekStartEnd: function(date) {
+        var week,
+            result = null;
+        if(date instanceof Date) {
+            date = new Date(date.getTime());
+            result = {
+                year: date.getFullYear(),
+                month: date.getMonth() + 1
+            };
+            if(this.isSundayFirst()) {
+                week = date.getDay();
+                date.setDate(date.getDate() - week);
+            } else {
+                week = date.getDay() || 7;
+                date.setDate(date.getDate() - week + 1);
+            }
+
+            result.weekStartDate = new Date(date.getTime());
+            result.weekStartDay = result.weekStartDate.getDate();
+            result.weekEndDate = new Date(date.setDate(date.getDate() + 6));
+            result.weekEndDay = result.weekEndDate.getDate();
+        }
+    },
+    /** 获取日期所在的周的列索引 */
+    getWeekIndexOf: function(date) {
+        var index = null;
+        if(date instanceof Date) {
+            index = date.getDay();
+            if(!this.isSundayFirst()) {
+                if(index === 0) {
+                    index = 6;
+                } else {
+                    index--;
+                }
+            }
+        }
+        return index;
+    },
+    /** 获取周末的索引 */
+    getWeekendIndexes: function() {
+        var result = {
+            saturday: 6,
+            sunday: 0
+        };
+        if (!this.isSundayFirst()) {
+            result.saturday = 5;
+            result.sunday = 6;
+        }
+        return result;
+    },
+    /** 判断是否是周末 */
+    isWeekend: function(weekDay) {
+        if(this.isSundayFirst()) {
+            return weekDay === 6 || weekDay === 0;
+        } else {
+            return weekDay === 5 || weekDay === 6;
+        }
+    },
+    /** 获取月份的索引rowIndex, cellIndex */
+    getTableIndexOf: function(date) {
+        var first,
+            startIndex,
+            day,
+            result = null;
+        if(date instanceof Date) {
+            first = new Date(date.getFullYear(), date.getMonth(), 1);
+            startIndex = this.getWeekIndexOfDate(first);
+            day = date.getDate() + startIndex - 1;
+            result = {
+                rowIndex: Math.floor(day / 7),
+                cellIndex: 0
+            };
+            result.cellIndex = day - result.rowIndex * 7;
+        }
+        return result;
+    },
+    /** 获取周的名称 */
+    getWeekNames: function() {
+        if (this.isSundayFirst()) {
+            return sundayFirstWeek;
+        } else {
+            return mondayFirstWeek;
+        }
+    },
+    /** 将周视图和日视图中的索引转换成对应的时间 */
+    indexToTime: function(index) {
+        var count,
+            hour,
+            arr,
+            text;
+        
+        count = this._getTimeCellCount();
+        hour = twoNumberFormatter(index / count);
+        arr = hour.split(".");
+        text = arr[0] + ":";
+        if(arr.length > 1) {
+            text += twoNumberFormatter(parseFloat("0." + arr[1]) * 60);
+        } else {
+            text += "00";
+        }
+        return text;
+    },
+    /** 将时间转换为周视图和日视图的索引 */
+    timeToIndex: function(time) {
+        if(!time) {
+            time = "00:00";
+        }
+        return Math.ceil(this._timeToCellNumber(time));
+    },
+    /** 将时间转换为周视图和日视图对应的position */
+    timeToPosition: function(time) {
+        if(!time) {
+            time = "00:00";
+        }
+        return this._timeToCellNumber(time) * unitHeight;
+    },
+    /** 显示周视图和日视图的当前时间指示器 */
+    showTimeLine: function(parent, unitHourHeight) {
+        var updateInterval,
+            updateTimeFn,
+            that,
+        if(!this.currentTimeElement) {
+            this.currentTimeElement = $("<div class='ui-current-time border-highlight font-highlight' />");
+            this.currentTimeElement.css("width", timeTitleWidth + "px");
+            this.element.append(this.currentTimeElement);
+        } else {
+            this.currentTimeElement.css("display", "block");
+        }
+        if(this._timeoutHandler) {
+            clearTimeout(this._timeoutHandler);
+        }
+
+        // 30秒更新一次
+        updateInterval = 30 * 1000;
+        that = this;
+        updateTimeFn = function() {
+            var time,
+                index,
+                top,
+                elem;
+
+            time = formatTime(new Date());
+            index = that.timeToIndex(time);
+            top = that.timeToPosition(time, unitHourHeight);
+            elem = that.currentTimeElement;
+            
+            elem.html("<span class='ui-current-time-text'>" + time.substring(0, 5) + "</span>");
+            if(index === 0) {
+                elem.addClass("ui-current-time-top").css("top", top + "px");
+            } else {
+                elem.removeClass("ui-current-time-top").css("top", top - ui.scrollbarWidth + "px");
+            }
+            that._timeoutHandler = setTimeout(arguments.callee, updateInterval);
+        };
+        this._timeoutHandler = setTimeout(updateTimeFn);
+    },
+    /** 隐藏周视图和日视图的当前时间指示器 */
+    hideTimeLine: function() {
+        if(this._timeoutHandler) {
+            clearTimeout(this._timeoutHandler);
+        }
+        if(this.currentTimeElement) {
+            this.currentTimeElement.css("display", "none");
+        }
+    },
+    /** 当前视图向前切换 */
+    previous: function() {
+        this._doChange("previous");
+    },
+    /** 当前视图向后切换 */
+    next: function() {
+        this._doChange("next");
+    },
+    /** 当前视图切换到今天所在 */
+    today: function() {
+        this._doChange("today");
+    },
+    /** 判断是否包含view视图 */
+    hasView: function(viewName) {
+        return this.views.hasOwnProperty(viewName + "");
+    },
+    /** 判断视图是否为某个名称的视图 */
+    isView: function(view, viewName) {
+        if(!view) {
+            return false;
+        }
+        viewName = (viewName + "").toUpperCase();
+        return view.toString().toUpperCase().lastIndexOf(viewName) !== -1;
+    },
+    /** 获取注册的视图 */
+    getView: function(viewName) {
+        viewName = (viewName + "").toUpperCase();
+        if (this.views.hasOwnProperty(viewName)) {
+            return this.views[viewName];
+        } else {
+            return null;
+        }
+    },
+    /** 切换视图 */
+    changeView: function(viewName, animation) {
+        var view,
+            isInitialled,
+            isChanged,
+            width,
+            that,
+            option,
+            endFn;
+        
+        view = this.views[(viewName + "").toLowerCase()];
+        if(!view) {
+            throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
+        }
+
+        if(this.fire("viewChanging", this.currentView, view) === false) {
+            return;
+        }
+
+        if (this.currentView) {
+            this.viewChangeAnimator.stop();
+            this.currentView.viewPanel.css({
+                "display": "none",
+                "opacity": 0
+            });
+            this.currentView.dormant();
+        }
+        isInitialled = false;
+        if(!view.initialled) {
+            view.render();
+            isInitialled = true;
+        }
+        isChanged = view.checkChange();
+        view.setSize(this.element.width(), this.element.height());
+        this.currentView = view;
+
+        that = this;
+        endFn = function() {
+            that.currentView.active();
+            that.fire("viewChanged", that.currentView);
+            if (isInitialled || isChanged) {
+                that.fire("changed", that.currentView);
+            }
+        };
+
+        if(animation === false) {
+            this.currentView.viewPanel.css({
+                "display": "block",
+                "left": "0",
+                "opacity": 1
+            });
+            endFn();
+            return;
+        }
+
+        width = this.element.width();
+        this.currentView.viewPanel.css({
+            "display": "block",
+            "left": (width / 3) + "px"
+        });
+        option = this.viewChangeAnimator[0];
+        option.target = this.currentView.viewPanel;
+        option.begin = width / 3;
+        option.end = 0;
+
+        option = this.viewChangeAnimator[1];
+        option.target = this.currentView.viewPanel;
+        option.begin = 0;
+        option.end = 100;
+
+        this.viewChangeAnimator.onEnd = endFn;
+        this.viewChangeAnimator.start();
+    },
+    /** 设置大小 */
+    setSize: function(width, height) {
+        this.element.css("height", height + "px");
+        this.currentView.setSize(width, height);
+    },
+    /** 获取当前视图的标题文字信息 */
+    getTitle: function() {
+        return this.currentView.getTitle();
+    }
+});
+
+$.fn.calendarView = function(option) {
+    if(this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.CalendarView(option, this);
+};
 
 
 })(jQuery, ui);
@@ -4055,10 +8645,8 @@ ui.define("ui.ctrls.CardView", {
         /// 事件处理程序
         // 项目选中处理程序
         this.onBodyClickHandler = $.proxy(onBodyClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element || this.element.length === 0) {
             return;
         }
@@ -4119,7 +8707,7 @@ ui.define("ui.ctrls.CardView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.gridFoot.append(this.pager.pageInfoPanel)
+                this.gridFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -4140,12 +8728,12 @@ ui.define("ui.ctrls.CardView", {
             isFunction,
             rows;
 
-        if(arr.length == 0) {
+        if(arr.length === 0) {
             return;
         }
         marginInfo = this._getMargin(arr.length);
         this._columnCount = marginInfo.count;
-        if(marginInfo.count == 0) return;
+        if(marginInfo.count === 0) return;
         
         isFunction = ui.core.isFunction(fn);
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
@@ -4171,7 +8759,7 @@ ui.define("ui.ctrls.CardView", {
             restWidth,
             flag,
             checkOverflow = function(len, res) {
-                if(res.count == 0) {
+                if(res.count === 0) {
                     return res;
                 }
                 var sh = Math.floor((len + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
@@ -4370,7 +8958,7 @@ ui.define("ui.ctrls.CardView", {
         }
         this.option.viewData = viewData;
 
-        if(viewData.length == 0) {
+        if(viewData.length === 0) {
             this._showDataPrompt();
             return;
         } else {
@@ -4606,6 +9194,99 @@ $.fn.cardView = function() {
 
 })(jQuery, ui);
 
+// Source: ui/control/view/fold-view.js
+
+(function($, ui) {
+// 折叠视图
+function onFoldTitleClick(e) {
+    var elem,
+        nodeName,
+        dd, icon;
+    
+    e.stopPropagation();
+    elem = $(e.target);
+    while((nodeName = elem.nodeName()) !== "DT" 
+        || !elem.hasClass("ui-fold-view-title")) {
+
+        if(elem.hasClass("ui-fold-view")) {
+            return;
+        }
+        elem = elem.parent();
+    }
+    icon = elem.children("ui-fold-view-icon");
+    dd = elem.next();
+    if(dd.css("display") === "none") {
+        icon.removeClass("background-highlight")
+            .addClass("font-highlight")
+            .text("-");
+        dd.css("display", "block");
+    } else {
+        icon.removeClass("font-highlight")
+            .addClass("background-highlight")
+            .text("+");
+        dd.css("display", "none");
+    }
+}
+function FoldView(element) {
+    if(this instanceof FoldView) {
+        this.initialize(element);
+    } else {
+        return new FoldView();
+    }
+}
+FoldView.prototype = {
+    constructor: FoldView,
+    initialize: function(element) {
+        this.element = element;
+        this.onFoldTitleClickHandler = $.proxy(onFoldTitleClick, this);
+    },
+    _render: function() {
+        var dtList,
+            dt, div, text,
+            i, len;
+        dtList = this.element.children("dt");
+        len = dtList.length;
+        if(len > 0) {
+            this.element.click(this.onFoldTitleClickHandler);
+        }
+        for(i = 0; i < len; i++) {
+            dt = $(dtList[i]);
+            text = dt.text();
+            dt.addClass("ui-fold-view-title");
+            div = $("<div class='ui-fold-view-icon border-highlight' />");
+            if(dt.next().css("display" === "none")) {
+                div.addClass("background-highlight").text("+");
+            } else {
+                div.addClass("font-highlight").text("-");
+            }
+            dt.empty();
+            dt.append(div)
+                .append("<span class='font-highlight'>" + text + "</span>");
+        }
+    }
+};
+
+$.fn.foldView = function() {
+    var i,
+        elem,
+        foldView;
+    if(this.length === 0) {
+        return;
+    }
+    for(i = 0; i < this.length; i++) {
+        elem = $(this[i]);
+        if(!elem.isNodeName("dl") || !elem.hasClass("ui-fold-view")) {
+            continue;
+        }
+        foldView = FoldView(elem);
+        foldView._render();
+        elem[0].foldView = foldView;
+    }
+};
+
+
+})(jQuery, ui);
+
 // Source: ui/control/view/grid-view-group.js
 
 (function($, ui) {
@@ -4697,7 +9378,7 @@ GridViewGroup.prototype = {
         var groupList = [];
         var dict = {};
         
-        if(!Array.isArray(list) || list.length == 0) {
+        if(!Array.isArray(list) || list.length === 0) {
             return groupList;
         }
         createGroupItem = $.isFunction(createGroupItem) ? createGroupItem : defaultCreateGroupItem;
@@ -4790,7 +9471,7 @@ function onFoldButtonClick(e) {
     e.stopPropagation();
 
     btn = $(e.target),
-    rowIndex = btn.parent().parent()[0].rowIndex,
+    rowIndex = btn.parent().parent()[0].rowIndex;
     rowData = this.gridview.getRowData(rowIndex);
 
     if (btn.hasClass("unfold")) {
@@ -4957,7 +9638,7 @@ GridViewTree.prototype = {
         var listTree = [];
         var getParentValue = getValue,
             getChildValue = getValue;
-        if (!Array.isArray(list) || list.length == 0)
+        if (!Array.isArray(list) || list.length === 0)
             return listTree;
 
         if ($.isFunction(parentField)) {
@@ -5011,7 +9692,7 @@ GridViewTree.prototype = {
         var listTree = [];
         var getParentValue = getValue,
             getChildValue = getValue;
-        if (!Array.isArray(list) || list.length == 0)
+        if (!Array.isArray(list) || list.length === 0)
             return listTree;
         
         var parents = [],
@@ -5035,7 +9716,7 @@ GridViewTree.prototype = {
             
             level = item._level;
             parents[level] = item;
-            if(level == 0) {
+            if(level === 0) {
                 rootChildren.push(item);
                 continue;
             }
@@ -5349,7 +10030,7 @@ function onSort(e) {
 
     e.stopPropagation();
     viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length == 0) {
+    if (!Array.isArray(viewData) || viewData.length === 0) {
         return;
     }
     elem = $(e.target);
@@ -5589,10 +10270,8 @@ ui.define("ui.ctrls.GridView", {
         this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
         // 横向滚动条同步事件
         this.onScrollingXHandler = $.proxy(onScrollingX, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
@@ -5669,7 +10348,7 @@ ui.define("ui.ctrls.GridView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.gridFoot.append(this.pager.pageInfoPanel)
+                this.gridFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -5746,7 +10425,7 @@ ui.define("ui.ctrls.GridView", {
             c._columnKeys[column] = column.split(".");
         }
         arr = c._columnKeys[column];
-        var value = rowData[arr[i]];
+        value = rowData[arr[i]];
         for (i = 1; i < arr.length; i++) {
             value = value[arr[i]];
             if (value === undefined || value === null) {
@@ -5860,7 +10539,7 @@ ui.define("ui.ctrls.GridView", {
             if(match) {
                 ex = ex.match(tag)[1];
                 if(ex === tagName) {
-                    return !(elem.attr(match[1]) === match[4]);
+                    return elem.attr(match[1]) !== match[4];
                 }
             } else {
                 if(ex.toLowerCase() === tagName) {
@@ -6044,7 +10723,7 @@ ui.define("ui.ctrls.GridView", {
         }
         this.option.viewData = viewData;
 
-        if(viewData.length == 0) {
+        if(viewData.length === 0) {
             this._showDataPrompt();
             return;
         } else {
@@ -6145,7 +10824,7 @@ ui.define("ui.ctrls.GridView", {
         } else {
             fn = function(elem) {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
-            }
+            };
         }
 
         if(this.isMultiple()) {
@@ -6492,10 +11171,8 @@ ui.define("ui.ctrls.ListView", {
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
         this.onListItemClickHandler = $.proxy(onListItemClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         this.element.addClass("ui-list-view");
 
         this.listPanel = $("<ul class='ui-list-view-ul' />");
@@ -6560,7 +11237,7 @@ ui.define("ui.ctrls.ListView", {
     },
     _createItemHtml: function(builder, item, index) {
         var content,
-            index,
+            idx,
             temp;
         builder.push("<li ", indexAttr, "='", index, "' class='ui-list-view-item'>");
         content = this.option.itemFormatter.call(this, item, index);
@@ -6570,8 +11247,8 @@ ui.define("ui.ctrls.ListView", {
             builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
-            index = temp.lastIndexOf("'");
-            builder[builder.length - 1] = temp.substring(0, index);
+            idx = temp.lastIndexOf("'");
+            builder[builder.length - 1] = temp.substring(0, idx);
             // 添加class
             if(ui.core.isString(content.class)) {
                 builder.push(" ", content.class);
@@ -6892,7 +11569,7 @@ ui.define("ui.ctrls.ListView", {
 
         viewData = this.getViewData();
         size = this.count();
-        if(size == 0) {
+        if(size === 0) {
             return;
         }
         if(sourceIndex < 0 || sourceIndex >= size) {
@@ -6970,7 +11647,7 @@ ui.define("ui.ctrls.ListView", {
             index = indexes[i];
             li = liList[index];
             if(li) {
-                this._selectItem($(li), index, true, !(i < len - 1));
+                this._selectItem($(li), index, true, (i >= len - 1));
             }
         }
     },
@@ -7271,7 +11948,7 @@ function onSort(e) {
 
     e.stopPropagation();
     viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length == 0) {
+    if (!Array.isArray(viewData) || viewData.length === 0) {
         return;
     }
     elem = $(e.target);
@@ -7589,10 +12266,8 @@ ui.define("ui.ctrls.ReportView", {
         this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick);
         // 数据行点击事件
         this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
-
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(!this.element.hasClass("ui-report-view")) {
             this.element.addClass("ui-report-view");
         }
@@ -7777,7 +12452,7 @@ ui.define("ui.ctrls.ReportView", {
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.reportFoot.append(this.pager.pageInfoPanel)
+                this.reportFoot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
@@ -7912,7 +12587,7 @@ ui.define("ui.ctrls.ReportView", {
             for (i = 0; i < groupColumns.length; i++) {
                 row = groupColumns[i];
                 tr = $("<tr />");
-                if (!row || row.length == 0) {
+                if (!row || row.length === 0) {
                     tr.addClass(emptyRow);
                 }
                 columnIndex = 0;
@@ -8074,7 +12749,7 @@ ui.define("ui.ctrls.ReportView", {
             c._columnKeys[column] = column.split(".");
         }
         arr = c._columnKeys[column];
-        var value = rowData[arr[i]];
+        value = rowData[arr[i]];
         for (i = 1; i < arr.length; i++) {
             value = value[arr[i]];
             if (value === undefined || value === null) {
@@ -8455,7 +13130,7 @@ ui.define("ui.ctrls.ReportView", {
         } else {
             fn = function(elem) {
                 elem.removeClass(selectedClass).removeClass("background-highlight");
-            }
+            };
         }
 
         if(this.isMultiple()) {
@@ -8888,7 +13563,7 @@ View.prototype = {
         });
     },
     showIndex: function(index, animation) {
-        var tabView;
+        var tabView,
             views;
 
         tabView = this.tabView;
@@ -9032,7 +13707,7 @@ Tab.prototype = {
         }
     },
     showIndex: function(index, animation) {
-        var tabView;
+        var tabView,
             views;
 
         tabView = this.tabView;
@@ -9121,9 +13796,8 @@ ui.define("ctrls.TabView", {
         }
 
         this.isHorizontal = this.option.direction !== "vertical";
-        this._init();
     },
-    _init: function() {
+    _render: function() {
         if(this.option.type === "view") {
             this.model = View(this);
         } else {
@@ -9211,7 +13885,7 @@ TabManager.prototype = {
                 elem = [];
                 for (j = 0; j < id.length; j++) {
                     elem.push($("#" + id[j]));
-                    if (elem[elem.length - 1].length == 0) {
+                    if (elem[elem.length - 1].length === 0) {
                         elem.pop();
                     }
                 }
@@ -9252,8 +13926,8 @@ TabManager.prototype = {
         }
         
         args = [];
-        i = 3, len = arguments.length;
-        for(; i < len; i++) {
+        len = arguments.length;
+        for(i = 3; i < len; i++) {
             args.push(arguments[i]);
         }
         if(!this.tabLoadStates[index]) {
@@ -9289,7 +13963,7 @@ ui.ctrls.TabView.TabManager = TabManager;
  */
 
 ui.define("ui.ctrls.TreeView", {
-    _init: function() {
+    _render: function() {
         var position;
 
         this.treePanel = this.element;
@@ -9388,7 +14062,7 @@ ui.define("ui.ctrls.ConfirmButton", {
             }
         }
         var that = this;
-        if(this.state == 0) {
+        if(this.state === 0) {
             this.next();
             this.backTimeHandler = setTimeout(function() {
                 that.back();
@@ -9425,7 +14099,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
         var that = this,
             option;
-        if(this.state == 0) {
+        if(this.state === 0) {
             option = this.changeAnimator[0];
             option.target.css("margin-left", "0%");
             option.begin = 0;
@@ -9454,7 +14128,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         });
     },
     disabled: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.disabled;
         } else {
             this.option.disabled = !!arguments[0];
@@ -9466,7 +14140,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
     },
     readonly: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.readonly;
         } else {
             this.option.readonly = !!arguments[0];
@@ -9479,7 +14153,7 @@ ui.define("ui.ctrls.ConfirmButton", {
     },
     text: function() {
         var span = this.element.children(".text-state");
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return span.text();
         } else {
             return span.text(ui.str.trim(arguments[0] + ""));
@@ -9487,7 +14161,7 @@ ui.define("ui.ctrls.ConfirmButton", {
     }
 });
 $.fn.confirmClick = function(option) {
-    if (!this || this.length == 0) {
+    if (!this || this.length === 0) {
         return null;
     }
     if(ui.core.isFunction(option)) {
@@ -9565,44 +14239,8 @@ ui.define("ui.ctrls.ExtendButton", {
                 this.centerIcon.append(this.option.centerIcon);
             }
         }
-        
-        this._createAnimator();
-        this._init();
     },
-    _createAnimator: function() {
-        this.buttonPanelAnimator = ui.animator({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css("top", val + "px");
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css("left", val + "px");
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(val) {
-                this.target.css({
-                    "width": val + "px",
-                    "height": val + "px"
-                });
-            }
-        }).addTarget({
-            target: this.buttonPanelBackground,
-            onChange: function(op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
-            }
-        });
-        this.buttonPanelAnimator.duration =240;
-
-        this.buttonAnimator = ui.animator();
-        this.buttonAnimator.duration = 240;
-    },
-    _init: function() {
+    _render: function() {
         var i = 0,
             len,
             that = this;
@@ -9659,6 +14297,41 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
+        
+        this._createAnimator();
+    },
+    _createAnimator: function() {
+        this.buttonPanelAnimator = ui.animator({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css("top", val + "px");
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(val) {
+                this.target.css({
+                    "width": val + "px",
+                    "height": val + "px"
+                });
+            }
+        }).addTarget({
+            target: this.buttonPanelBackground,
+            onChange: function(op) {
+                this.target.css({
+                    "opacity": op / 100,
+                    "filter": "Alpha(opacity=" + op + ")"
+                });
+            }
+        });
+        this.buttonPanelAnimator.duration =240;
+
+        this.buttonAnimator = ui.animator();
+        this.buttonAnimator.duration = 240;
     },
     bindShowEvent: function() {
         var that = this;
@@ -9913,7 +14586,7 @@ ui.define("ui.ctrls.ExtendButton", {
 });
 
 $.fn.extendButton = function(option) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     return ui.ctrls.ExtendButton(option, this);
@@ -10160,8 +14833,8 @@ ui.define("ui.ctrls.HoverView", {
         this.height = this.viewPanel.outerHeight();
 
         this.target = null;
-        this.targetWidth;
-        this.targetHeight;
+        this.targetWidth = null;
+        this.targetHeight = null;
 
         this.hasDocMousemoveEvent = false;
 
@@ -10533,7 +15206,7 @@ ui.define("ui.ctrls.SwitchButton", {
         return this.switchBox.hasClass("switch-open");  
     },
     readonly: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.option.readonly;
         } else {
             this.option.readonly = !!arguments[0];
@@ -10545,7 +15218,7 @@ ui.define("ui.ctrls.SwitchButton", {
         }
     },
     val: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.element.val();
         } else {
             this.element.val(arguments[0]);
@@ -10553,12 +15226,11 @@ ui.define("ui.ctrls.SwitchButton", {
     },
     checked: function() {
         var checked;
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return this.element.prop("checked");
         } else {
-            arguments[0] = !!arguments[0];
             checked = this.element.prop("checked");
-            if(arguments[0] !== checked) {
+            if((!!arguments[0]) !== checked) {
                 this.element.prop("checked", arguments[0]);
                 this.onChange();
             } else {
@@ -10573,7 +15245,7 @@ ui.define("ui.ctrls.SwitchButton", {
     }
 });
 $.fn.switchButton = function(option) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return null;
     }
     if(this.nodeName() !== "INPUT" && this.prop("type") !== "checkbox") {
@@ -10691,7 +15363,7 @@ function ajaxUpload() {
     this.doUpload = function () {
         var files = this.inputFile[0].files,
             file = files[0];
-        if (!files || files.length == 0) {
+        if (!files || files.length === 0) {
             return;
         }
         var fileName = file.fileName || file.name,
@@ -10731,7 +15403,7 @@ function fromUpload() {
         this.fire("progressing", this.percent);
 
         contentWindow = this._iframe[0].contentWindow;
-        fileInfo = contentWindow.fileInfo,
+        fileInfo = contentWindow.fileInfo;
         errorMsg = contentWindow.error;
         if (!fileInfo && !errorMsg) {
             return;
@@ -10822,10 +15494,8 @@ ui.define("ui.ctrls.Uploader", {
         this.onInputFileChangeHandler = $.proxy(onInputFileChange, this);
 
         this._reset();
-        this._init();
     },
-
-    _init: function() {
+    _render: function() {
         this._prepareUploadMode();
         this._initUploadButton();
         this._initUpload();
@@ -10898,10 +15568,8 @@ ui.define("ui.ctrls.Uploader", {
         if (index === -1) {
             return false;
         }
-        this.fileName = 
-            path.substring(path.lastIndexOf("\\") + 1, index),
-        this.extension = 
-            path.substring(index).toLowerCase().trim();
+        this.fileName = path.substring(path.lastIndexOf("\\") + 1, index);
+        this.extension = path.substring(index).toLowerCase().trim();
 
         if (this.option.filter === "*.*") {
             return true;
@@ -10942,10 +15610,10 @@ ui.define("ui.ctrls.ImagePreview", {
         this.viewer = this.element.children(".image-view-panel");
         this.chooser = this.element.children(".image-preview-chooser");
         
-        if(this.viewer.length == 0) {
+        if(this.viewer.length === 0) {
             throw new Error("需要设置一个class为image-view-panel的元素");
         }
-        if(this.chooser.length == 0) {
+        if(this.chooser.length === 0) {
             throw new Error("需要设置一个class为image-preview-chooser的元素");
         }
         
@@ -10954,10 +15622,8 @@ ui.define("ui.ctrls.ImagePreview", {
             this.option.chooserButtonSize = 16;
         }
         this.item = [];
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
@@ -11185,7 +15851,7 @@ ui.define("ui.ctrls.ImagePreview", {
         }
     },
     setImages: function(images) {
-        if(!Array.isArray(images) || images.length == 0) {
+        if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
@@ -11283,7 +15949,7 @@ ui.define("ui.ctrls.ImagePreview", {
 });
 
 $.fn.imagePreview = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImagePreview(option, this);
@@ -11317,7 +15983,7 @@ ui.define("ui.ctrls.ImageViewer", {
             this.option.images = [];
         }
         if(ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
-            this.isAutoView = false
+            this.isAutoView = false;
         } else {
             this.isAutoView = true;
         }
@@ -11327,10 +15993,8 @@ ui.define("ui.ctrls.ImageViewer", {
         
         this.isHorizontal = this.option.direction === "horizontal";
         this.animationCssItem = this.isHorizontal ? "left" : "top";
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         var that = this;
         this.element.addClass("image-view-panel");
         this.currentView = null;
@@ -11382,7 +16046,7 @@ ui.define("ui.ctrls.ImageViewer", {
         this.viewAnimator.duration = 500;
     },
     setImages: function() {
-        if(arguments.length == 0) {
+        if(arguments.length === 0) {
             return;
         }
         this.empty();
@@ -11401,7 +16065,7 @@ ui.define("ui.ctrls.ImageViewer", {
         this._loadImages(images);
     },
     _loadImages: function(images) {
-        if(images.length == 0) {
+        if(images.length === 0) {
             return;
         }
         
@@ -11525,7 +16189,7 @@ ui.define("ui.ctrls.ImageViewer", {
         });
     },
     showImage: function(index) {
-        if(this.images.length == 0) {
+        if(this.images.length === 0) {
             return;
         }
         if(this._autoViewHandler) {
@@ -11609,7 +16273,7 @@ ui.define("ui.ctrls.ImageViewer", {
 });
 
 $.fn.imageViewer = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImageViewer(option, this);
@@ -11645,13 +16309,14 @@ ui.define("ui.ctrls.ImageWatcher", {
         
         this.zoomView.append(this.zoomImage);
         this.element.append(this.focusView).append(this.zoomView);
-        
+    },
+    _render: function() {
         this._initImage();
         this._initZoomer();
     },
     _initImage: function() {
         this.image = $(this.element.children("img")[0]);
-        if(this.image.length == 0) {
+        if(this.image.length === 0) {
             throw new Error("元素中没有图片，无法使用图片局部查看器");
         }
         this.imageOffsetWidth = this.image.width();
@@ -11772,7 +16437,7 @@ ui.define("ui.ctrls.ImageWatcher", {
 });
 
 $.fn.imageWatcher = function(option) {
-    if(this.length == 0) {
+    if(this.length === 0) {
         return;
     }
     return ui.ctrls.ImageWatcher(option, this);
@@ -11833,22 +16498,20 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.parentContent = this.option.parentContent;
         this.closeButton = null;
         this.mask = null;
-        this.width;
-        this.height;
+        this.width = null;
+        this.height = null;
 
         this.target = null;
-        this.targetTop;
-        this.targetLeft;
+        this.targetTop = null;
+        this.targetLeft = null;
 
         if($.isFunction(this.option.getLargeImageSrc)) {
             this._getLargeImageSrc = this.option.getLargeImageSrc;
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
-
-        this._init();
     },
-    _init: function () {
+    _render: function () {
         this.imagePanel = $("<div class='show-image-panel' />");
         this.currentView = $("<div class='image-view-panel' style='display:none;' />");
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
@@ -11958,7 +16621,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         
         var that = this;
         ui.mask.open({
-            opacity: .8
+            opacity: 0.8
         });
         img.animate({
             "left": left + "px",
@@ -12160,7 +16823,7 @@ ui.define("ui.ctrls.ImageZoomer", {
 });
 
 $.fn.addImageZoomer = function (image) {
-    if (this.length == 0) {
+    if (this.length === 0) {
         return;
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
@@ -12179,7 +16842,7 @@ $.fn.addImageZoomer = function (image) {
                         },
                         //failed
                         function(size) {
-                            image.show(target)
+                            image.show(target);
                         }
                     );
             }

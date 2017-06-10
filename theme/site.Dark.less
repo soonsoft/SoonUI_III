@@ -4,8 +4,18 @@
 */
 
 @background-color: #1d1f21;
+@first-bg-color: #2e3032;
+@second-bg-color: #37383a;
+@third-bg-color: #434547;
+@fouth-bg-color: #505253;
 @font-color: #aaaaaa;
+@first-color: #949494;
+@second-color: #808080;
+@third-color: #737373;
+@fouth-color: #676767;
 @border-color: #5d5f60;
+@first-border-color: #3c3f41;
+@second-border-color: #4b4d4f;
 @panel-color: #3c3f41;
 @panel-hover-color: #5d5f60;
 @panel-active-color: #1d1f21;
@@ -15,6 +25,11 @@
 @hover-color: #999999;
 @active-color: #999999;
 @shadow-color: #999999;
+@container-aside: 9000;
+@mask-layer: 9999;
+@box-layer: 9999;
+@ctrl-layer: 10000;
+@highest-layer: 10001;
 
 @font-normal: 0.813em;
 @font-small: 0.750em;
@@ -509,6 +524,15 @@ textarea {
     overflow: auto;
 }
 
+.ui-form {
+    margin: 0;
+    padding: 0;
+}
+    .ui-form .required {
+        color: #f00921;
+        margin-left: 3px;
+    }
+
 /* 操作按钮，会改变后台数据的按钮，实心的 */
 .button {
     min-width: 80px;
@@ -530,6 +554,35 @@ textarea {
         background-color: @disabled-color !important;
         color: @readonly-color;
     }
+
+
+
+/* 通用的关闭按钮 */
+.closable-button {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    text-decoration: none;
+    font: 18px/16px Tahoma,Verdana,sans-serif;
+    width: 14px;
+    height: 14px;
+    line-height: 12px;
+    color: @tool-color;
+    cursor: pointer;
+}
+
+/* 可拖动的元素 */
+.draggable-handle {
+    cursor: move;
+}
+
+/* 不能选择 */
+.unselectable {
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
 
 /*滚动条样式*/
 /*IE*/

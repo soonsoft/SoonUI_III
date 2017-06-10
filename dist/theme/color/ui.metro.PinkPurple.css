@@ -53,6 +53,9 @@ textarea:focus,
 select:focus {
   border-color: #A988DF;
 }
+.closable-button:hover {
+  color: #A988DF;
+}
 ::selection {
   background-color: #A988DF;
   color: #ffffff;
@@ -63,15 +66,14 @@ select:focus {
 }
 /*UI Ctrls Style*/
 /*dateChooser*/
-div.calendar-panel td:hover {
+.ui-date-chooser-panel .date-chooser-year-td:hover,
+.ui-date-chooser-panel .date-chooser-month-td:hover,
+.ui-date-chooser-panel .date-chooser-calendar-td:hover {
   color: #A988DF;
 }
-div.date-panel div.days-panel td.other-month:hover {
-  color: #A988DF;
+.ui-date-chooser-panel .date-chooser-prev:hover {
+  border-right-color: #A988DF;
 }
-div.calendar-panel div.prev:hover {
-  border-color: transparent #A988DF transparent transparent;
-}
-div.calendar-panel div.next:hover {
-  border-color: transparent transparent transparent #A988DF;
+.ui-date-chooser-panel .date-chooser-prev:hover {
+  border-left-color: #A988DF;
 }
