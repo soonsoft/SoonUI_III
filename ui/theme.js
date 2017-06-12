@@ -35,7 +35,7 @@ ui.theme = {
                     url,
                     urlObj;
                 if(success.Result) {
-                    sheet = $("#" + this.themeSheetId);
+                    sheet = $("#" + ui.theme.themeSheetId);
                     if(sheet.length > 0) {
                         url = sheet.prop("href");
                         url = ui.url.setParams({
