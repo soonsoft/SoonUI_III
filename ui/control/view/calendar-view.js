@@ -1566,32 +1566,25 @@ WeekView.prototype = {
     },
     /** 设置选中的元素 返回数组 */
     getSelection: function() {
-        var cells,
-            unitTime, unitCount,
-            getDateFn,
+        var hours, date,
             i, len,
             result;
 
-        unitTime = this.calendar.option.unitTime;
         result = [];
-        cells = this.selector.getSelectedCells();
-        if(cells.length === 0) {
+        hours = this.selector.getSelection();
+        if(!hours) {
             return result;
         }
 
-        unitCount = this._getTimeCellCount();
-        getDateFn = function(hourIndex, weekIndex) {
-            var h, m,
-                date;
-            date = this.weekDays[weekIndex];
-            h = Math.floor(hourIndex / unitCount);
-            m = (hourIndex / unitCount - h) * 60;
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0);
-        };
-
-        result.push(getDateFn.call(this, cells[0].hourIndex, cells[0].weekIndex));
+        date = this.weekDays[hours.weekIndex];
         for(i = 0, len = cells.length; i < len; i++) {
-            result.push(getDateFn.call(this, cells[0].hourIndex + 1, cells[0].weekIndex));
+            result.push(new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(), 
+                time.hours, 
+                time.minutes, 
+                time.seconds));
         }
         return result;
     },
@@ -1617,7 +1610,7 @@ WeekView.prototype = {
 
         startTime = ui.str.dateFormat(start, "hh:mm:ss");
         endTime = ui.str.dateFormat(end, "hh:mm:ss");
-        this.selector.selectCellByTime(weekIndex, startTime, endTime);
+        this.selector.setSelectionByTime(weekIndex, startTime, endTime);
     },
     /** 取消选中状态 */
     cancelSelection: function() {
@@ -1880,7 +1873,7 @@ Selector.prototype = {
         this.panel = panel;
         this.grid = table;
 
-        this.isBeginSelect = false;
+        this._isBeginSelect = false;
         this.cellWidth = 1;
         this.cellHeight = 25;
 
@@ -1898,7 +1891,7 @@ Selector.prototype = {
         this.mouseLeftButtonDownHandler = $.proxy(function (e) {
             if (e.which !== 1)
                 return;
-            $(document).on("mousemove", this.mouseMove);
+            $(document).on("mousemove", this.mouseMoveHandler);
             $(document).on("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseDown($(e.target), e.clientX, e.clientY);
         }, this);
@@ -1922,7 +1915,7 @@ Selector.prototype = {
         this.selectAnimator = ui.animator(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
-                if (that.selectDirection === "up") {
+                if (that._selectDirection === "up") {
                     return;
                 }
                 elem.css("top", val + "px");
@@ -1941,7 +1934,7 @@ Selector.prototype = {
         }).addTarget(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
-                if (that.selectDirection) {
+                if (that._selectDirection) {
                     return;
                 }
                 elem.css("height", val + "px");
@@ -1955,6 +1948,355 @@ Selector.prototype = {
         };
         this.selectAnimator.duration = 200;
         this.selectAnimator.fps = 60;
+    },
+    _getSelectedCells: function() {
+        var cells = [],
+            box = this.selectionBox,
+            text, beginIndex, endIndex,
+            boxBorderTopWidth, top, left,
+            first, count,
+            table, row, cell, i;
+
+        if (box.css("display") === "none") {
+            return cells;
+        }
+        text = box.text().split("-");
+        beginIndex = ui.str.trim(text[0] || "");
+        endIndex = ui.str.trim(text[1] || "");
+        if (!beginIndex || !endIndex) {
+            return cells;
+        }
+        beginIndex = this.view.calendar.timeToIndex(beginIndex);
+        endIndex = this.view.calendar.timeToIndex(endIndex) - 1;
+
+        boxBorderTopWidth = parseFloat(box.css("border-top-width"));
+        top = beginIndex * this.cellHeight + 1;
+        left = parseFloat(box.css("left")) + boxBorderTopWidth + 1;
+        first = this._getCellByPoint(left, top);
+        cells.push(first);
+
+        count = endIndex - beginIndex + 1;
+        table = this.grid[0];
+        for (i = 1; i < count; i++) {
+            row = table.rows[i + first.hourIndex];
+            cell = $(tableRow.cells[first.weekIndex]);
+            cell.hourIndex = i + first.hourIndex;
+            cell.weekIndex = first.weekIndex;
+            cells.push(cell);
+        }
+        return cells;
+    },
+    _getCellByPoint: function(x, y) {
+        var columnIndex, rowIndex, count,
+            table, tableRow, tableCell;
+        
+        columnIndex = Math.ceil(x / this.cellWidth);
+        rowIndex = Math.ceil(y / this.cellHeight);
+        count = this.view.calendar._getTimeCellCount() * 24;
+
+        if (columnIndex < 1) {
+            columnIndex = 1;
+        }
+        if (columnIndex > 7) {
+            columnIndex = 7;
+        }
+        if (rowIndex < 1) {
+            rowIndex = 1;
+        }
+        if (rowIndex > count) {
+            rowIndex = count;
+        }
+
+        rowIndex--;
+        columnIndex--;
+
+        table = this.grid[0];
+        tableRow = table.rows[rowIndex];
+
+        tableCell = $(tableRow.cells[columnIndex]);
+        tableCell.hourIndex = rowIndex;
+        tableCell.weekIndex = columnIndex;
+        return tableCell;
+    },
+    _selectCell: function(td) {
+        var box, 
+            p, beginIndex, endIndex,
+            option,
+            beginTime, endTime; 
+
+        box = this.selectionBox;
+        p = this.getPositionAndSize(td);
+        beginIndex = td.locationInGrid.row;
+        endIndex = td.locationInGrid.row + 1;
+        if (arguments.length > 1 && arguments[1]) {
+            endIndex = arguments[1].locationInGrid.row + 1;
+            var p2 = this.getPositionAndSize(arguments[1]);
+            p.height = p2.top + p2.height - p.top
+        }
+
+        this._selectDirection = null;
+
+        this.selectAnimator.stop();
+        option = this.selectAnimator[0];
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = p.top;
+
+        option = this.selectAnimator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = p.left;
+
+        option = this.selectAnimator[2];
+        option.begin = parseFloat(option.target.css("width"));
+        option.end = p.width;
+
+        option = this.selectAnimator[3];
+        option.begin = parseFloat(option.target.css("height"));
+        option.end = p.height;
+
+        box.css("display", "block");
+        this.animating = true;
+        this.selectAnimator.start();
+
+        //设置选择时间
+        beginTime = this.view.calendar.indexToTime(beginIndex);
+        endTime = this.view.calendar.indexToTime(endIndex);
+        box.boxTextSpan.text(beginTime + " - " + endTime);
+    },
+    _autoScrollY: function (value, direction) {
+        var currentScrollY,
+            bottom;
+        
+        currentScrollY = this.panel.scrollTop();
+        if (direction === "up") {
+            if (value < currentScrollY) {
+                this.panel.scrollTop(currentScrollY < this.cellHeight ? 0 : currentScrollY - this.cellHeight);
+            }
+        } else if (direction === "down") {
+            bottom = currentScrollY + this.panel.height();
+            if (value > bottom) {
+                this.panel.scrollTop(currentScrollY + this.cellHeight);
+            }
+        }
+    },
+    _isClickInGrid: function(x, y) {
+        var position,
+            left,
+            top,
+            right,
+            bottom,
+            width,
+            height;
+        
+        position = this.panel.offset();
+        left = position.left + timeTitleWidth;
+        top = position.top;
+
+        width = this.grid.width();
+        height = this.panel.height();
+        right = left + width - 1;
+        bottom = top + height;
+        if (height < this.panel[0].scrollHeight) {
+            right -= ui.scrollbarWidth;
+        }
+
+        return x >= left && x <= right && y >= top && y <= bottom;
+    },
+    _checkSelectable: function(td) {
+        var count = this.view.calendar._getTimeCellCount();
+        this.selectableMin = 0;
+        this.selectableMax = 24 * count - 1;
+    },
+    _changeToGridPoint: function(x, y) {
+        var position = this.panel.offset();
+        position.left = position.left + timeTitleWidth;
+        return {
+            gridX: x - position.left + this.panel.scrollLeft(),
+            gridY: y - position.top + this.panel.scrollTop()
+        };
+    },
+    _getPositionAndSize: function(td) {
+        var position = td.position();
+        position.left = position.left + timeTitleWidth;
+        return {
+            top: position.top - 2,
+            left: position.left - 2,
+            width: td.outerWidth() - 1,
+            height: td.outerHeight() - 1
+        };
+    },
+
+    // 事件处理
+    onMouseDown: function(elem, x, y) {
+        var td, 
+            nodeName, 
+            point;
+        
+        if (!this._isClickInGrid(x, y)) {
+            this._clickInGrid = false;
+            return;
+        }
+        this._clickInGrid = true;
+
+        point = this._changeToGridPoint(x, y);
+        if(elem.nodeName() != "TD") {
+            if(!elem.hasClass("click-enabled")) {
+                return;
+            }
+            td = this._getCellByPoint(this.focusX, point.gridY);
+        } else {
+            td = elem;
+            td.weekIndex = td[0].cellIndex;
+            td.hourIndex = td.parent()[0].rowIndex;
+        }
+
+        if(this.view.calendar.fire("selecting", this.view) === false) {
+            return;
+        }
+
+        this._startCell = td;
+        this._selectCell(td);
+
+        //确定可选区间
+        this._checkSelectable(td);
+
+        this._isBeginSelect = true;
+        this.focusX = point.gridX;
+        this.focusY = point.gridY;
+    },
+    onMouseMove: function (e) {
+        var point,
+            td, 
+            p, p2,
+            box,
+            begin, end,
+            beginTime, endTime;
+        
+        point = this._changeToGridPoint(e.clientX, e.clientY);
+        td = this._getCellByPoint(this.focusX, point.gridY);
+
+        p = this._getPositionAndSize(td);
+        p2 = this._getPositionAndSize(this._startCell);
+
+        if (td.hourIndex < this.selectableMin || td.hourIndex > this.selectableMax) {
+            return;
+        }
+
+        box = this.selectionBox;
+        if (point.gridY > this.focusY) {
+            begin = this._startCell;
+            end = td;
+            box.css({
+                "height": (p.top + p.height - p2.top) + "px"
+            });
+            this._selectDirection = "down";
+            this._autoScrollY(p.top + p.height, this._selectDirection);
+        } else {
+            begin = td;
+            end = this._startCell;
+            box.css({
+                "top": p.top + "px",
+                "height": p2.top + p2.height - p.top + "px"
+            });
+            this._selectDirection = "up";
+            this.autoScrollY(p.top, this._selectDirection);
+        }
+
+        beginTime = this.view.calendar.indexToTime(begin.hourIndex),
+        endTime = this.view.calendar.indexToTime(end.hourIndex + 1);
+        box.boxTextSpan.text(beginTime + " - " + endTime);
+    },
+    onMouseUp: function(e) {
+        if (!this._clickInGrid) {
+            return;
+        }
+        if (!this.animating) {
+            this.onSelectCompleted();
+        }
+    },
+    onSelectCompleted: function() {
+        var box = null,
+            that = this;
+        if (arguments.length > 0 && arguments[0]) {
+            box = arguments[0];
+        } else {
+            box = this.selectionBox;
+        }
+        //保证动画流畅
+        setTimeout(function () {
+            var data = {
+                top: parseFloat(box.css("top")),
+                left: parseFloat(box.css("left")),
+                parentWidth: that.view.viewPanel.width() - timeTitleWidth,
+                parentHeight: that.view.hourTable.outerHeight()
+            };
+            that.view.calendar.fire("selected", that.view, box, data);
+        }, 50);
+    },
+
+    getSelection: function() {
+        var result,
+            cells,
+            unitCount,
+            getDateFn,
+            i, len;
+        
+        cells = this._getSelectedCells();
+        if(cells.length === 0) {
+            return null;
+        }
+
+        result = {
+            weekIndex: null,
+            timeArray: []
+        };
+
+        unitCount = this.view.calendar._getTimeCellCount();
+        getDateFn = function(hourIndex) {
+            var h, m;
+            h = Math.floor(hourIndex / unitCount);
+            m = (hourIndex / unitCount - h) * 60;
+            return {
+                hours: h,
+                minutes: m,
+                seconds: 0
+            };
+        };
+
+        result.weekIndex = cells[0].weekIndex;
+        result.timeArray.push(getDateFn(cells[0].hourIndex));
+        for(i = 0, len = cells.length; i < len; i++) {
+            result.push(getDateFn(cells[i].hourIndex + 1));
+        }
+        return result;
+    },
+    setSelectionByTime: function (weekDay, beginTime, endTime) {
+        var pointX,
+            beginPointY, endPointY,
+            begin, end;
+
+        pointX = (weekDay + 1) * this.cellWidth - 1;
+        beginPointY = (this.view.calendar.timeToIndex(beginTime) + 1) * this.cellHeight - 1;
+        endPointY = this.view.calendar.timeToIndex(endTime) * this.cellHeight - 1;
+        begin = this.getCellByPoint(pointX, beginPointY);
+        end = this.getCellByPoint(pointX, endPointY);
+
+        this.focusX = pointX;
+        this.focusY = beginPointY;
+
+        this.view.setBeginTime(beginTime);
+
+        this._startCell = begin;
+        this._selectCell(begin, end);
+    },
+    cancelSelection: function () {
+        var box = this.selectionBox;
+        box.css("display", "none");
+
+        this._startCell = null;
+        this.focusX = 0;
+        this.focusY = 0;
+
+        this.view.calendar.fire("deselected", this.view, box);
     },
     active: function (justEvent) {
         if (!justEvent) {
@@ -2430,3 +2772,51 @@ $.fn.calendarView = function(option) {
     }
     return ui.ctrls.CalendarView(option, this);
 };
+
+var themeStyle;
+function initCalendarViewTheme(colorInfo) {
+    var baseColor,
+        color,
+        styleHelper;
+
+    if(!themeStyle) {
+        themeStyle = $("#GlobalThemeChangeStyle");
+        if (themeStyle.length == 0) {
+            themeStyle = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
+        }
+    }
+    if(!colorInfo) {
+        colorInfo = ui.theme.currentTheme;
+    }
+
+    baseColor = ui.theme.backgroundColor || "#FFFFFF";
+    color = ui.theme.overlay(colorInfo.Color, baseColor, .4);
+
+    styleHelper = ui.StyleSheet(themeStyle);
+    styleHelper.setRule("ui-calendar-selector", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel:hover", {
+        "background-color": colorInfo.Color
+    });
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-table .selected", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
+        "background-color": color
+    });
+    color = ui.theme.overlay(data.Color, baseColor, .85);
+    styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
+        "background-color": color
+    });
+}
+
+ui.page.ready(function() {
+    initCalendarViewTheme();
+});
+ui.page.themeChange(function(e, colorInfo) {
+    initCalendarViewTheme(colorInfo);
+});
