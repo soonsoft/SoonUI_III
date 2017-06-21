@@ -45,6 +45,8 @@ ui.define("ui.ctrls.SwitchButton", {
         if(this.checked()) {
             this._open();
         }
+
+        this._defineProperties();
     },
     _createAnimator: function() {
         this.animator = ui.animator({
@@ -62,6 +64,11 @@ ui.define("ui.ctrls.SwitchButton", {
             }
         });
         this.animator.duration = 200;
+    },
+    _defineProperties: function() {
+        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
+        this.defineProperty("value", this.getValue, this.setValue);
+        this.defineProperty("checked", this.getChecked, this.setChecked);
     },
     onChange: function() {
         var checked = this.element.prop("checked");
@@ -144,44 +151,42 @@ ui.define("ui.ctrls.SwitchButton", {
         
         this.animator.start();
     },
-    isOpen: function() {
+    _isOpen: function() {
         return this.switchBox.hasClass("switch-open");  
     },
-    readonly: function() {
-        if(arguments.length === 0) {
-            return this.option.readonly;
+
+    getReadonly: function() {
+        return !!this.option.readonly;
+    },
+    setReadonly: function(value) {
+        this.option.readonly = !!value;
+        if(this.option.readonly) {
+            this.element.attr("readonly", "readonly");
         } else {
-            this.option.readonly = !!arguments[0];
-            if(this.option.readonly) {
-                this.element.attr("readonly", "readonly");
-            } else {
-                this.element.removeAttr("readonly");
-            }
+            this.element.removeAttr("readonly");
         }
     },
-    val: function() {
-        if(arguments.length === 0) {
-            return this.element.val();
-        } else {
-            this.element.val(arguments[0]);
-        }
+    getValue: function() {
+        return this.element.val();
     },
-    checked: function() {
+    setValue: function(value) {
+        this.element.val(value);
+    },
+    getChecked: function() {
+        return this.element.prop("checked");
+    },
+    setChecked: function(value) {
         var checked;
-        if(arguments.length === 0) {
-            return this.element.prop("checked");
+        checked = this.element.prop("checked");
+        if((!!arguments[0]) !== checked) {
+            this.element.prop("checked", arguments[0]);
+            this.onChange();
         } else {
-            checked = this.element.prop("checked");
-            if((!!arguments[0]) !== checked) {
-                this.element.prop("checked", arguments[0]);
-                this.onChange();
-            } else {
-                //修正checkbox和当前样式不一致的状态，可能是手动给checkbox赋值或者是reset导致
-                if(checked && !this.isOpen()) {
-                    this._open();
-                } else if(!checked && this.isOpen()) {
-                    this._close();
-                }
+            //修正checkbox和当前样式不一致的状态，可能是手动给checkbox赋值或者是reset导致
+            if(checked && !this._isOpen()) {
+                this._open();
+            } else if(!checked && this._isOpen()) {
+                this._close();
             }
         }
     }
