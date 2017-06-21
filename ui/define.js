@@ -224,10 +224,10 @@ CtrlBase.prototype = {
         }
 
         if(ui.core.isFunction(getter)) {
-            config.get = getter;
+            config.get = $.proxy(getter, this);
         }
         if(ui.core.isFunction(setter)) {
-            config.set = setter;
+            config.set = $.proxy(setter, this);
         }
 
         config.enumerable = false;
