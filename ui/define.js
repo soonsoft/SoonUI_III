@@ -206,6 +206,35 @@ CtrlBase.prototype = {
     _defineEvents: noop,
     _create: noop,
     _render: noop,
+    /** 提供属性声明方法，用于创建属性 */
+    defineProperty: function(propertyName, getter, setter) {
+        var definePropertyFn,
+            config = {};
+
+        if(!ui.core.isString(propertyName) || propertyName.length === 0) {
+            throw new TypeError("参数propertyName只能是String类型并且不能为空");
+        }
+
+        if(ui.core.isFunction(Reflect.defineProperty)) {
+            definePropertyFn = Reflect.defineProperty;
+        } else if(ui.core.isFunction(Object.defineProperty)) {
+            definePropertyFn = Object.defineProperty;
+        } else {
+            return;
+        }
+
+        if(ui.core.isFunction(getter)) {
+            config.get = getter;
+        }
+        if(ui.core.isFunction(setter)) {
+            config.set = setter;
+        }
+
+        config.enumerable = false;
+        config.configurable = false;
+        definePropertyFn(this, propertyName, config);
+    },
+    /** 默认的toString方法实现，返回类名 */
     toString: function() {
         return this.fullName;
     }
