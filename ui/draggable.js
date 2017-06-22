@@ -115,6 +115,7 @@ MouseDragger.prototype = {
     initialize: function(option) {
         this.doc = document;
         this.shield = null;
+        this.isTurnOn = false;
 
         this.option = $.extend(defaultOption, option);
         if(this.option.hasIframe === true) {
@@ -140,14 +141,20 @@ MouseDragger.prototype = {
         var target = this.option.target,
             handle = this.option.handle,
             parent = this.option.parent;
+        
+        if(this.isTurnOn) {
+            return;
+        }
+
+        this.isTurnOn = true;
         if(!parent.isNodeName("body")) {
-            this.option.originParentPosition = parent.css("position");
+            this.originParentPosition = parent.css("position");
             if (position !== "absolute" && position !== "relative" && position !== "fixed") {
                 parent.css("position", "relative");
             }
         }
-        this.option.targetPosition = target.css("position");
-        if (this.option.targetPosition !== "absolute") {
+        this.originTargetPosition = target.css("position");
+        if (this.originTargetPosition !== "absolute") {
             target.css("position", "absolute");
         }
 
@@ -156,17 +163,21 @@ MouseDragger.prototype = {
             this.option.target.data("mouse-dragger", this);
     },
     off: function() {
+        if(!this.isTurnOn) {
+            return;
+        }
+
+        this.isTurnOn = false;
         this.option.target
             .off("mousedown", this.onMouseDown)
-            .css("position", this.option.originPosition);
+            .css("position", this.originTargetPosition);
         if(this._isDragStart) {
             this.onMouseUpHandler({
                 target: document,
                 which: 1
             });
         }
-        this.option.parent.css("position", this.option.originParentPosition);
-
+        this.option.parent.css("position", this.originParentPosition);
     }
 };
 
