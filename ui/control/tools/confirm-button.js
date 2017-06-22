@@ -1,10 +1,37 @@
 /* 确认按钮 */
+
+function noop() {}
+// 事件
+function onButtonClick(e) {
+    var checkHandler = this.option.checkHandler,
+        that = this;
+
+    if(this.disabled) {
+        return;
+    }
+
+    clearTimeout(this.backTimeHandler);
+    if(ui.core.isFunction(checkHandler)) {
+        if(checkHandler.call(this) === false) {
+            return;
+        }
+    }
+    if(this.state === 0) {
+        this._next();
+        this.backTimeHandler = setTimeout(function() {
+            that._back();
+        }, this.option.backTime);
+    } else if(this.state === 1) {
+        this._next();
+        this.option.handler.call(this);
+    }
+}
+
 ui.define("ui.ctrls.ConfirmButton", {
     _defineOption: function () {
         return {
             disabled: false,
-            readonly: false,
-            backTime: 5000,
+            backTime: 3000,
             checkHandler: false,
             handler: false,
             color: null,
@@ -12,10 +39,6 @@ ui.define("ui.ctrls.ConfirmButton", {
         };
     },
     _create: function() {
-        var text,
-            textState,
-            confirmState;
-
         this.state = 0;
         this.animating = false;
         if(ui.core.type(this.option.backTime) !== "number" || this.option.backTime <= 0) {
@@ -23,8 +46,22 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
 
         if(!ui.core.isFunction(this.option.handler)) {
-            return;
+            this.option.handler = noop;
         }
+
+        this.option.disabled = !!this.option.disabled;
+
+        // 事件处理函数
+        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+
+        this.defineProperty("disabled", this.getDisabled, this.setDisabled);
+        this.defineProperty("text", this.getText, this.setText);
+    },
+    _render: function() {
+        var text,
+            textState,
+            confirmState;
+
         text = this.element.text().trim();
         textState = $("<span class='text-state' />");
         confirmState = $("<i class='confirm-state' />");
@@ -45,7 +82,13 @@ ui.define("ui.ctrls.ConfirmButton", {
             .empty()
             .append(textState)
             .append(confirmState);
+        this.element.click(this.onButtonClickHandler);
         
+        this._initAnimation();
+        
+        this.disabled = this.option.disabled;
+    },
+    _initAnimation: function() {
         this.changeAnimator = ui.animator({
             target: textState,
             ease: ui.AnimationStyle.easeFromTo,
@@ -60,35 +103,14 @@ ui.define("ui.ctrls.ConfirmButton", {
             }
         });
         this.changeAnimator.duration = 200;
-        this.element.click($.proxy(this.doClick, this));
-        
-        this.readonly(this.option.readonly);
-        this.disabled(this.option.disabled);
     },
-    doClick: function(e) {
-        clearTimeout(this.backTimeHandler);
-        if($.isFunction(this.option.checkHandler)) {
-            if(this.option.checkHandler.call(this) === false) {
-                return;
-            }
-        }
-        var that = this;
-        if(this.state === 0) {
-            this.next();
-            this.backTimeHandler = setTimeout(function() {
-                that.back();
-            }, this.option.backTime);
-        } else if(this.state == 1) {
-            this.next();
-            this.option.handler.call(this);
-        }
-    },
-    back: function() {
+    _back: function() {
+        var that,
+            option;
+
         if(this.animating) {
             return;
         }
-        var that = this,
-            option;
         this.state = 0;
         option = this.changeAnimator[0];
         option.target.css("margin-left", "-200%");
@@ -100,16 +122,18 @@ ui.define("ui.ctrls.ConfirmButton", {
         option.end = 100;
         
         this.animating = true;
+        that = this;
         this.changeAnimator.start().done(function() {
             that.animating = false;
         });
     },
-    next: function(state) {
+    _next: function(state) {
+        var that,
+            option;
+
         if(this.animating) {
             return;
         }
-        var that = this,
-            option;
         if(this.state === 0) {
             option = this.changeAnimator[0];
             option.target.css("margin-left", "0%");
@@ -134,41 +158,29 @@ ui.define("ui.ctrls.ConfirmButton", {
             this.state = 0;
         }
         this.animating = true;
+        that = this;
         this.changeAnimator.start().done(function() {
             that.animating = false;
         });
     },
-    disabled: function() {
-        if(arguments.length === 0) {
-            return this.option.disabled;
+    getDisabled: function() {
+        return this.option.disabled;
+    },
+    setDisabled: function(value) {
+        this.option.disabled = !!value;
+        if(this.option.disabled) {
+            this.element.attr("disabled", "disabled");
         } else {
-            this.option.disabled = !!arguments[0];
-            if(this.option.disabled) {
-                this.element.attr("disabled", "disabled");
-            } else {
-                this.element.removeAttr("disabled")
-            }
+            this.element.removeAttr("disabled")
         }
     },
-    readonly: function() {
-        if(arguments.length === 0) {
-            return this.option.readonly;
-        } else {
-            this.option.readonly = !!arguments[0];
-            if(this.option.readonly) {
-                this.element.attr("readonly", "readonly");
-            } else {
-                this.element.removeAttr("readonly");
-            }
-        }
-    },
-    text: function() {
+    getText: function() {
         var span = this.element.children(".text-state");
-        if(arguments.length === 0) {
-            return span.text();
-        } else {
-            return span.text(ui.str.trim(arguments[0] + ""));
-        }
+        return span.text();
+    },
+    setText: function(value) {
+        var span = this.element.children(".text-state");
+        span.text(ui.str.trim(value + ""));
     }
 });
 $.fn.confirmClick = function(option) {
