@@ -72,7 +72,11 @@ ui.define("ui.ctrls.Slidebar", {
             // 界面中是否需要屏蔽iframe
             iframeShield: false,
             // 滑动条的粗细
-            thickness: 8
+            thickness: 8,
+            // 是否是只读的 默认false
+            readonly: false,
+            // 是否是禁用的 默认false
+            disabled: false
         };
     },
     _defineEvents: function() {
@@ -88,10 +92,13 @@ ui.define("ui.ctrls.Slidebar", {
         }
         this.element.addClass("ui-slidebar");
         
+        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
+        this.defineProperty("disabled", this.getDisabled, this.setDisabled);
+        this.defineProperty("value", this.getValue, this.setValue);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
-        this.valuebar = $("<div class='ui-slidebar-value background-highlight' />");
+        this.valuebar = $("<div class='ui-slidebar-value' />");
         this.thumb = $("<b class='ui-slidebar-thumb' />");
 
         this.track
@@ -101,6 +108,9 @@ ui.define("ui.ctrls.Slidebar", {
 
         this._initScale();
         this._initMouseDragger();
+
+        this.readonly = this.option.readonly;
+        this.disabled = this.option.disabled;
     },
     _initScale: function() {
         var thickness = this.option.thickness,
@@ -150,25 +160,53 @@ ui.define("ui.ctrls.Slidebar", {
             }
         };
         this.mouseDragger = new ui.MouseDragger(option);
-        this.mouseDragger.on();
     },
 
     // API
     isHorizontal: function() {
         return this.option.direction === "horizontal";
     },
-    /** 启用禁用 */
-    disabled: function() {
-        // 还没有实现
+    getReadonly: function() {
+        return this.option.readonly;
+    },
+    setReadonly: function(value) {
+        this.option.readonly = !!value;
+        if(this.option.readonly) {
+            this.mouseDragger.off();
+        } else {
+            this.mouseDragger.on();
+        }
+    },
+    /** 获取禁用状态 */
+    getDisabled: function() {
+        return this.option.disabled;
+    },
+    /** 设置禁用状态 */
+    setDisabled: function(value) {
+        this.option.disabled = !!value;
+        if(this.option.disabled) {
+            this.mouseDragger.off();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
+        } else {
+            this.mouseDragger.on();
+            this.valuebar.removeClass("background-highlight");
+            this.thumb.removeClass("background-highlight");
+        }
+    },
+    /** 获取值 */
+    getValue: function() {
+        return this.percent;
     },
     /** 设置值 */
-    setPercent: function(percent) {
-        var value,
-            extend,
+    setValue: function(value) {
+        var extend,
+            percent,
             arg = {
                 option: {}
             };
         extend = this.thumb.width() / 2;
+        percent = value;
         if(ui.core.isNumber(percent)) {
             if(percent < 0) {
                 percent = 0;
@@ -185,7 +223,6 @@ ui.define("ui.ctrls.Slidebar", {
             moving.call(this, arg);
         }
     }
-
 });
 
 $.fn.slidebar = function(option) {
