@@ -46,7 +46,9 @@ ui.define("ui.ctrls.SwitchButton", {
             this._open();
         }
 
-        this._defineProperties();
+        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
+        this.defineProperty("value", this.getValue, this.setValue);
+        this.defineProperty("checked", this.getChecked, this.setChecked);
     },
     _createAnimator: function() {
         this.animator = ui.animator({
@@ -64,11 +66,6 @@ ui.define("ui.ctrls.SwitchButton", {
             }
         });
         this.animator.duration = 200;
-    },
-    _defineProperties: function() {
-        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
-        this.defineProperty("value", this.getValue, this.setValue);
-        this.defineProperty("checked", this.getChecked, this.setChecked);
     },
     onChange: function() {
         var checked = this.element.prop("checked");
