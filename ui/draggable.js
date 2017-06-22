@@ -20,6 +20,89 @@ var defaultOption = {
     onEndDrag: null
 };
 
+// 鼠标按下处理事件
+function mouseDown(e) {
+    var eventArg,
+        result;
+    if (e.which !== 1) return;
+
+    eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    eventArg.currentX = this.currentX = e.pageX;
+    eventArg.currentY = this.currentY = e.pageY;
+
+    if(ui.core.isFunction(this.option.onBeginDrag)) {
+        result = this.option.onBeginDrag.call(this, eventArg);
+        if(result === false) {
+            return;
+        }
+    }
+    doc.on("mousemove", this.onMouseMoveHandler)
+        .on("mouseup", this.onMouseUpHandler)
+        .on("mouseleave", this.onMouseUpHandler);
+    doc.onselectstart = function() { return false; };
+    /*
+        .cancel-user-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;    
+        }
+        */
+    this.option.target.addClass("cancel-user-select");
+    this._isDragStart = true;
+
+    if(this.shield) {
+        body.append(this.shield);
+    }
+}
+// 鼠标移动事件
+function mouseMove(e) {
+    var eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    if(!this._isDragStart) return;
+    
+    eventArg.x = e.pageX - this.currentX;
+    eventArg.y = e.pageY - this.currentY;
+    eventArg.currentX = this.currentX = e.pageX;
+    eventArg.currentY = this.currentY = e.pageY;
+
+    if(ui.core.isFunction(this.option.onMoving)) {
+        this.option.onMoving.call(this, eventArg);
+    }
+}
+// 鼠标抬起
+function mouseUp(e) {
+    var eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    if (e.which !== 1) return;
+    if(!this._isDragStart) return;
+
+    this._isDragStart = false;
+    this.currentX = this.currentY = null;
+
+    doc.off("mousemove", this.onMouseMoveHandler)
+        .off("mouseup", this.onMouseUpHandler)
+        .off("mouseleave", this.onMouseUpHandler);
+    doc.onselectstart = null;
+    this.option.target.removeClass("cancel-user-select");
+
+    if(ui.core.isFunction(this.option.onEndDrag)) {
+        this.option.onEndDrag.call(this, eventArg);
+    }
+
+    if(this.shield) {
+        this.shield.remove();
+    }
+}
+
+
 function MouseDragger(option) {
     if(this instanceof MouseDragger) {
         this.initialize(option);
@@ -49,9 +132,9 @@ MouseDragger.prototype = {
             });
         }
 
-        this.onMouseDown = $.proxy(this.mouseDownHandler, this);
-        this.onMouseMove = $.proxy(this.mouseMoveHandler, this);
-        this.onMouseUp = $.proxy(this.mouseUpHandler, this);
+        this.onMouseDownHandler = $.proxy(mouseDown, this);
+        this.onMouseMoveHandler = $.proxy(mouseMove, this);
+        this.onMouseUpHandler = $.proxy(mouseUp, this);
     },
     on: function() {
         var target = this.option.target,
@@ -76,82 +159,14 @@ MouseDragger.prototype = {
         this.option.target
             .off("mousedown", this.onMouseDown)
             .css("position", this.option.originPosition);
+        if(this._isDragStart) {
+            this.onMouseUpHandler({
+                target: document,
+                which: 1
+            });
+        }
         this.option.parent.css("position", this.option.originParentPosition);
-    },
-    mouseDownHandler: function(e) {
-        var eventArg,
-            result;
-        if (e.which !== 1) return;
 
-        eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        eventArg.currentX = this.currentX = e.pageX;
-        eventArg.currentY = this.currentY = e.pageY;
-
-        if(ui.core.isFunction(this.option.onBeginDrag)) {
-            result = this.option.onBeginDrag.call(this, eventArg);
-            if(result === false) {
-                return;
-            }
-        }
-        doc.on("mousemove", this.onMouseMove)
-            .on("mouseup", this.onMouseUp)
-            .on("mouseleave", this.onMouseUp);
-        doc.onselectstart = function() { return false; };
-        /*
-            .cancel-user-select {
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                user-select: none;    
-            }
-         */
-        this.option.target.addClass("cancel-user-select");
-        this._isDragStart = true;
-
-        if(this.shield) {
-            body.append(this.shield);
-        }
-    },
-    mouseMoveHandler: function(e) {
-        var eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        if(!this._isDragStart) return;
-        
-        eventArg.x = e.pageX - this.currentX;
-        eventArg.y = e.pageY - this.currentY;
-        eventArg.currentX = this.currentX = e.pageX;
-        eventArg.currentY = this.currentY = e.pageY;
-
-        if(ui.core.isFunction(this.option.onMoving)) {
-            this.option.onMoving.call(this, eventArg);
-        }
-    },
-    mouseUpHandler: function(e) {
-        var eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        if (e.which !== 1) return;
-        if(!this._isDragStart) return;
-
-        this._isDragStart = false;
-        this.currentX = this.currentY = null;
-
-        doc.onselectstart = null;
-        this.option.target.removeClass("cancel-user-select");
-
-        if(ui.core.isFunction(this.option.onEndDrag)) {
-            this.option.onEndDrag.call(this, eventArg);
-        }
-
-        if(this.shield) {
-            this.shield.remove();
-        }
     }
 };
 
