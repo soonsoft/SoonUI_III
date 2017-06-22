@@ -105,8 +105,19 @@ ui.define("ui.ctrls.ExtendButton", {
         this.parent.append(this.buttonPanel);
         this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
-        this.bindShowEvent();
-        this.bindHideEvent();
+        this.element.click(function(e) {
+            e.stopPropagation();
+            that.show();
+        });
+        if(this.hasCloseButton) {
+            this.centerIcon.click(function(e) {
+                that.hide();
+            });
+        } else {
+            ui.docClick(function(e) {
+                that.hide();
+            });
+        }
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
@@ -146,86 +157,13 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator = ui.animator();
         this.buttonAnimator.duration = 240;
     },
-    bindShowEvent: function() {
-        var that = this;
-        this.element.click(function(e) {
-            e.stopPropagation();
-            that.show();
-        });
-    },
-    bindHideEvent: function() {
-        var that = this;
-        if(this.hasCloseButton) {
-            this.centerIcon.click(function(e) {
-                that.hide();
-            });
-        } else {
-            ui.docClick(function(e) {
-                that.hide();
-            });
-        }
-    },
-    getElementCenter: function() {
+    _getElementCenter: function() {
         var position = this.isBodyInside 
             ? this.element.offset()
             : this.element.position();
         position.left = position.left + this.element.outerWidth() / 2;
         position.top = position.top + this.element.outerHeight()/ 2;
         return position;
-    },
-    isShow: function() {
-        return this.buttonPanel.css("display") === "block";  
-    },
-    show: function(hasAnimation) {
-        var that = this;
-        if(this.isShow()) {
-            return;
-        }
-        
-        if(this.fire("showing") === false) {
-            return;
-        }
-        
-        this._setButtonPanelLocation();
-        if(hasAnimation === false) {
-            this.buttonPanel.css("display", "block");
-        } else {
-            this.buttonPanel.css("display", "block");
-            this._setButtonPanelAnimationOpenValue(this.buttonPanelAnimator);
-            this._setButtonAnimationOpenValue(this.buttonAnimator);
-            this.buttonPanelAnimator.start();
-            this.buttonAnimator.delayHandler = setTimeout(function() {
-                that.buttonAnimator.delayHandler = null;
-                that.buttonAnimator.start().done(function() {
-                    that.fire("showed");
-                });
-            }, 100);
-        }
-    },
-    hide: function(hasAnimation) {
-        var that = this;
-        if(!this.isShow()) {
-            return;
-        }
-        
-        if(this.fire("hiding") === false) {
-            return;
-        }
-        
-        if(hasAnimation === false) {
-            this.buttonPanel.css("display", "none");
-        } else {
-            this._setButtonPanelAnimationCloseValue(this.buttonPanelAnimator);
-            this._setButtonAnimationCloseValue(this.buttonAnimator);
-            this.buttonAnimator.start();
-            this.buttonPanelAnimator.delayHandler = setTimeout(function() {
-                that.buttonPanelAnimator.delayHandler = null;
-                that.buttonPanelAnimator.start().done(function() {
-                    that.buttonPanel.css("display", "none");
-                    that.fire("hided");
-                });
-            }, 100);
-        }
     },
     _setButtonPanelAnimationOpenValue: function(animator) {
         var option,
@@ -321,7 +259,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.centerTop = this.centerLeft = this.buttonPanelSize / 2;
     },
     _setButtonPanelLocation: function() {
-        var center = this.getElementCenter();
+        var center = this._getElementCenter();
         var buttonPanelTop = Math.floor(center.top - this.buttonPanelSize / 2);
         var buttonPanelLeft = Math.floor(center.left - this.buttonPanelSize / 2);
         
@@ -394,6 +332,61 @@ ui.define("ui.ctrls.ExtendButton", {
             button.elem.click(function(e) {
                 button.handler.call(that, button);
             });
+        }
+    },
+
+    isShow: function() {
+        return this.buttonPanel.css("display") === "block";  
+    },
+    show: function(hasAnimation) {
+        var that = this;
+        if(this.isShow()) {
+            return;
+        }
+        
+        if(this.fire("showing") === false) {
+            return;
+        }
+        
+        this._setButtonPanelLocation();
+        if(hasAnimation === false) {
+            this.buttonPanel.css("display", "block");
+        } else {
+            this.buttonPanel.css("display", "block");
+            this._setButtonPanelAnimationOpenValue(this.buttonPanelAnimator);
+            this._setButtonAnimationOpenValue(this.buttonAnimator);
+            this.buttonPanelAnimator.start();
+            this.buttonAnimator.delayHandler = setTimeout(function() {
+                that.buttonAnimator.delayHandler = null;
+                that.buttonAnimator.start().done(function() {
+                    that.fire("showed");
+                });
+            }, 100);
+        }
+    },
+    hide: function(hasAnimation) {
+        var that = this;
+        if(!this.isShow()) {
+            return;
+        }
+        
+        if(this.fire("hiding") === false) {
+            return;
+        }
+        
+        if(hasAnimation === false) {
+            this.buttonPanel.css("display", "none");
+        } else {
+            this._setButtonPanelAnimationCloseValue(this.buttonPanelAnimator);
+            this._setButtonAnimationCloseValue(this.buttonAnimator);
+            this.buttonAnimator.start();
+            this.buttonPanelAnimator.delayHandler = setTimeout(function() {
+                that.buttonPanelAnimator.delayHandler = null;
+                that.buttonPanelAnimator.start().done(function() {
+                    that.buttonPanel.css("display", "none");
+                    that.fire("hided");
+                });
+            }, 100);
         }
     }
 });
