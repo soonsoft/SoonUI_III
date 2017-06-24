@@ -296,13 +296,13 @@ ui.str = {
         return output;
     },
     htmlEncode: function(str) {
-        if (this.isNullOrEmpty(str)) {
+        if (this.isEmpty(str)) {
             return this.empty;
         }
         return $("<span />").append(document.createTextNode(str)).html();
     },
     htmlDecode: function(str) {
-        if (this.isNullOrEmpty(str)) {
+        if (this.isEmpty(str)) {
             return this.empty;
         }
         return $("<span />").html(str).text();
