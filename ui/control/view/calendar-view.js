@@ -2604,7 +2604,7 @@ ui.define("ui.ctrls.CalendarView", {
     showTimeLine: function(parent, unitHourHeight) {
         var updateInterval,
             updateTimeFn,
-            that,
+            that;
         if(!this.currentTimeElement) {
             this.currentTimeElement = $("<div class='ui-current-time border-highlight font-highlight' />");
             this.currentTimeElement.css("width", timeTitleWidth + "px");
