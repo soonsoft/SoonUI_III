@@ -2770,10 +2770,14 @@ $.fn.calendarView = function(option) {
     if(this.length === 0) {
         return null;
     }
+    if(!isCalendarViewThemeInitialized) {
+        initCalendarViewTheme();
+    }
     return ui.ctrls.CalendarView(option, this);
 };
 
-var themeStyle;
+var themeStyle,
+    isCalendarViewThemeInitialized = false;
 function initCalendarViewTheme(colorInfo) {
     var baseColor,
         color,
@@ -2782,8 +2786,10 @@ function initCalendarViewTheme(colorInfo) {
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
-            themeStyle = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
+            styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
         }
+    } else {
+        styleHelper = ui.StyleSheet(themeStyle);
     }
     if(!colorInfo) {
         colorInfo = ui.theme.currentTheme;
@@ -2792,9 +2798,8 @@ function initCalendarViewTheme(colorInfo) {
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
     color = ui.color.overlay(colorInfo.Color, baseColor, .4);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
-
-    styleHelper = ui.StyleSheet(themeStyle);
-    styleHelper.setRule("ui-calendar-selector", {
+    
+    styleHelper.setRule(".ui-calendar-selector", {
         "background-color": color
     });
     styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel", {
@@ -2809,15 +2814,12 @@ function initCalendarViewTheme(colorInfo) {
     styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
         "background-color": color
     });
-    color = ui.theme.overlay(data.Color, baseColor, .85);
+    color = ui.color.overlay(colorInfo.Color, baseColor, .85);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
         "background-color": color
     });
 }
-
-ui.page.ready(function() {
-    initCalendarViewTheme();
-});
 ui.page.themechanged(function(e, colorInfo) {
     initCalendarViewTheme(colorInfo);
 });
