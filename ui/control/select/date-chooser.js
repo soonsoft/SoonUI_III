@@ -433,7 +433,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this._calendarPanel = ui.getJQueryElement(this.option.calendarPanel);
-        if(!this._calendarPanel) {
+        if(this._calendarPanel) {
+            this._calendarPanel.css("position", "relative");
+        } else {
             this._calendarPanel = $("<div />");
         }
         this._calendarPanel
