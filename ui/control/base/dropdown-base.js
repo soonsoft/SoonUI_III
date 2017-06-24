@@ -22,7 +22,7 @@ var docClickHideHandler = [],
     };
 
 // 注册document点击事件
-ui.docclick(function (e) {
+ui.page.ready(function (e) {
     hideCtrls();
 });
 // 添加隐藏的处理方法
