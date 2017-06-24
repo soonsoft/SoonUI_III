@@ -53,8 +53,8 @@ MessageBox.prototype = {
         var clientWidth,
             clientHeight;
         if (!this.box) {
-            clientWidth = ui.core.root.clientWidth;
-            clientHeight = ui.core.root.clientHeight;
+            clientWidth = document.documentElement.clientWidth;
+            clientHeight = document.documentElement.clientHeight;
             this.box = $("<div class='ui-message-box theme-action-color border-highlight' />");
             this.box.css({
                 "top": this.top + "px",
