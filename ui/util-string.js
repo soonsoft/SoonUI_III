@@ -14,7 +14,7 @@ var textFormatReplaceFn = function (match, name) {
     return '';
 };
 // dateFormat
-var defaultWeekFormatFn = function() {
+var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
     return "周" + name.charAt(week);
 };
