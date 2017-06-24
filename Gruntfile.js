@@ -117,8 +117,8 @@ module.exports = function(grunt) {
     }
 
     // 控件主题色
-    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/light/**/*.less" });
-    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/dark/**/*.less" });
+    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/metro/light/**/*.less" });
+    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/metro/dark/**/*.less" });
 
     // 高亮色
     var highlights = [
@@ -500,7 +500,7 @@ module.exports = function(grunt) {
             ctrls: {
                 colors: themeColor,
                 template: "template/metro/**/*.less",
-                dist: "theme/{0}/{1}.less"
+                dist: "theme/metro/{0}/{1}.less"
             }
         }
     });
