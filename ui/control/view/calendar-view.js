@@ -2772,6 +2772,7 @@ $.fn.calendarView = function(option) {
     }
     if(!isCalendarViewThemeInitialized) {
         initCalendarViewTheme();
+        isCalendarViewThemeInitialized = true;
     }
     return ui.ctrls.CalendarView(option, this);
 };
