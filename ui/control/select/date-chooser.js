@@ -32,7 +32,7 @@ function Day(year, month, day, dateChooser) {
     if(this instanceof Day) {
         this.initialize(year, month, day, dateChooser);
     } else {
-        return new Day();
+        return new Day(year, month, day, dateChooser);
     }
 }
 Day.prototype = {
@@ -98,7 +98,7 @@ function twoNumberFormatter(number) {
 }
 function formatCalendarTitle(year, month) {
     month += 1;
-    return year + "-" + twoNumberFormatter.call(this, number) + "&nbsp;▼";
+    return year + "-" + twoNumberFormatter.call(this, month) + "&nbsp;▼";
 }
 function formatDateItem(r, value, format) {
     var result;
@@ -159,7 +159,7 @@ function onYearSelected(e) {
     var elem,
         year,
         startMonth,
-        endMonth,
+        endMonth, currentMonth,
         i, disabledArray;
     
     e.stopPropagation();
@@ -196,7 +196,13 @@ function onYearSelected(e) {
     for(i = startMonth; i <= endMonth; i++) {
         disabledArray[i] = false;
     }
-    this._updateMonthsStatus(disabledArray);
+
+    if(this._currentMonth) {
+        currentMonth = parseInt(this._currentMonth.attr("data-month"), 10);
+    } else {
+        currentMonth = this._selMonth;
+    }
+    this._updateMonthsStatus(disabledArray, currentMonth);
 }
 function onMonthSelected(e) {
     var elem;
@@ -457,26 +463,25 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _initYearMonthPanelAnimator: function() {
         this.ymAnimator = ui.animator({
             target: this._settingPanel,
-            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
         });
-        this.ymAnimator.duration = 240;
+        this.ymAnimator.duration = 300;
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
-            ease: ui.AnimationStyle.easeFromTo,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).addTarget({
-            ease: ui.AnimationStyle.easeFromTo,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         });
-        this.mcAnimator.duration = 240;
+        this.mcAnimator.duration = 300;
     },
     _initYearMonthPanel: function() {
         var yearTitle, monthTitle,
@@ -578,7 +583,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 "<i class='fa fa-remove'></i>"));
         return okCancel;
     },
-    _createCalendarPanel: function() {
+    _initCalendarPanel: function() {
         //创建日历正面的标题
         this._calendarPanel.append(this._createTitlePanel());
         //创建日期显示面板
@@ -600,8 +605,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.html(formatCalendarTitle.call(this, this._selYear, this._selMonth));
         this._linkBtn.click(this.onCalendarTitleClickHandler);
+        this._updateCalendarTitle();
+        dateTitle.append(this._linkBtn);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
@@ -782,7 +788,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _updateCalendarTitle: function() {
         this._linkBtn.html(
-            formatCalendarTitle.call(this._selYear, this._selMonth));
+            formatCalendarTitle.call(this, this._selYear, this._selMonth));
     },
     _fillMonth: function(daysTable, currentYear, currentMonth) {
         var days,
@@ -796,27 +802,27 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         days = [];
         // 当前月的第一天
-        currentMonthDate = new Date(currentMonth, currentMonth, 1);
+        currentMonthDate = new Date(currentYear, currentMonth, 1);
         // 当前月的第一天是星期几
         firstWeekDay = currentMonthDate.getDay();
 
         if(firstWeekDay > 0) {
             // 填充上个月的日期
             // 上一个月的最后一天
-            prevMonthDate = new Date(currentMonth, currentMonth, 0);
+            prevMonthDate = new Date(currentYear, currentMonth, 0);
             // 需要显示上个月的日期
             y = prevMonthDate.getFullYear();
             m = prevMonthDate.getMonth();
             d = prevMonthDate.getDate();
             for(i = d - (firstWeekDay - 1); i <= d; i++) {
-                days.push(Day(y, m, d, this).isCurrentMonth(false));
+                days.push(Day(y, m, i, this).isCurrentMonth(false));
             }
         }
 
         // 填充当前月的日期
-        lastDay = new Date(currentMonth, currentMonth + 1, 0).getDate();
+        lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
         for(i = 1; i <= lastDay; i++) {
-            days.push(Day(y, m, d, this));
+            days.push(Day(currentYear, currentMonth, i, this));
         }
 
         // 填充下个月的日期
@@ -825,7 +831,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         y = nextMonthDate.getFullYear();
         m = nextMonthDate.getMonth();
         lastDay = 6 * 7 - days.length;
-        for(i = 1; i < lastDay; i++) {
+        for(i = 1; i <= lastDay; i++) {
             days.push(Day(y, m, i, this).isCurrentMonth(false));
         }
 
@@ -903,10 +909,10 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         }
 
         if(ui.core.isNumber(month)) {
-            this._updateMonthsStatus();
+            this._updateMonthsStatus(null, month);
         }
     },
-    _updateMonthsStatus: function(disabledArray) {
+    _updateMonthsStatus: function(disabledArray, month) {
         var rows, td, value,
             index, i, j;
         if(!Array.isArray(disabledArray)) {
@@ -1037,6 +1043,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option.target.css("display", "block");
         option.begin = parseFloat(option.target.css("top"));
         option.end = 0;
+        option.ease = ui.AnimationStyle.easeTo;
         this.ymAnimator.start();
     },
     _closeYearMonthPanel: function() {
@@ -1044,6 +1051,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option = this.ymAnimator[0];
         option.begin = parseFloat(option.target.css("top"));
         option.end = -option.target.height();
+        option.ease = ui.AnimationStyle.easeFrom;
         this.ymAnimator.start().done(function() {
             option.target.css("display", "none");
         });
@@ -1074,8 +1082,6 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             return;
         }
 
-        this.mcAnimator.stop();
-
         daysPanel = this._currentDays.parent();
         width = daysPanel.width();
         currentLeft = parseFloat(this._currentDays.css("left")) || 0;
@@ -1100,14 +1106,19 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._selYear = date.getFullYear();
         this._selMonth = date.getMonth();
         this._updateCalendarTitle();
+        if(this._currentDate) {
+            this._currentDate
+                .removeClass(selectedClass)
+                .removeClass("background-highlight");
+        }
         this._fillMonth(this._nextDays, this._selYear, this._selMonth);
         
         daysPanel.addClass("click-disabled");
         that = this;
         this.mcAnimator.start().done(function() {
             var temp = that._currentDays;
-            that._currentDays = _nextDays;
-            that._currentDays = temp;
+            that._currentDays = that._nextDays;
+            that._nextDays = temp;
             that._nextDays.css("display", "none");
             daysPanel.removeClass("click-disabled");
             if(ui.core.isFunction(callback)) {
@@ -1126,13 +1137,15 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         var index,
             rowIndex,
             cellIndex,
+            firstDate,
             td;
 
         if(!date || this._isDisabledDay(date.getFullYear(), date.getMonth(), date.getDate())) {
             return;
         }
         
-        index = date.getDay() + date.getDate() - 1;
+        firstDate = new Date(date.getFullYear(), date.getMonth(), 1);
+        index = firstDate.getDay() + date.getDate() - 1;
         rowIndex = Math.floor(index / 7);
         cellIndex = index - rowIndex * 7;
 
@@ -1163,11 +1176,12 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         if(this.isDateTime()) {
             this._setCurrentTime(value);
         }
+        this._updateCalendarTitle();
         this._fillMonth(this._currentDays, this._selYear, this._selMonth);
     },
     /** 将date格式化为对应格式的文本 */
     formatDateValue: function(date) {
-        var dateValue = this.dateFormat;
+        var dateValue = this.option.dateFormat;
         dateValue = formatDateItem(formatYear, date.getFullYear(), dateValue);
         dateValue = formatDateItem(formatMonth, date.getMonth() + 1, dateValue);
         dateValue = formatDateItem(formatDay, date.getDate(), dateValue);
