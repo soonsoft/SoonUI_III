@@ -221,16 +221,16 @@ function fixMousewheelDelta(event, originalEvent) {
     return event;
 }
 function eventSupported(eventName, elem) {
-    if (core.isDomObject(elem)) {
+    if (ui.core.isDomObject(elem)) {
         elem = $(elem);
-    } else if (core.isJQueryObject(elem) && elem.length === 0) {
+    } else if (ui.core.isJQueryObject(elem) && elem.length === 0) {
         return false;
     }
     eventName = "on" + eventName;
     var isSupported = (eventName in elem[0]);
     if (!isSupported) {
         elem.attr(eventName, "return;");
-        isSupported = core.type(elem[eventName]) === "function";
+        isSupported = ui.core.type(elem[eventName]) === "function";
     }
     return isSupported;
 }
