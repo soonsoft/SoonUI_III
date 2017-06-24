@@ -653,6 +653,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         daysPanel = $("<div class='date-chooser-days-panel' />");
         this._currentDays = this._createDaysTable();
         this._nextDays = this._createDaysTable();
+        this._nextDays.css("display", "none");
 
         daysPanel.append(this._currentDays);
         daysPanel.append(this._nextDays);
@@ -844,18 +845,17 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 d = days[index];
                 d.setToday(today);
                 td = $(rows[i].cells[j]);
+                td.attr("data-index", index);
+
                 if(d.isDisabled()) {
                     td.addClass("disabled-day");
                 } else {
                     td.html("<span>" + d.day + "</span>");
                 }
-                td.attr("data-index", index);
 
                 // 判断是否是选中的日期
                 if(d.isTheDay(this._selYear, this._selMonth, this._selDay)) {
-                    this._currentDate = td;
-                    td.addClass(selectedClass)
-                        .addClass("background-highlight");
+                    this._selectItem(td);
                 }
                 // 高亮显示今日
                 if(d.isToday()) {
@@ -1106,11 +1106,6 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._selYear = date.getFullYear();
         this._selMonth = date.getMonth();
         this._updateCalendarTitle();
-        if(this._currentDate) {
-            this._currentDate
-                .removeClass(selectedClass)
-                .removeClass("background-highlight");
-        }
         this._fillMonth(this._nextDays, this._selYear, this._selMonth);
         
         daysPanel.addClass("click-disabled");
