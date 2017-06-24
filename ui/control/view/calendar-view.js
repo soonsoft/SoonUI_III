@@ -2790,7 +2790,8 @@ function initCalendarViewTheme(colorInfo) {
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
-    color = ui.theme.overlay(colorInfo.Color, baseColor, .4);
+    color = ui.color.overlay(colorInfo.Color, baseColor, .4);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
 
     styleHelper = ui.StyleSheet(themeStyle);
     styleHelper.setRule("ui-calendar-selector", {
