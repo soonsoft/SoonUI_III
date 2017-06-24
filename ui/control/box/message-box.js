@@ -120,7 +120,7 @@ MessageBox.prototype = {
     _show: function (completedHandler) {
         var box = this.getBox(),
             option,
-            clientWidth = ui.core.root.clientWidth;
+            clientWidth = document.documentElement.clientWidth;
         this.isStartHide = false;
 
         this.boxAnimator.stop();
@@ -134,7 +134,7 @@ MessageBox.prototype = {
         var box,
             option,
             that = this,
-            clientWidth = ui.core.root.clientWidth;
+            clientWidth = document.documentElement.clientWidth;
         if (flag) {
             this.isClosing = true;
         }
@@ -170,8 +170,8 @@ MessageBox.prototype = {
 messagebox = MessageBox();
 ui.page.resize(function(e) {
     var box = messagebox.getBox(),
-        clientWidth = ui.core.root.clientWidth,
-        clientHeight = ui.core.root.clientHeight,
+        clientWidth = document.documentElement.clientWidth,
+        clientHeight = document.documentElement.clientHeight,
         left;
     if(messagebox.isShow()) {
         left = clientWidth - messagebox.width;
