@@ -140,12 +140,12 @@ StyleSheet.createStyleSheet = function(id) {
         styleSheet = document.createStyleSheet();
         styleElem = styleSheet.ownerNode || styleSheet.owningElement;
     } else {
-        head = document.getElementsByTagNames("head")[0];
+        head = document.getElementsByTagName("head")[0];
         styleElem = document.createElement("style");
         head.appendChild(styleElem);
         styleSheet = document.styleSheets[document.styleSheets.length - 1];
     }
-    if(!ui.str.isNullOrEmpty(id)) {
+    if(!ui.str.isEmpty(id)) {
         styleElem.id = id;
     }
 
