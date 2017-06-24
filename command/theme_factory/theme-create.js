@@ -26,7 +26,7 @@ module.exports = function( grunt ) {
             return null;
         }
         return fs.readFileSync(path, "utf8");
-    };
+    }
 
     function buildColorParameters (item, description) {
         if(!item) {
@@ -49,7 +49,36 @@ module.exports = function( grunt ) {
             }
         }
         return params.join("");
-    };
+    }
+
+    function ensureDirectory(filename) {
+        let direcory = path.dirname(filename);
+        direcory = path.join(direcory, "");
+        if(!fs.existsSync(direcory)) {
+            mkdirsSync(direcory);
+        }
+    }
+
+    function mkdirsSync(dirpath, mode) { 
+        if (!fs.existsSync(dirpath)) {
+            var pathtmp;
+            dirpath.split(path.sep).forEach(function(dirname) {
+                if (pathtmp) {
+                    pathtmp = path.join(pathtmp, dirname);
+                }
+                else {
+                    pathtmp = dirname;
+                }
+                console.log(pathtmp);
+                if (!fs.existsSync(pathtmp)) {
+                    if (!fs.mkdirSync(pathtmp, mode)) {
+                        return false;
+                    }
+                }
+            });
+        }
+        return true; 
+    }
 
     function createTheme (params, template, filename) {
         let text = params + template;
@@ -59,7 +88,7 @@ module.exports = function( grunt ) {
         }
 
         fs.writeFileSync(filename, text, "utf8");
-    };
+    }
 
     grunt.registerMultiTask(
         "theme-create",
@@ -96,8 +125,16 @@ module.exports = function( grunt ) {
                     let themeName = item.name;
                     let description = item.description;
 
+                    if(themeName) {
+                        themeName = themeName.toLowerCase();
+                    }
+                    if(description) {
+                        description = description.toLowerCase();
+                    }
+
                     let params = buildColorParameters(item, description);
                     let savePath = format(distPath, themeName, name);
+                    ensureDirectory(savePath);
                     createTheme(params, templateText, savePath);
                 }
             }
