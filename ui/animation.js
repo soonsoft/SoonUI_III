@@ -23,6 +23,8 @@ if (!cancelAnimationFrame) {
     };
 }
 
+function noop() { }
+
 //动画效果
 ui.AnimationStyle = {
     easeInQuad: function (pos) {
@@ -337,7 +339,7 @@ Animator.prototype._prepare = function () {
             continue;
         }
         //必须指定，基本上对top,left,width,height这个属性进行设置
-        option.onChange = option.onChange || ui.core.noop;
+        option.onChange = option.onChange || noop;
         //要使用的缓动公式
         option.ease = option.ease || ui.AnimationStyle.easeFromTo;
     }
@@ -347,8 +349,8 @@ Animator.prototype.start = function (duration) {
     var flag,
         fn,
         that = this;
-    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : ui.core.noop;
-    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : ui.core.noop;
+    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : noop;
+    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : noop;
     
     var _resolve, _reject;
     var promise = new Promise(function(resolve, reject) {
