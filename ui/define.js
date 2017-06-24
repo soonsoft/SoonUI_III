@@ -194,8 +194,8 @@ CtrlBase.prototype = {
         // 事件初始化
         events = this._defineEvents();
         if(Array.isArray(events) && events.length > 0) {
-            this.eventTarget = new ui.EventTarget(this);
-            this.eventTarget.initEvents(events);
+            this.eventDispatcher = new ui.CustomEvent(this);
+            this.eventDispatcher.initEvents(events);
         }
 
         this._create();
