@@ -2817,6 +2817,6 @@ function initCalendarViewTheme(colorInfo) {
 ui.page.ready(function() {
     initCalendarViewTheme();
 });
-ui.page.themeChange(function(e, colorInfo) {
+ui.page.themechanged(function(e, colorInfo) {
     initCalendarViewTheme(colorInfo);
 });
