@@ -18,7 +18,7 @@ function toHex (n) {
     return hexchars.charAt((n - n % 16) / 16) + hexchars.charAt(n % 16);
 }
 function toDec (hexchar) {
-    return this.hexchars.indexOf(hexchar.toUpperCase());
+    return hexchars.indexOf(hexchar.toUpperCase());
 }
 
 ui.color = {
