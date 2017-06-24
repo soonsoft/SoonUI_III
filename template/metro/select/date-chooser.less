@@ -161,6 +161,8 @@
 
         .ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
             position: absolute;
+            width: 100%;
+            height: 100%;
             top: 0;
             left: 0;
         }
@@ -197,10 +199,15 @@
         line-height: 30px;
     }
 
-    .ui-date-chooser-panel .date-chooser-button i,
-    .ui-date-chooser-panel .date-chooser-button span {
-        font-size: 14px;
+    .ui-date-chooser-panel .date-chooser-button {
+        vertical-align: top;
+        margin-top: 3px;
     }
+
+        .ui-date-chooser-panel .date-chooser-button i,
+        .ui-date-chooser-panel .date-chooser-button span {
+            font-size: 14px;
+        }
 
     .ui-date-chooser-panel .date-chooser-time-input {
         border: none 0;
