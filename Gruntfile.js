@@ -324,6 +324,7 @@ module.exports = function(grunt) {
         "ui/json.js",
         "ui/ajax.js",
         "ui/cookie.js",
+        "ui/color.js",
         "ui/browser.js",
         "ui/image-loader.js",
 
