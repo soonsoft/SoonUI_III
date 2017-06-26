@@ -1,7 +1,9 @@
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
-    monthSelectedClass = "month-selected";
+    monthSelectedClass = "month-selected",
+    defaultDateFormat = "yyyy-MM-dd",
+    defaultDateTimeFormat = "yyyy-MM-dd hh:mm:ss";
 
 var formatYear = /y+/i,
     formatMonth = /M+/,
@@ -310,7 +312,7 @@ function onTimeMousewheel(e) {
     h = parseInt(this.hourText.val(), 10);
     m = parseInt(this.minuteText.val(), 10);
     s = parseInt(this.secondText.val(), 10);
-    this.selectedDate(
+    this.setSelection(
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 function onTimeTextinput(e) {
@@ -341,7 +343,7 @@ function onTimeTextinput(e) {
         this.secondText.val(twoNumberFormatter(s));
         return;
     }
-    this.selectedDate(
+    this.setSelection(
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
@@ -349,7 +351,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 日期格式化样式
-            dateFormat: "yyyy-MM-dd",
+            dateFormat: defaultDateFormat,
             // 显示语言 zh-CN: 中文, en-US: 英文
             language: "zh-CN",
             // 放置日历的容器
@@ -366,16 +368,15 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         return ["selecting", "selected", "cancel"];
     },
     _create: function() {
-        var defaultFormat,
-            now;
+        var now;
         this._super();
 
-        defaultFormat = "yyyy-MM-dd";
-        if(this.isDateTime()) {
-            defaultFormat = "yyyy-MM-dd hh:mm:ss";
-        }
         // 日期格式化
-        this.option.dateFormat = this.option.dateFormat || defaultFormat;
+        if(this.isDateTime()) {
+            this.option.dateFormat = this.option.dateFormat || defaultDateTimeFormat;
+        } else {
+            this.option.dateFormat = this.option.dateFormat || defaultDateFormat;
+        }
 
         this._initDateRange();
         now = this.formatDateValue(new Date());
@@ -1307,7 +1308,6 @@ function setOptions(elem, option) {
     // 修正配置信息
     this.option = option;
     this.setLayoutPanel(option.layoutPanel);
-    this.dateFormat = option.dateFormat;
     this.element = elem;
     // 修正事件引用
     this.selectingHandler = option.selectingHandler;
@@ -1352,9 +1352,10 @@ $.fn.dateChooser = function(option) {
 
     if(option && option.isDateTime) {
         if(!dateTimeChooser) {
-            dateTimeChooser = createDateChooser({
-                isDateTime: true
-            }, this);
+            if(!option.dateFormat) {
+                option.dateFormat = defaultDateTimeFormat;
+            }
+            dateTimeChooser = createDateChooser(option, this);
         }
         currentDateChooser = dateTimeChooser;
     } else {
