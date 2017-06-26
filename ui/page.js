@@ -12,7 +12,7 @@ var page = ui.page = {
     events: [
         "themechanged", 
         "ready", 
-        "docclick", 
+        "htmlclick", 
         "docmouseup", 
         "resize", 
         "hashchange"
@@ -28,7 +28,7 @@ $(document)
     })
     //注册全局click事件
     .click(function (e) {
-        page.fire("docclick");
+        page.fire("htmlclick");
     });
 
 $(window)
