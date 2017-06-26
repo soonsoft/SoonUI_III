@@ -1,12 +1,12 @@
-var docClickHideHandler = [],
+var htmlClickHideHandler = [],
     hideCtrls = function (currentCtrl) {
         var handler, retain;
-        if (docClickHideHandler.length === 0) {
+        if (htmlClickHideHandler.length === 0) {
             return;
         }
         retain = [];
         while (true) {
-            handler = docClickHideHandler.shift();
+            handler = htmlClickHideHandler.shift();
             if(!handler) {
                 break;
             }
@@ -18,17 +18,17 @@ var docClickHideHandler = [],
             }
         }
 
-        docClickHideHandler.push.apply(docClickHideHandler, retain);
+        htmlClickHideHandler.push.apply(htmlClickHideHandler, retain);
     };
 
 // 注册document点击事件
-ui.page.ready(function (e) {
+ui.page.htmlclick(function (e) {
     hideCtrls();
 });
 // 添加隐藏的处理方法
 ui.addHideHandler = function (ctrl, func) {
     if (ctrl && ui.core.isFunction(func)) {
-        docClickHideHandler.push({
+        htmlClickHideHandler.push({
             ctrl: ctrl,
             func: func
         });
