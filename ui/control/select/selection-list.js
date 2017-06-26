@@ -14,7 +14,7 @@ function getValue(field) {
         i, len;
     
     arr = field.split(".");
-    value = this[arr[i]];
+    value = this[arr[0]];
     for(i = 1, len = arr.length; i < len; i++) {
         value = value[arr[i]];
         if(value === undefined || value === null) {
@@ -40,7 +40,7 @@ function getArrayValue(fieldArray) {
     }
     return result.join("_");
 }
-function defaultItemFormatter() {
+function defaultItemFormatter(item, index, li) {
     var text = "";
     if (ui.core.isString(item)) {
         text = item;
@@ -111,8 +111,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         fields = [this.option.valueField, this.option.textField];
         fieldMethods = ["_getValue", "_getText"];
 
-        fields.forEach(function(item) {
-            if(Array.isArray(item, index)) {
+        fields.forEach(function(item, index) {
+            if(Array.isArray(item)) {
                 this[fieldMethods[index]] = getArrayValue;
             } else if($.isFunction(item)) {
                 this[fieldMethods[index]] = item;
@@ -122,7 +122,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }, this);
 
         //事件函数初始化
-        this.onItemClickHandler = $.proxy(this.onItemClick);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
@@ -172,7 +172,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         return checkbox;
     },
     _getItemIndex: function(li) {
-        return parseInt(li.getAttribute(indexAttr), 10);
+        return parseInt(li.getAttribute("data-index"), 10);
     },
     _getSelectionData: function(li) {
         var index = this._getItemIndex(li),
@@ -196,7 +196,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             eventData.selectionStatus = selectionStatus;
         } else {
             if(this.isMultiple()) {
-                eventData.selectionStatus = !elem.hasClass(selectedClass);
+                checkbox = elem.find("." + checkboxClass);
+                eventData.selectionStatus = !checkbox.hasClass("fa-check-square");
             } else {
                 eventData.selectionStatus = true;
             }
@@ -208,7 +209,6 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
 
         if(this.isMultiple()) {
             // 多选
-            checkbox = elem.find("." + checkboxClass);
             if(!eventData.selectionStatus) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
@@ -236,12 +236,12 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                     return;
                 }
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
             }
-            this.current = elem;
+            this._current = elem;
             this._current
-                .addClass(selectionClass)
+                .addClass(selectedClass)
                 .addClass("background-highlight");
         }
 
@@ -361,7 +361,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
                 this._current = null;
             }
