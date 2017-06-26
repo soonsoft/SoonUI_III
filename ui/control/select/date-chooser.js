@@ -119,7 +119,7 @@ function findDateItem(r, value, format) {
         return NaN;
     }
 }
-function createDay(value) {
+function createDay(value, format) {
     var year,
         month,
         day;
@@ -130,7 +130,7 @@ function createDay(value) {
     if(isNaN(year) || isNaN(month) || isNaN(day)) {
         return null;
     }
-    return Day(year, month, day, this);
+    return Day(year, month - 1, day, this);
 }
 function checkButtonDisabled(btn) {
     return btn.hasClass("date-chooser-prev-disabled") || btn.hasClass("date-chooser-next-disabled");
@@ -140,7 +140,7 @@ function checkButtonDisabled(btn) {
 function onYearChanged(e) {
     var elem,
         value = e.data.value,
-        year;
+        year, month;
     
     elem = $(e.target);
     if(checkButtonDisabled(elem)) {
@@ -151,16 +151,21 @@ function onYearChanged(e) {
     } else {
         year = this._selYear;
     }
+    if(this._currentMonth) {
+        month = parseInt(this._currentMonth.attr("data-month"), 10);
+    } else {
+        month = this._selMonth;
+    }
 
     year = year + value;
-    this._fillYear(year);
+    this._fillYear(year, month);
 }
 function onYearSelected(e) {
     var elem,
         year,
         startMonth,
-        endMonth, currentMonth,
-        i, disabledArray;
+        endMonth, 
+        currentMonth;
     
     e.stopPropagation();
     elem = $(e.target);
@@ -183,26 +188,12 @@ function onYearSelected(e) {
         .addClass(yearSelectedClass)
         .addClass("background-highlight");
 
-    year = parseInt(this._currentYear.attr("data-year"), 10);
-    disabledArray = new Array(12);
-    startMonth = 0;
-    endMonth = 0;
-    if(this.startDay && this.startDay.year === year) {
-        startMonth = this.startDay.month;
-    }
-    if(this.endDay && this.endDay.year === year) {
-        endMonth = this.endDay.month;
-    }
-    for(i = startMonth; i <= endMonth; i++) {
-        disabledArray[i] = false;
-    }
-
     if(this._currentMonth) {
         currentMonth = parseInt(this._currentMonth.attr("data-month"), 10);
     } else {
         currentMonth = this._selMonth;
     }
-    this._updateMonthsStatus(disabledArray, currentMonth);
+    this._updateMonthsStatus(currentMonth);
 }
 function onMonthSelected(e) {
     var elem;
@@ -210,6 +201,9 @@ function onMonthSelected(e) {
     e.stopPropagation();
     elem = $(e.target);
     if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(elem.hasClass("disabled-month")) {
         return;
     }
     if(this._currentMonth) {
@@ -381,7 +375,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             defaultFormat = "yyyy-MM-dd hh:mm:ss";
         }
         // 日期格式化
-        this.option.defaultFormat = this.option.defaultFormat || defaultFormat;
+        this.option.dateFormat = this.option.dateFormat || defaultFormat;
 
         this._initDateRange();
         now = this.formatDateValue(new Date());
@@ -424,11 +418,11 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _initDateRange: function() {
         this.startDay = null;
         if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
-            this.startDay = createDay(this.option.startDate);
+            this.startDay = createDay.call(this, this.option.startDate, this.option.dateFormat);
         }
         this.endDay = null;
         if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
-            this.endDay = createDay(this.option.endDate);
+            this.endDay = createDay.call(this, this.option.endDate, this.option.dateFormat);
         }
     },
     _render: function() {
@@ -803,6 +797,10 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             rows, td, today,
             lastDay;
 
+        // 检查月份的切换按钮
+        this._checkPrev(currentYear, currentMonth, this._monthPrev);
+        this._checkNext(currentYear, currentMonth, this._monthNext);
+
         days = [];
         // 当前月的第一天
         currentMonthDate = new Date(currentYear, currentMonth, 1);
@@ -862,6 +860,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 // 高亮显示今日
                 if(d.isToday()) {
                     td.addClass("font-highlight");
+                } else {
+                    td.removeClass("font-highlight");
                 }
                 // 不是当前月的日期
                 if(!d.isCurrentMonth()) {
@@ -881,8 +881,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             startYear + "年 ~ " + (startYear + yearCount - 1) + "年");
         
         // 检查年的切换按钮
-        this._checkNext(startYear - 1, -1, this._yearNext);
-        this._checkPrev(startYear + yearCount, -1, this._yearPrev);
+        this._checkPrev(startYear - 1, -1, this._yearPrev);
+        this._checkNext(startYear + yearCount, -1, this._yearNext);
 
         if(this._currentYear) {
             this._currentYear
@@ -896,7 +896,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
                 if((this.startDay && value < this.startDay.year) 
-                    || (this.endDay && value > this.endDay)) {
+                    || (this.endDay && value > this.endDay.year)) {
                     td.addClass("disabled-year");
                 } else {
                     td.html(value);
@@ -910,15 +910,29 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             }
         }
 
-        if(ui.core.isNumber(month)) {
-            this._updateMonthsStatus(null, month);
-        }
+        this._updateMonthsStatus(month);
     },
-    _updateMonthsStatus: function(disabledArray, month) {
+    _updateMonthsStatus: function(month) {
         var rows, td, value,
+            disabledArray, year,
             index, i, j;
-        if(!Array.isArray(disabledArray)) {
-            disabledArray = new Array(12);
+
+        year = parseInt(this._currentYear.attr("data-year"), 10);
+        disabledArray = new Array(12);
+        if(this.startDay || this.endDay) {
+            startMonth = -1;
+            endMonth = -1;
+            if(this.startDay && this.startDay.year === year) {
+                startMonth = this.startDay.month;
+            }
+            if(this.endDay && this.endDay.year === year) {
+                endMonth = this.endDay.month;
+            }
+            for(i = 0; i < disabledArray.length; i++) {
+                if(i < startMonth || i > endMonth) {
+                    disabledArray[i] = false;
+                }
+            }
         }
         if(this._currentMonth) {
             this._currentMonth
@@ -973,9 +987,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 monthCount += month + 1;
             }
             if(monthCount >= endMonthCount) {
-                prevBtn.addClass("date-chooser-next-disabled");
+                nextBtn.addClass("date-chooser-next-disabled");
             } else {
-                prevBtn.removeClass("date-chooser-next-disabled");
+                nextBtn.removeClass("date-chooser-next-disabled");
             }
         }
     },
@@ -1073,12 +1087,6 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             currentLeft,
             width,
             that;
-
-        if(isNext) {
-            this._checkNext(date.getFullYear(), date.getMonth(), this._monthNext);
-        } else {
-            this._checkPrev(date.getFullYear(), date.getMonth(), this._monthPrev);
-        }
 
         if(this.mcAnimator.isStarted) {
             return;
