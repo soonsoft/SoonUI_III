@@ -142,21 +142,26 @@ ui.setLeft = function (target, panel) {
 
 //获取目标元素下方的坐标信息
 ui.getDownLocation = function (target, width, height) {
-    var location = {
+    var location,
+        position,
+        documentElement,
+        top, left;
+
+    location = {
         left: 0,
         top: 0
     };
     if (!target) {
         return location;
     }
-    var p = target.offset();
-    var docel = ui.core.root;
-    var top = p.top + target.outerHeight(),
-        left = p.left;
-    if ((top + height) > (docel.clientHeight + docel.scrollTop)) {
+    position = target.offset();
+    documentElement = document.documentElement;
+    top = position.top + target.outerHeight();
+    left = position.left;
+    if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
         top -= height + target.outerHeight();
     }
-    if ((left + width) > docel.clientWidth + docel.scrollLeft) {
+    if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
         left = left - (width - target.outerWidth());
     }
     location.top = top;
@@ -166,23 +171,27 @@ ui.getDownLocation = function (target, width, height) {
 
 //获取目标元素左边的坐标信息
 ui.getLeftLocation = function (target, width, height) {
-    var location = {
+    var location,
+        position,
+        documentElement,
+        top, left;
+    
+    location = {
         left: 0,
         top: 0
     };
     if (!target) {
         return location;
     }
-    var p = target.offset();
-    var docel = ui.core.root;
-    var tw = target.outerWidth(),
-        top = p.top,
-        left = p.left + tw;
-    if ((top + height) > (docel.clientHeight + docel.scrollTop)) {
-        top -= (top + height) - (docel.clientHeight + docel.scrollTop);
+    position = target.offset();
+    documentElement = document.documentElement;
+    top = position.top;
+    left = position.left + target.outerWidth();
+    if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
+        top -= (top + height) - (documentElement.clientHeight + documentElement.scrollTop);
     }
-    if ((left + width) > docel.clientWidth + docel.scrollLeft) {
-        left = p.left - width;
+    if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
+        left = position.left - width;
     }
     location.top = top;
     location.left = left;
