@@ -1236,19 +1236,19 @@ var dateChooser,
 function noop() {}
 function createDateChooser(option, element) {
     var dc = ui.ctrls.DateChooser(option, element);
-    dc.selecting(function() {
+    dc.selecting(function(e, eventData) {
         if(ui.core.isFunction(this.selectingHandler)) {
             return this.selectingHandler.apply(this, arguments);
         }
     });
-    dc.selected(function() {
+    dc.selected(function(e, eventData) {
         if(ui.core.isFunction(this.selectedHandler)) {
             this.selectedHandler.apply(this, arguments);
         } else {
             if (this.element.nodeName() === "INPUT") {
-                this.element.val(value);
+                this.element.val(eventData.value);
             } else {
-                this.element.html(value);
+                this.element.html(eventData.value);
             }
         }
     });
@@ -1323,7 +1323,7 @@ function setOptions(elem, option) {
     }
 }
 
-$.fn.dateChooser = function() {
+$.fn.dateChooser = function(option) {
     var nodeName,
         valueFn,
         currentDateChooser;
