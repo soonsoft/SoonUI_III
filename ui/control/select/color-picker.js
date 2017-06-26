@@ -23,8 +23,8 @@ function farbtastic(container, callback) {
     var fb = this;
 
     //events
-    fb.eventTarget = new ui.EventTarget(fb);
-    fb.eventTarget.initEvents(events);
+    fb.eventDispatcher = new ui.CustomEvent(fb);
+    fb.eventDispatcher.initEvents(["selected"]);
 
     // Insert markup
     $(container).html('<div class="farbtastic"><div class="color"></div><div class="wheel"></div><div class="overlay"></div><div class="h-marker marker"></div><div class="sl-marker marker"></div></div>');
@@ -250,7 +250,7 @@ function farbtastic(container, callback) {
             fb.callback.call(fb, fb.color);
         }
 
-        this.fire(selected, fb.color);
+        this.fire("selected", fb.color);
     };
 
     /**
@@ -358,7 +358,7 @@ function setColorValue(elem, color) {
         color = "#ffffff";
     } else {
         color = ui.color.parseRGB(color);
-        color = ui.color.rgb2Hex(color).toLowerCase();
+        color = ui.color.rgb2hex(color.red, color.green, color.blue).toLowerCase();
     }
     elem.val(color);
     this.setColor(color);
@@ -387,7 +387,7 @@ $.fn.colorPicker = function (option) {
     oldHideFn = colorPicker.hide;
 
     createFarbtastic(colorPickerPanel, this);
-    colorPicker.farbtastic = this.colorPickerPanel[0].farbtastic;
+    colorPicker.farbtastic = colorPicker.colorPickerPanel[0].farbtastic;
     colorPicker.hide = function() {
         if (document.dragging) {
             return "retain";
