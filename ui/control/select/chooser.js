@@ -222,6 +222,7 @@ function onMousewheel(e) {
 
     div = e.data.target;
     index = parseInt(div.attr("data-index"), 10);
+    item = this.scrollData[index];
     val = this.option.itemSize + this.option.margin;
     change = (-e.delta) * val;
     direction = -e.delta > 0;
@@ -324,7 +325,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _createFocusElement: function() {
         var div = $("<div class='focus-choose-element' />");
         div.addClass("border-highlight");
-        div.css("top", this.itemSize * ((this.size - 1) / 2));
+        div.css("top", this.option.itemSize * ((this.size - 1) / 2));
         return div;
     },
     _createItemList: function(itemTitlePanel, itemListPanel) {
@@ -404,7 +405,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             tsd.target = div;
             tsd.lastDirection = null;
 
-            sizeData.width += tempWidth + temp + this.margin;
+            sizeData.width += tempWidth + temp + this.option.margin;
 
             div.mousewheel({ target: div }, this.onMousewheelHandler);
             div.click(this.onItemClickHandler);
@@ -457,7 +458,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         return li;
     },
     _getAttachmentCount: function() {
-        return Math.floor((this.option.size - 1) / 2);
+        return Math.floor((this.size - 1) / 2);
     },
     _getValues: function() {
         var attachmentCount,
@@ -465,12 +466,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             i, len, item, index;
         
         attachmentCount = this._getAttachmentCount();
+        values = [];
         for(i = 0, len = this.scrollData.length; i < len; i++) {
             item = this.scrollData[i];
-            if(item_current) {
-                index = parseInt(item_current.attr("data-index"), 10);
+            if(item._current) {
+                index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(this.scrollData[i].list[index]);
+                values.push(item.list[index]);
             } else {
                 values.push("");
             }
@@ -561,7 +563,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         eventData = {};
         eventData.values = this._getValues();
-        eventData.text = eventData.join(this.option.spliter);
+        eventData.text = eventData.values.join(this.option.spliter);
 
         if (this.fire("selecting", eventData) === false) {
             return;
