@@ -191,12 +191,15 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
         
+        if(this.isMultiple()) {
+            checkbox = elem.find("." + checkboxClass);
+        }
+
         // 当前是要选中还是取消选中
         if(ui.core.isBoolean(selectionStatus)) {
             eventData.selectionStatus = selectionStatus;
         } else {
             if(this.isMultiple()) {
-                checkbox = elem.find("." + checkboxClass);
                 eventData.selectionStatus = !checkbox.hasClass("fa-check-square");
             } else {
                 eventData.selectionStatus = true;
