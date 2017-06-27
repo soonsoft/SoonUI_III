@@ -425,6 +425,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         data.children = this._getChildren(nodeData);
         data.parent = nodeData[parentNode];
         data.isRoot = !nodeData[parentNode];
+        data.isNode = this._hasChildren(nodeData);
         return data;
     },
     _selectItem: function(elem, nodeData, isSelection, isFire) {
@@ -581,7 +582,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         this._selectItem(dt, nodeData, true, false);
         return dt;
     },
-    _selectChildNode: function (nodeData, dt, selectionStatus) {
+    _selectChildNode: function (nodeData, dt, isSelection) {
         var children,
             parentId,
             dd,
@@ -600,11 +601,11 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         for (i = 0, len = children.length; i < len; i++) {
             nodeData = children[i];
             dt = $("#" + parentId + "_" + i);
-            this._selectItem(dt, nodeData, selectionStatus, false);
-            this._selectChildNode(nodeData, dt, selectionStatus);
+            this._selectItem(dt, nodeData, isSelection, false);
+            this._selectChildNode(nodeData, dt, isSelection);
         }
     },
-    _selectParentNode: function (nodeData, nodeId, selectionStatus) {
+    _selectParentNode: function (nodeData, nodeId, isSelection) {
         var parentNodeData, parentId,
             elem, nextElem, dtList, 
             i, len, checkbox;
@@ -615,7 +616,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
         parentId = nodeId.substring(0, nodeId.lastIndexOf("_"));
         elem = $("#" + parentId);
-        if (!selectionStatus) {
+        if (!isSelection) {
             nextElem = elem.next();
             if (nextElem.nodeName() === "DD") {
                 dtList = nextElem.find("dt");
@@ -627,8 +628,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 }
             }
         }
-        this._selectItem(elem, parentNodeData, selectionStatus, false);
-        this._selectParentNode(parentNodeData, parentId, selectionStatus);
+        this._selectItem(elem, parentNodeData, isSelection, false);
+        this._selectParentNode(parentNodeData, parentId, isSelection);
     },
 
     /// API
@@ -699,42 +700,42 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
     },
     /** 选择一个节点的所有子节点 */
-    selectChildNode: function(nodeElement, selectionStatus) {
+    selectChildNode: function(nodeElement, isSelection) {
         var nodeData;
         if(arguments.length === 1) {
-            selectionStatus = true;
+            isSelection = true;
         } else {
-            selectionStatus = !!selectionStatus;
+            isSelection = !!isSelection;
         }
 
         nodeData = this._getNodeData(nodeElement);
-        if(nodeData) {
+        if(!nodeData) {
             return;
         }
         if(!this.isMultiple() || this.option.nodeSelectable !== true) {
             return;
         }
-        this._selectChildNode(nodeData, nodeElement, selectionStatus);
+        this._selectChildNode(nodeData, nodeElement, isSelection);
     },
     /** 选择一个节点的所有父节点 */
-    selectParentNode: function(nodeElement) {
+    selectParentNode: function(nodeElement, isSelection) {
         var nodeData,
             nodeId;
         if(arguments.length === 1) {
-            selectionStatus = true;
+            isSelection = true;
         } else {
-            selectionStatus = !!selectionStatus;
+            isSelection = !!isSelection;
         }
 
         nodeData = this._getNodeData(nodeElement);
-        if(nodeData) {
+        if(!nodeData) {
             return;
         }
         if(!this.isMultiple() || this.option.nodeSelectable !== true) {
             return;
         }
         nodeId = nodeElement.prop("id");
-        this._selectParentNode(nodeData, nodeId, selectionStatus);
+        this._selectParentNode(nodeData, nodeId, isSelection);
     },
     /** 取消选中 */
     cancelSelection: function(isFire) {
