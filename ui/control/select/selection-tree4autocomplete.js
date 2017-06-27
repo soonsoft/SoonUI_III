@@ -143,7 +143,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
                 return;
             }
             id = path ? (path + "_" + i) : ("" + i);
-            nodeData = data[i];
+            nodeData = viewData[i];
             if(this._hasChildren(nodeData)) {
                 if(this.option.nodeSelectable === true) {
                     this._doQuery(beginArray, containArray, searchText, nodeData, id);
@@ -185,10 +185,10 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         regexp = new RegExp(searchText, "gi");
         hintHtml = "<span class='font-highlight'>" + searchText + "</span>";
         for(i = 0, len = info.length; i < len; i++) {
-            html.push("<dt data-path='" + info[i].path + "'>");
+            html.push("<dt class='autocomplete-dt' data-path='" + info[i].path + "'>");
             html.push("<span class='normal-text'>");
             textHtml = this._getText.call(info[i].nodeData, this.option.textField);
-            textHtml = textHtml.replace(re, hintHtml);
+            textHtml = textHtml.replace(regexp, hintHtml);
             html.push(textHtml);
             html.push("</span></dt>");
         }
@@ -217,7 +217,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
             if (nodeData) {
                 dt = this._selectNodeByValue(nodeData, path);
                 //触发选择事件
-                this.fire("selected", dt, this._getSelectionData(this._getNodeData(dt)));
+                this.fire("selected", dt, this._getSelectionData(dt, nodeData));
             }
             ui.hideAll();
         }
@@ -272,5 +272,5 @@ $.fn.autocompleteSelectionTree = function(option) {
     if(this.length === 0) {
         return null;
     }
-    return ui.ctrls.autocompleteSelectionTree(option, this);
+    return ui.ctrls.AutocompleteSelectionTree(option, this);
 };
