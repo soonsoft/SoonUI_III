@@ -99,7 +99,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "cancel"];
+        return ["changing", "changed", "cancel"];
     },
     _create: function() {
         var fields, fieldMethods;
@@ -182,7 +182,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         data.itemIndex = index;
         return data;
     },
-    _selectItem: function(elem, selectionStatus, isFire) {
+    _selectItem: function(elem, isSelection, isFire) {
         var eventData,
             checkbox,
             i, len;
@@ -196,23 +196,23 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }
 
         // 当前是要选中还是取消选中
-        if(ui.core.isBoolean(selectionStatus)) {
-            eventData.selectionStatus = selectionStatus;
+        if(ui.core.isBoolean(isSelection)) {
+            eventData.isSelection = isSelection;
         } else {
             if(this.isMultiple()) {
-                eventData.selectionStatus = !checkbox.hasClass("fa-check-square");
+                eventData.isSelection = !checkbox.hasClass("fa-check-square");
             } else {
-                eventData.selectionStatus = true;
+                eventData.isSelection = true;
             }
         }
         
-        if(this.fire("selecting", eventData) === false) {
+        if(this.fire("changing", eventData) === false) {
             return;
         }
 
         if(this.isMultiple()) {
             // 多选
-            if(!eventData.selectionStatus) {
+            if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
                     return;
@@ -221,7 +221,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
                         this._selectList.splice(i, 1);
-                        return;
+                        break;
                     }
                 }
             } else {
@@ -251,7 +251,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         if(isFire === false) {
             return;
         }
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _selectByValues: function(values, outArguments) {
         var count,
