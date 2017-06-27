@@ -185,13 +185,15 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     _selectItem: function(elem, isSelection, isFire) {
         var eventData,
             checkbox,
+            isMultiple,
             i, len;
 
         eventData = this._getSelectionData(elem[0]);
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
         
-        if(this.isMultiple()) {
+        isMultiple = this.isMultiple();
+        if(isMultiple) {
             checkbox = elem.find("." + checkboxClass);
         }
 
@@ -199,7 +201,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         if(ui.core.isBoolean(isSelection)) {
             eventData.isSelection = isSelection;
         } else {
-            if(this.isMultiple()) {
+            if(isMultiple) {
                 eventData.isSelection = !isChecked.call(this, checkbox);
             } else {
                 eventData.isSelection = true;
@@ -210,7 +212,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             return;
         }
 
-        if(this.isMultiple()) {
+        if(isMultiple) {
             // 多选
             if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
