@@ -200,7 +200,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             eventData.isSelection = isSelection;
         } else {
             if(this.isMultiple()) {
-                eventData.isSelection = !checkbox.hasClass("fa-check-square");
+                eventData.isSelection = !isChecked.call(this, checkbox);
             } else {
                 eventData.isSelection = true;
             }
