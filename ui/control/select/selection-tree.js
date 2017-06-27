@@ -5,7 +5,7 @@
 
 var selectedClass = "ui-selection-tree-selected",
     checkboxClass = "ui-selection-tree-checkbox",
-    flodClass = "fold-button",
+    foldClass = "fold-button",
     expandClass = "expand-button";
 
 var instanceCount = 0,
@@ -24,7 +24,7 @@ function getValue(field) {
         i, len;
     
     arr = field.split(".");
-    value = this[arr[i]];
+    value = this[arr[0]];
     for(i = 1, len = arr.length; i < len; i++) {
         value = value[arr[i]];
         if(value === undefined || value === null) {
@@ -75,7 +75,8 @@ function isChecked(cbx) {
 function onTreeItemClick(e) {
     var elem,
         nodeName,
-        nodeData;
+        nodeData,
+        hasChildren;
 
     if(this.isMultiple()) {
         e.stopPropagation();
@@ -83,6 +84,7 @@ function onTreeItemClick(e) {
 
     elem = $(e.target);
     if(elem.hasClass(foldClass)) {
+        e.stopPropagation();
         this.onTreeFoldClickHandler(e);
         return;
     }
@@ -97,10 +99,16 @@ function onTreeItemClick(e) {
     }
 
     nodeData = this._getNodeData(elem);
-    if(this.option.nodeSelectable === true || !this._hasChildren(nodeData)) {
+    hasChildren = this._hasChildren(nodeData);
+    if(this.option.nodeSelectable === true || !hasChildren) {
         this._selectItem(elem, nodeData);
     } else {
-        e.stopPropagation();
+        if(hasChildren) {
+            e.stopPropagation();
+            this.onTreeFoldClickHandler({
+                target: elem.children(".fold-button")[0]
+            });
+        }
     }
 }
 // 折叠按钮点击事件
@@ -132,7 +140,7 @@ function onTreeFoldLazyClick(e) {
     }
 }
 
-ui.define("ui.ctrls.SelectionTree", {
+ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 是否支持多选
@@ -147,8 +155,8 @@ ui.define("ui.ctrls.SelectionTree", {
             childField: null,
             // 视图数据
             viewData: null,
-            // 是否只能选择叶节点
-            nodeSelectable: false,
+            // 是否可以选择父节点
+            nodeSelectable: true,
             // 默认展开的层级，false|0：显示第一层级，true：显示所有层级，数字：显示的层级值(0表示根级别，数值从1开始)
             defaultExpandLevel: false,
             // 是否延迟加载，只有用户展开这个节点才会渲染节点下面的数据（对大数据量时十分有效）
@@ -170,7 +178,7 @@ ui.define("ui.ctrls.SelectionTree", {
         
         fields = [this.option.valueField, this.option.textField, this.option.parentField];
         fieldMethods = ["_getValue", "_getText", "_getParent"];
-        fields.forEach(function(item) {
+        fields.forEach(function(item, index) {
             if(Array.isArray(item, index)) {
                 this[fieldMethods[index]] = getArrayValue;
             } else if($.isFunction(item)) {
@@ -300,7 +308,7 @@ ui.define("ui.ctrls.SelectionTree", {
             if(this.isMultiple()) {
                 cbx = this._createCheckbox();
             }
-            dt.prop("id", id);
+            dt.prop("id", this._treePrefix + id);
             dl.append(dt);
 
             if(this._hasChildren(item)) {
@@ -473,12 +481,12 @@ ui.define("ui.ctrls.SelectionTree", {
                     return;
                 }
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
             }
-            this.current = elem;
+            this._current = elem;
             this._current
-                .addClass(selectionClass)
+                .addClass(selectedClass)
                 .addClass("background-highlight");
         }
 
@@ -736,7 +744,7 @@ ui.define("ui.ctrls.SelectionTree", {
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
                 this._current = null;
             }
@@ -769,7 +777,7 @@ ui.define("ui.ctrls.SelectionTree", {
     /** 清空列表 */
     clear: function() {
         this.option.viewData = [];
-        this.listPanel.empty();
+        this.treePanel.empty();
         this._current = null;
         this._selectList = [];
         delete this.originalViewData;
