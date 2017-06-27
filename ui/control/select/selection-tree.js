@@ -338,7 +338,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             } else {
                 tempMargin = (level + 1) * (flodButtonWidth + flodButtonLeft) + flodButtonLeft;
                 if(cbx) {
-                    cbx.css("margin-left", tempMargin + flodButtonLeft + "px");
+                    cbx.css("margin-left", tempMargin + "px");
                     tempMargin = 0;
                     dt.append(cbx);
                 }
@@ -430,18 +430,24 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _selectItem: function(elem, nodeData, isSelection, isFire) {
         var eventData,
             checkbox,
+            isMultiple,
             i, len;
 
         eventData = this._getSelectionData(elem, nodeData);
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
+        isMultiple = this.isMultiple();
+        if(isMultiple) {
+            checkbox = elem.find("." + checkboxClass);
+        }
+
         // 当前是要选中还是取消选中
         if(ui.core.isBoolean(isSelection)) {
             eventData.isSelection = isSelection;
         } else {
-            if(this.isMultiple()) {
-                eventData.isSelection = !elem.hasClass(selectedClass);
+            if(isMultiple) {
+                eventData.isSelection = !isChecked.call(this, checkbox);
             } else {
                 eventData.isSelection = true;
             }
@@ -451,9 +457,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             return;
         }
 
-        if(this.isMultiple()) {
+        if(isMultiple) {
             // 多选
-            checkbox = elem.find("." + checkboxClass);
             if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
