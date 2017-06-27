@@ -166,7 +166,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "cancel"];
+        return ["changing", "changed", "cancel"];
     },
     _create: function() {
         var fields, fieldMethods;
@@ -427,7 +427,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         data.isRoot = !nodeData[parentNode];
         return data;
     },
-    _selectItem: function(elem, nodeData, selectionStatus, isFire) {
+    _selectItem: function(elem, nodeData, isSelection, isFire) {
         var eventData,
             checkbox,
             i, len;
@@ -437,24 +437,24 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         eventData.originElement = elem.context ? $(elem.context) : null;
 
         // 当前是要选中还是取消选中
-        if(ui.core.isBoolean(selectionStatus)) {
-            eventData.selectionStatus = selectionStatus;
+        if(ui.core.isBoolean(isSelection)) {
+            eventData.isSelection = isSelection;
         } else {
             if(this.isMultiple()) {
-                eventData.selectionStatus = !elem.hasClass(selectedClass);
+                eventData.isSelection = !elem.hasClass(selectedClass);
             } else {
-                eventData.selectionStatus = true;
+                eventData.isSelection = true;
             }
         }
 
-        if(this.fire("selecting", eventData) === false) {
+        if(this.fire("changing", eventData) === false) {
             return;
         }
 
         if(this.isMultiple()) {
             // 多选
             checkbox = elem.find("." + checkboxClass);
-            if(!eventData.selectionStatus) {
+            if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
                     return;
@@ -463,7 +463,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
                         this._selectList.splice(i, 1);
-                        return;
+                        break;
                     }
                 }
             } else {
@@ -493,7 +493,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         if(isFire === false) {
             return;
         }
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _selectTreeByValues: function(list, values, level, path, outArguments) {
         var i, j, len,
