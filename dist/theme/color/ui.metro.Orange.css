@@ -70,10 +70,11 @@ select:focus {
 .ui-date-chooser-panel .date-chooser-month-td:hover,
 .ui-date-chooser-panel .date-chooser-calendar-td:hover {
   color: #FF8627;
+  cursor: pointer;
 }
 .ui-date-chooser-panel .date-chooser-prev:hover {
   border-right-color: #FF8627;
 }
-.ui-date-chooser-panel .date-chooser-prev:hover {
+.ui-date-chooser-panel .date-chooser-next:hover {
   border-left-color: #FF8627;
 }

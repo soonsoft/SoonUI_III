@@ -1196,21 +1196,26 @@ ui.setLeft = function (target, panel) {
 
 //获取目标元素下方的坐标信息
 ui.getDownLocation = function (target, width, height) {
-    var location = {
+    var location,
+        position,
+        documentElement,
+        top, left;
+
+    location = {
         left: 0,
         top: 0
     };
     if (!target) {
         return location;
     }
-    var p = target.offset();
-    var docel = ui.core.root;
-    var top = p.top + target.outerHeight(),
-        left = p.left;
-    if ((top + height) > (docel.clientHeight + docel.scrollTop)) {
+    position = target.offset();
+    documentElement = document.documentElement;
+    top = position.top + target.outerHeight();
+    left = position.left;
+    if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
         top -= height + target.outerHeight();
     }
-    if ((left + width) > docel.clientWidth + docel.scrollLeft) {
+    if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
         left = left - (width - target.outerWidth());
     }
     location.top = top;
@@ -1220,23 +1225,27 @@ ui.getDownLocation = function (target, width, height) {
 
 //获取目标元素左边的坐标信息
 ui.getLeftLocation = function (target, width, height) {
-    var location = {
+    var location,
+        position,
+        documentElement,
+        top, left;
+    
+    location = {
         left: 0,
         top: 0
     };
     if (!target) {
         return location;
     }
-    var p = target.offset();
-    var docel = ui.core.root;
-    var tw = target.outerWidth(),
-        top = p.top,
-        left = p.left + tw;
-    if ((top + height) > (docel.clientHeight + docel.scrollTop)) {
-        top -= (top + height) - (docel.clientHeight + docel.scrollTop);
+    position = target.offset();
+    documentElement = document.documentElement;
+    top = position.top;
+    left = position.left + target.outerWidth();
+    if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
+        top -= (top + height) - (documentElement.clientHeight + documentElement.scrollTop);
     }
-    if ((left + width) > docel.clientWidth + docel.scrollLeft) {
-        left = p.left - width;
+    if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
+        left = position.left - width;
     }
     location.top = top;
     location.left = left;
@@ -1378,7 +1387,7 @@ var textFormatReplaceFn = function (match, name) {
     return '';
 };
 // dateFormat
-var defaultWeekFormatFn = function() {
+var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
     return "周" + name.charAt(week);
 };
@@ -1660,13 +1669,13 @@ ui.str = {
         return output;
     },
     htmlEncode: function(str) {
-        if (this.isNullOrEmpty(str)) {
+        if (this.isEmpty(str)) {
             return this.empty;
         }
         return $("<span />").append(document.createTextNode(str)).html();
     },
     htmlDecode: function(str) {
-        if (this.isNullOrEmpty(str)) {
+        if (this.isEmpty(str)) {
             return this.empty;
         }
         return $("<span />").html(str).text();
@@ -2048,6 +2057,149 @@ ui.trans = {
 
 })(jQuery, ui);
 
+// Source: ui/util-random.js
+
+(function($, ui) {
+
+var random = {
+    /** 获取一定范围内的随机数 */
+    getNum: function(min, max) {
+        var val = null;
+        if (isNaN(min)) {
+            min = 0;
+        }
+        if (isNaN(max)) {
+            max = 100;
+        }
+        if (max == min) {
+            return min;
+        }
+        var temp;
+        if (max < min) {
+            temp = max;
+            max = min;
+            min = temp;
+        }
+        var range = max - min;
+        val = min + Math.floor(Math.random() * range);
+        return val;
+    }
+};
+
+// uuid
+var _time = new Date(),
+    getBits = function(val, start, end){ 
+        val = val.toString(36).split('');
+        start = (start / 4) | 0;
+        end = (end / 4) | 0;
+        for(var i = start; i <= end; i++) {
+            if(!val[i]) { 
+                (val[i] = 0);
+            }
+        }
+        return val.slice(start,end + 1).join(''); 
+    },
+    rand = function (max) {
+        return Math.random() * (max + 1) | 0;
+    },
+    hnv1a = function (key) {
+        key = key.replace(/./g, function (m) {
+            return m.charCodeAt();
+        }).split('');
+        var p = 16777619, hash = 0x811C9DC5, l = key.length;
+        for(var i=0; i< l; i++) {
+            hash = (hash ^ key[i]) * p;
+        }
+        hash += hash << 13;
+        hash ^= hash >> 7;
+        hash += hash << 3;
+        hash ^= hash >> 17;
+        hash += hash << 5;
+        hash = hash & 0x7FFFFFFF; //取正.
+        hash = hash.toString(36);
+        if(hash.length < 6) {
+            (hash += (l % 36).toString(36));
+        }
+        return hash;
+    },
+    info = [
+        screen.width, 
+        screen.height,
+        navigator.plugins.length,
+        navigator.javaEnabled(),
+        screen.colorDepth,
+        location.href,
+        navigator.userAgent
+    ].join('');
+
+random.uuid = function () {
+    var s = new Date(),
+        t = (+s +  0x92f3973c00).toString(36),
+        m = getBits(rand(0xfff),0,7) +
+            getBits(rand(0x1fff),0,7) +
+            getBits(rand(0x1fff),0,8),
+        // random from 50 - 300
+        c = Math.random() * (251) + 50 | 0,
+        a = [];
+    if(t.length < 9) {
+        (t += (s % 36).toString(36));
+    }
+    for (; c--;) {
+        //借助不定次数,多次随机，打散客户端，因软硬环境类似，导致产生随机种子的线性规律性，以及重复性.
+        a.push(Math.random());
+    }
+
+    return (
+        //增加物理维度分流.
+        hnv1a(info) +
+        //增加用户随机性分流.
+        hnv1a([
+            document.documentElement.offsetWidth, document.documentElement.offsetHeight,                       , 
+            history.length, 
+            (new Date()) - _time
+            ].join('')) +
+        t +
+        m + 
+        hnv1a(a.slice(0, 10).join('')) +
+        hnv1a(a.slice(c - 9).join(''))
+    );
+};
+
+// 随机颜色
+var rgb =  function () {
+    return Math.floor(Math.random()*256);
+};
+random.hex = function() {
+    return  '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
+};
+random.hsb = function() {
+    return "hsb(" + Math.random()  + ", 1, 1)";
+};
+random.rgb = function() {
+    return "rgb(" + [ rgb(), rgb(), rgb() ] + ")";
+};
+random.vivid = function(ranges) {
+    if (!ranges) {
+        ranges = [
+            [150,256],
+            [0, 190],
+            [0, 30]
+        ];
+    }
+    var g = function() {
+        //select random range and remove
+        var range = ranges.splice(Math.floor(Math.random()*ranges.length), 1)[0];
+        //pick a random number from within the range
+        return Math.floor(Math.random() * (range[1] - range[0])) + range[0];
+    };
+    return "rgb(" + g() + "," + g() + "," + g() +")";
+};
+
+ui.random = random;
+
+
+})(jQuery, ui);
+
 // Source: ui/animation.js
 
 (function($, ui) {
@@ -2075,6 +2227,8 @@ if (!cancelAnimationFrame) {
         clearTimeout(handle);
     };
 }
+
+function noop() { }
 
 //动画效果
 ui.AnimationStyle = {
@@ -2390,7 +2544,7 @@ Animator.prototype._prepare = function () {
             continue;
         }
         //必须指定，基本上对top,left,width,height这个属性进行设置
-        option.onChange = option.onChange || ui.core.noop;
+        option.onChange = option.onChange || noop;
         //要使用的缓动公式
         option.ease = option.ease || ui.AnimationStyle.easeFromTo;
     }
@@ -2400,8 +2554,8 @@ Animator.prototype.start = function (duration) {
     var flag,
         fn,
         that = this;
-    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : ui.core.noop;
-    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : ui.core.noop;
+    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : noop;
+    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : noop;
     
     var _resolve, _reject;
     var promise = new Promise(function(resolve, reject) {
@@ -3129,6 +3283,146 @@ ui.cookie = {
 
 })(jQuery, ui);
 
+// Source: ui/color.js
+
+(function($, ui) {
+// color
+
+// 各种颜色格式的正则表达式
+var HEX = /^[\#]([a-fA-F\d]{6}|[a-fA-F\d]{3})$/;
+var RGB = /^rgb[\(]([\s]*[\d]{1,3}[\,]{0,1}[\s]*){3}[\)]$/i;
+var RGBA = /^rgba[\(]([\s]*[\d]{1,3}[\,][\s]*){3}(([\d])|(([0])?[\.][\d]+))[\)]$/i;
+var MATCH_NUMBER = /(([\d]*[\.][\d]+)|([\d]+))/gm;
+
+// 十六进制字母
+var hexchars = "0123456789ABCDEF";
+
+function toHex (n) {
+    n = n || 0;
+    n = parseInt(n, 10);
+    if (isNaN(n))
+        n = 0;
+    n = Math.round(Math.min(Math.max(0, n), 255));
+    return hexchars.charAt((n - n % 16) / 16) + hexchars.charAt(n % 16);
+}
+function toDec (hexchar) {
+    return hexchars.indexOf(hexchar.toUpperCase());
+}
+
+ui.color = {
+    parseRGB: function (rgb) {
+        var valArr,
+        	color;
+        if(!RGB.test(rgb)) {
+            return null;
+        }
+        valArr = rgb.match(MATCH_NUMBER);
+        if(!valArr) {
+            return null;
+        }
+        color = {
+        	red: parseInt(valArr[0], 10),
+        	green: parseInt(valArr[1], 10),
+        	blue: parseInt(valArr[2], 10)
+        };
+        return color;
+    },
+    parseRGBA: function(rgba) {
+        var valArr,
+            color;
+        if(!RGBA.test(rgba)) {
+            return null;
+        }
+        valArr = rgba.match(MATCH_NUMBER);
+        if(!valArr) {
+            return null;
+        }
+        color = {
+            red: parseInt(valArr[0], 10),
+            green: parseInt(valArr[1], 10),
+            blue: parseInt(valArr[2], 10),
+            alpha: parseFloat(valArr[3])
+        };
+        return color;
+    },
+    parseHex: function(hex) {
+        var i,
+            fullHex,
+            color;
+        if(ui.str.isEmpty(hex)) {
+            return null;
+        }
+        if(hex.charAt(0) === "#") {
+            hex = hex.substring(1);
+        }
+        if(hex.length === 3) {
+            fullHex = "";
+            for(i = 0; i < hex.length; i++) {
+                fullHex += hex.charAt(i) + hex.charAt(i);
+            }
+        } else {
+            fullHex = hex;
+        }
+
+        color = {};
+        hex = fullHex.substring(0, 2);
+        color.red = toDec(hex.charAt(0)) * 16 + toDec(hex.charAt(1));
+        hex = fullHex.substring(2, 4);
+        color.green = toDec(hex.charAt(0)) * 16 + toDec(hex.charAt(1));
+        hex = fullHex.substring(4, 6);
+        color.blue = toDec(hex.charAt(0)) * 16 + toDec(hex.charAt(1));
+
+        return color;
+    },
+    rgb2hex: function(red, green, blue) {
+        return "#" + toHex(red) + toHex(green) + toHex(blue);
+    },
+    overlay: function (color1, color2, alpha) {
+        var getColor,
+            arr1,
+            arr2,
+            newColor;
+        if (isNaN(alpha))
+            alpha = .5;
+
+        getColor = function(c) {
+            var valArr;
+            if(HEX.test(c)) {
+                return this.parseHex(c);
+            } else if(RGB.test(c) || RGBA.test(c)) {
+                valArr = c.match(MATCH_NUMBER);
+                return {
+                    red: parseInt(valArr[0], 10),
+                    green: parseInt(valArr[1], 10),
+                    blue: parseInt(valArr[2], 10)
+                };
+            } else {
+                return c;
+            }
+        }
+
+        color1 = getColor.call(this, color1);
+        color2 = getColor.call(this, color2);
+
+        arr1 = [color1.red || 0, color1.green || 0, color1.blue || 0];
+        arr2 = [color2.red || 0, color2.green || 0, color2.blue || 0];
+
+        newColor = [];
+        for (var i = 0, l = arr1.length; i < l; i++) {
+            newColor[i] = Math.floor((1 - alpha) * arr1[i] + alpha * arr2[i]);
+        }
+
+        return {
+            red: newColor[0],
+            green: newColor[1],
+            blue: newColor[2]
+        };
+    }
+};
+
+
+})(jQuery, ui);
+
 // Source: ui/browser.js
 
 (function($, ui) {
@@ -3607,16 +3901,16 @@ function fixMousewheelDelta(event, originalEvent) {
     return event;
 }
 function eventSupported(eventName, elem) {
-    if (core.isDomObject(elem)) {
+    if (ui.core.isDomObject(elem)) {
         elem = $(elem);
-    } else if (core.isJQueryObject(elem) && elem.length === 0) {
+    } else if (ui.core.isJQueryObject(elem) && elem.length === 0) {
         return false;
     }
     eventName = "on" + eventName;
     var isSupported = (eventName in elem[0]);
     if (!isSupported) {
         elem.attr(eventName, "return;");
-        isSupported = core.type(elem[eventName]) === "function";
+        isSupported = ui.core.type(elem[eventName]) === "function";
     }
     return isSupported;
 }
@@ -3901,8 +4195,8 @@ CtrlBase.prototype = {
         // 事件初始化
         events = this._defineEvents();
         if(Array.isArray(events) && events.length > 0) {
-            this.eventTarget = new ui.EventTarget(this);
-            this.eventTarget.initEvents(events);
+            this.eventDispatcher = new ui.CustomEvent(this);
+            this.eventDispatcher.initEvents(events);
         }
 
         this._create();
@@ -3913,6 +4207,35 @@ CtrlBase.prototype = {
     _defineEvents: noop,
     _create: noop,
     _render: noop,
+    /** 提供属性声明方法，用于创建属性 */
+    defineProperty: function(propertyName, getter, setter) {
+        var definePropertyFn,
+            config = {};
+
+        if(!ui.core.isString(propertyName) || propertyName.length === 0) {
+            throw new TypeError("参数propertyName只能是String类型并且不能为空");
+        }
+
+        if(typeof Relect !== "undefined" && ui.core.isFunction(Reflect.defineProperty)) {
+            definePropertyFn = Reflect.defineProperty;
+        } else if(ui.core.isFunction(Object.defineProperty)) {
+            definePropertyFn = Object.defineProperty;
+        } else {
+            return;
+        }
+
+        if(ui.core.isFunction(getter)) {
+            config.get = $.proxy(getter, this);
+        }
+        if(ui.core.isFunction(setter)) {
+            config.set = $.proxy(setter, this);
+        }
+
+        config.enumerable = false;
+        config.configurable = false;
+        definePropertyFn(this, propertyName, config);
+    },
+    /** 默认的toString方法实现，返回类名 */
     toString: function() {
         return this.fullName;
     }
@@ -3983,6 +4306,89 @@ var defaultOption = {
     onEndDrag: null
 };
 
+// 鼠标按下处理事件
+function mouseDown(e) {
+    var eventArg,
+        result;
+    if (e.which !== 1) return;
+
+    eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    eventArg.currentX = this.currentX = e.pageX;
+    eventArg.currentY = this.currentY = e.pageY;
+
+    if(ui.core.isFunction(this.option.onBeginDrag)) {
+        result = this.option.onBeginDrag.call(this, eventArg);
+        if(result === false) {
+            return;
+        }
+    }
+    doc.on("mousemove", this.onMouseMoveHandler)
+        .on("mouseup", this.onMouseUpHandler)
+        .on("mouseleave", this.onMouseUpHandler);
+    doc.onselectstart = function() { return false; };
+    /*
+        .cancel-user-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;    
+        }
+        */
+    this.option.target.addClass("cancel-user-select");
+    this._isDragStart = true;
+
+    if(this.shield) {
+        body.append(this.shield);
+    }
+}
+// 鼠标移动事件
+function mouseMove(e) {
+    var eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    if(!this._isDragStart) return;
+    
+    eventArg.x = e.pageX - this.currentX;
+    eventArg.y = e.pageY - this.currentY;
+    eventArg.currentX = this.currentX = e.pageX;
+    eventArg.currentY = this.currentY = e.pageY;
+
+    if(ui.core.isFunction(this.option.onMoving)) {
+        this.option.onMoving.call(this, eventArg);
+    }
+}
+// 鼠标抬起
+function mouseUp(e) {
+    var eventArg = {
+        target: e.target,
+        option: this.option
+    };
+    if (e.which !== 1) return;
+    if(!this._isDragStart) return;
+
+    this._isDragStart = false;
+    this.currentX = this.currentY = null;
+
+    doc.off("mousemove", this.onMouseMoveHandler)
+        .off("mouseup", this.onMouseUpHandler)
+        .off("mouseleave", this.onMouseUpHandler);
+    doc.onselectstart = null;
+    this.option.target.removeClass("cancel-user-select");
+
+    if(ui.core.isFunction(this.option.onEndDrag)) {
+        this.option.onEndDrag.call(this, eventArg);
+    }
+
+    if(this.shield) {
+        this.shield.remove();
+    }
+}
+
+
 function MouseDragger(option) {
     if(this instanceof MouseDragger) {
         this.initialize(option);
@@ -3995,6 +4401,7 @@ MouseDragger.prototype = {
     initialize: function(option) {
         this.doc = document;
         this.shield = null;
+        this.isTurnOn = false;
 
         this.option = $.extend(defaultOption, option);
         if(this.option.hasIframe === true) {
@@ -4012,22 +4419,28 @@ MouseDragger.prototype = {
             });
         }
 
-        this.onMouseDown = $.proxy(this.mouseDownHandler, this);
-        this.onMouseMove = $.proxy(this.mouseMoveHandler, this);
-        this.onMouseUp = $.proxy(this.mouseUpHandler, this);
+        this.onMouseDownHandler = $.proxy(mouseDown, this);
+        this.onMouseMoveHandler = $.proxy(mouseMove, this);
+        this.onMouseUpHandler = $.proxy(mouseUp, this);
     },
     on: function() {
         var target = this.option.target,
             handle = this.option.handle,
             parent = this.option.parent;
+        
+        if(this.isTurnOn) {
+            return;
+        }
+
+        this.isTurnOn = true;
         if(!parent.isNodeName("body")) {
-            this.option.originParentPosition = parent.css("position");
+            this.originParentPosition = parent.css("position");
             if (position !== "absolute" && position !== "relative" && position !== "fixed") {
                 parent.css("position", "relative");
             }
         }
-        this.option.targetPosition = target.css("position");
-        if (this.option.targetPosition !== "absolute") {
+        this.originTargetPosition = target.css("position");
+        if (this.originTargetPosition !== "absolute") {
             target.css("position", "absolute");
         }
 
@@ -4036,85 +4449,21 @@ MouseDragger.prototype = {
             this.option.target.data("mouse-dragger", this);
     },
     off: function() {
+        if(!this.isTurnOn) {
+            return;
+        }
+
+        this.isTurnOn = false;
         this.option.target
             .off("mousedown", this.onMouseDown)
-            .css("position", this.option.originPosition);
-        this.option.parent.css("position", this.option.originParentPosition);
-    },
-    mouseDownHandler: function(e) {
-        var eventArg,
-            result;
-        if (e.which !== 1) return;
-
-        eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        eventArg.currentX = this.currentX = e.pageX;
-        eventArg.currentY = this.currentY = e.pageY;
-
-        if(ui.core.isFunction(this.option.onBeginDrag)) {
-            result = this.option.onBeginDrag.call(this, eventArg);
-            if(result === false) {
-                return;
-            }
+            .css("position", this.originTargetPosition);
+        if(this._isDragStart) {
+            this.onMouseUpHandler({
+                target: document,
+                which: 1
+            });
         }
-        doc.on("mousemove", this.onMouseMove)
-            .on("mouseup", this.onMouseUp)
-            .on("mouseleave", this.onMouseUp);
-        doc.onselectstart = function() { return false; };
-        /*
-            .cancel-user-select {
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                user-select: none;    
-            }
-         */
-        this.option.target.addClass("cancel-user-select");
-        this._isDragStart = true;
-
-        if(this.shield) {
-            body.append(this.shield);
-        }
-    },
-    mouseMoveHandler: function(e) {
-        var eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        if(!this._isDragStart) return;
-        
-        eventArg.x = e.pageX - this.currentX;
-        eventArg.y = e.pageY - this.currentY;
-        eventArg.currentX = this.currentX = e.pageX;
-        eventArg.currentY = this.currentY = e.pageY;
-
-        if(ui.core.isFunction(this.option.onMoving)) {
-            this.option.onMoving.call(this, eventArg);
-        }
-    },
-    mouseUpHandler: function(e) {
-        var eventArg = {
-            target: e.target,
-            option: this.option
-        };
-        if (e.which !== 1) return;
-        if(!this._isDragStart) return;
-
-        this._isDragStart = false;
-        this.currentX = this.currentY = null;
-
-        doc.onselectstart = null;
-        this.option.target.removeClass("cancel-user-select");
-
-        if(ui.core.isFunction(this.option.onEndDrag)) {
-            this.option.onEndDrag.call(this, eventArg);
-        }
-
-        if(this.shield) {
-            this.shield.remove();
-        }
+        this.option.parent.css("position", this.originParentPosition);
     }
 };
 
@@ -4333,12 +4682,12 @@ StyleSheet.createStyleSheet = function(id) {
         styleSheet = document.createStyleSheet();
         styleElem = styleSheet.ownerNode || styleSheet.owningElement;
     } else {
-        head = document.getElementsByTagNames("head")[0];
+        head = document.getElementsByTagName("head")[0];
         styleElem = document.createElement("style");
         head.appendChild(styleElem);
         styleSheet = document.styleSheets[document.styleSheets.length - 1];
     }
-    if(!ui.str.isNullOrEmpty(id)) {
+    if(!ui.str.isEmpty(id)) {
         styleElem.id = id;
     }
 
@@ -4390,7 +4739,7 @@ ui.theme = {
                     url,
                     urlObj;
                 if(success.Result) {
-                    sheet = $("#" + this.currentTheme);
+                    sheet = $("#" + ui.theme.themeSheetId);
                     if(sheet.length > 0) {
                         url = sheet.prop("href");
                         url = ui.url.setParams({
@@ -4408,6 +4757,7 @@ ui.theme = {
         );
     }
 };
+
 
 })(jQuery, ui);
 
@@ -4428,7 +4778,7 @@ var page = ui.page = {
     events: [
         "themechanged", 
         "ready", 
-        "docclick", 
+        "htmlclick", 
         "docmouseup", 
         "resize", 
         "hashchange"
@@ -4444,7 +4794,7 @@ $(document)
     })
     //注册全局click事件
     .click(function (e) {
-        page.fire("docclick");
+        page.fire("htmlclick");
     });
 
 $(window)

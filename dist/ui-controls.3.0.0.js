@@ -1,15 +1,15 @@
 // Source: ui/control/base/dropdown-base.js
 
 (function($, ui) {
-var docClickHideHandler = [],
+var htmlClickHideHandler = [],
     hideCtrls = function (currentCtrl) {
         var handler, retain;
-        if (docClickHideHandler.length === 0) {
+        if (htmlClickHideHandler.length === 0) {
             return;
         }
         retain = [];
         while (true) {
-            handler = docClickHideHandler.shift();
+            handler = htmlClickHideHandler.shift();
             if(!handler) {
                 break;
             }
@@ -21,17 +21,17 @@ var docClickHideHandler = [],
             }
         }
 
-        docClickHideHandler.push.apply(docClickHideHandler, retain);
+        htmlClickHideHandler.push.apply(htmlClickHideHandler, retain);
     };
 
 // 注册document点击事件
-ui.docclick(function (e) {
+ui.page.htmlclick(function (e) {
     hideCtrls();
 });
 // 添加隐藏的处理方法
 ui.addHideHandler = function (ctrl, func) {
     if (ctrl && ui.core.isFunction(func)) {
-        docClickHideHandler.push({
+        htmlClickHideHandler.push({
             ctrl: ctrl,
             func: func
         });
@@ -534,11 +534,12 @@ columnFormatter = {
 cellFormatter = {
     text: function (val, col) {
         var span;
-        if (val === undefined || val === null || isNaN(val)) {
+        val += "";
+        if (val === "undefined" || val === "null" || val === "NaN") {
             return null;
         }
         span = $("<span class='table-cell-text' />");
-        span.text(t + "");
+        span.text(val);
         return span;
     },
     empty: function (val, col) {
@@ -1011,7 +1012,7 @@ Pager.prototype = {
             };
             that = this;
             if(!ui.core.ie || ui.core.ie >= 8) {
-                ui.hashchange(function(e, hash) {
+                ui.page.hashchange(function(e, hash) {
                     if(that._breakHashChanged) {
                         that._breakHashChanged = false;
                         return;
@@ -1939,9 +1940,9 @@ MessageBox.prototype = {
         var clientWidth,
             clientHeight;
         if (!this.box) {
-            clientWidth = ui.core.root.clientWidth;
-            clientHeight = ui.core.root.clientHeight;
-            this.box = $("<div class='ui-message-box theme-action-color border-highlight' />");
+            clientWidth = document.documentElement.clientWidth;
+            clientHeight = document.documentElement.clientHeight;
+            this.box = $("<div class='ui-message-box border-highlight' />");
             this.box.css({
                 "top": this.top + "px",
                 "left": clientWidth + "px",
@@ -2006,7 +2007,7 @@ MessageBox.prototype = {
     _show: function (completedHandler) {
         var box = this.getBox(),
             option,
-            clientWidth = ui.core.root.clientWidth;
+            clientWidth = document.documentElement.clientWidth;
         this.isStartHide = false;
 
         this.boxAnimator.stop();
@@ -2020,7 +2021,7 @@ MessageBox.prototype = {
         var box,
             option,
             that = this,
-            clientWidth = ui.core.root.clientWidth;
+            clientWidth = document.documentElement.clientWidth;
         if (flag) {
             this.isClosing = true;
         }
@@ -2056,8 +2057,8 @@ MessageBox.prototype = {
 messagebox = MessageBox();
 ui.page.resize(function(e) {
     var box = messagebox.getBox(),
-        clientWidth = ui.core.root.clientWidth,
-        clientHeight = ui.core.root.clientHeight,
+        clientWidth = document.documentElement.clientWidth,
+        clientHeight = document.documentElement.clientHeight,
         left;
     if(messagebox.isShow()) {
         left = clientWidth - messagebox.width;
@@ -2445,6 +2446,7 @@ function onMousewheel(e) {
 
     div = e.data.target;
     index = parseInt(div.attr("data-index"), 10);
+    item = this.scrollData[index];
     val = this.option.itemSize + this.option.margin;
     change = (-e.delta) * val;
     direction = -e.delta > 0;
@@ -2547,7 +2549,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _createFocusElement: function() {
         var div = $("<div class='focus-choose-element' />");
         div.addClass("border-highlight");
-        div.css("top", this.itemSize * ((this.size - 1) / 2));
+        div.css("top", this.option.itemSize * ((this.size - 1) / 2));
         return div;
     },
     _createItemList: function(itemTitlePanel, itemListPanel) {
@@ -2627,7 +2629,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             tsd.target = div;
             tsd.lastDirection = null;
 
-            sizeData.width += tempWidth + temp + this.margin;
+            sizeData.width += tempWidth + temp + this.option.margin;
 
             div.mousewheel({ target: div }, this.onMousewheelHandler);
             div.click(this.onItemClickHandler);
@@ -2680,7 +2682,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         return li;
     },
     _getAttachmentCount: function() {
-        return Math.floor((this.option.size - 1) / 2);
+        return Math.floor((this.size - 1) / 2);
     },
     _getValues: function() {
         var attachmentCount,
@@ -2688,12 +2690,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             i, len, item, index;
         
         attachmentCount = this._getAttachmentCount();
+        values = [];
         for(i = 0, len = this.scrollData.length; i < len; i++) {
             item = this.scrollData[i];
-            if(item_current) {
-                index = parseInt(item_current.attr("data-index"), 10);
+            if(item._current) {
+                index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(this.scrollData[i].list[index]);
+                values.push(item.list[index]);
             } else {
                 values.push("");
             }
@@ -2784,7 +2787,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         eventData = {};
         eventData.values = this._getValues();
-        eventData.text = eventData.join(this.option.spliter);
+        eventData.text = eventData.values.join(this.option.spliter);
 
         if (this.fire("selecting", eventData) === false) {
             return;
@@ -2850,8 +2853,8 @@ function farbtastic(container, callback) {
     var fb = this;
 
     //events
-    fb.eventTarget = new ui.EventTarget(fb);
-    fb.eventTarget.initEvents(events);
+    fb.eventDispatcher = new ui.CustomEvent(fb);
+    fb.eventDispatcher.initEvents(["selected"]);
 
     // Insert markup
     $(container).html('<div class="farbtastic"><div class="color"></div><div class="wheel"></div><div class="overlay"></div><div class="h-marker marker"></div><div class="sl-marker marker"></div></div>');
@@ -3077,7 +3080,7 @@ function farbtastic(container, callback) {
             fb.callback.call(fb, fb.color);
         }
 
-        this.fire(selected, fb.color);
+        this.fire("selected", fb.color);
     };
 
     /**
@@ -3185,7 +3188,7 @@ function setColorValue(elem, color) {
         color = "#ffffff";
     } else {
         color = ui.color.parseRGB(color);
-        color = ui.color.rgb2Hex(color).toLowerCase();
+        color = ui.color.rgb2hex(color.red, color.green, color.blue).toLowerCase();
     }
     elem.val(color);
     this.setColor(color);
@@ -3214,7 +3217,7 @@ $.fn.colorPicker = function (option) {
     oldHideFn = colorPicker.hide;
 
     createFarbtastic(colorPickerPanel, this);
-    colorPicker.farbtastic = this.colorPickerPanel[0].farbtastic;
+    colorPicker.farbtastic = colorPicker.colorPickerPanel[0].farbtastic;
     colorPicker.hide = function() {
         if (document.dragging) {
             return "retain";
@@ -3240,7 +3243,9 @@ $.fn.colorPicker = function (option) {
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
-    monthSelectedClass = "month-selected";
+    monthSelectedClass = "month-selected",
+    defaultDateFormat = "yyyy-MM-dd",
+    defaultDateTimeFormat = "yyyy-MM-dd hh:mm:ss";
 
 var formatYear = /y+/i,
     formatMonth = /M+/,
@@ -3271,7 +3276,7 @@ function Day(year, month, day, dateChooser) {
     if(this instanceof Day) {
         this.initialize(year, month, day, dateChooser);
     } else {
-        return new Day();
+        return new Day(year, month, day, dateChooser);
     }
 }
 Day.prototype = {
@@ -3337,7 +3342,7 @@ function twoNumberFormatter(number) {
 }
 function formatCalendarTitle(year, month) {
     month += 1;
-    return year + "-" + twoNumberFormatter.call(this, number) + "&nbsp;▼";
+    return year + "-" + twoNumberFormatter.call(this, month) + "&nbsp;▼";
 }
 function formatDateItem(r, value, format) {
     var result;
@@ -3358,7 +3363,7 @@ function findDateItem(r, value, format) {
         return NaN;
     }
 }
-function createDay(value) {
+function createDay(value, format) {
     var year,
         month,
         day;
@@ -3369,7 +3374,7 @@ function createDay(value) {
     if(isNaN(year) || isNaN(month) || isNaN(day)) {
         return null;
     }
-    return Day(year, month, day, this);
+    return Day(year, month - 1, day, this);
 }
 function checkButtonDisabled(btn) {
     return btn.hasClass("date-chooser-prev-disabled") || btn.hasClass("date-chooser-next-disabled");
@@ -3379,7 +3384,7 @@ function checkButtonDisabled(btn) {
 function onYearChanged(e) {
     var elem,
         value = e.data.value,
-        year;
+        year, month;
     
     elem = $(e.target);
     if(checkButtonDisabled(elem)) {
@@ -3390,16 +3395,21 @@ function onYearChanged(e) {
     } else {
         year = this._selYear;
     }
+    if(this._currentMonth) {
+        month = parseInt(this._currentMonth.attr("data-month"), 10);
+    } else {
+        month = this._selMonth;
+    }
 
     year = year + value;
-    this._fillYear(year);
+    this._fillYear(year, month);
 }
 function onYearSelected(e) {
     var elem,
         year,
         startMonth,
-        endMonth,
-        i, disabledArray;
+        endMonth, 
+        currentMonth;
     
     e.stopPropagation();
     elem = $(e.target);
@@ -3422,20 +3432,12 @@ function onYearSelected(e) {
         .addClass(yearSelectedClass)
         .addClass("background-highlight");
 
-    year = parseInt(this._currentYear.attr("data-year"), 10);
-    disabledArray = new Array(12);
-    startMonth = 0;
-    endMonth = 0;
-    if(this.startDay && this.startDay.year === year) {
-        startMonth = this.startDay.month;
+    if(this._currentMonth) {
+        currentMonth = parseInt(this._currentMonth.attr("data-month"), 10);
+    } else {
+        currentMonth = this._selMonth;
     }
-    if(this.endDay && this.endDay.year === year) {
-        endMonth = this.endDay.month;
-    }
-    for(i = startMonth; i <= endMonth; i++) {
-        disabledArray[i] = false;
-    }
-    this._updateMonthsStatus(disabledArray);
+    this._updateMonthsStatus(currentMonth);
 }
 function onMonthSelected(e) {
     var elem;
@@ -3443,6 +3445,9 @@ function onMonthSelected(e) {
     e.stopPropagation();
     elem = $(e.target);
     if(elem.nodeName() !== "TD") {
+        return;
+    }
+    if(elem.hasClass("disabled-month")) {
         return;
     }
     if(this._currentMonth) {
@@ -3549,7 +3554,7 @@ function onTimeMousewheel(e) {
     h = parseInt(this.hourText.val(), 10);
     m = parseInt(this.minuteText.val(), 10);
     s = parseInt(this.secondText.val(), 10);
-    this.selectedDate(
+    this.setSelection(
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 function onTimeTextinput(e) {
@@ -3580,7 +3585,7 @@ function onTimeTextinput(e) {
         this.secondText.val(twoNumberFormatter(s));
         return;
     }
-    this.selectedDate(
+    this.setSelection(
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
@@ -3588,7 +3593,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 日期格式化样式
-            dateFormat: "yyyy-MM-dd",
+            dateFormat: defaultDateFormat,
             // 显示语言 zh-CN: 中文, en-US: 英文
             language: "zh-CN",
             // 放置日历的容器
@@ -3605,16 +3610,15 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         return ["selecting", "selected", "cancel"];
     },
     _create: function() {
-        var defaultFormat,
-            now;
+        var now;
         this._super();
 
-        defaultFormat = "yyyy-MM-dd";
-        if(this.isDateTime()) {
-            defaultFormat = "yyyy-MM-dd hh:mm:ss";
-        }
         // 日期格式化
-        this.option.defaultFormat = this.option.defaultFormat || defaultFormat;
+        if(this.isDateTime()) {
+            this.option.dateFormat = this.option.dateFormat || defaultDateTimeFormat;
+        } else {
+            this.option.dateFormat = this.option.dateFormat || defaultDateFormat;
+        }
 
         this._initDateRange();
         now = this.formatDateValue(new Date());
@@ -3657,16 +3661,18 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _initDateRange: function() {
         this.startDay = null;
         if(ui.core.isString(this.option.startDate) && this.option.startDate.length > 0) {
-            this.startDay = createDay(this.option.startDate);
+            this.startDay = createDay.call(this, this.option.startDate, this.option.dateFormat);
         }
         this.endDay = null;
         if(ui.core.isString(this.option.endDate) && this.option.endDate.length > 0) {
-            this.endDay = createDay(this.option.endDate);
+            this.endDay = createDay.call(this, this.option.endDate, this.option.dateFormat);
         }
     },
     _render: function() {
         this._calendarPanel = ui.getJQueryElement(this.option.calendarPanel);
-        if(!this._calendarPanel) {
+        if(this._calendarPanel) {
+            this._calendarPanel.css("position", "relative");
+        } else {
             this._calendarPanel = $("<div />");
         }
         this._calendarPanel
@@ -3696,26 +3702,25 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _initYearMonthPanelAnimator: function() {
         this.ymAnimator = ui.animator({
             target: this._settingPanel,
-            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
         });
-        this.ymAnimator.duration = 240;
+        this.ymAnimator.duration = 300;
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
-            ease: ui.AnimationStyle.easeFromTo,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).addTarget({
-            ease: ui.AnimationStyle.easeFromTo,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         });
-        this.mcAnimator.duration = 240;
+        this.mcAnimator.duration = 300;
     },
     _initYearMonthPanel: function() {
         var yearTitle, monthTitle,
@@ -3817,7 +3822,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 "<i class='fa fa-remove'></i>"));
         return okCancel;
     },
-    _createCalendarPanel: function() {
+    _initCalendarPanel: function() {
         //创建日历正面的标题
         this._calendarPanel.append(this._createTitlePanel());
         //创建日期显示面板
@@ -3839,8 +3844,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.html(formatCalendarTitle.call(this, this._selYear, this._selMonth));
         this._linkBtn.click(this.onCalendarTitleClickHandler);
+        this._updateCalendarTitle();
+        dateTitle.append(this._linkBtn);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
@@ -3886,6 +3892,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         daysPanel = $("<div class='date-chooser-days-panel' />");
         this._currentDays = this._createDaysTable();
         this._nextDays = this._createDaysTable();
+        this._nextDays.css("display", "none");
 
         daysPanel.append(this._currentDays);
         daysPanel.append(this._nextDays);
@@ -4021,7 +4028,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _updateCalendarTitle: function() {
         this._linkBtn.html(
-            formatCalendarTitle.call(this._selYear, this._selMonth));
+            formatCalendarTitle.call(this, this._selYear, this._selMonth));
     },
     _fillMonth: function(daysTable, currentYear, currentMonth) {
         var days,
@@ -4033,29 +4040,33 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             rows, td, today,
             lastDay;
 
+        // 检查月份的切换按钮
+        this._checkPrev(currentYear, currentMonth, this._monthPrev);
+        this._checkNext(currentYear, currentMonth, this._monthNext);
+
         days = [];
         // 当前月的第一天
-        currentMonthDate = new Date(currentMonth, currentMonth, 1);
+        currentMonthDate = new Date(currentYear, currentMonth, 1);
         // 当前月的第一天是星期几
         firstWeekDay = currentMonthDate.getDay();
 
         if(firstWeekDay > 0) {
             // 填充上个月的日期
             // 上一个月的最后一天
-            prevMonthDate = new Date(currentMonth, currentMonth, 0);
+            prevMonthDate = new Date(currentYear, currentMonth, 0);
             // 需要显示上个月的日期
             y = prevMonthDate.getFullYear();
             m = prevMonthDate.getMonth();
             d = prevMonthDate.getDate();
             for(i = d - (firstWeekDay - 1); i <= d; i++) {
-                days.push(Day(y, m, d, this).isCurrentMonth(false));
+                days.push(Day(y, m, i, this).isCurrentMonth(false));
             }
         }
 
         // 填充当前月的日期
-        lastDay = new Date(currentMonth, currentMonth + 1, 0).getDate();
+        lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
         for(i = 1; i <= lastDay; i++) {
-            days.push(Day(y, m, d, this));
+            days.push(Day(currentYear, currentMonth, i, this));
         }
 
         // 填充下个月的日期
@@ -4064,7 +4075,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         y = nextMonthDate.getFullYear();
         m = nextMonthDate.getMonth();
         lastDay = 6 * 7 - days.length;
-        for(i = 1; i < lastDay; i++) {
+        for(i = 1; i <= lastDay; i++) {
             days.push(Day(y, m, i, this).isCurrentMonth(false));
         }
 
@@ -4077,22 +4088,23 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 d = days[index];
                 d.setToday(today);
                 td = $(rows[i].cells[j]);
+                td.attr("data-index", index);
+
                 if(d.isDisabled()) {
                     td.addClass("disabled-day");
                 } else {
                     td.html("<span>" + d.day + "</span>");
                 }
-                td.attr("data-index", index);
 
                 // 判断是否是选中的日期
                 if(d.isTheDay(this._selYear, this._selMonth, this._selDay)) {
-                    this._currentDate = td;
-                    td.addClass(selectedClass)
-                        .addClass("background-highlight");
+                    this._selectItem(td);
                 }
                 // 高亮显示今日
                 if(d.isToday()) {
                     td.addClass("font-highlight");
+                } else {
+                    td.removeClass("font-highlight");
                 }
                 // 不是当前月的日期
                 if(!d.isCurrentMonth()) {
@@ -4112,8 +4124,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             startYear + "年 ~ " + (startYear + yearCount - 1) + "年");
         
         // 检查年的切换按钮
-        this._checkNext(startYear - 1, -1, this._yearNext);
-        this._checkPrev(startYear + yearCount, -1, this._yearPrev);
+        this._checkPrev(startYear - 1, -1, this._yearPrev);
+        this._checkNext(startYear + yearCount, -1, this._yearNext);
 
         if(this._currentYear) {
             this._currentYear
@@ -4127,7 +4139,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
                 if((this.startDay && value < this.startDay.year) 
-                    || (this.endDay && value > this.endDay)) {
+                    || (this.endDay && value > this.endDay.year)) {
                     td.addClass("disabled-year");
                 } else {
                     td.html(value);
@@ -4141,15 +4153,29 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             }
         }
 
-        if(ui.core.isNumber(month)) {
-            this._updateMonthsStatus();
-        }
+        this._updateMonthsStatus(month);
     },
-    _updateMonthsStatus: function(disabledArray) {
+    _updateMonthsStatus: function(month) {
         var rows, td, value,
+            disabledArray, year,
             index, i, j;
-        if(!Array.isArray(disabledArray)) {
-            disabledArray = new Array(12);
+
+        year = parseInt(this._currentYear.attr("data-year"), 10);
+        disabledArray = new Array(12);
+        if(this.startDay || this.endDay) {
+            startMonth = -1;
+            endMonth = -1;
+            if(this.startDay && this.startDay.year === year) {
+                startMonth = this.startDay.month;
+            }
+            if(this.endDay && this.endDay.year === year) {
+                endMonth = this.endDay.month;
+            }
+            for(i = 0; i < disabledArray.length; i++) {
+                if(i < startMonth || i > endMonth) {
+                    disabledArray[i] = false;
+                }
+            }
         }
         if(this._currentMonth) {
             this._currentMonth
@@ -4204,9 +4230,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 monthCount += month + 1;
             }
             if(monthCount >= endMonthCount) {
-                prevBtn.addClass("date-chooser-next-disabled");
+                nextBtn.addClass("date-chooser-next-disabled");
             } else {
-                prevBtn.removeClass("date-chooser-next-disabled");
+                nextBtn.removeClass("date-chooser-next-disabled");
             }
         }
     },
@@ -4276,6 +4302,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option.target.css("display", "block");
         option.begin = parseFloat(option.target.css("top"));
         option.end = 0;
+        option.ease = ui.AnimationStyle.easeTo;
         this.ymAnimator.start();
     },
     _closeYearMonthPanel: function() {
@@ -4283,6 +4310,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option = this.ymAnimator[0];
         option.begin = parseFloat(option.target.css("top"));
         option.end = -option.target.height();
+        option.ease = ui.AnimationStyle.easeFrom;
         this.ymAnimator.start().done(function() {
             option.target.css("display", "none");
         });
@@ -4303,17 +4331,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             width,
             that;
 
-        if(isNext) {
-            this._checkNext(date.getFullYear(), date.getMonth(), this._monthNext);
-        } else {
-            this._checkPrev(date.getFullYear(), date.getMonth(), this._monthPrev);
-        }
-
         if(this.mcAnimator.isStarted) {
             return;
         }
-
-        this.mcAnimator.stop();
 
         daysPanel = this._currentDays.parent();
         width = daysPanel.width();
@@ -4345,8 +4365,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         that = this;
         this.mcAnimator.start().done(function() {
             var temp = that._currentDays;
-            that._currentDays = _nextDays;
-            that._currentDays = temp;
+            that._currentDays = that._nextDays;
+            that._nextDays = temp;
             that._nextDays.css("display", "none");
             daysPanel.removeClass("click-disabled");
             if(ui.core.isFunction(callback)) {
@@ -4365,13 +4385,15 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         var index,
             rowIndex,
             cellIndex,
+            firstDate,
             td;
 
         if(!date || this._isDisabledDay(date.getFullYear(), date.getMonth(), date.getDate())) {
             return;
         }
         
-        index = date.getDay() + date.getDate() - 1;
+        firstDate = new Date(date.getFullYear(), date.getMonth(), 1);
+        index = firstDate.getDay() + date.getDate() - 1;
         rowIndex = Math.floor(index / 7);
         cellIndex = index - rowIndex * 7;
 
@@ -4402,11 +4424,12 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         if(this.isDateTime()) {
             this._setCurrentTime(value);
         }
+        this._updateCalendarTitle();
         this._fillMonth(this._currentDays, this._selYear, this._selMonth);
     },
     /** 将date格式化为对应格式的文本 */
     formatDateValue: function(date) {
-        var dateValue = this.dateFormat;
+        var dateValue = this.option.dateFormat;
         dateValue = formatDateItem(formatYear, date.getFullYear(), dateValue);
         dateValue = formatDateItem(formatMonth, date.getMonth() + 1, dateValue);
         dateValue = formatDateItem(formatDay, date.getDate(), dateValue);
@@ -4456,19 +4479,19 @@ var dateChooser,
 function noop() {}
 function createDateChooser(option, element) {
     var dc = ui.ctrls.DateChooser(option, element);
-    dc.selecting(function() {
+    dc.selecting(function(e, eventData) {
         if(ui.core.isFunction(this.selectingHandler)) {
             return this.selectingHandler.apply(this, arguments);
         }
     });
-    dc.selected(function() {
+    dc.selected(function(e, eventData) {
         if(ui.core.isFunction(this.selectedHandler)) {
             this.selectedHandler.apply(this, arguments);
         } else {
             if (this.element.nodeName() === "INPUT") {
-                this.element.val(value);
+                this.element.val(eventData.value);
             } else {
-                this.element.html(value);
+                this.element.html(eventData.value);
             }
         }
     });
@@ -4527,7 +4550,6 @@ function setOptions(elem, option) {
     // 修正配置信息
     this.option = option;
     this.setLayoutPanel(option.layoutPanel);
-    this.dateFormat = option.dateFormat;
     this.element = elem;
     // 修正事件引用
     this.selectingHandler = option.selectingHandler;
@@ -4543,7 +4565,7 @@ function setOptions(elem, option) {
     }
 }
 
-$.fn.dateChooser = function() {
+$.fn.dateChooser = function(option) {
     var nodeName,
         valueFn,
         currentDateChooser;
@@ -4572,9 +4594,10 @@ $.fn.dateChooser = function() {
 
     if(option && option.isDateTime) {
         if(!dateTimeChooser) {
-            dateTimeChooser = createDateChooser({
-                isDateTime: true
-            }, this);
+            if(!option.dateFormat) {
+                option.dateFormat = defaultDateTimeFormat;
+            }
+            dateTimeChooser = createDateChooser(option, this);
         }
         currentDateChooser = dateTimeChooser;
     } else {
@@ -4629,7 +4652,7 @@ function getValue(field) {
         i, len;
     
     arr = field.split(".");
-    value = this[arr[i]];
+    value = this[arr[0]];
     for(i = 1, len = arr.length; i < len; i++) {
         value = value[arr[i]];
         if(value === undefined || value === null) {
@@ -4655,7 +4678,7 @@ function getArrayValue(fieldArray) {
     }
     return result.join("_");
 }
-function defaultItemFormatter() {
+function defaultItemFormatter(item, index, li) {
     var text = "";
     if (ui.core.isString(item)) {
         text = item;
@@ -4714,7 +4737,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "cancel"];
+        return ["changing", "changed", "cancel"];
     },
     _create: function() {
         var fields, fieldMethods;
@@ -4726,8 +4749,8 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         fields = [this.option.valueField, this.option.textField];
         fieldMethods = ["_getValue", "_getText"];
 
-        fields.forEach(function(item) {
-            if(Array.isArray(item, index)) {
+        fields.forEach(function(item, index) {
+            if(Array.isArray(item)) {
                 this[fieldMethods[index]] = getArrayValue;
             } else if($.isFunction(item)) {
                 this[fieldMethods[index]] = item;
@@ -4737,7 +4760,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }, this);
 
         //事件函数初始化
-        this.onItemClickHandler = $.proxy(this.onItemClick);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
@@ -4787,7 +4810,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         return checkbox;
     },
     _getItemIndex: function(li) {
-        return parseInt(li.getAttribute(indexAttr), 10);
+        return parseInt(li.getAttribute("data-index"), 10);
     },
     _getSelectionData: function(li) {
         var index = this._getItemIndex(li),
@@ -4797,34 +4820,39 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         data.itemIndex = index;
         return data;
     },
-    _selectItem: function(elem, selectionStatus, isFire) {
+    _selectItem: function(elem, isSelection, isFire) {
         var eventData,
             checkbox,
+            isMultiple,
             i, len;
 
         eventData = this._getSelectionData(elem[0]);
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
         
+        isMultiple = this.isMultiple();
+        if(isMultiple) {
+            checkbox = elem.find("." + checkboxClass);
+        }
+
         // 当前是要选中还是取消选中
-        if(ui.core.isBoolean(selectionStatus)) {
-            eventData.selectionStatus = selectionStatus;
+        if(ui.core.isBoolean(isSelection)) {
+            eventData.isSelection = isSelection;
         } else {
-            if(this.isMultiple()) {
-                eventData.selectionStatus = !elem.hasClass(selectedClass);
+            if(isMultiple) {
+                eventData.isSelection = !isChecked.call(this, checkbox);
             } else {
-                eventData.selectionStatus = true;
+                eventData.isSelection = true;
             }
         }
         
-        if(this.fire("selecting", eventData) === false) {
+        if(this.fire("changing", eventData) === false) {
             return;
         }
 
-        if(this.isMultiple()) {
+        if(isMultiple) {
             // 多选
-            checkbox = elem.find("." + checkboxClass);
-            if(!eventData.selectionStatus) {
+            if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
                     return;
@@ -4833,7 +4861,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
                         this._selectList.splice(i, 1);
-                        return;
+                        break;
                     }
                 }
             } else {
@@ -4851,19 +4879,19 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                     return;
                 }
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
             }
-            this.current = elem;
+            this._current = elem;
             this._current
-                .addClass(selectionClass)
+                .addClass(selectedClass)
                 .addClass("background-highlight");
         }
 
         if(isFire === false) {
             return;
         }
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _selectByValues: function(values, outArguments) {
         var count,
@@ -4976,7 +5004,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
                 this._current = null;
             }
@@ -5034,7 +5062,7 @@ $.fn.selectionList = function (option) {
 
 var selectedClass = "ui-selection-tree-selected",
     checkboxClass = "ui-selection-tree-checkbox",
-    flodClass = "fold-button",
+    foldClass = "fold-button",
     expandClass = "expand-button";
 
 var instanceCount = 0,
@@ -5053,7 +5081,7 @@ function getValue(field) {
         i, len;
     
     arr = field.split(".");
-    value = this[arr[i]];
+    value = this[arr[0]];
     for(i = 1, len = arr.length; i < len; i++) {
         value = value[arr[i]];
         if(value === undefined || value === null) {
@@ -5104,7 +5132,8 @@ function isChecked(cbx) {
 function onTreeItemClick(e) {
     var elem,
         nodeName,
-        nodeData;
+        nodeData,
+        hasChildren;
 
     if(this.isMultiple()) {
         e.stopPropagation();
@@ -5112,6 +5141,7 @@ function onTreeItemClick(e) {
 
     elem = $(e.target);
     if(elem.hasClass(foldClass)) {
+        e.stopPropagation();
         this.onTreeFoldClickHandler(e);
         return;
     }
@@ -5126,10 +5156,16 @@ function onTreeItemClick(e) {
     }
 
     nodeData = this._getNodeData(elem);
-    if(this.option.nodeSelectable === true || !this._hasChildren(nodeData)) {
+    hasChildren = this._hasChildren(nodeData);
+    if(this.option.nodeSelectable === true || !hasChildren) {
         this._selectItem(elem, nodeData);
     } else {
-        e.stopPropagation();
+        if(hasChildren) {
+            e.stopPropagation();
+            this.onTreeFoldClickHandler({
+                target: elem.children(".fold-button")[0]
+            });
+        }
     }
 }
 // 折叠按钮点击事件
@@ -5161,7 +5197,7 @@ function onTreeFoldLazyClick(e) {
     }
 }
 
-ui.define("ui.ctrls.SelectionTree", {
+ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 是否支持多选
@@ -5176,8 +5212,8 @@ ui.define("ui.ctrls.SelectionTree", {
             childField: null,
             // 视图数据
             viewData: null,
-            // 是否只能选择叶节点
-            nodeSelectable: false,
+            // 是否可以选择父节点
+            nodeSelectable: true,
             // 默认展开的层级，false|0：显示第一层级，true：显示所有层级，数字：显示的层级值(0表示根级别，数值从1开始)
             defaultExpandLevel: false,
             // 是否延迟加载，只有用户展开这个节点才会渲染节点下面的数据（对大数据量时十分有效）
@@ -5187,7 +5223,7 @@ ui.define("ui.ctrls.SelectionTree", {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected", "cancel"];
+        return ["changing", "changed", "cancel"];
     },
     _create: function() {
         var fields, fieldMethods;
@@ -5199,7 +5235,7 @@ ui.define("ui.ctrls.SelectionTree", {
         
         fields = [this.option.valueField, this.option.textField, this.option.parentField];
         fieldMethods = ["_getValue", "_getText", "_getParent"];
-        fields.forEach(function(item) {
+        fields.forEach(function(item, index) {
             if(Array.isArray(item, index)) {
                 this[fieldMethods[index]] = getArrayValue;
             } else if($.isFunction(item)) {
@@ -5329,7 +5365,7 @@ ui.define("ui.ctrls.SelectionTree", {
             if(this.isMultiple()) {
                 cbx = this._createCheckbox();
             }
-            dt.prop("id", id);
+            dt.prop("id", this._treePrefix + id);
             dl.append(dt);
 
             if(this._hasChildren(item)) {
@@ -5359,7 +5395,7 @@ ui.define("ui.ctrls.SelectionTree", {
             } else {
                 tempMargin = (level + 1) * (flodButtonWidth + flodButtonLeft) + flodButtonLeft;
                 if(cbx) {
-                    cbx.css("margin-left", tempMargin + flodButtonLeft + "px");
+                    cbx.css("margin-left", tempMargin + "px");
                     tempMargin = 0;
                     dt.append(cbx);
                 }
@@ -5446,36 +5482,42 @@ ui.define("ui.ctrls.SelectionTree", {
         data.children = this._getChildren(nodeData);
         data.parent = nodeData[parentNode];
         data.isRoot = !nodeData[parentNode];
+        data.isNode = this._hasChildren(nodeData);
         return data;
     },
-    _selectItem: function(elem, nodeData, selectionStatus, isFire) {
+    _selectItem: function(elem, nodeData, isSelection, isFire) {
         var eventData,
             checkbox,
+            isMultiple,
             i, len;
 
         eventData = this._getSelectionData(elem, nodeData);
         eventData.element = elem;
         eventData.originElement = elem.context ? $(elem.context) : null;
 
+        isMultiple = this.isMultiple();
+        if(isMultiple) {
+            checkbox = elem.find("." + checkboxClass);
+        }
+
         // 当前是要选中还是取消选中
-        if(ui.core.isBoolean(selectionStatus)) {
-            eventData.selectionStatus = selectionStatus;
+        if(ui.core.isBoolean(isSelection)) {
+            eventData.isSelection = isSelection;
         } else {
-            if(this.isMultiple()) {
-                eventData.selectionStatus = !elem.hasClass(selectedClass);
+            if(isMultiple) {
+                eventData.isSelection = !isChecked.call(this, checkbox);
             } else {
-                eventData.selectionStatus = true;
+                eventData.isSelection = true;
             }
         }
 
-        if(this.fire("selecting", eventData) === false) {
+        if(this.fire("changing", eventData) === false) {
             return;
         }
 
-        if(this.isMultiple()) {
+        if(isMultiple) {
             // 多选
-            checkbox = elem.find("." + checkboxClass);
-            if(!eventData.selectionStatus) {
+            if(!eventData.isSelection) {
                 // 当前要取消选中，如果本来就没选中则不用取消选中状态了
                 if(!isChecked.call(this, checkbox)) {
                     return;
@@ -5484,7 +5526,7 @@ ui.define("ui.ctrls.SelectionTree", {
                     if(this._selectList[i] === elem[0]) {
                         setChecked.call(this, checkbox, false);
                         this._selectList.splice(i, 1);
-                        return;
+                        break;
                     }
                 }
             } else {
@@ -5502,19 +5544,19 @@ ui.define("ui.ctrls.SelectionTree", {
                     return;
                 }
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
             }
-            this.current = elem;
+            this._current = elem;
             this._current
-                .addClass(selectionClass)
+                .addClass(selectedClass)
                 .addClass("background-highlight");
         }
 
         if(isFire === false) {
             return;
         }
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _selectTreeByValues: function(list, values, level, path, outArguments) {
         var i, j, len,
@@ -5527,8 +5569,8 @@ ui.define("ui.ctrls.SelectionTree", {
             return;
         }
 
-        for(i = 0, len = viewData.length; i < len; i++) {
-            item = viewData[i];
+        for(i = 0, len = list.length; i < len; i++) {
+            item = list[i];
             id = path ? (path + "_" + i) : ("" + i);
             
             for(j = 0; j < values.length; j++) {
@@ -5597,7 +5639,7 @@ ui.define("ui.ctrls.SelectionTree", {
         this._selectItem(dt, nodeData, true, false);
         return dt;
     },
-    _selectChildNode: function (nodeData, dt, selectionStatus) {
+    _selectChildNode: function (nodeData, dt, isSelection) {
         var children,
             parentId,
             dd,
@@ -5616,11 +5658,11 @@ ui.define("ui.ctrls.SelectionTree", {
         for (i = 0, len = children.length; i < len; i++) {
             nodeData = children[i];
             dt = $("#" + parentId + "_" + i);
-            this._selectItem(dt, nodeData, selectionStatus, false);
-            this._selectChildNode(nodeData, dt, selectionStatus);
+            this._selectItem(dt, nodeData, isSelection, false);
+            this._selectChildNode(nodeData, dt, isSelection);
         }
     },
-    _selectParentNode: function (nodeData, nodeId, selectionStatus) {
+    _selectParentNode: function (nodeData, nodeId, isSelection) {
         var parentNodeData, parentId,
             elem, nextElem, dtList, 
             i, len, checkbox;
@@ -5631,7 +5673,7 @@ ui.define("ui.ctrls.SelectionTree", {
         }
         parentId = nodeId.substring(0, nodeId.lastIndexOf("_"));
         elem = $("#" + parentId);
-        if (!selectionStatus) {
+        if (!isSelection) {
             nextElem = elem.next();
             if (nextElem.nodeName() === "DD") {
                 dtList = nextElem.find("dt");
@@ -5643,8 +5685,8 @@ ui.define("ui.ctrls.SelectionTree", {
                 }
             }
         }
-        this._selectItem(elem, parentNodeData, selectionStatus, false);
-        this._selectParentNode(parentNodeData, parentId, selectionStatus);
+        this._selectItem(elem, parentNodeData, isSelection, false);
+        this._selectParentNode(parentNodeData, parentId, isSelection);
     },
 
     /// API
@@ -5715,42 +5757,42 @@ ui.define("ui.ctrls.SelectionTree", {
         }
     },
     /** 选择一个节点的所有子节点 */
-    selectChildNode: function(nodeElement, selectionStatus) {
+    selectChildNode: function(nodeElement, isSelection) {
         var nodeData;
         if(arguments.length === 1) {
-            selectionStatus = true;
+            isSelection = true;
         } else {
-            selectionStatus = !!selectionStatus;
+            isSelection = !!isSelection;
         }
 
         nodeData = this._getNodeData(nodeElement);
-        if(nodeData) {
+        if(!nodeData) {
             return;
         }
         if(!this.isMultiple() || this.option.nodeSelectable !== true) {
             return;
         }
-        this._selectChildNode(nodeData, nodeElement, selectionStatus);
+        this._selectChildNode(nodeData, nodeElement, isSelection);
     },
     /** 选择一个节点的所有父节点 */
-    selectParentNode: function(nodeElement) {
+    selectParentNode: function(nodeElement, isSelection) {
         var nodeData,
             nodeId;
         if(arguments.length === 1) {
-            selectionStatus = true;
+            isSelection = true;
         } else {
-            selectionStatus = !!selectionStatus;
+            isSelection = !!isSelection;
         }
 
         nodeData = this._getNodeData(nodeElement);
-        if(nodeData) {
+        if(!nodeData) {
             return;
         }
         if(!this.isMultiple() || this.option.nodeSelectable !== true) {
             return;
         }
         nodeId = nodeElement.prop("id");
-        this._selectParentNode(nodeData, nodeId, selectionStatus);
+        this._selectParentNode(nodeData, nodeId, isSelection);
     },
     /** 取消选中 */
     cancelSelection: function(isFire) {
@@ -5765,7 +5807,7 @@ ui.define("ui.ctrls.SelectionTree", {
         } else {
             if(this._current) {
                 this._current
-                    .removeClass(selectionClass)
+                    .removeClass(selectedClass)
                     .removeClass("background-highlight");
                 this._current = null;
             }
@@ -5798,7 +5840,7 @@ ui.define("ui.ctrls.SelectionTree", {
     /** 清空列表 */
     clear: function() {
         this.option.viewData = [];
-        this.listPanel.empty();
+        this.treePanel.empty();
         this._current = null;
         this._selectList = [];
         delete this.originalViewData;
@@ -5963,7 +6005,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
                 return;
             }
             id = path ? (path + "_" + i) : ("" + i);
-            nodeData = data[i];
+            nodeData = viewData[i];
             if(this._hasChildren(nodeData)) {
                 if(this.option.nodeSelectable === true) {
                     this._doQuery(beginArray, containArray, searchText, nodeData, id);
@@ -6005,10 +6047,10 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         regexp = new RegExp(searchText, "gi");
         hintHtml = "<span class='font-highlight'>" + searchText + "</span>";
         for(i = 0, len = info.length; i < len; i++) {
-            html.push("<dt data-path='" + info[i].path + "'>");
+            html.push("<dt class='autocomplete-dt' data-path='" + info[i].path + "'>");
             html.push("<span class='normal-text'>");
             textHtml = this._getText.call(info[i].nodeData, this.option.textField);
-            textHtml = textHtml.replace(re, hintHtml);
+            textHtml = textHtml.replace(regexp, hintHtml);
             html.push(textHtml);
             html.push("</span></dt>");
         }
@@ -6037,7 +6079,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
             if (nodeData) {
                 dt = this._selectNodeByValue(nodeData, path);
                 //触发选择事件
-                this.fire("selected", dt, this._getSelectionData(this._getNodeData(dt)));
+                this.fire("selected", dt, this._getSelectionData(dt, nodeData));
             }
             ui.hideAll();
         }
@@ -6092,7 +6134,7 @@ $.fn.autocompleteSelectionTree = function(option) {
     if(this.length === 0) {
         return null;
     }
-    return ui.ctrls.autocompleteSelectionTree(option, this);
+    return ui.ctrls.AutocompleteSelectionTree(option, this);
 };
 
 
@@ -7669,32 +7711,25 @@ WeekView.prototype = {
     },
     /** 设置选中的元素 返回数组 */
     getSelection: function() {
-        var cells,
-            unitTime, unitCount,
-            getDateFn,
+        var hours, date,
             i, len,
             result;
 
-        unitTime = this.calendar.option.unitTime;
         result = [];
-        cells = this.selector.getSelectedCells();
-        if(cells.length === 0) {
+        hours = this.selector.getSelection();
+        if(!hours) {
             return result;
         }
 
-        unitCount = this._getTimeCellCount();
-        getDateFn = function(hourIndex, weekIndex) {
-            var h, m,
-                date;
-            date = this.weekDays[weekIndex];
-            h = Math.floor(hourIndex / unitCount);
-            m = (hourIndex / unitCount - h) * 60;
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0);
-        };
-
-        result.push(getDateFn.call(this, cells[0].hourIndex, cells[0].weekIndex));
+        date = this.weekDays[hours.weekIndex];
         for(i = 0, len = cells.length; i < len; i++) {
-            result.push(getDateFn.call(this, cells[0].hourIndex + 1, cells[0].weekIndex));
+            result.push(new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(), 
+                time.hours, 
+                time.minutes, 
+                time.seconds));
         }
         return result;
     },
@@ -7720,7 +7755,7 @@ WeekView.prototype = {
 
         startTime = ui.str.dateFormat(start, "hh:mm:ss");
         endTime = ui.str.dateFormat(end, "hh:mm:ss");
-        this.selector.selectCellByTime(weekIndex, startTime, endTime);
+        this.selector.setSelectionByTime(weekIndex, startTime, endTime);
     },
     /** 取消选中状态 */
     cancelSelection: function() {
@@ -7983,7 +8018,7 @@ Selector.prototype = {
         this.panel = panel;
         this.grid = table;
 
-        this.isBeginSelect = false;
+        this._isBeginSelect = false;
         this.cellWidth = 1;
         this.cellHeight = 25;
 
@@ -8001,7 +8036,7 @@ Selector.prototype = {
         this.mouseLeftButtonDownHandler = $.proxy(function (e) {
             if (e.which !== 1)
                 return;
-            $(document).on("mousemove", this.mouseMove);
+            $(document).on("mousemove", this.mouseMoveHandler);
             $(document).on("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseDown($(e.target), e.clientX, e.clientY);
         }, this);
@@ -8025,7 +8060,7 @@ Selector.prototype = {
         this.selectAnimator = ui.animator(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
-                if (that.selectDirection === "up") {
+                if (that._selectDirection === "up") {
                     return;
                 }
                 elem.css("top", val + "px");
@@ -8044,7 +8079,7 @@ Selector.prototype = {
         }).addTarget(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
-                if (that.selectDirection) {
+                if (that._selectDirection) {
                     return;
                 }
                 elem.css("height", val + "px");
@@ -8058,6 +8093,355 @@ Selector.prototype = {
         };
         this.selectAnimator.duration = 200;
         this.selectAnimator.fps = 60;
+    },
+    _getSelectedCells: function() {
+        var cells = [],
+            box = this.selectionBox,
+            text, beginIndex, endIndex,
+            boxBorderTopWidth, top, left,
+            first, count,
+            table, row, cell, i;
+
+        if (box.css("display") === "none") {
+            return cells;
+        }
+        text = box.text().split("-");
+        beginIndex = ui.str.trim(text[0] || "");
+        endIndex = ui.str.trim(text[1] || "");
+        if (!beginIndex || !endIndex) {
+            return cells;
+        }
+        beginIndex = this.view.calendar.timeToIndex(beginIndex);
+        endIndex = this.view.calendar.timeToIndex(endIndex) - 1;
+
+        boxBorderTopWidth = parseFloat(box.css("border-top-width"));
+        top = beginIndex * this.cellHeight + 1;
+        left = parseFloat(box.css("left")) + boxBorderTopWidth + 1;
+        first = this._getCellByPoint(left, top);
+        cells.push(first);
+
+        count = endIndex - beginIndex + 1;
+        table = this.grid[0];
+        for (i = 1; i < count; i++) {
+            row = table.rows[i + first.hourIndex];
+            cell = $(tableRow.cells[first.weekIndex]);
+            cell.hourIndex = i + first.hourIndex;
+            cell.weekIndex = first.weekIndex;
+            cells.push(cell);
+        }
+        return cells;
+    },
+    _getCellByPoint: function(x, y) {
+        var columnIndex, rowIndex, count,
+            table, tableRow, tableCell;
+        
+        columnIndex = Math.ceil(x / this.cellWidth);
+        rowIndex = Math.ceil(y / this.cellHeight);
+        count = this.view.calendar._getTimeCellCount() * 24;
+
+        if (columnIndex < 1) {
+            columnIndex = 1;
+        }
+        if (columnIndex > 7) {
+            columnIndex = 7;
+        }
+        if (rowIndex < 1) {
+            rowIndex = 1;
+        }
+        if (rowIndex > count) {
+            rowIndex = count;
+        }
+
+        rowIndex--;
+        columnIndex--;
+
+        table = this.grid[0];
+        tableRow = table.rows[rowIndex];
+
+        tableCell = $(tableRow.cells[columnIndex]);
+        tableCell.hourIndex = rowIndex;
+        tableCell.weekIndex = columnIndex;
+        return tableCell;
+    },
+    _selectCell: function(td) {
+        var box, 
+            p, beginIndex, endIndex,
+            option,
+            beginTime, endTime; 
+
+        box = this.selectionBox;
+        p = this.getPositionAndSize(td);
+        beginIndex = td.locationInGrid.row;
+        endIndex = td.locationInGrid.row + 1;
+        if (arguments.length > 1 && arguments[1]) {
+            endIndex = arguments[1].locationInGrid.row + 1;
+            var p2 = this.getPositionAndSize(arguments[1]);
+            p.height = p2.top + p2.height - p.top
+        }
+
+        this._selectDirection = null;
+
+        this.selectAnimator.stop();
+        option = this.selectAnimator[0];
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = p.top;
+
+        option = this.selectAnimator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = p.left;
+
+        option = this.selectAnimator[2];
+        option.begin = parseFloat(option.target.css("width"));
+        option.end = p.width;
+
+        option = this.selectAnimator[3];
+        option.begin = parseFloat(option.target.css("height"));
+        option.end = p.height;
+
+        box.css("display", "block");
+        this.animating = true;
+        this.selectAnimator.start();
+
+        //设置选择时间
+        beginTime = this.view.calendar.indexToTime(beginIndex);
+        endTime = this.view.calendar.indexToTime(endIndex);
+        box.boxTextSpan.text(beginTime + " - " + endTime);
+    },
+    _autoScrollY: function (value, direction) {
+        var currentScrollY,
+            bottom;
+        
+        currentScrollY = this.panel.scrollTop();
+        if (direction === "up") {
+            if (value < currentScrollY) {
+                this.panel.scrollTop(currentScrollY < this.cellHeight ? 0 : currentScrollY - this.cellHeight);
+            }
+        } else if (direction === "down") {
+            bottom = currentScrollY + this.panel.height();
+            if (value > bottom) {
+                this.panel.scrollTop(currentScrollY + this.cellHeight);
+            }
+        }
+    },
+    _isClickInGrid: function(x, y) {
+        var position,
+            left,
+            top,
+            right,
+            bottom,
+            width,
+            height;
+        
+        position = this.panel.offset();
+        left = position.left + timeTitleWidth;
+        top = position.top;
+
+        width = this.grid.width();
+        height = this.panel.height();
+        right = left + width - 1;
+        bottom = top + height;
+        if (height < this.panel[0].scrollHeight) {
+            right -= ui.scrollbarWidth;
+        }
+
+        return x >= left && x <= right && y >= top && y <= bottom;
+    },
+    _checkSelectable: function(td) {
+        var count = this.view.calendar._getTimeCellCount();
+        this.selectableMin = 0;
+        this.selectableMax = 24 * count - 1;
+    },
+    _changeToGridPoint: function(x, y) {
+        var position = this.panel.offset();
+        position.left = position.left + timeTitleWidth;
+        return {
+            gridX: x - position.left + this.panel.scrollLeft(),
+            gridY: y - position.top + this.panel.scrollTop()
+        };
+    },
+    _getPositionAndSize: function(td) {
+        var position = td.position();
+        position.left = position.left + timeTitleWidth;
+        return {
+            top: position.top - 2,
+            left: position.left - 2,
+            width: td.outerWidth() - 1,
+            height: td.outerHeight() - 1
+        };
+    },
+
+    // 事件处理
+    onMouseDown: function(elem, x, y) {
+        var td, 
+            nodeName, 
+            point;
+        
+        if (!this._isClickInGrid(x, y)) {
+            this._clickInGrid = false;
+            return;
+        }
+        this._clickInGrid = true;
+
+        point = this._changeToGridPoint(x, y);
+        if(elem.nodeName() != "TD") {
+            if(!elem.hasClass("click-enabled")) {
+                return;
+            }
+            td = this._getCellByPoint(this.focusX, point.gridY);
+        } else {
+            td = elem;
+            td.weekIndex = td[0].cellIndex;
+            td.hourIndex = td.parent()[0].rowIndex;
+        }
+
+        if(this.view.calendar.fire("selecting", this.view) === false) {
+            return;
+        }
+
+        this._startCell = td;
+        this._selectCell(td);
+
+        //确定可选区间
+        this._checkSelectable(td);
+
+        this._isBeginSelect = true;
+        this.focusX = point.gridX;
+        this.focusY = point.gridY;
+    },
+    onMouseMove: function (e) {
+        var point,
+            td, 
+            p, p2,
+            box,
+            begin, end,
+            beginTime, endTime;
+        
+        point = this._changeToGridPoint(e.clientX, e.clientY);
+        td = this._getCellByPoint(this.focusX, point.gridY);
+
+        p = this._getPositionAndSize(td);
+        p2 = this._getPositionAndSize(this._startCell);
+
+        if (td.hourIndex < this.selectableMin || td.hourIndex > this.selectableMax) {
+            return;
+        }
+
+        box = this.selectionBox;
+        if (point.gridY > this.focusY) {
+            begin = this._startCell;
+            end = td;
+            box.css({
+                "height": (p.top + p.height - p2.top) + "px"
+            });
+            this._selectDirection = "down";
+            this._autoScrollY(p.top + p.height, this._selectDirection);
+        } else {
+            begin = td;
+            end = this._startCell;
+            box.css({
+                "top": p.top + "px",
+                "height": p2.top + p2.height - p.top + "px"
+            });
+            this._selectDirection = "up";
+            this.autoScrollY(p.top, this._selectDirection);
+        }
+
+        beginTime = this.view.calendar.indexToTime(begin.hourIndex),
+        endTime = this.view.calendar.indexToTime(end.hourIndex + 1);
+        box.boxTextSpan.text(beginTime + " - " + endTime);
+    },
+    onMouseUp: function(e) {
+        if (!this._clickInGrid) {
+            return;
+        }
+        if (!this.animating) {
+            this.onSelectCompleted();
+        }
+    },
+    onSelectCompleted: function() {
+        var box = null,
+            that = this;
+        if (arguments.length > 0 && arguments[0]) {
+            box = arguments[0];
+        } else {
+            box = this.selectionBox;
+        }
+        //保证动画流畅
+        setTimeout(function () {
+            var data = {
+                top: parseFloat(box.css("top")),
+                left: parseFloat(box.css("left")),
+                parentWidth: that.view.viewPanel.width() - timeTitleWidth,
+                parentHeight: that.view.hourTable.outerHeight()
+            };
+            that.view.calendar.fire("selected", that.view, box, data);
+        }, 50);
+    },
+
+    getSelection: function() {
+        var result,
+            cells,
+            unitCount,
+            getDateFn,
+            i, len;
+        
+        cells = this._getSelectedCells();
+        if(cells.length === 0) {
+            return null;
+        }
+
+        result = {
+            weekIndex: null,
+            timeArray: []
+        };
+
+        unitCount = this.view.calendar._getTimeCellCount();
+        getDateFn = function(hourIndex) {
+            var h, m;
+            h = Math.floor(hourIndex / unitCount);
+            m = (hourIndex / unitCount - h) * 60;
+            return {
+                hours: h,
+                minutes: m,
+                seconds: 0
+            };
+        };
+
+        result.weekIndex = cells[0].weekIndex;
+        result.timeArray.push(getDateFn(cells[0].hourIndex));
+        for(i = 0, len = cells.length; i < len; i++) {
+            result.push(getDateFn(cells[i].hourIndex + 1));
+        }
+        return result;
+    },
+    setSelectionByTime: function (weekDay, beginTime, endTime) {
+        var pointX,
+            beginPointY, endPointY,
+            begin, end;
+
+        pointX = (weekDay + 1) * this.cellWidth - 1;
+        beginPointY = (this.view.calendar.timeToIndex(beginTime) + 1) * this.cellHeight - 1;
+        endPointY = this.view.calendar.timeToIndex(endTime) * this.cellHeight - 1;
+        begin = this.getCellByPoint(pointX, beginPointY);
+        end = this.getCellByPoint(pointX, endPointY);
+
+        this.focusX = pointX;
+        this.focusY = beginPointY;
+
+        this.view.setBeginTime(beginTime);
+
+        this._startCell = begin;
+        this._selectCell(begin, end);
+    },
+    cancelSelection: function () {
+        var box = this.selectionBox;
+        box.css("display", "none");
+
+        this._startCell = null;
+        this.focusX = 0;
+        this.focusY = 0;
+
+        this.view.calendar.fire("deselected", this.view, box);
     },
     active: function (justEvent) {
         if (!justEvent) {
@@ -8365,7 +8749,7 @@ ui.define("ui.ctrls.CalendarView", {
     showTimeLine: function(parent, unitHourHeight) {
         var updateInterval,
             updateTimeFn,
-            that,
+            that;
         if(!this.currentTimeElement) {
             this.currentTimeElement = $("<div class='ui-current-time border-highlight font-highlight' />");
             this.currentTimeElement.css("width", timeTitleWidth + "px");
@@ -8531,8 +8915,60 @@ $.fn.calendarView = function(option) {
     if(this.length === 0) {
         return null;
     }
+    if(!isCalendarViewThemeInitialized) {
+        initCalendarViewTheme();
+        isCalendarViewThemeInitialized = true;
+    }
     return ui.ctrls.CalendarView(option, this);
 };
+
+var themeStyle,
+    isCalendarViewThemeInitialized = false;
+function initCalendarViewTheme(colorInfo) {
+    var baseColor,
+        color,
+        styleHelper;
+
+    if(!themeStyle) {
+        themeStyle = $("#GlobalThemeChangeStyle");
+        if (themeStyle.length == 0) {
+            styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
+        }
+    } else {
+        styleHelper = ui.StyleSheet(themeStyle);
+    }
+    if(!colorInfo) {
+        colorInfo = ui.theme.currentTheme;
+    }
+
+    baseColor = ui.theme.backgroundColor || "#FFFFFF";
+    color = ui.color.overlay(colorInfo.Color, baseColor, .4);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
+    
+    styleHelper.setRule(".ui-calendar-selector", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel:hover", {
+        "background-color": colorInfo.Color
+    });
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-table .selected", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
+        "background-color": color
+    });
+    color = ui.color.overlay(colorInfo.Color, baseColor, .85);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
+    styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
+        "background-color": color
+    });
+}
+ui.page.themechanged(function(e, colorInfo) {
+    initCalendarViewTheme(colorInfo);
+});
 
 
 })(jQuery, ui);
@@ -9874,6 +10310,8 @@ var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
 
+var defaultPageSize = 100;
+
 function preparePager(option) {
     if(option.showPageInfo === true) {
         if(!option.pageInfoFormatter) {
@@ -10205,7 +10643,7 @@ ui.define("ui.ctrls.GridView", {
                 // 当前页码，默认从第1页开始
                 pageIndex: 1,
                 // 记录数，默认100条
-                pageSize: 100,
+                pageSize: defaultPageSize,
                 // 显示按钮数量，默认显示10个按钮
                 pageButtonCount: 10,
                 // 是否显示分页统计信息，true|false，默认不显示
@@ -10247,6 +10685,9 @@ ui.define("ui.ctrls.GridView", {
         
         if(this.option.pager) {
             preparePager.call(this, this.option.pager);
+        } else {
+            this.pageIndex = 1;
+            this.pageSize = defaultPageSize;
         }
 
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
@@ -10276,7 +10717,6 @@ ui.define("ui.ctrls.GridView", {
             this.element.addClass("ui-grid-view");
         }
         this._initBorderWidth();
-        this._initDataPrompt();
 
         // 修正selection设置项
         if(!this.option.selection) {
@@ -10296,6 +10736,7 @@ ui.define("ui.ctrls.GridView", {
         this.element.append(this.gridHead);
         // 表体
         this.gridBody = $("<div class='ui-grid-body' />");
+        this._initDataPrompt();
         this.gridBody.scroll(this.onScrollingXHandler);
         this.element.append(this.gridBody);
         // 分页栏
@@ -10373,7 +10814,7 @@ ui.define("ui.ctrls.GridView", {
             tr.addClass("table-body-row-hover");
         }
         for (i = 0, len = this.option.columns.length; i < len; i++) {
-            c = this.gridColumns[i];
+            c = this.option.columns[i];
             formatter = c.formatter;
             if (!ui.core.isFunction(c.formatter)) {
                 formatter = textFormatter;
@@ -10441,7 +10882,7 @@ ui.define("ui.ctrls.GridView", {
         }
         return col;
     },
-    _createCell: function() {
+    _createCell: function(tagName, column) {
         var cell = $("<" + tagName + " />"),
             css = {};
         if (column.align) {
@@ -10617,7 +11058,7 @@ ui.define("ui.ctrls.GridView", {
             // 单选
             if(this._current) {
                 this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this_current[0] === elem[0]) {
+                if(this._current[0] === elem[0]) {
                     this._current = null;
                     this.fire("deselected", eventData);
                     return;
@@ -10694,7 +11135,7 @@ ui.define("ui.ctrls.GridView", {
 
         this._headScrollCol = $("<col style='width:0' />");
         colGroup.append(this._headScrollCol);
-        tr.append($("<th class='scroll-cell' />"));
+        tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);
 
         this.tableHead.append(colGroup);
@@ -10863,7 +11304,7 @@ ui.define("ui.ctrls.GridView", {
             return;
         }
         if(this._current && this._current[0] === row[0]) {
-            this_current = null;
+            this._current = null;
         }
         row.remove();
         viewData.splice(rowIndex, 1);
@@ -10908,7 +11349,7 @@ ui.define("ui.ctrls.GridView", {
         }
 
         row = $("<tr />");
-        this._createCell(row, rowData, viewData.length);
+        this._createRowCells(row, rowData, viewData.length);
         $(this.tableBody[0].tBodies[0]).append(row);
         viewData.push(rowData);
         this._updateScrollState();
@@ -13988,12 +14429,39 @@ ui.define("ui.ctrls.TreeView", {
 
 (function($, ui) {
 /* 确认按钮 */
+
+function noop() {}
+// 事件
+function onButtonClick(e) {
+    var checkHandler = this.option.checkHandler,
+        that = this;
+
+    if(this.disabled) {
+        return;
+    }
+
+    clearTimeout(this.backTimeHandler);
+    if(ui.core.isFunction(checkHandler)) {
+        if(checkHandler.call(this) === false) {
+            return;
+        }
+    }
+    if(this.state === 0) {
+        this._next();
+        this.backTimeHandler = setTimeout(function() {
+            that._back();
+        }, this.option.backTime);
+    } else if(this.state === 1) {
+        this._next();
+        this.option.handler.call(this);
+    }
+}
+
 ui.define("ui.ctrls.ConfirmButton", {
     _defineOption: function () {
         return {
             disabled: false,
-            readonly: false,
-            backTime: 5000,
+            backTime: 3000,
             checkHandler: false,
             handler: false,
             color: null,
@@ -14001,10 +14469,6 @@ ui.define("ui.ctrls.ConfirmButton", {
         };
     },
     _create: function() {
-        var text,
-            textState,
-            confirmState;
-
         this.state = 0;
         this.animating = false;
         if(ui.core.type(this.option.backTime) !== "number" || this.option.backTime <= 0) {
@@ -14012,8 +14476,22 @@ ui.define("ui.ctrls.ConfirmButton", {
         }
 
         if(!ui.core.isFunction(this.option.handler)) {
-            return;
+            this.option.handler = noop;
         }
+
+        this.option.disabled = !!this.option.disabled;
+
+        // 事件处理函数
+        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+
+        this.defineProperty("disabled", this.getDisabled, this.setDisabled);
+        this.defineProperty("text", this.getText, this.setText);
+    },
+    _render: function() {
+        var text,
+            textState,
+            confirmState;
+
         text = this.element.text().trim();
         textState = $("<span class='text-state' />");
         confirmState = $("<i class='confirm-state' />");
@@ -14034,7 +14512,13 @@ ui.define("ui.ctrls.ConfirmButton", {
             .empty()
             .append(textState)
             .append(confirmState);
+        this.element.click(this.onButtonClickHandler);
         
+        this._initAnimation();
+        
+        this.disabled = this.option.disabled;
+    },
+    _initAnimation: function() {
         this.changeAnimator = ui.animator({
             target: textState,
             ease: ui.AnimationStyle.easeFromTo,
@@ -14049,35 +14533,14 @@ ui.define("ui.ctrls.ConfirmButton", {
             }
         });
         this.changeAnimator.duration = 200;
-        this.element.click($.proxy(this.doClick, this));
-        
-        this.readonly(this.option.readonly);
-        this.disabled(this.option.disabled);
     },
-    doClick: function(e) {
-        clearTimeout(this.backTimeHandler);
-        if($.isFunction(this.option.checkHandler)) {
-            if(this.option.checkHandler.call(this) === false) {
-                return;
-            }
-        }
-        var that = this;
-        if(this.state === 0) {
-            this.next();
-            this.backTimeHandler = setTimeout(function() {
-                that.back();
-            }, this.option.backTime);
-        } else if(this.state == 1) {
-            this.next();
-            this.option.handler.call(this);
-        }
-    },
-    back: function() {
+    _back: function() {
+        var that,
+            option;
+
         if(this.animating) {
             return;
         }
-        var that = this,
-            option;
         this.state = 0;
         option = this.changeAnimator[0];
         option.target.css("margin-left", "-200%");
@@ -14089,16 +14552,18 @@ ui.define("ui.ctrls.ConfirmButton", {
         option.end = 100;
         
         this.animating = true;
+        that = this;
         this.changeAnimator.start().done(function() {
             that.animating = false;
         });
     },
-    next: function(state) {
+    _next: function(state) {
+        var that,
+            option;
+
         if(this.animating) {
             return;
         }
-        var that = this,
-            option;
         if(this.state === 0) {
             option = this.changeAnimator[0];
             option.target.css("margin-left", "0%");
@@ -14123,41 +14588,29 @@ ui.define("ui.ctrls.ConfirmButton", {
             this.state = 0;
         }
         this.animating = true;
+        that = this;
         this.changeAnimator.start().done(function() {
             that.animating = false;
         });
     },
-    disabled: function() {
-        if(arguments.length === 0) {
-            return this.option.disabled;
+    getDisabled: function() {
+        return this.option.disabled;
+    },
+    setDisabled: function(value) {
+        this.option.disabled = !!value;
+        if(this.option.disabled) {
+            this.element.attr("disabled", "disabled");
         } else {
-            this.option.disabled = !!arguments[0];
-            if(this.option.disabled) {
-                this.element.attr("disabled", "disabled");
-            } else {
-                this.element.removeAttr("disabled")
-            }
+            this.element.removeAttr("disabled")
         }
     },
-    readonly: function() {
-        if(arguments.length === 0) {
-            return this.option.readonly;
-        } else {
-            this.option.readonly = !!arguments[0];
-            if(this.option.readonly) {
-                this.element.attr("readonly", "readonly");
-            } else {
-                this.element.removeAttr("readonly");
-            }
-        }
-    },
-    text: function() {
+    getText: function() {
         var span = this.element.children(".text-state");
-        if(arguments.length === 0) {
-            return span.text();
-        } else {
-            return span.text(ui.str.trim(arguments[0] + ""));
-        }
+        return span.text();
+    },
+    setText: function(value) {
+        var span = this.element.children(".text-state");
+        span.text(ui.str.trim(value + ""));
     }
 });
 $.fn.confirmClick = function(option) {
@@ -14292,8 +14745,19 @@ ui.define("ui.ctrls.ExtendButton", {
         this.parent.append(this.buttonPanel);
         this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
-        this.bindShowEvent();
-        this.bindHideEvent();
+        this.element.click(function(e) {
+            e.stopPropagation();
+            that.show();
+        });
+        if(this.hasCloseButton) {
+            this.centerIcon.click(function(e) {
+                that.hide();
+            });
+        } else {
+            ui.docClick(function(e) {
+                that.hide();
+            });
+        }
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
@@ -14333,86 +14797,13 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator = ui.animator();
         this.buttonAnimator.duration = 240;
     },
-    bindShowEvent: function() {
-        var that = this;
-        this.element.click(function(e) {
-            e.stopPropagation();
-            that.show();
-        });
-    },
-    bindHideEvent: function() {
-        var that = this;
-        if(this.hasCloseButton) {
-            this.centerIcon.click(function(e) {
-                that.hide();
-            });
-        } else {
-            ui.docClick(function(e) {
-                that.hide();
-            });
-        }
-    },
-    getElementCenter: function() {
+    _getElementCenter: function() {
         var position = this.isBodyInside 
             ? this.element.offset()
             : this.element.position();
         position.left = position.left + this.element.outerWidth() / 2;
         position.top = position.top + this.element.outerHeight()/ 2;
         return position;
-    },
-    isShow: function() {
-        return this.buttonPanel.css("display") === "block";  
-    },
-    show: function(hasAnimation) {
-        var that = this;
-        if(this.isShow()) {
-            return;
-        }
-        
-        if(this.fire("showing") === false) {
-            return;
-        }
-        
-        this._setButtonPanelLocation();
-        if(hasAnimation === false) {
-            this.buttonPanel.css("display", "block");
-        } else {
-            this.buttonPanel.css("display", "block");
-            this._setButtonPanelAnimationOpenValue(this.buttonPanelAnimator);
-            this._setButtonAnimationOpenValue(this.buttonAnimator);
-            this.buttonPanelAnimator.start();
-            this.buttonAnimator.delayHandler = setTimeout(function() {
-                that.buttonAnimator.delayHandler = null;
-                that.buttonAnimator.start().done(function() {
-                    that.fire("showed");
-                });
-            }, 100);
-        }
-    },
-    hide: function(hasAnimation) {
-        var that = this;
-        if(!this.isShow()) {
-            return;
-        }
-        
-        if(this.fire("hiding") === false) {
-            return;
-        }
-        
-        if(hasAnimation === false) {
-            this.buttonPanel.css("display", "none");
-        } else {
-            this._setButtonPanelAnimationCloseValue(this.buttonPanelAnimator);
-            this._setButtonAnimationCloseValue(this.buttonAnimator);
-            this.buttonAnimator.start();
-            this.buttonPanelAnimator.delayHandler = setTimeout(function() {
-                that.buttonPanelAnimator.delayHandler = null;
-                that.buttonPanelAnimator.start().done(function() {
-                    that.buttonPanel.css("display", "none");
-                    that.fire("hided");
-                });
-            }, 100);
-        }
     },
     _setButtonPanelAnimationOpenValue: function(animator) {
         var option,
@@ -14508,7 +14899,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.centerTop = this.centerLeft = this.buttonPanelSize / 2;
     },
     _setButtonPanelLocation: function() {
-        var center = this.getElementCenter();
+        var center = this._getElementCenter();
         var buttonPanelTop = Math.floor(center.top - this.buttonPanelSize / 2);
         var buttonPanelLeft = Math.floor(center.left - this.buttonPanelSize / 2);
         
@@ -14581,6 +14972,61 @@ ui.define("ui.ctrls.ExtendButton", {
             button.elem.click(function(e) {
                 button.handler.call(that, button);
             });
+        }
+    },
+
+    isShow: function() {
+        return this.buttonPanel.css("display") === "block";  
+    },
+    show: function(hasAnimation) {
+        var that = this;
+        if(this.isShow()) {
+            return;
+        }
+        
+        if(this.fire("showing") === false) {
+            return;
+        }
+        
+        this._setButtonPanelLocation();
+        if(hasAnimation === false) {
+            this.buttonPanel.css("display", "block");
+        } else {
+            this.buttonPanel.css("display", "block");
+            this._setButtonPanelAnimationOpenValue(this.buttonPanelAnimator);
+            this._setButtonAnimationOpenValue(this.buttonAnimator);
+            this.buttonPanelAnimator.start();
+            this.buttonAnimator.delayHandler = setTimeout(function() {
+                that.buttonAnimator.delayHandler = null;
+                that.buttonAnimator.start().done(function() {
+                    that.fire("showed");
+                });
+            }, 100);
+        }
+    },
+    hide: function(hasAnimation) {
+        var that = this;
+        if(!this.isShow()) {
+            return;
+        }
+        
+        if(this.fire("hiding") === false) {
+            return;
+        }
+        
+        if(hasAnimation === false) {
+            this.buttonPanel.css("display", "none");
+        } else {
+            this._setButtonPanelAnimationCloseValue(this.buttonPanelAnimator);
+            this._setButtonAnimationCloseValue(this.buttonAnimator);
+            this.buttonAnimator.start();
+            this.buttonPanelAnimator.delayHandler = setTimeout(function() {
+                that.buttonPanelAnimator.delayHandler = null;
+                that.buttonPanelAnimator.start().done(function() {
+                    that.buttonPanel.css("display", "none");
+                    that.fire("hided");
+                });
+            }, 100);
         }
     }
 });
@@ -15053,6 +15499,246 @@ $.fn.addHoverView = function (view) {
 
 })(jQuery, ui);
 
+// Source: ui/control/tools/slidebar.js
+
+(function($, ui) {
+// Slidebar
+
+function prepareMove(arg) {
+    var option = arg.option,
+        lengthValue;
+    if(this.isHorizontal()) {
+        lengthValue = this.track.width();
+    } else {
+        lengthValue = this.track.height();
+    }
+    option.lengthValue = lengthValue;
+}
+function moving(arg) {
+    var option = arg.option,
+        location,
+        extend,
+        result;
+
+    extend = this.thumb.width() / 2;
+    if(this.isHorizontal()) {
+        moveHorizontal.call(this, arg.x, extend, option.lengthValue);
+    } else {
+        moveVertical.call(this, arg.y, extend, option.lengthValue);
+    }
+}
+function moveHorizontal(changeVal, extend, lengthValue) {
+    var percent;
+    location = parseFloat(this.thumb.css("left"));
+    location += changeVal;
+    percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+    if(this.percent !== percent) {
+        this.percent = percent;
+        this.valuebar.css("width", this.percent + "%");
+        this.thumb.css("left", location + "px");
+
+        this.fire("changed", percent);
+    }
+}
+function moveVertical(changeVal, extend, lengthValue) {
+    var percent;
+    location = parseFloat(this.thumb.css("top"));
+    location += changeVal;
+    percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+    if(this.percent !== percent) {
+        this.percent = percent;
+        this.valuebar.css({
+            "top": 100 - this.percent + "%",
+            "height": this.percent + "%"
+        });
+        this.thumb.css("top", location + "px");
+
+        this.fire("changed", percent);
+    }
+}
+function calculatePercent(location, min, max) {
+    var percent;
+    if(location > max) {
+        this.percent = 100;
+    } else if(location < min) {
+        this.percent = 0;
+    } else {
+        percent = ui.fixedNumber(location / max, 2);
+    }
+    return percent;
+}
+
+ui.define("ui.ctrls.Slidebar", {
+    _defineOption: function() {
+        return {
+            // 方向 横向 horizontal | 纵向 vertical
+            direction: "horizontal",
+            // 界面中是否需要屏蔽iframe
+            iframeShield: false,
+            // 滑动条的粗细
+            thickness: 8,
+            // 是否是只读的 默认false
+            readonly: false,
+            // 是否是禁用的 默认false
+            disabled: false
+        };
+    },
+    _defineEvents: function() {
+        return ["changed"];
+    },
+    _create: function() {
+        var position;
+        this.percent = 0;
+        
+        position = this.element.css("position");
+        if(position !== "absolute" && position !== "relative" && position !== "fixed") {
+            this.element.css("position", "relative");
+        }
+        this.element.addClass("ui-slidebar");
+        
+        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
+        this.defineProperty("disabled", this.getDisabled, this.setDisabled);
+        this.defineProperty("value", this.getValue, this.setValue);
+    },
+    _render: function() {
+        this.track = $("<div class='ui-slidebar-track' />");
+        this.valuebar = $("<div class='ui-slidebar-value' />");
+        this.thumb = $("<b class='ui-slidebar-thumb' />");
+
+        this.track
+                .append(this.valuebar)
+                .append(this.thumb);
+        this.element.append(this.track);
+
+        this._initScale();
+        this._initMouseDragger();
+
+        this.readonly = this.option.readonly;
+        this.disabled = this.option.disabled;
+    },
+    _initScale: function() {
+        var thickness = this.option.thickness,
+            size = thickness * 2;
+
+        this.thumb.css({
+            "width": size + "px",
+            "height": size + "px"
+        });
+
+        if(this.isHorizontal()) {
+            this.track.css({
+                "width": "100%",
+                "height": thickness + "px",
+                "top": (size - thickness) / 2 + "px"
+            });
+            this.valuebar.css("width", "0");
+            this.thumb.css("left", -(size / 2) + "px");
+            this.element.css("height", size + "px");
+        } else {
+            this.track.css({
+                "width": thickness + "px",
+                "height": "100%",
+                "left": (size - thickness) / 2 + "px"
+            });
+            this.valuebar.css({
+                "top": "100%",
+                "height": "0"
+            });
+            this.thumb.css("top", this.track().height() - (size / 2) + "px");
+            this.element.css("width", size + "px");
+        }
+    },
+    _initMouseDragger: function() {
+        var option = {
+            target: this.thumb,
+            handle: this.thumb,
+            onBeginDrag: function(arg) {
+                var option = arg.option,
+                    context = option.context;
+                prepareMove.call(context, arg);
+            },
+            onMoving: function(arg) {
+                var option = arg.option,
+                    context = option.context;
+                moving.call(context, arg); 
+            }
+        };
+        this.mouseDragger = new ui.MouseDragger(option);
+    },
+
+    // API
+    isHorizontal: function() {
+        return this.option.direction === "horizontal";
+    },
+    getReadonly: function() {
+        return this.option.readonly;
+    },
+    setReadonly: function(value) {
+        this.option.readonly = !!value;
+        if(this.option.readonly) {
+            this.mouseDragger.off();
+        } else {
+            this.mouseDragger.on();
+        }
+    },
+    /** 获取禁用状态 */
+    getDisabled: function() {
+        return this.option.disabled;
+    },
+    /** 设置禁用状态 */
+    setDisabled: function(value) {
+        this.option.disabled = !!value;
+        if(this.option.disabled) {
+            this.mouseDragger.off();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
+        } else {
+            this.mouseDragger.on();
+            this.valuebar.removeClass("background-highlight");
+            this.thumb.removeClass("background-highlight");
+        }
+    },
+    /** 获取值 */
+    getValue: function() {
+        return this.percent;
+    },
+    /** 设置值 */
+    setValue: function(value) {
+        var extend,
+            percent,
+            arg = {
+                option: {}
+            };
+        extend = this.thumb.width() / 2;
+        percent = value;
+        if(ui.core.isNumber(percent)) {
+            if(percent < 0) {
+                percent = 0;
+            } else if(percent > 100) {
+                percent = 100;
+            }
+            if(this.isHorizontal()) {
+                arg.option.lengthValue = this.track.width();
+                arg.x = arg.option.lengthValue * percent / 100 - extend;
+            } else {
+                arg.option.lengthValue = this.track.height();
+                arg.y = arg.option.lengthValue * (100 - percent) / 100 - extend;
+            }
+            moving.call(this, arg);
+        }
+    }
+});
+
+$.fn.slidebar = function(option) {
+    if(this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.Slidebar(option, this);
+};
+
+
+})(jQuery, ui);
+
 // Source: ui/control/tools/switch-button.js
 
 (function($, ui) {
@@ -15103,6 +15789,10 @@ ui.define("ui.ctrls.SwitchButton", {
         if(this.checked()) {
             this._open();
         }
+
+        this.defineProperty("readonly", this.getReadonly, this.setReadonly);
+        this.defineProperty("value", this.getValue, this.setValue);
+        this.defineProperty("checked", this.getChecked, this.setChecked);
     },
     _createAnimator: function() {
         this.animator = ui.animator({
@@ -15202,44 +15892,42 @@ ui.define("ui.ctrls.SwitchButton", {
         
         this.animator.start();
     },
-    isOpen: function() {
+    _isOpen: function() {
         return this.switchBox.hasClass("switch-open");  
     },
-    readonly: function() {
-        if(arguments.length === 0) {
-            return this.option.readonly;
+
+    getReadonly: function() {
+        return !!this.option.readonly;
+    },
+    setReadonly: function(value) {
+        this.option.readonly = !!value;
+        if(this.option.readonly) {
+            this.element.attr("readonly", "readonly");
         } else {
-            this.option.readonly = !!arguments[0];
-            if(this.option.readonly) {
-                this.element.attr("readonly", "readonly");
-            } else {
-                this.element.removeAttr("readonly");
-            }
+            this.element.removeAttr("readonly");
         }
     },
-    val: function() {
-        if(arguments.length === 0) {
-            return this.element.val();
-        } else {
-            this.element.val(arguments[0]);
-        }
+    getValue: function() {
+        return this.element.val();
     },
-    checked: function() {
+    setValue: function(value) {
+        this.element.val(value);
+    },
+    getChecked: function() {
+        return this.element.prop("checked");
+    },
+    setChecked: function(value) {
         var checked;
-        if(arguments.length === 0) {
-            return this.element.prop("checked");
+        checked = this.element.prop("checked");
+        if((!!arguments[0]) !== checked) {
+            this.element.prop("checked", arguments[0]);
+            this.onChange();
         } else {
-            checked = this.element.prop("checked");
-            if((!!arguments[0]) !== checked) {
-                this.element.prop("checked", arguments[0]);
-                this.onChange();
-            } else {
-                //修正checkbox和当前样式不一致的状态，可能是手动给checkbox赋值或者是reset导致
-                if(checked && !this.isOpen()) {
-                    this._open();
-                } else if(!checked && this.isOpen()) {
-                    this._close();
-                }
+            //修正checkbox和当前样式不一致的状态，可能是手动给checkbox赋值或者是reset导致
+            if(checked && !this._isOpen()) {
+                this._open();
+            } else if(!checked && this._isOpen()) {
+                this._close();
             }
         }
     }

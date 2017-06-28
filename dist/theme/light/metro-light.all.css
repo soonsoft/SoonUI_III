@@ -698,7 +698,7 @@
 .ui-date-chooser-panel {
   position: absolute;
   width: 210px;
-  height: auto;
+  height: 225px;
   border-style: solid;
   border-width: 2px;
   background-color: #ffffff;
@@ -726,7 +726,8 @@
   cursor: pointer;
 }
 .ui-date-chooser-panel .date-chooser-prev-disabled {
-  border-right-color: #aaaaaa;
+  border-right-color: #aaaaaa !important;
+  cursor: default !important;
 }
 .ui-date-chooser-panel .date-chooser-next {
   border-width: 6px;
@@ -738,7 +739,8 @@
   cursor: pointer;
 }
 .ui-date-chooser-panel .date-chooser-next-disabled {
-  border-left-color: #aaaaaa;
+  border-left-color: #aaaaaa !important;
+  cursor: default !important;
 }
 .ui-date-chooser-panel .date-chooser-table {
   table-layout: fixed;
@@ -752,6 +754,8 @@
   background-color: #ffffff;
   display: none;
   position: absolute;
+  left: 0;
+  top: -225px;
 }
 .ui-date-chooser-panel .set-title {
   width: 100%;
@@ -803,7 +807,8 @@
 }
 .ui-date-chooser-panel .disabled-year,
 .ui-date-chooser-panel .disabled-month {
-  color: #aaaaaa;
+  color: #aaaaaa !important;
+  cursor: default !important;
 }
 /* 日历内容 */
 /* 日历标题 */
@@ -828,12 +833,15 @@
 }
 .ui-date-chooser-panel .date-chooser-days-panel {
   width: 100%;
+  height: 144px;
   position: relative;
   background: #ffffff;
   overflow: hidden;
 }
 .ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
   position: absolute;
+  width: 100%;
+  height: 100%;
   top: 0;
   left: 0;
 }
@@ -854,7 +862,8 @@
   color: #666666;
 }
 .ui-date-chooser-panel .disabled-day {
-  color: #aaaaaa;
+  color: #aaaaaa !important;
+  cursor: default !important;
 }
 /* 操作面板 */
 .ui-date-chooser-panel .date-chooser-operate-panel {
@@ -863,6 +872,10 @@
   text-align: center;
   height: 30px;
   line-height: 30px;
+}
+.ui-date-chooser-panel .date-chooser-button {
+  vertical-align: top;
+  margin-top: 3px;
 }
 .ui-date-chooser-panel .date-chooser-button i,
 .ui-date-chooser-panel .date-chooser-button span {
@@ -1905,13 +1918,14 @@ div.c_flyingDots div.c_loadingFallback {
   height: auto;
   width: 320px;
   overflow: hidden;
+  background-color: #ffffff;
   border-top-width: 4px;
   border-left-width: 1px;
   border-right-width: 1px;
   border-bottom-width: 1px;
   border-style: solid;
   border-color: transparent;
-  z-index: 999999;
+  z-index: 10001;
 }
 .ui-message-box .message-item {
   padding-left: 36px;
@@ -1949,18 +1963,10 @@ div.c_flyingDots div.c_loadingFallback {
 .ui-message-box .message-content {
   line-height: 1.5em;
 }
-.ui-message-box a {
-  filter: alpha(opacity=70);
-  opacity: .7;
-}
-.ui-message-box a:hover {
-  filter: alpha(opacity=100);
-  opacity: 1;
-}
 .ui-message-box .closable-button {
   right: 2px;
   top: 2px;
-  z-index: 99999;
+  z-index: 10001;
 }
 
 /*
@@ -2329,19 +2335,22 @@ div.c_flyingDots div.c_loadingFallback {
   cursor: pointer;
 }
 .ui-selection-list-li:hover {
-  background-color: #aaaaaa;
+  background-color: #dcdcdc;
 }
 .ui-selection-list-li span {
   margin-left: 5px;
   margin-right: 5px;
 }
 .ui-selection-list-li .ui-selection-list-checkbox {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   display: inline-block;
   vertical-align: top;
-  margin-top: 8px;
-  color: #666666;
+  margin-top: 7px;
+  line-height: 16px;
+  text-align: right;
+  font-size: 14px;
+  color: #888888;
 }
 /* 对应的文本框样式 */
 input.select-text {
@@ -2393,12 +2402,15 @@ input.ui-selection-list-clear {
   background-color: #aaaaaa;
 }
 .ui-selection-tree-dt .ui-selection-list-checkbox {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   display: inline-block;
   vertical-align: top;
-  margin-top: 8px;
-  color: #666666;
+  margin-top: 7px;
+  line-height: 16px;
+  text-align: right;
+  font-size: 14px;
+  color: #888888;
 }
 .ui-selection-tree-dt .fold-button {
   width: 14px;
@@ -2413,10 +2425,12 @@ input.ui-selection-list-clear {
   text-align: center;
   font-size: 16px;
 }
-.ui-selection-tree-dt .fold-button {
+.ui-selection-tree-selected .fold-button,
+.ui-selection-tree-selected .expand-button {
   color: #fff !important;
 }
-.ui-selection-tree-dt .expand-button {
+.ui-selection-tree-selected .fold-button:hover,
+.ui-selection-tree-selected .expand-button:hover {
   color: #fff !important;
 }
 .ui-selection-tree-dd {
@@ -2466,6 +2480,38 @@ input.ui-selection-list-clear {
   z-index: 9999;
   overflow: hidden;
   display: none;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-slidebar {
+  overflow: visible;
+}
+.ui-slidebar-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #f1f1f1;
+  overflow: visible;
+}
+.ui-slidebar-value {
+  background-color: #666666;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.ui-slidebar-thumb {
+  position: absolute;
+  display: block;
+  background-color: #666666;
+  border-radius: 50%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
 }
 
 /*

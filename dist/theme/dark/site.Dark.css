@@ -483,6 +483,9 @@ textarea {
   color: #888888;
   cursor: pointer;
 }
+.closable-button:hover {
+  text-decoration: none;
+}
 /* 可拖动的元素 */
 .draggable-handle {
   cursor: move;

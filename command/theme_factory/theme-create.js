@@ -69,7 +69,6 @@ module.exports = function( grunt ) {
                 else {
                     pathtmp = dirname;
                 }
-                console.log(pathtmp);
                 if (!fs.existsSync(pathtmp)) {
                     if (!fs.mkdirSync(pathtmp, mode)) {
                         return false;
