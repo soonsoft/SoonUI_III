@@ -130,7 +130,7 @@ Pager.prototype = {
             };
             that = this;
             if(!ui.core.ie || ui.core.ie >= 8) {
-                ui.hashchange(function(e, hash) {
+                ui.page.hashchange(function(e, hash) {
                     if(that._breakHashChanged) {
                         that._breakHashChanged = false;
                         return;
