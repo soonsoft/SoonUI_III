@@ -16,6 +16,8 @@ var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
 
+var defaultPageSize = 100;
+
 function preparePager(option) {
     if(option.showPageInfo === true) {
         if(!option.pageInfoFormatter) {
@@ -347,7 +349,7 @@ ui.define("ui.ctrls.GridView", {
                 // 当前页码，默认从第1页开始
                 pageIndex: 1,
                 // 记录数，默认100条
-                pageSize: 100,
+                pageSize: defaultPageSize,
                 // 显示按钮数量，默认显示10个按钮
                 pageButtonCount: 10,
                 // 是否显示分页统计信息，true|false，默认不显示
@@ -389,6 +391,9 @@ ui.define("ui.ctrls.GridView", {
         
         if(this.option.pager) {
             preparePager.call(this, this.option.pager);
+        } else {
+            this.pageIndex = 1;
+            this.pageSize = defaultPageSize;
         }
 
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
@@ -418,7 +423,6 @@ ui.define("ui.ctrls.GridView", {
             this.element.addClass("ui-grid-view");
         }
         this._initBorderWidth();
-        this._initDataPrompt();
 
         // 修正selection设置项
         if(!this.option.selection) {
@@ -438,6 +442,7 @@ ui.define("ui.ctrls.GridView", {
         this.element.append(this.gridHead);
         // 表体
         this.gridBody = $("<div class='ui-grid-body' />");
+        this._initDataPrompt();
         this.gridBody.scroll(this.onScrollingXHandler);
         this.element.append(this.gridBody);
         // 分页栏
@@ -515,7 +520,7 @@ ui.define("ui.ctrls.GridView", {
             tr.addClass("table-body-row-hover");
         }
         for (i = 0, len = this.option.columns.length; i < len; i++) {
-            c = this.gridColumns[i];
+            c = this.option.columns[i];
             formatter = c.formatter;
             if (!ui.core.isFunction(c.formatter)) {
                 formatter = textFormatter;
@@ -583,7 +588,7 @@ ui.define("ui.ctrls.GridView", {
         }
         return col;
     },
-    _createCell: function() {
+    _createCell: function(tagName, column) {
         var cell = $("<" + tagName + " />"),
             css = {};
         if (column.align) {
@@ -759,7 +764,7 @@ ui.define("ui.ctrls.GridView", {
             // 单选
             if(this._current) {
                 this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this_current[0] === elem[0]) {
+                if(this._current[0] === elem[0]) {
                     this._current = null;
                     this.fire("deselected", eventData);
                     return;
@@ -836,7 +841,7 @@ ui.define("ui.ctrls.GridView", {
 
         this._headScrollCol = $("<col style='width:0' />");
         colGroup.append(this._headScrollCol);
-        tr.append($("<th class='scroll-cell' />"));
+        tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);
 
         this.tableHead.append(colGroup);
@@ -1005,7 +1010,7 @@ ui.define("ui.ctrls.GridView", {
             return;
         }
         if(this._current && this._current[0] === row[0]) {
-            this_current = null;
+            this._current = null;
         }
         row.remove();
         viewData.splice(rowIndex, 1);
@@ -1050,7 +1055,7 @@ ui.define("ui.ctrls.GridView", {
         }
 
         row = $("<tr />");
-        this._createCell(row, rowData, viewData.length);
+        this._createRowCells(row, rowData, viewData.length);
         $(this.tableBody[0].tBodies[0]).append(row);
         viewData.push(rowData);
         this._updateScrollState();
