@@ -512,8 +512,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             return;
         }
 
-        for(i = 0, len = viewData.length; i < len; i++) {
-            item = viewData[i];
+        for(i = 0, len = list.length; i < len; i++) {
+            item = list[i];
             id = path ? (path + "_" + i) : ("" + i);
             
             for(j = 0; j < values.length; j++) {
