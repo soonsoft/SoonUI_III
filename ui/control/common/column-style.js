@@ -56,11 +56,12 @@ columnFormatter = {
 cellFormatter = {
     text: function (val, col) {
         var span;
-        if (val === undefined || val === null || isNaN(val)) {
+        val += "";
+        if (val === "undefined" || val === "null" || val === "NaN") {
             return null;
         }
         span = $("<span class='table-cell-text' />");
-        span.text(val + "");
+        span.text(val);
         return span;
     },
     empty: function (val, col) {
