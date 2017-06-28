@@ -60,7 +60,7 @@ cellFormatter = {
             return null;
         }
         span = $("<span class='table-cell-text' />");
-        span.text(t + "");
+        span.text(val + "");
         return span;
     },
     empty: function (val, col) {
