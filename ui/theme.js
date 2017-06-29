@@ -2,7 +2,7 @@
 function setHighlight(color) {
     var sheet,
         styleUrl;
-    sheet = $("#" + ui.theme.themeSheetId);
+    sheet = $("#" + ui.theme.highlightSheetId);
     if(sheet.length > 0) {
         styleUrl = sheet.prop("href");
         styleUrl = ui.url.setParams({
@@ -23,7 +23,7 @@ ui.theme = {
     /** 默认主题色 */
     defaultHighlight: "Default",
     /** 主题文件StyleID */
-    themeSheetId: "theme",
+    highlightSheetId: "highlight",
     /** 获取高亮色 */
     getHighlight: function (highlight) {
         var highlightInfo,
@@ -66,12 +66,12 @@ ui.theme = {
     initHighlight: function() {
         var sheet,
             styleUrl,
-            params;
-        sheet = $("#" + ui.theme.themeSheetId);
+            highlight;
+        sheet = $("#" + ui.theme.highlightSheetId);
         if(sheet.length > 0) {
             styleUrl = sheet.prop("href");
-            params = ui.url.getParams(styleUrl);
-            this.currentHighlight = this.getHighlight(params.highlight);
+            highlight = ui.url.getParams(styleUrl).highlight;
         }
+        this.currentHighlight = this.getHighlight(highlight);
     }
 };
