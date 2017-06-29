@@ -1,17 +1,17 @@
 
-function setHighlight(color) {
+function setHighlight(highlight) {
     var sheet,
         styleUrl;
     sheet = $("#" + ui.theme.highlightSheetId);
     if(sheet.length > 0) {
         styleUrl = sheet.prop("href");
         styleUrl = ui.url.setParams({
-            highlight: color.Id
+            highlight: highlight.Id
         });
         sheet.prop("href", styleUrl);
     }
-    ui.theme.getHighlight = color;
-    ui.page.fire("hlchanged", color);
+    ui.theme.currentHighlight = highlight;
+    ui.page.fire("highlightChanged", highlight);
 }
 
 //主题
