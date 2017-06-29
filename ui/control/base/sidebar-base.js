@@ -2,13 +2,13 @@
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
-    _getOption: function() {
+    _defineOption: function() {
         return {
             parent: null,
             width: 240
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["showing", "showed", "hiding", "hided", "resize"];
     },
     _create: function() {
