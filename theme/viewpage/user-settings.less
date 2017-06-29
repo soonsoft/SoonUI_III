@@ -1,0 +1,117 @@
+.user-settings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.user-settings-background {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 120px;
+}
+
+    /* 用户头像和用户信息 */
+    .user-settings .user-info {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .user-settings .protrait-cover {
+        width: 72px;
+        height: 72px;
+        border: solid 2px #fff;
+        border-radius: 50%;
+        overflow: hidden;
+        float: left;
+        margin-right: 10px;
+    }
+
+    .user-settings .protrait-img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .user-settings .user-info-panel {
+        width: auto;
+        height: 72px;
+        overflow: hidden;
+        float: left;
+    }
+
+    .user-settings .user-info-text {
+        line-height: 1em;
+    }
+
+    /* 主题色 */
+    .user-settings .highlight-panel {
+        padding-left: 10px;
+    }
+
+    .user-settings .highlight-group-title {
+        font-size: 14px;
+        line-height: 1.2em;
+        font-weight: normal;
+    }
+
+    .user-settings .highlight-item {
+        display: inline-block;
+        position: relative;
+        vertical-align: top;
+        background-color: transparent;
+        width:24px;
+        height:24px;
+        cursor:pointer;
+        margin-top: 8px;
+        margin-right: 8px;
+    }
+
+    .user-settings .highlight-item-checker {
+        position: absolute;
+        display: block;
+        width: 20px;
+        height: 20px;
+        border: solid 2px transparent;
+        top: 0;
+        left: 0;
+        display: none;
+        text-align: center;
+        line-height: 20px;
+    }
+
+        .user-settings .highlight-item-selected:hover .highlight-item-border {
+            display: block;
+        }
+
+    /* 操作列表 */
+    .user-settings .operate-list {
+        width: 100%;
+    }
+
+    .user-settings .operate-list-ul {
+        list-style: none;
+        width: 100%;
+    }
+
+    .user-settings .operate-list-li {
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        position: relative;
+    }
+
+    .user-settings .operate-list-anchor {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+    }
+
+        .user-settings .operate-list-anchor:active {
+            opacity: 0.3;
+        }
