@@ -104,6 +104,8 @@ var master = {
         );
         userInfo.append(htmlBuilder.join(""));
 
+        //初始化当前用户的主题ID
+        ui.theme.initHighlight();
         // 高亮色
         if(Array.isArray(ui.theme.Colors)) {
             htmlBuilder = [];
@@ -111,13 +113,23 @@ var master = {
             htmlBuilder.push("<div style='width:100%;height:auto'>");
             for(i = 0, len = ui.theme.Colors.length; i < len; i++) {
                 color = ui.theme.Colors[i];
-                htmlBuilder.push("<a class='highlight-item' href='javascript:void(0)' style='background-color:", color.Color, ";");
+                htmlBuilder.push("<a class='highlight-item");
+                if(color.Id === ui.theme.currentHighlight.Id) {
+                    htmlBuilder.push(" highlight-item-selected");
+                }
+                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", color.Color, ";");
                 htmlBuilder.push("' title='", color.Name, "' data-index='", i, "'>");
-                htmlBuilder.push("<i class='fa fa-check highlight-item-checker'></i>");
+                htmlBuilder.push("<i class='fa fa-check-circle highlight-item-checker'></i>");
                 htmlBuilder.push("</a>");
             }
             htmlBuilder.push("</div>");
             highlightPanel.append(htmlBuilder.join(""));
+            setTimeout(function() {
+                that._currentHighlightItem = highlightPanel.find(".highlight-item-selected");
+                if(that._currentHighlightItem.length === 0) {
+                    that._currentHighlightItem = null;
+                }
+            });
             highlightPanel.click(function(e) {
                 var elem,
                     color;
@@ -199,8 +211,11 @@ var master = {
             that.sidebarManager.show("userSidebar");
         });
         
-        //初始化当前用户的主题ID
-        ui.theme.initHighlight();
+        
+        setTimeout(function() {
+            ui.theme.currentHighlight.Id
+        });
+        
     },
     /** 初始化页面方法 */
     pageInit: function (initObj, caller) {
