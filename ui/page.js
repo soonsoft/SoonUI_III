@@ -10,7 +10,8 @@ ui.eventPriority = {
 };
 var page = ui.page = {
     events: [
-        "themechanged", 
+        "themechanged",
+        "hlchanged", 
         "ready", 
         "htmlclick", 
         "docmouseup", 
