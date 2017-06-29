@@ -29,11 +29,15 @@ ui.define("ui.ctrls.SidebarBase", {
         this._panel.css("width", this.width + "px");
         
         this._closeButton = $("<button class='icon-button' />");
-        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
+        this._closeButton.append("<i class='fa fa-chevron-right'></i>");
         this._closeButton.css({
             "position": "absolute",
-            "top": "6px",
-            "right": "10px",
+            "border": "none 0",
+            "width": "20px",
+            "height": "20px",
+            "min-width": "auto",
+            "top": "5px",
+            "right": "5px",
             "z-index": 999
         });
         this._closeButton.click(function(e) {
