@@ -27,7 +27,7 @@ ui.theme = {
         return themeInfo;
     },
     /** 修改主题 */
-    changeTheme: function(url, color) {
+    changeHighlight: function(url, color) {
         ui.ajax.ajaxPost(url, 
             { themeId: color.Id },
             function(success) {
