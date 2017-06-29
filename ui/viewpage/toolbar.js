@@ -212,3 +212,5 @@ Toolbar.prototype = {
         this.hideExtend();
     }
 };
+
+ui.Toolbar = Toolbar;
