@@ -9,7 +9,7 @@ function SidebarManager() {
 SidebarManager.prototype = {
     constructor: SidebarManager,
     initialize: function() {
-        this.sidebars = new ui.keyArray();
+        this.sidebars = new ui.KeyArray();
         return this;
     },
     setElement: function(name, option, element) {
@@ -18,7 +18,7 @@ SidebarManager.prototype = {
         }
         var sidebar = null,
             that = this;
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
                 sidebar.set(element);
@@ -27,7 +27,7 @@ SidebarManager.prototype = {
             if(!option || !option.parent) {
                 throw new Error("option is null");
             }
-            sidebar = ui.ctrls.Sidebar(option, element);
+            sidebar = ui.ctrls.SidebarBase(option, element);
             sidebar.hiding(function(e) {
                 that.currentBar = null;
             });
@@ -39,7 +39,7 @@ SidebarManager.prototype = {
         if(ui.str.isEmpty(name)) {
             return null;
         }
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             return this.sidebars.get(name);
         }
         return null;
@@ -48,7 +48,7 @@ SidebarManager.prototype = {
         if(ui.str.isEmpty(name)) {
             return;
         }
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             this.sidebars.remove(name);
         }
     },
@@ -61,7 +61,7 @@ SidebarManager.prototype = {
         }
         var sidebar = null,
             that = this;
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(sidebar.isShow()) {
                 return null;
@@ -82,10 +82,10 @@ SidebarManager.prototype = {
         var sidebar = this.currentBar;
         if(ui.str.isEmpty(name)) {
             sidebar = this.currentBar;
-        } else if(this.sidebars.contains(name)) {
+        } else if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
         }
-    if(!sidebar.isShow()) {
+        if(!sidebar.isShow()) {
             return null;
         }
         if(sidebar) {
@@ -95,3 +95,5 @@ SidebarManager.prototype = {
         return null;
     }
 };
+
+ui.SidebarManager = SidebarManager;
