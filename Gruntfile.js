@@ -35,6 +35,7 @@ module.exports = function(grunt) {
             "panel-active-color": "#aaaaaa",
             // 交互元素色
             "tool-color": "#666666",
+            "tool-first-color": "#777777",
             "tool-second-color": "#888888",
             // 只读色
             "readonly-color": "#666666",
@@ -76,6 +77,7 @@ module.exports = function(grunt) {
             "panel-active-color": "#1d1f21",
             // 交互元素色
             "tool-color": "#888888",
+            "tool-first-color": "#888888",
             "tool-second-color": "#888888",
             // 只读色
             "readonly-color": "#888888",
