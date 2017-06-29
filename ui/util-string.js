@@ -3,16 +3,6 @@
 var textEmpty = "";
 // text format
 var textFormatReg = /\\?\{([^{}]+)\}/gm;
-var textFormatReplaceFn = function (match, name) {
-    if (match.charAt(0) == '\\')
-        return match.slice(1);
-    var index = Number(name);
-    if (index >= 0)
-        return array[index];
-    if (params && params[name])
-        return params[name];
-    return '';
-};
 // dateFormat
 var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
@@ -133,7 +123,20 @@ ui.str = {
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
-        return str.replace(textFormatReg, textFormatReplaceFn);
+        return str.replace(textFormatReg, function (match, name) {
+            var index;
+            if (match.charAt(0) == '\\') {
+                return match.slice(1);
+            }
+            index = Number(name);
+            if (index >= 0) {
+                return array[index];
+            }
+            if (params && params[name]) {
+                return params[name];
+            }
+            return '';
+        });
     },
     //格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期;
     dateFormat: function (date, format, weekFormat) {
