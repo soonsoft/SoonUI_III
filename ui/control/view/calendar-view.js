@@ -2784,6 +2784,7 @@ function initCalendarViewTheme(colorInfo) {
         color,
         styleHelper;
 
+    isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
@@ -2793,7 +2794,7 @@ function initCalendarViewTheme(colorInfo) {
         styleHelper = ui.StyleSheet(themeStyle);
     }
     if(!colorInfo) {
-        colorInfo = ui.theme.currentTheme;
+        colorInfo = ui.theme.currentHighlight;
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
