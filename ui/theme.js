@@ -11,7 +11,7 @@ function setHighlight(color) {
         sheet.prop("href", styleUrl);
     }
     ui.theme.getHighlight = color;
-    ui.page.fire("highlightChanged", color);
+    ui.page.fire("hlchanged", color);
 }
 
 //主题
