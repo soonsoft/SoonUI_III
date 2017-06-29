@@ -6,40 +6,41 @@ function setHighlight(color) {
     if(sheet.length > 0) {
         styleUrl = sheet.prop("href");
         styleUrl = ui.url.setParams({
-            themeId: color.Id
+            highlight: color.Id
         });
         sheet.prop("href", styleUrl);
     }
-    ui.theme.currentTheme = color;
-    ui.page.fire("themeChanged", color);
+    ui.theme.getHighlight = color;
+    ui.page.fire("highlightChanged", color);
 }
 
 //主题
 ui.theme = {
-    /** 当前的主题背景色 */
-    background: "Light",
+    /** 当前的主题 */
+    currentTheme: "Light",
+    /** 用户当前设置的主题 */
+    currentHighlight: null,
     /** 默认主题色 */
-    defaultThemeId: "Default",
+    defaultHighlight: "Default",
     /** 主题文件StyleID */
     themeSheetId: "theme",
-    /** 用户当前设置的主题 */
-    currentTheme: null,
-    /** 获取主题 */
-    getTheme: function (themeId) {
-        if (!themeId)
-            themeId = defaultThemeId;
-        var info;
-        var themeInfo = null;
+    /** 获取高亮色 */
+    getHighlight: function (highlight) {
+        var highlightInfo,
+            info;
+        if (!highlight) {
+            highlight = this.defaultHighlight;
+        }
         if (Array.isArray(this.Colors)) {
             for (var i = 0, l = this.Colors.length; i < l; i++) {
                 info = this.Colors[i];
-                if (info.Id === themeId) {
-                    themeInfo = info;
+                if (info.Id === highlight) {
+                    highlightInfo = info;
                     break;
                 }
             }
         }
-        return themeInfo;
+        return highlightInfo;
     },
     /** 修改高亮色 */
     changeHighlight: function(url, color) {
@@ -59,6 +60,18 @@ ui.theme = {
     setHighlight: function(color) {
         if(color) {
             setHighlight(color);
+        }
+    },
+    /** 初始化高亮色 */
+    initHighlight: function() {
+        var sheet,
+            styleUrl,
+            params;
+        sheet = $("#" + ui.theme.themeSheetId);
+        if(sheet.length > 0) {
+            styleUrl = sheet.prop("href");
+            params = ui.url.getParams(styleUrl);
+            this.currentHighlight = this.getHighlight(params.highlight);
         }
     }
 };
