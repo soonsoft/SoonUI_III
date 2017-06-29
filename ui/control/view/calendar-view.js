@@ -2821,6 +2821,6 @@ function initCalendarViewTheme(colorInfo) {
         "background-color": color
     });
 }
-ui.page.themechanged(function(e, colorInfo) {
+ui.page.hlchanged(function(e, colorInfo) {
     initCalendarViewTheme(colorInfo);
 });
