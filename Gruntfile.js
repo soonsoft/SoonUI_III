@@ -507,11 +507,19 @@ module.exports = function(grunt) {
                 template: "template/metro/**/*.less",
                 dist: "theme/metro/{0}/{1}.less"
             }
+        },
+        "html-build": {
+            demo: {
+                views: "demo/views/**/*.html",
+                dist: "demo/pages/{0}/{1}.html"
+            }
         }
     });
 
     //加载自定义命令，用于创建主题样式文件
     grunt.loadTasks( "command/theme_factory" );
+    //加载html合并命令
+    grunt.loadTasks( "command/html_builder" );
     //注册其它命令
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-concat");
@@ -523,6 +531,8 @@ module.exports = function(grunt) {
 
     // 创建主题样式文件
     grunt.registerTask("prestyle", ["theme-create"]);
+    // 创建主题样式文件
+    grunt.registerTask("demo", ["html-build"]);
     // 在命令行上输入"grunt check"，执行语法检查。
     grunt.registerTask("check", ["jshint"]);
     // 在命令行上输入"grunt test"，test task就会被执行。
