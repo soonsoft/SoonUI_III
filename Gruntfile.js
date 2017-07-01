@@ -123,6 +123,7 @@ module.exports = function(grunt) {
     // 控件主题色
     themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/metro/light/**/*.less" });
     themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/metro/dark/**/*.less" });
+    themeFiles.push({ "dist/theme/viewpage/viewpage.all.css": "theme/viewpage/**/*.less" });
 
     // 高亮色
     var highlights = [

@@ -20,6 +20,7 @@
 @panel-hover-color: #dcdcdc;
 @panel-active-color: #aaaaaa;
 @tool-color: #666666;
+@tool-first-color: #777777;
 @tool-second-color: #888888;
 @readonly-color: #666666;
 @disabled-color: #aaaaaa;
@@ -67,6 +68,15 @@ body {
 }
 
 body, ol, ul, li, dl, dt, dd, form, fieldset, pr, pc {
+    margin: 0;
+    padding: 0;
+}
+
+hr {
+    height: 1px;
+    border: none 0;
+    background-color: @fouth-bg-color;
+    width: 100%;
     margin: 0;
     padding: 0;
 }
@@ -136,20 +146,62 @@ a {
     }
 
 /* 主题颜色 */
-.theme-background-color {
+.theme-bg {
     background-color: @background-color;
 }
-
-.theme-panel-color {
+.theme-bg1 {
+    background-color: @first-bg-color;
+}
+.theme-bg2 {
+    background-color: @second-bg-color;
+}
+.theme-bg3 {
+    background-color: @third-bg-color;
+}
+.theme-bg4 {
+    background-color: @fouth-bg-color;
+}
+.theme-panel {
     background-color: @panel-color;
 }
-
-.theme-border-color {
+    .theme-panel-hover:hover {
+        background-color: @panel-hover-color; 
+    }
+.theme-border {
     border-color: @border-color;
 }
-
-.theme-font-color {
+.theme-border1 {
+    border-color: @first-border-color;
+}
+.theme-border2 {
+    border-color: @second-border-color;
+}
+.theme-font {
     color: @font-color;
+}
+.theme-font1 {
+    color: @first-color;
+}
+.theme-font2 {
+    color: @second-color;
+}
+.theme-font3 {
+    color: @third-color;
+}
+.theme-font4 {
+    color: @fouth-color;
+}
+.theme-tool {
+    background-color: @tool-color;
+    color: @tool-color;
+}
+.theme-tool1 {
+    background-color: @tool-first-color;
+    color: @tool-first-color;
+}
+.theme-tool2 {
+    background-color: @tool-second-color;
+    color: @tool-second-color;
 }
 
 /* 头部 */

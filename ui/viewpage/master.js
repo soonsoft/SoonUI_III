@@ -150,7 +150,7 @@ var master = {
                 that._currentHighlightItem = elem;
                 that._currentHighlightItem.addClass("highlight-item-selected");
                 //ui.theme.changeHighlight("/Home/ChangeTheme", color);
-                $("#highlight").prop("href", ui.str.textFormat("../../dist/theme/color/ui.metro.{0}.css", color.Id));
+                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
                 ui.theme.setHighlight(color);
             });
         }
