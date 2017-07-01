@@ -37,6 +37,14 @@ pc {
   margin: 0;
   padding: 0;
 }
+hr {
+  height: 1px;
+  border: none 0;
+  background-color: #505253;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 h1,
 h2,
 h3,
@@ -101,17 +109,62 @@ a:active {
   background-color: transparent;
 }
 /* 主题颜色 */
-.theme-background-color {
+.theme-bg {
   background-color: #1d1f21;
 }
-.theme-panel-color {
+.theme-bg1 {
+  background-color: #2e3032;
+}
+.theme-bg2 {
+  background-color: #37383a;
+}
+.theme-bg3 {
+  background-color: #434547;
+}
+.theme-bg4 {
+  background-color: #505253;
+}
+.theme-panel {
   background-color: #3c3f41;
 }
-.theme-border-color {
+.theme-panel-hover:hover {
+  background-color: #5d5f60;
+}
+.theme-border {
   border-color: #5d5f60;
 }
-.theme-font-color {
+.theme-border1 {
+  border-color: #3c3f41;
+}
+.theme-border2 {
+  border-color: #4b4d4f;
+}
+.theme-font {
   color: #aaaaaa;
+}
+.theme-font1 {
+  color: #949494;
+}
+.theme-font2 {
+  color: #808080;
+}
+.theme-font3 {
+  color: #737373;
+}
+.theme-font4 {
+  color: #676767;
+}
+.theme-tool {
+  background-color: #888888;
+  color: #888888;
+}
+.theme-tool1 {
+  background-color: #888888;
+  color: #888888;
+}
+.theme-tool2 {
+  background-color: #888888;
+  color: #888888;
 }
 /* 头部 */
 #head {

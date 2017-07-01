@@ -37,6 +37,14 @@ pc {
   margin: 0;
   padding: 0;
 }
+hr {
+  height: 1px;
+  border: none 0;
+  background-color: #dedede;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 h1,
 h2,
 h3,
@@ -101,17 +109,62 @@ a:active {
   background-color: transparent;
 }
 /* 主题颜色 */
-.theme-background-color {
+.theme-bg {
   background-color: #ffffff;
 }
-.theme-panel-color {
+.theme-bg1 {
+  background-color: #f6f6f6;
+}
+.theme-bg2 {
+  background-color: #eaeaea;
+}
+.theme-bg3 {
+  background-color: #e1e1e1;
+}
+.theme-bg4 {
+  background-color: #dedede;
+}
+.theme-panel {
   background-color: #f1f1f1;
 }
-.theme-border-color {
+.theme-panel-hover:hover {
+  background-color: #dcdcdc;
+}
+.theme-border {
   border-color: #dcdcdc;
 }
-.theme-font-color {
+.theme-border1 {
+  border-color: #cccccc;
+}
+.theme-border2 {
+  border-color: #efefef;
+}
+.theme-font {
   color: #333333;
+}
+.theme-font1 {
+  color: #525252;
+}
+.theme-font2 {
+  color: #747474;
+}
+.theme-font3 {
+  color: #979797;
+}
+.theme-font4 {
+  color: #bababa;
+}
+.theme-tool {
+  background-color: #666666;
+  color: #666666;
+}
+.theme-tool1 {
+  background-color: #777777;
+  color: #777777;
+}
+.theme-tool2 {
+  background-color: #888888;
+  color: #888888;
 }
 /* 头部 */
 #head {

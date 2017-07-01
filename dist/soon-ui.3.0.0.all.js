@@ -1376,16 +1376,6 @@ ui.mask = {
 var textEmpty = "";
 // text format
 var textFormatReg = /\\?\{([^{}]+)\}/gm;
-var textFormatReplaceFn = function (match, name) {
-    if (match.charAt(0) == '\\')
-        return match.slice(1);
-    var index = Number(name);
-    if (index >= 0)
-        return array[index];
-    if (params && params[name])
-        return params[name];
-    return '';
-};
 // dateFormat
 var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
@@ -1506,7 +1496,20 @@ ui.str = {
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
-        return str.replace(textFormatReg, textFormatReplaceFn);
+        return str.replace(textFormatReg, function (match, name) {
+            var index;
+            if (match.charAt(0) == '\\') {
+                return match.slice(1);
+            }
+            index = Number(name);
+            if (index >= 0) {
+                return array[index];
+            }
+            if (params && params[name]) {
+                return params[name];
+            }
+            return '';
+        });
     },
     //格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期;
     dateFormat: function (date, format, weekFormat) {
@@ -4703,58 +4706,80 @@ ui.StyleSheet = StyleSheet;
 
 (function($, ui) {
 
+function setHighlight(highlight) {
+    var sheet,
+        styleUrl;
+    sheet = $("#" + ui.theme.highlightSheetId);
+    if(sheet.length > 0) {
+        styleUrl = sheet.prop("href");
+        styleUrl = ui.url.setParams({
+            highlight: highlight.Id
+        });
+        sheet.prop("href", styleUrl);
+    }
+    ui.theme.currentHighlight = highlight;
+    ui.page.fire("highlightChanged", highlight);
+}
+
 //主题
 ui.theme = {
-    /** 当前的主题背景色 */
-    background: "Light",
-    /** 默认主题色 */
-    defaultThemeId: "Default",
-    /** 主题文件StyleID */
-    themeSheetId: "theme",
+    /** 当前的主题 */
+    currentTheme: "Light",
     /** 用户当前设置的主题 */
-    currentTheme: null,
-    /** 获取主题 */
-    getTheme: function (themeId) {
-        if (!themeId)
-            themeId = defaultThemeId;
-        var info;
-        var themeInfo = null;
+    currentHighlight: null,
+    /** 默认主题色 */
+    defaultHighlight: "Default",
+    /** 主题文件StyleID */
+    highlightSheetId: "highlight",
+    /** 获取高亮色 */
+    getHighlight: function (highlight) {
+        var highlightInfo,
+            info;
+        if (!highlight) {
+            highlight = this.defaultHighlight;
+        }
         if (Array.isArray(this.Colors)) {
             for (var i = 0, l = this.Colors.length; i < l; i++) {
                 info = this.Colors[i];
-                if (info.Id === themeId) {
-                    themeInfo = info;
+                if (info.Id === highlight) {
+                    highlightInfo = info;
                     break;
                 }
             }
         }
-        return themeInfo;
+        return highlightInfo;
     },
-    /** 修改主题 */
-    changeTheme: function(url, color) {
+    /** 修改高亮色 */
+    changeHighlight: function(url, color) {
         ui.ajax.ajaxPost(url, 
             { themeId: color.Id },
             function(success) {
-                var sheet,
-                    url,
-                    urlObj;
                 if(success.Result) {
-                    sheet = $("#" + ui.theme.themeSheetId);
-                    if(sheet.length > 0) {
-                        url = sheet.prop("href");
-                        url = ui.url.setParams({
-                            themeId: color.Id
-                        });
-                        sheet.prop("href", url);
-                    }
-                    ui.theme.currentTheme = color;
-                    ui.page.fire("themeChanged", color);
+                    setHighlight(color);
                 }
             },
             function(error) {
                 ui.msgshow("修改主题失败，" + error.message, true);
             }
         );
+    },
+    /** 设置高亮色 */
+    setHighlight: function(color) {
+        if(color) {
+            setHighlight(color);
+        }
+    },
+    /** 初始化高亮色 */
+    initHighlight: function() {
+        var sheet,
+            styleUrl,
+            highlight;
+        sheet = $("#" + ui.theme.highlightSheetId);
+        if(sheet.length > 0) {
+            styleUrl = sheet.prop("href");
+            highlight = ui.url.getParams(styleUrl).highlight;
+        }
+        this.currentHighlight = this.getHighlight(highlight);
     }
 };
 
@@ -4776,7 +4801,8 @@ ui.eventPriority = {
 };
 var page = ui.page = {
     events: [
-        "themechanged", 
+        "themechanged",
+        "hlchanged", 
         "ready", 
         "htmlclick", 
         "docmouseup", 
@@ -5100,13 +5126,13 @@ ui.define("ui.ctrls.DropDownBase", {
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
-    _getOption: function() {
+    _defineOption: function() {
         return {
             parent: null,
             width: 240
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["showing", "showed", "hiding", "hided", "resize"];
     },
     _create: function() {
@@ -5127,11 +5153,15 @@ ui.define("ui.ctrls.SidebarBase", {
         this._panel.css("width", this.width + "px");
         
         this._closeButton = $("<button class='icon-button' />");
-        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
+        this._closeButton.append("<i class='fa fa-chevron-right'></i>");
         this._closeButton.css({
             "position": "absolute",
-            "top": "6px",
-            "right": "10px",
+            "border": "none 0",
+            "width": "20px",
+            "height": "20px",
+            "min-width": "auto",
+            "top": "5px",
+            "right": "5px",
             "z-index": 999
         });
         this._closeButton.click(function(e) {
@@ -13747,6 +13777,7 @@ function initCalendarViewTheme(colorInfo) {
         color,
         styleHelper;
 
+    isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
@@ -13756,7 +13787,7 @@ function initCalendarViewTheme(colorInfo) {
         styleHelper = ui.StyleSheet(themeStyle);
     }
     if(!colorInfo) {
-        colorInfo = ui.theme.currentTheme;
+        colorInfo = ui.theme.currentHighlight;
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
@@ -13784,7 +13815,7 @@ function initCalendarViewTheme(colorInfo) {
         "background-color": color
     });
 }
-ui.page.themechanged(function(e, colorInfo) {
+ui.page.hlchanged(function(e, colorInfo) {
     initCalendarViewTheme(colorInfo);
 });
 
@@ -22405,22 +22436,183 @@ var master = {
         }, ui.eventPriority.masterReady);
     },
     _initElements: function () {
+        this.sidebarManager = ui.SidebarManager();
     },
     _initContentSize: function() {
-        var clientWidth = document.documentElement.clientWidth,
-            clientHeight = document.documentElement.clientHeight;
+        var bodyMinHeight,
+            clientWidth,
+            clientHeight;
+
+        clientWidth = document.documentElement.clientWidth;
+        clientHeight = document.documentElement.clientHeight;
+
         this.head = $("#head");
         this.body = $("#body");
         if(this.head.length > 0) {
             clientHeight -= this.head.height();
+        } else {
+            this.head = null;
         }
-        var bodyMinHeight = clientHeight;
-        this.body.css("height", bodyMinHeight + "px");
+        bodyMinHeight = clientHeight;
+        if(this.body.length > 0) {
+            this.body.css("height", bodyMinHeight + "px");
+        } else {
+            this.body = null;
+        }
+        
         this.contentBodyHeight = bodyMinHeight;
         this.contentBodyWidth = clientWidth;
     },
     _initUserSettings: function() {
+        var userProtrait,
+            sidebarElement,
+            userInfo,
+            highlightPanel,
+            operateList,
+            htmlBuilder,
+            i, len, color,
+            sidebar,
+            that;
 
+        userProtrait = $("#user");
+        if(userProtrait.length === 0) {
+            return;
+        }
+
+        that = this;
+
+        sidebarElement = $("<section class='user-settings' />");
+        userInfo = $("<div class='user-info' />");
+        highlightPanel = $("<div class='highlight-panel' />");
+        operateList = $("<div class='operate-list' />");
+        
+        // 用户信息
+        htmlBuilder = [];
+        htmlBuilder.push(
+            "<div class='protrait-cover'>",
+            "<img class='protrait-img' src='", userProtrait.children("img").prop("src"), "' alt='用户头像' /></div>",
+            "<div class='user-info-panel'>",
+            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", this.name, "</span><br />",
+            "<span class='user-info-text'>", this.department, "</span><br />",
+            "<span class='user-info-text'>", this.position, "</span>",
+            "</div>",
+            "<br clear='left' />"
+        );
+        userInfo.append(htmlBuilder.join(""));
+
+        //初始化当前用户的主题ID
+        ui.theme.initHighlight();
+        // 高亮色
+        if(Array.isArray(ui.theme.Colors)) {
+            htmlBuilder = [];
+            htmlBuilder.push("<h3 class='highlight-group-title font-highlight'>个性色</h3>");
+            htmlBuilder.push("<div style='width:100%;height:auto'>");
+            for(i = 0, len = ui.theme.Colors.length; i < len; i++) {
+                color = ui.theme.Colors[i];
+                htmlBuilder.push("<a class='highlight-item");
+                if(color.Id === ui.theme.currentHighlight.Id) {
+                    htmlBuilder.push(" highlight-item-selected");
+                }
+                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", color.Color, ";");
+                htmlBuilder.push("' title='", color.Name, "' data-index='", i, "'>");
+                htmlBuilder.push("<i class='fa fa-check-circle highlight-item-checker'></i>");
+                htmlBuilder.push("</a>");
+            }
+            htmlBuilder.push("</div>");
+            highlightPanel.append(htmlBuilder.join(""));
+            setTimeout(function() {
+                that._currentHighlightItem = highlightPanel.find(".highlight-item-selected");
+                if(that._currentHighlightItem.length === 0) {
+                    that._currentHighlightItem = null;
+                }
+            });
+            highlightPanel.click(function(e) {
+                var elem,
+                    color;
+                elem = $(e.target);
+                while(!elem.hasClass("highlight-item")) {
+                    if(elem.hasClass("highlight-panel")) {
+                        return;
+                    }
+                    elem = elem.parent();
+                }
+
+                color = ui.theme.Colors[parseInt(elem.attr("data-index"), 10)];
+
+                if(that._currentHighlightItem) {
+                    that._currentHighlightItem.removeClass("highlight-item-selected");
+                }
+
+                that._currentHighlightItem = elem;
+                that._currentHighlightItem.addClass("highlight-item-selected");
+                //ui.theme.changeHighlight("/Home/ChangeTheme", color);
+                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
+                ui.theme.setHighlight(color);
+            });
+        }
+
+        // 操作列表
+        htmlBuilder = [];
+        htmlBuilder.push(
+            "<ul class='operate-list-ul'>",
+            "<li class='operate-list-li theme-panel-hover'>",
+            "<span class='operate-text'>用户信息</span>",
+            "<a class='operate-list-anchor' href='javascript:void(0)'></a>",
+            "</li>",
+            "<li class='operate-list-li theme-panel-hover'>",
+            "<span class='operate-text'>修改密码</span>",
+            "<a class='operate-list-anchor' href='javascript:void(0)'></a>",
+            "</li>",
+            "<li class='operate-list-li theme-panel-hover'>",
+            "<span class='operate-text'>退出</span>",
+            "<a class='operate-list-anchor' href='javascript:void(0)'></a>",
+            "</li>",
+            "</ul>"
+        );
+        operateList.append(htmlBuilder.join(""));
+
+        sidebarElement
+            .append(userInfo)
+            .append(highlightPanel)
+            .append("<hr class='horizontal' />")
+            .append(operateList);
+
+        sidebar = this.sidebarManager.setElement("userSidebar", {
+            parent: "body",
+            width: 240
+        }, sidebarElement);
+        sidebar._closeButton.css("color", "#ffffff");
+        sidebarElement.before("<div class='user-settings-background title-color' />");
+        sidebar.animator[0].ease = ui.AnimationStyle.easeFromTo;
+        sidebar.contentAnimator = ui.animator({
+            target: sidebarElement,
+            begin: 100,
+            end: 0,
+            ease: ui.AnimationStyle.easeTo,
+            onChange: function(val, elem) {
+                elem.css("left", val + "%");
+            }
+        });
+        sidebar.contentAnimator.duration = 200;
+        sidebar.showing(function() {
+            sidebarElement.css("display", "none");
+        });
+        sidebar.showed(function() {
+            sidebarElement.css({
+                "display": "block",
+                "left": "100%"
+            });
+            this.contentAnimator.start();
+        });
+        userProtrait.click(function(e) {
+            that.sidebarManager.show("userSidebar");
+        });
+        
+        
+        setTimeout(function() {
+            ui.theme.currentHighlight.Id
+        });
+        
     },
     /** 初始化页面方法 */
     pageInit: function (initObj, caller) {
@@ -22437,6 +22629,7 @@ var master = {
                         message[1] = key;
                         message[3] = e.message;
                         ui.errorShow(message.join(""));
+                        throw e;
                     }
                 }
             }
@@ -22497,7 +22690,7 @@ function SidebarManager() {
 SidebarManager.prototype = {
     constructor: SidebarManager,
     initialize: function() {
-        this.sidebars = new ui.keyArray();
+        this.sidebars = new ui.KeyArray();
         return this;
     },
     setElement: function(name, option, element) {
@@ -22506,7 +22699,7 @@ SidebarManager.prototype = {
         }
         var sidebar = null,
             that = this;
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
                 sidebar.set(element);
@@ -22515,7 +22708,7 @@ SidebarManager.prototype = {
             if(!option || !option.parent) {
                 throw new Error("option is null");
             }
-            sidebar = ui.ctrls.Sidebar(option, element);
+            sidebar = ui.ctrls.SidebarBase(option, element);
             sidebar.hiding(function(e) {
                 that.currentBar = null;
             });
@@ -22527,7 +22720,7 @@ SidebarManager.prototype = {
         if(ui.str.isEmpty(name)) {
             return null;
         }
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             return this.sidebars.get(name);
         }
         return null;
@@ -22536,7 +22729,7 @@ SidebarManager.prototype = {
         if(ui.str.isEmpty(name)) {
             return;
         }
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             this.sidebars.remove(name);
         }
     },
@@ -22549,7 +22742,7 @@ SidebarManager.prototype = {
         }
         var sidebar = null,
             that = this;
-        if(this.sidebars.contains(name)) {
+        if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(sidebar.isShow()) {
                 return null;
@@ -22570,10 +22763,10 @@ SidebarManager.prototype = {
         var sidebar = this.currentBar;
         if(ui.str.isEmpty(name)) {
             sidebar = this.currentBar;
-        } else if(this.sidebars.contains(name)) {
+        } else if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
         }
-    if(!sidebar.isShow()) {
+        if(!sidebar.isShow()) {
             return null;
         }
         if(sidebar) {
@@ -22583,6 +22776,9 @@ SidebarManager.prototype = {
         return null;
     }
 };
+
+ui.SidebarManager = SidebarManager;
+
 
 })(jQuery, ui);
 
@@ -22803,5 +22999,8 @@ Toolbar.prototype = {
         this.hideExtend();
     }
 };
+
+ui.Toolbar = Toolbar;
+
 
 })(jQuery, ui);

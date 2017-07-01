@@ -282,13 +282,13 @@ ui.define("ui.ctrls.DropDownBase", {
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
-    _getOption: function() {
+    _defineOption: function() {
         return {
             parent: null,
             width: 240
         };
     },
-    _getEvents: function () {
+    _defineEvents: function () {
         return ["showing", "showed", "hiding", "hided", "resize"];
     },
     _create: function() {
@@ -309,11 +309,15 @@ ui.define("ui.ctrls.SidebarBase", {
         this._panel.css("width", this.width + "px");
         
         this._closeButton = $("<button class='icon-button' />");
-        this._closeButton.append("<i class='fa fa-arrow-right'></i>");
+        this._closeButton.append("<i class='fa fa-chevron-right'></i>");
         this._closeButton.css({
             "position": "absolute",
-            "top": "6px",
-            "right": "10px",
+            "border": "none 0",
+            "width": "20px",
+            "height": "20px",
+            "min-width": "auto",
+            "top": "5px",
+            "right": "5px",
             "z-index": 999
         });
         this._closeButton.click(function(e) {
@@ -8929,6 +8933,7 @@ function initCalendarViewTheme(colorInfo) {
         color,
         styleHelper;
 
+    isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
@@ -8938,7 +8943,7 @@ function initCalendarViewTheme(colorInfo) {
         styleHelper = ui.StyleSheet(themeStyle);
     }
     if(!colorInfo) {
-        colorInfo = ui.theme.currentTheme;
+        colorInfo = ui.theme.currentHighlight;
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
@@ -8966,7 +8971,7 @@ function initCalendarViewTheme(colorInfo) {
         "background-color": color
     });
 }
-ui.page.themechanged(function(e, colorInfo) {
+ui.page.hlchanged(function(e, colorInfo) {
     initCalendarViewTheme(colorInfo);
 });
 

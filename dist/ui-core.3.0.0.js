@@ -1376,16 +1376,6 @@ ui.mask = {
 var textEmpty = "";
 // text format
 var textFormatReg = /\\?\{([^{}]+)\}/gm;
-var textFormatReplaceFn = function (match, name) {
-    if (match.charAt(0) == '\\')
-        return match.slice(1);
-    var index = Number(name);
-    if (index >= 0)
-        return array[index];
-    if (params && params[name])
-        return params[name];
-    return '';
-};
 // dateFormat
 var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
@@ -1506,7 +1496,20 @@ ui.str = {
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
-        return str.replace(textFormatReg, textFormatReplaceFn);
+        return str.replace(textFormatReg, function (match, name) {
+            var index;
+            if (match.charAt(0) == '\\') {
+                return match.slice(1);
+            }
+            index = Number(name);
+            if (index >= 0) {
+                return array[index];
+            }
+            if (params && params[name]) {
+                return params[name];
+            }
+            return '';
+        });
     },
     //格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期;
     dateFormat: function (date, format, weekFormat) {
@@ -4703,58 +4706,80 @@ ui.StyleSheet = StyleSheet;
 
 (function($, ui) {
 
+function setHighlight(highlight) {
+    var sheet,
+        styleUrl;
+    sheet = $("#" + ui.theme.highlightSheetId);
+    if(sheet.length > 0) {
+        styleUrl = sheet.prop("href");
+        styleUrl = ui.url.setParams({
+            highlight: highlight.Id
+        });
+        sheet.prop("href", styleUrl);
+    }
+    ui.theme.currentHighlight = highlight;
+    ui.page.fire("highlightChanged", highlight);
+}
+
 //主题
 ui.theme = {
-    /** 当前的主题背景色 */
-    background: "Light",
-    /** 默认主题色 */
-    defaultThemeId: "Default",
-    /** 主题文件StyleID */
-    themeSheetId: "theme",
+    /** 当前的主题 */
+    currentTheme: "Light",
     /** 用户当前设置的主题 */
-    currentTheme: null,
-    /** 获取主题 */
-    getTheme: function (themeId) {
-        if (!themeId)
-            themeId = defaultThemeId;
-        var info;
-        var themeInfo = null;
+    currentHighlight: null,
+    /** 默认主题色 */
+    defaultHighlight: "Default",
+    /** 主题文件StyleID */
+    highlightSheetId: "highlight",
+    /** 获取高亮色 */
+    getHighlight: function (highlight) {
+        var highlightInfo,
+            info;
+        if (!highlight) {
+            highlight = this.defaultHighlight;
+        }
         if (Array.isArray(this.Colors)) {
             for (var i = 0, l = this.Colors.length; i < l; i++) {
                 info = this.Colors[i];
-                if (info.Id === themeId) {
-                    themeInfo = info;
+                if (info.Id === highlight) {
+                    highlightInfo = info;
                     break;
                 }
             }
         }
-        return themeInfo;
+        return highlightInfo;
     },
-    /** 修改主题 */
-    changeTheme: function(url, color) {
+    /** 修改高亮色 */
+    changeHighlight: function(url, color) {
         ui.ajax.ajaxPost(url, 
             { themeId: color.Id },
             function(success) {
-                var sheet,
-                    url,
-                    urlObj;
                 if(success.Result) {
-                    sheet = $("#" + ui.theme.themeSheetId);
-                    if(sheet.length > 0) {
-                        url = sheet.prop("href");
-                        url = ui.url.setParams({
-                            themeId: color.Id
-                        });
-                        sheet.prop("href", url);
-                    }
-                    ui.theme.currentTheme = color;
-                    ui.page.fire("themeChanged", color);
+                    setHighlight(color);
                 }
             },
             function(error) {
                 ui.msgshow("修改主题失败，" + error.message, true);
             }
         );
+    },
+    /** 设置高亮色 */
+    setHighlight: function(color) {
+        if(color) {
+            setHighlight(color);
+        }
+    },
+    /** 初始化高亮色 */
+    initHighlight: function() {
+        var sheet,
+            styleUrl,
+            highlight;
+        sheet = $("#" + ui.theme.highlightSheetId);
+        if(sheet.length > 0) {
+            styleUrl = sheet.prop("href");
+            highlight = ui.url.getParams(styleUrl).highlight;
+        }
+        this.currentHighlight = this.getHighlight(highlight);
     }
 };
 
@@ -4776,7 +4801,8 @@ ui.eventPriority = {
 };
 var page = ui.page = {
     events: [
-        "themechanged", 
+        "themechanged",
+        "hlchanged", 
         "ready", 
         "htmlclick", 
         "docmouseup", 
