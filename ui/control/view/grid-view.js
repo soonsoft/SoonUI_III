@@ -10,8 +10,8 @@ var cellCheckbox = "grid-checkbox",
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
 
-var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
-    checkboxFormatter = ui.ColumnStyle.cfn.checkbox,
+var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
+    checkboxFormatter = ui.ColumnStyle.cfn.check,
     columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
@@ -142,12 +142,12 @@ function changeChecked(cbx) {
         colIndex;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
         if(colIndex === -1) {
             return;
         }
         this._gridCheckboxAll = 
-            $(this.tableHead[0].tBodies[0].rows[0].cells[colIndex])
+            $(this.tableHead[0].tHead.rows[0].cells[colIndex])
                 .find("." + cellCheckboxAll);
     }
     if(checked) {
@@ -223,6 +223,10 @@ function onTableBodyClick(e) {
     var elem, tagName, selectedClass,
         exclude, result,
         nodeName;
+
+    if(!this.isSelectable()) {
+        return;
+    }
     
     elem = $(e.target);
     exclude = this.option.selection.exclude;
@@ -269,17 +273,17 @@ function onCheckboxAllClick(e) {
 
     e.stopPropagation();
 
+    cbxAll = $(e.target);
     cellIndex = cbxAll.parent().prop("cellIndex");
     if(cellIndex === -1) {
         return;
     }
 
-    cbxAll = $(e.target);
     checkedValue = !cbxAll.hasClass("fa-check-square");
     setChecked.call(this, cbxAll, checkedValue);
 
     if(this.option.selection.isRelateCheckbox === true && this.isMultiple()) {
-        selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
+        selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(checkedValue) {
             // 如果是要选中，需要同步行状态
             fn = function(td, checkbox) {
@@ -287,7 +291,7 @@ function onCheckboxAllClick(e) {
                 if(this.option.selection.type === "cell") {
                     elem = td;
                 } else {
-                    elem = elem.parent();
+                    elem = td.parent();
                 }
                 elem.context = checkbox[0];
                 this._selectItem(elem, selectedClass, checkedValue);
@@ -396,6 +400,22 @@ ui.define("ui.ctrls.GridView", {
             this.pageSize = defaultPageSize;
         }
 
+        // 修正selection设置项
+        if(!this.option.selection) {
+            this.option.selection = {
+                type: "disabled"
+            };
+        } else {
+            if(ui.core.isString(this.option.selection.type)) {
+                this.option.selection.type = this.option.selection.type.toLowerCase();
+            } else {
+                this.option.selection.type = "disabled";
+            }
+            if(!this.option.selection.multiple) {
+                this.option.selection.isRelateCheckbox = false;
+            }
+        }
+
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
             this.option.width = false;
         }
@@ -423,19 +443,6 @@ ui.define("ui.ctrls.GridView", {
             this.element.addClass("ui-grid-view");
         }
         this._initBorderWidth();
-
-        // 修正selection设置项
-        if(!this.option.selection) {
-            this.option.selection = {
-                type: "disabled"
-            };
-        } else {
-            if(ui.core.isString(this.option.selection.type)) {
-                this.option.selection.type = this.option.selection.type.toLowerCase();
-            } else {
-                this.option.selection.type = "disabled";
-            }
-        }
 
         // 表头
         this.gridHead = $("<div class='ui-grid-head' />");
@@ -652,11 +659,14 @@ ui.define("ui.ctrls.GridView", {
             cell.append(rowNumber.call(this, null, column, i));
         }
     },
-    _getColumnIndexByFormatter: function(formatter) {
+    _getColumnIndexByFormatter: function(formatter, field) {
         var i, 
             len = this.option.columns.length;
+        if(!field) {
+            field = "formatter";
+        }
         for(i = 0; i < len; i++) {
-            if(this.option.columns[i].formatter === rowNumber) {
+            if(this.option.columns[i][field] === formatter) {
                 return i;
             }
         }
@@ -855,9 +865,7 @@ ui.define("ui.ctrls.GridView", {
         
         if (!this.tableBody) {
             this.tableBody = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
-            if (this.isSelectable()) {
-                this.tableBody.click(this.onTableBodyClickHandler);
-            }
+            this.tableBody.click(this.onTableBodyClickHandler);
             this.gridBody.append(this.tableBody);
         } else {
             this.gridBody.scrollTop(0);
@@ -909,7 +917,7 @@ ui.define("ui.ctrls.GridView", {
             result = [],
             i, len;
 
-        columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
         if(columnIndex === -1) {
             return result;
         }
@@ -956,7 +964,7 @@ ui.define("ui.ctrls.GridView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+            columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
