@@ -1,4 +1,5 @@
 // column style 默认提供的GridView和ReportView的格式化器
+var spanKey = "__temp$TdContext-";
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -83,11 +84,12 @@ cellFormatter = {
     },
     paragraph: function (val, col) {
         var p;
-        if(val === undefined || val === null || isNaN(val)) {
+        val += "";
+        if (val === "undefined" || val === "null" || val === "NaN") {
             return null;
         }
         p = $("<p class='table-cell-block' />");
-        p.text(val + "");
+        p.text(val);
         return p;
     },
     date: function(val, col) {
@@ -101,7 +103,7 @@ cellFormatter = {
         if(isNaN(date)) {
             span.text("无法转换");
         } else {
-            span.text([date.getFullYeaer(), "-",
+            span.text([date.getFullYear(), "-",
                 addZero(date.getMonth() + 1), "-",
                 addZero(date.getDate())].join(""));
         }
@@ -163,7 +165,7 @@ cellFormatter = {
     rowspan: function(val, col, idx, td) {
         var ctx,
             span,
-            key = "__temp$TdContext-" + col.column;
+            key = spanKey + col.column;
         if (idx === 0) {
             ctx = this[key] = {
                 rowSpan: 1,
@@ -244,16 +246,12 @@ cellParameterFormatter = {
         return function(val, col, idx, td) {
             var div, 
                 barDiv, progressDiv, percentDiv,
-                percent;
+                barWidth, percent;
 
-            if(ui.core.isNumber(val.value)) {
-                val.total = totalValue || 0;
-            } else {
-                val = {
-                    value: val,
-                    total: totalValue || 0
-                };
-            }
+            val = {
+                value: val,
+                total: totalValue || 0
+            };
             if(!ui.core.isNumber(val.total)) {
                 val.total = val.value;
             }
@@ -271,6 +269,13 @@ cellParameterFormatter = {
             percent = ui.str.numberScaleFormat(percent * 100, 2) + "%";
             div = $("<div class='cell-progress-panel' />");
             barDiv = $("<div class='cell-progress-bar' />");
+            barWidth = progressWidth;
+            if(!ui.core.isNumber(barWidth)) {
+                barWidth = col.len - 12;
+            }
+            barWidth -= 52;
+            barDiv.css("width", barWidth + "px");
+
             progressDiv = $("<div class='cell-progress-value background-highlight' />");
             progressDiv.css("width", percent);
             barDiv.append(progressDiv);
@@ -285,21 +290,21 @@ cellParameterFormatter = {
             return div;
         };
     },
-    getRowspanFormatter: function(index, key, createFn) {
-        var columnKey = "__temp$TdContext-" + key;
+    getRowspanFormatter: function(key, createFn) {
+        var columnKey = spanKey + key;
         return function(val, col, idx, td) {
             var ctx;
             if (idx === 0) {
-                ctx = this[key] = {
+                ctx = this[columnKey] = {
                     rowSpan: 1,
-                    value: val,
+                    value: val[key],
                     td: td
                 };
             } else {
-                ctx = this[key];
-                if (ctx.value !== val) {
+                ctx = this[columnKey];
+                if (ctx.value !== val[key]) {
                     ctx.rowSpan = 1;
-                    ctx.value = val;
+                    ctx.value = val[key];
                     ctx.td = td;
                 } else {
                     ctx.rowSpan++;
