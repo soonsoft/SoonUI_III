@@ -310,7 +310,7 @@ ui.str = {
         }
         return $("<span />").html(str).text();
     },
-    numberFormatScale: function (num, zeroCount) {
+    numberScaleFormat: function (num, zeroCount) {
         if (isNaN(num))
             return null;
         if (isNaN(zeroCount))
@@ -350,7 +350,7 @@ ui.str = {
         if (!symbol) {
             symbol = "￥";
         }
-        var content = ui.str.numberFormatScale(value, 2);
+        var content = ui.str.numberScaleFormat(value, 2);
         if (!content) {
             return content;
         }
