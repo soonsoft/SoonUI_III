@@ -346,7 +346,7 @@ ui.str = {
         }
         return numText;
     },
-    formatMoney: function (value, symbol) {
+    moneyFormat: function (value, symbol) {
         if (!symbol) {
             symbol = "￥";
         }
