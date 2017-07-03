@@ -17,8 +17,8 @@ var DATA_BODY = "DataBody",
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
 
-var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
-    checkboxFormatter = ui.ColumnStyle.cfn.checkbox,
+var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
+    checkboxFormatter = ui.ColumnStyle.cfn.check,
     columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
@@ -165,7 +165,7 @@ function changeChecked(cbx) {
         colIndex;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        colIndex = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
         if(colIndex === -1) {
             return;
         }
@@ -298,7 +298,7 @@ function onCheckboxAllClick(e) {
 
     e.stopPropagation();
 
-    columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+    columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
     if(!columnInfo) {
         return;
     }
@@ -507,6 +507,22 @@ ui.define("ui.ctrls.ReportView", {
             preparePager.call(this, this.option.pager);
         }
 
+        // 修正selection设置项
+        if(!this.option.selection) {
+            this.option.selection = {
+                type: "disabled"
+            };
+        } else {
+            if(ui.core.isString(this.option.selection.type)) {
+                this.option.selection.type = this.option.selection.type.toLowerCase();
+            } else {
+                this.option.selection.type = "disabled";
+            }
+            if(!this.option.selection.multiple) {
+                this.option.selection.isRelateCheckbox = false;
+            }
+        }
+
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
             this.option.width = false;
         }
@@ -536,19 +552,6 @@ ui.define("ui.ctrls.ReportView", {
 
         this._initBorderWidth();
         this._initDataPrompt();
-
-        // 修正selection设置项
-        if(!this.option.selection) {
-            this.option.selection = {
-                type: "disabled"
-            };
-        } else {
-            if(ui.core.isString(this.option.selection.type)) {
-                this.option.selection.type = this.option.selection.type.toLowerCase();
-            } else {
-                this.option.selection.type = "disabled";
-            }
-        }
 
         // 表头
         this.reportHead = $("<div class='ui-report-head' />");
@@ -1135,7 +1138,7 @@ ui.define("ui.ctrls.ReportView", {
             this.pager.empty();
         }
     },
-    _getColumnIndexAndTableByFormatter: function(formatter) {
+    _getColumnIndexAndTableByFormatter: function(formatter, field) {
         var result, i, len;
         result = {
             columnIndex: -1,
@@ -1144,9 +1147,13 @@ ui.define("ui.ctrls.ReportView", {
             bodyTable: null
         };
 
+        if(!field) {
+            field = "formatter";
+        }
+
         if(this.fixedColumns) {
             for(i = 0, len = this.fixedColumns.length; i < len; i++) {
-                if(this.fixedColumns[i].formatter === formatter) {
+                if(this.fixedColumns[i][field] === formatter) {
                     result.columnIndex = i;
                     result.columns = this.fixedColumns;
                     result.headTable = this.tableFixedHead;
@@ -1157,7 +1164,7 @@ ui.define("ui.ctrls.ReportView", {
         }
         if(this.dataColumns) {
             for(i = 0, len = this.dataColumns.length; i < len; i++) {
-                if(this.dataColumns[i].formatter === formatter) {
+                if(this.dataColumns[i][field] === formatter) {
                     result.columnIndex = i;
                     result.columns = this.dataColumns;
                     result.headTable = this.tableDataHead;
@@ -1326,7 +1333,7 @@ ui.define("ui.ctrls.ReportView", {
             result = [],
             i, len;
 
-        columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+        columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
         if(!columnInfo) {
             return result;
         }
@@ -1373,7 +1380,7 @@ ui.define("ui.ctrls.ReportView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+            columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
             fn = function(elem) {
                 var checkbox,
                     rowIndex,
