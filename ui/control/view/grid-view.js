@@ -964,7 +964,7 @@ ui.define("ui.ctrls.GridView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
+            columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
