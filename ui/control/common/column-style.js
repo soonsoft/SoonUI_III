@@ -29,7 +29,7 @@ var progressError = new Error("column.len或width设置太小，无法绘制进�
 
 // 列头格式化器
 columnFormatter = {
-    columnCheckboxAll: function (col) {
+    checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
         checkbox.click(this.onCheckboxAllClickHandler);
         this.resetColumnStateHandlers.checkboxAllCancel = function () {
@@ -76,9 +76,9 @@ cellFormatter = {
         span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
         return span;
     },
-    checkbox: function(val, col) {
+    check: function(val, col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox' />");
-        checkbox.attr("data-value", ui.str.htmlEncode(value));
+        checkbox.attr("data-value", val + "");
         return checkbox;
     },
     paragraph: function (val, col) {
