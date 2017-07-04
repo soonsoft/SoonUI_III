@@ -614,7 +614,7 @@ ui.define("ui.ctrls.GridView", {
             cell.click(this.onSortHandler);
             cell.addClass("sorter");
             cell.append("<i class='fa fa-sort' />");
-            this.sorterIndexes.push(index);
+            this._sorterIndexes.push(index);
         }
     },
     _renderPageList: function(rowCount) {
