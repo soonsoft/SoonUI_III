@@ -80,7 +80,7 @@ ui.define("ui.ctrls.CardView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
@@ -110,14 +110,14 @@ ui.define("ui.ctrls.CardView", {
         this.onBodyClickHandler = $.proxy(onBodyClick, this);
     },
     _render: function() {
-        if(!this.element || this.element.length === 0) {
-            return;
+        if(!this.element.hasClass("ui-card-view")) {
+            this.element.addClass("ui-card-view");
         }
 
         this._initBorderWidth();
-        this._initDataPrompt();
 
         this.viewBody = $("<div class='ui-card-view-body' />");
+        this._initDataPrompt();
         this.element.append(this.viewBody);
         this._initPagerPanel();
 
@@ -159,7 +159,7 @@ ui.define("ui.ctrls.CardView", {
                 text = text();
                 this._dataPrompt.append(text);
             }
-            this.gridBody.append(this._dataPrompt);
+            this.viewBody.append(this._dataPrompt);
         }
     },
     _initPagerPanel: function() {
@@ -200,7 +200,7 @@ ui.define("ui.ctrls.CardView", {
         
         isFunction = ui.core.isFunction(fn);
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
-        this.viewPanel.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
+        this.bodyPanel.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
         for(i = 0; i < rows; i++) {
             for(j = 0; j < marginInfo.count; j++) {
                 index = (i * marginInfo.count) + j;
@@ -626,11 +626,11 @@ ui.define("ui.ctrls.CardView", {
             width = null;
         }
         if(ui.core.isNumber(height)) {
-            height -= this.columnHeight + this.borderHeight;
+            height -= this.borderHeight;
             if(this.pager) {
                 height -= this.pagerHeight;
             }
-            this.gridBody.css("height", height + "px");
+            this.viewBody.css("height", height + "px");
             needRecompose = true;
         }
         if(ui.core.isNumber(width)) {
@@ -647,7 +647,7 @@ ui.define("ui.ctrls.CardView", {
     }
 });
 
-$.fn.cardView = function() {
+$.fn.cardView = function(option) {
     if(this.length === 0) {
         return;
     }
