@@ -1,5 +1,5 @@
 
-var doc = document;
+var doc = $(document);
 var body = $(doc.body);
 var defaultOption = {
     // 上下文
@@ -42,7 +42,7 @@ function mouseDown(e) {
     doc.on("mousemove", this.onMouseMoveHandler)
         .on("mouseup", this.onMouseUpHandler)
         .on("mouseleave", this.onMouseUpHandler);
-    doc.onselectstart = function() { return false; };
+    document.onselectstart = function() { return false; };
     /*
         .cancel-user-select {
             -webkit-user-select: none;
@@ -90,7 +90,7 @@ function mouseUp(e) {
     doc.off("mousemove", this.onMouseMoveHandler)
         .off("mouseup", this.onMouseUpHandler)
         .off("mouseleave", this.onMouseUpHandler);
-    doc.onselectstart = null;
+    document.onselectstart = null;
     this.option.target.removeClass("cancel-user-select");
 
     if(ui.core.isFunction(this.option.onEndDrag)) {
@@ -113,11 +113,15 @@ function MouseDragger(option) {
 MouseDragger.prototype = {
     constructor: MouseDragger,
     initialize: function(option) {
-        this.doc = document;
+        this.doc = null;
         this.shield = null;
         this.isTurnOn = false;
 
         this.option = $.extend(defaultOption, option);
+        this.doc = this.option.doc;
+        if(!this.doc) {
+            this.doc = doc;
+        }
         if(this.option.hasIframe === true) {
             this.shield = $("<div>");
             this.shield.css({
