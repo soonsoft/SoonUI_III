@@ -1643,8 +1643,8 @@ ui.define("ui.ctrls.ReportView", {
     /** 获取项目数 */
     count: function() {
         return Array.isArray(this.option.viewData)
-            ? 0
-            : this.option.viewData.length;
+            ? this.option.viewData.length
+            : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
