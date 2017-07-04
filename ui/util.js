@@ -259,8 +259,8 @@ ui.mask = {
             mask.css({
                 top: "0px",
                 left: "0px",
-                width: root.clientWidth + "px",
-                height: root.clientHeight + "px"
+                width: document.documentElement.clientWidth + "px",
+                height: document.documentElement.clientHeight + "px"
             });
         } else {
             offset = target.offset();
