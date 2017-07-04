@@ -114,7 +114,7 @@ ImageLoader.prototype = {
             img.onerror = function () {
                 reject(img);
             };
-            reimg.src = src;
+            img.src = src;
         });
         return promise;
     }
