@@ -483,7 +483,7 @@ ui.define("ui.ctrls.ReportView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
@@ -556,7 +556,6 @@ ui.define("ui.ctrls.ReportView", {
         }
 
         this._initBorderWidth();
-        this._initDataPrompt();
 
         // 表头
         this.reportHead = $("<div class='ui-report-head' />");
@@ -574,6 +573,7 @@ ui.define("ui.ctrls.ReportView", {
         this._fixedBodyScroll = $("<div class='fixed-body-scroll' />")
             .css("height", ui.scrollbarHeight);
         this.reportDataBody = $("<div class='data-body' />");
+        this._initDataPrompt();
         this.reportDataBody.scroll(this.onScrollingHandler);
         this.reportBody
             .append(this.reportFixedBody)
@@ -621,7 +621,7 @@ ui.define("ui.ctrls.ReportView", {
                 text = text();
                 this._dataPrompt.append(text);
             }
-            this.gridBody.append(this._dataPrompt);
+            this.reportDataBody.append(this._dataPrompt);
         }
     },
     _initSuitable: function() {
@@ -634,11 +634,11 @@ ui.define("ui.ctrls.ReportView", {
             context: this,
             target: this._fitLine,
             handle: this.reportDataHead,
-            onBeginDrag: function() {
+            onBeginDrag: function(arg) {
                 var elem, that, option,
                     elemOffset, panelOffset, left;
                 
-                elem = $(this.taget);
+                elem = $(arg.target);
                 if(!elem.isNodeName("b")) {
                     return false;
                 }
@@ -660,7 +660,7 @@ ui.define("ui.ctrls.ReportView", {
                     "display": "block"
                 });
             },
-            onMoving: function() {
+            onMoving: function(arg) {
                 var option,
                     that,
                     left;
@@ -669,7 +669,7 @@ ui.define("ui.ctrls.ReportView", {
                 that = option.context;
 
                 left = parseFloat(option.target.css("left"));
-                left += this.x;
+                left += arg.x;
 
                 if (left < option.leftLimit) {
                     left = option.leftLimit;
@@ -679,11 +679,12 @@ ui.define("ui.ctrls.ReportView", {
                 option.endLeft = left;
                 option.target.css("left", left + "px");
             },
-            onEndDrag: function() {
+            onEndDrag: function(arg) {
                 var option,
                     that,
                     colIndex, column,
-                    width, col;
+                    width, col,
+                    setWidthFn;
 
                 option = this.option;
                 that = option.context;
@@ -702,13 +703,18 @@ ui.define("ui.ctrls.ReportView", {
                     width = 30;
                 }
                 column.len = width;
-                if(that.tableDataBody) {
-                    col = that.tableDataBody.children("colgroup").children()[colIndex];
-                    if(col) {
-                        col = $(col);
-                        col.css("width", width + "px");
+                setWidthFn  = function(container) {
+                    var col;
+                    if(container) {
+                        col = container.children("colgroup").children()[colIndex];
+                        if(col) {
+                            col = $(col);
+                            col.css("width", column.len + "px");
+                        }
                     }
-                }
+                };
+                setWidthFn(that.tableDataHead);
+                setWidthFn(that.tableDataBody);
                 that._updateScrollState();
             }
         });
@@ -779,7 +785,7 @@ ui.define("ui.ctrls.ReportView", {
 
                 rows = tr.parent().children();
                 rowspan = rows.length;
-                th = $("<th class='scroll-cell' />");
+                th = $("<th class='ui-report-head-cell scroll-cell' />");
                 if (rowspan > 1) {
                     th.attr("rowspan", rowspan);
                 }
@@ -876,7 +882,7 @@ ui.define("ui.ctrls.ReportView", {
                         th.append(el);
                     }
 
-                    if (c.column || ui.core.isFunction(c.handler)) {
+                    if (c.column || ui.core.isFunction(c.formatter)) {
                         if (!c._columnKeys) {
                             c._columnKeys = {};
                         }
@@ -908,7 +914,7 @@ ui.define("ui.ctrls.ReportView", {
         for (i = 0; i < columns.length; i++) {
             c = columns[i];
             c.cellIndex = i;
-            colGroup.append(this.createCol(c));
+            colGroup.append(this._createCol(c));
 
             args = [c, c.cell];
             if (hasFn) {
@@ -940,7 +946,7 @@ ui.define("ui.ctrls.ReportView", {
         colGroup = $("<colgroup />");
         for (j = 0; j < columnLength; j++) {
             c = columns[j];
-            colGroup.append(this.createCol(c));
+            colGroup.append(this._createCol(c));
         }
 
         tbody = $("<tbody />");
@@ -1084,9 +1090,9 @@ ui.define("ui.ctrls.ReportView", {
 
         if (sh > h) {
             //滚动条默认是17像素，在IE下会显示为16.5，有效值为16。为了修正此问题设置为17.1
-            this.dataHeadScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
+            this._dataHeadScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
-            this.dataHeadScrollCol.css("width", "0");
+            this._dataHeadScrollCol.css("width", "0");
         }
 
         if (sw > w) {
@@ -1264,7 +1270,7 @@ ui.define("ui.ctrls.ReportView", {
             // 单选
             if(this._current) {
                 this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this_current[0] === elem[0]) {
+                if(this._current[0] === elem[0]) {
                     this._current = null;
                     this.fire("deselected", eventData);
                     return;
@@ -1443,7 +1449,7 @@ ui.define("ui.ctrls.ReportView", {
             return;
         }
         if(this._current && this._current[0] === row[0]) {
-            this_current = null;
+            this._current = null;
         }
         if(this.tableFixedBody) {
             $(this.tableFixedBody[0].rows[rowIndex]).remove();
