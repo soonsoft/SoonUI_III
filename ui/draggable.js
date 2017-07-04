@@ -119,9 +119,6 @@ MouseDragger.prototype = {
 
         this.option = $.extend(defaultOption, option);
         this.doc = this.option.doc;
-        if(!this.doc) {
-            this.doc = doc;
-        }
         if(this.option.hasIframe === true) {
             this.shield = $("<div>");
             this.shield.css({
@@ -164,18 +161,19 @@ MouseDragger.prototype = {
             target.css("position", "absolute");
         }
 
-        this.doc.on("mousedown", this, this.onMouseDown);
+        handle.on("mousedown", this.onMouseDownHandler);
         if(this.option.target)
             this.option.target.data("mouse-dragger", this);
     },
     off: function() {
+        var handle = this.option.handle;
         if(!this.isTurnOn) {
             return;
         }
 
         this.isTurnOn = false;
-        this.option.target
-            .off("mousedown", this.onMouseDown)
+        handle
+            .off("mousedown", this.onMouseDownHandler)
             .css("position", this.originTargetPosition);
         if(this._isDragStart) {
             this.onMouseUpHandler({
