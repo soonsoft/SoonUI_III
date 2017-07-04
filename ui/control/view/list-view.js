@@ -34,6 +34,10 @@ function onListItemClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     index = this._getItemIndex(elem[0]);
     if(this.option.hasRemoveButton && isCloseButton) {
         this._removeItem(elem, index);
