@@ -696,7 +696,7 @@ ui.define("ui.ctrls.GridView", {
             i, len;
         for(i = 0, len = exArr.length; i < len; i++) {
             ex = ui.str.trim(exArr[i]);
-            match = ex.match(atttibutes);
+            match = ex.match(attributes);
             if(match) {
                 ex = ex.match(tag)[1];
                 if(ex === tagName) {
