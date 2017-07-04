@@ -38,15 +38,6 @@ body, ol, ul, li, dl, dt, dd, form, fieldset, pr, pc {
     padding: 0;
 }
 
-hr {
-    height: 1px;
-    border: none 0;
-    background-color: @fouth-bg-color;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
 h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
     text-align: left;
@@ -76,6 +67,15 @@ h5 {
 
 h6 {
     font-size: @font-h6;
+}
+
+hr {
+    height: 1px;
+    border: none 0;
+    background-color: @fouth-bg-color;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 section, header, footer, address, article, aside, nav, menu {
@@ -574,7 +574,18 @@ textarea {
         color: @readonly-color;
     }
 
-
+/* 通用遮罩层 */
+.mask-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    z-index: @mask-layer;
+    display: none;
+}
 
 /* 通用的关闭按钮 */
 .closable-button {
@@ -589,6 +600,7 @@ textarea {
     color: @tool-color;
     cursor: pointer;
 }
+
     .closable-button:hover {
         text-decoration: none;
     }
@@ -600,10 +612,9 @@ textarea {
 
 /* 不能选择 */
 .unselectable {
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 /*滚动条样式*/
