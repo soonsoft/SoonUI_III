@@ -388,6 +388,7 @@ function onTableFixedBodyClick(e) {
         }
         rowIndex = elem[0].rowIndex;
         elem = $(this.tableDataBody[0].rows[rowIndex]);
+        elem.context = e.target;
 
         this._selectItem(elem, "row-selected");
     }
@@ -420,6 +421,10 @@ function onTableDataBodyClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     this._selectItem(elem, selectedClass);
@@ -1643,8 +1648,8 @@ ui.define("ui.ctrls.ReportView", {
     /** 获取项目数 */
     count: function() {
         return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+            ? 0
+            : this.option.viewData.length;
     },
     /** 是否可以选择 */
     isSelectable: function() {
