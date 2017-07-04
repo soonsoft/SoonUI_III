@@ -24,6 +24,21 @@
         display: none;
         top: 0;
         left: 0;
+        z-index: @ctrl-layer;
+    }
+
+    .ui-report-view .fit-column-handle {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 2px;
+        height: 100%;
+        display: block;
+        margin: 0;
+        padding: 0;
+        background-color: @background-color;
+        opacity: .01;
+        cursor: col-resize;
     }
 
 /* 表头 */
@@ -278,20 +293,6 @@
             .ui-table-body .cell-selected .cell-progress-text span {
                 color: #fff;
             }
-
-    .ui-report-body .fit-column-handle {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 2px;
-        height: 100%;
-        display: block;
-        margin: 0;
-        padding: 0;
-        background-color: @background-color;
-        opacity: .01;
-        cursor: col-resize;
-    }
 
 /* 底栏 */
 .ui-report-foot {
