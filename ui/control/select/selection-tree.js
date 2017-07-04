@@ -98,6 +98,10 @@ function onTreeItemClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     nodeData = this._getNodeData(elem);
     hasChildren = this._hasChildren(nodeData);
     if(this.option.nodeSelectable === true || !hasChildren) {
