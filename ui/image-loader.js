@@ -36,7 +36,7 @@ ImageLoader.fitCenter = function() {
         if (this.displayHeight > this.height) {
             this.displayHeight = this.height;
             this.displayWidth = Math.floor(this.originalWidth * (this.displayHeight / this.originalHeight));
-            this.marginLeft = Math.floor((this.width - width) / 2);
+            this.marginLeft = Math.floor((this.width - this.displayWidth) / 2);
         } else {
             // 图片比显示区域小，显示到中心
             this.marginLeft = Math.floor((this.width - this.displayWidth) / 2);
