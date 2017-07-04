@@ -35,13 +35,13 @@ Introsort.prototype = {
                 this.comparer = arguments[1];
             }
         }
-        if (Array.isArray(this.keys)) {
+        if (!Array.isArray(this.keys)) {
             return;
         }
         if (this.keys.length < 2) {
             return;
         }
-        if (Array.isArray(this.items)) {
+        if (!Array.isArray(this.items)) {
             this.items = null;
         }
         this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));
