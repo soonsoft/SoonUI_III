@@ -208,7 +208,7 @@ ui.mask = {
         var mask = $(this.maskId),
             body = $(document.body),
             offset;
-        if(this.core.isPlainObject(target)) {
+        if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
         }
