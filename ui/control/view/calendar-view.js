@@ -45,6 +45,10 @@ function onYearItemClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 // 月视图日期点击事件
@@ -56,6 +60,10 @@ function onMouseItemClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     this._selectItem(elem);
@@ -2772,7 +2780,6 @@ $.fn.calendarView = function(option) {
     }
     if(!isCalendarViewThemeInitialized) {
         initCalendarViewTheme();
-        isCalendarViewThemeInitialized = true;
     }
     return ui.ctrls.CalendarView(option, this);
 };
