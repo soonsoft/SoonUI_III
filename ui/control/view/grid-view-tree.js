@@ -49,6 +49,7 @@ GridViewTree.prototype = {
         this.lazy = false;
         this.loadChildrenHandler = null;
         this.gridview = null;
+        this.isTreeNode = isTreeNode;
         
         this.onFoldButtonClickHandler = $.proxy(onFoldButtonClick, this);
     },
@@ -79,7 +80,7 @@ GridViewTree.prototype = {
             j;
         for (; i < len; i++) {
             item = viewData[i];
-            if (isTreeNode(item)) {
+            if (this.isTreeNode(item)) {
                 children = item[childrenField];
                 if (!children) {
                     continue;
@@ -292,7 +293,7 @@ GridViewTree.prototype = {
             item._level = 0;
         }
         span = $("<span />").text(val);
-        if (isTreeNode(item)) {
+        if (this.tree.isTreeNode(item)) {
             item._isFolded = false;
             span = [null, span[0]];
             if (this.tree.lazy) {
@@ -346,7 +347,7 @@ GridViewTree.prototype = {
 
             row = $("<tr />");
             viewData.splice(currRowIndex, 0, item);
-            this.gridview._createCells(row, item, currRowIndex);
+            this.gridview._createRowCells(row, item, currRowIndex);
             if (currRowIndex < viewData.length - 1) {
                 $(this.gridview.tableBody[0].rows[currRowIndex]).before(row);
             } else {
@@ -356,7 +357,7 @@ GridViewTree.prototype = {
             currRowIndex++;
         }
         this.gridview._updateScrollState();
-        this.gridview.refreshRowNumber(currRowIndex - 1);
+        this.gridview._refreshRowNumber(currRowIndex - 1);
 
         this._fixParentIndexes(rowData, rowIndex, len);
         this._fixTreeIndexes(
