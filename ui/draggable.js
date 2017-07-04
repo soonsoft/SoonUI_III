@@ -144,7 +144,8 @@ MouseDragger.prototype = {
     on: function() {
         var target = this.option.target,
             handle = this.option.handle,
-            parent = this.option.parent;
+            parent = this.option.parent,
+            position;
         
         if(this.isTurnOn) {
             return;
@@ -152,7 +153,8 @@ MouseDragger.prototype = {
 
         this.isTurnOn = true;
         if(!parent.isNodeName("body")) {
-            this.originParentPosition = parent.css("position");
+            position = parent.css("position");
+            this.originParentPosition = position;
             if (position !== "absolute" && position !== "relative" && position !== "fixed") {
                 parent.css("position", "relative");
             }
