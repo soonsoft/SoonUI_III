@@ -546,7 +546,7 @@ ui.define("ui.ctrls.ReportView", {
         // 滚动条同步事件
         this.onScrollingHandler = $.proxy(onScrolling, this);
         // 固定行点击事件
-        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick);
+        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick, this);
         // 数据行点击事件
         this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
     },
@@ -1200,6 +1200,26 @@ ui.define("ui.ctrls.ReportView", {
             data.rowData = this.option.viewData[data.rowIndex];
         }
         return data;
+    },
+    _excludeElement: function(elem, exclude) {
+        var tagName = elem.nodeName().toLowerCase(),
+            exArr = exclude.split(","),
+            ex, match,
+            i, len;
+        for(i = 0, len = exArr.length; i < len; i++) {
+            ex = ui.str.trim(exArr[i]);
+            match = ex.match(attributes);
+            if(match) {
+                ex = ex.match(tag)[1];
+                if(ex === tagName) {
+                    return elem.attr(match[1]) !== match[4];
+                }
+            } else {
+                if(ex.toLowerCase() === tagName) {
+                    return false;
+                }
+            }
+        }
     },
     _selectItem: function(elem, selectedClass, selectValue) {
         var eventData, result,
