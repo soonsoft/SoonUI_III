@@ -266,6 +266,11 @@ function onDayItemClick(e) {
         }
         elem = elem.parent();
     }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 function onTodayButtonClick(e) {
