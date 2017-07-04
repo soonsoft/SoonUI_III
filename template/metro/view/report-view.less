@@ -14,6 +14,18 @@
         text-overflow: ellipsis;
     }
 
+    .ui-report-view .fit-line {
+        position: absolute;
+        width: 1px;
+        height: 100%;
+        border: none 0;
+        margin: 0;
+        padding: 0;
+        display: none;
+        top: 0;
+        left: 0;
+    }
+
 /* 表头 */
 .ui-report-head {
     position: relative;
@@ -43,10 +55,6 @@
         color: @font-color;
         border-spacing: 0;
         border-collapse: collapse;
-    }
-
-    .ui-report-head tr {
-        height: 30px;
     }
 
     .ui-report-head-cell {
@@ -283,18 +291,6 @@
         background-color: @background-color;
         opacity: .01;
         cursor: col-resize;
-    }
-
-    .ui-report-body .fit-line {
-        position: absolute;
-        width: 1px;
-        height: 100%;
-        border: none 0;
-        margin: 0;
-        padding: 0;
-        display: none;
-        top: 0;
-        left: 0;
     }
 
 /* 底栏 */
