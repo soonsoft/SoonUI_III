@@ -1008,7 +1008,8 @@ ui.define("ui.ctrls.ReportView", {
         if (Array.isArray(c.column)) {
             value = {};
             for (i = 0, len = c.column.length; i < len; i++) {
-                value[c.column[i]] = this._getValue(rowData, c.column[i], c);
+                value[i] = value[c.column[i]] = 
+                    this._getValue(rowData, c.column[i], c);
             }
         } else {
             value = this._getValue(rowData, c.column, c);
