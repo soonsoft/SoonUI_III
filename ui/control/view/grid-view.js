@@ -257,6 +257,10 @@ function onTableBodyClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem, selectedClass);
 }
 // 横向滚动条跟随事件处理
