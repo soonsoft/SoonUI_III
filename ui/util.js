@@ -204,13 +204,16 @@ ui.mask = {
     isOpen: function() {
         return $(this.maskId).css("display") === "block";
     },
-    open: function() {
+    open: function(target, option) {
         var mask = $(this.maskId),
             body = $(document.body),
             offset;
         if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
+        }
+        if(!target) {
+            target = option.target;
         }
         target = ui.getJQueryElement(target);
         if(!target) {
