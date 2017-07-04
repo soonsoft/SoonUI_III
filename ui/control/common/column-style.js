@@ -244,25 +244,26 @@ cellParameterFormatter = {
             totalValue = null;
         }
         return function(val, col, idx, td) {
-            var div, 
+            var div, progress,
                 barDiv, progressDiv, percentDiv,
                 barWidth, percent;
 
-            val = {
-                value: val,
-                total: totalValue || 0
-            };
-            if(!ui.core.isNumber(val.total)) {
-                val.total = val.value;
+            progress = {};
+            if(ui.core.isNumber(val[0])) {
+                progress.value = val[0];
+                progress.total = totalValue || val[1] || 0;
+            } else {
+                progress.value = val;
+                progress.total = totalValue || 0;
             }
-            if(val.total === 0) {
-                val.total = 1;
+            if(progress.total === 0) {
+                progress.total = 1;
             }
-            if(!ui.core.isNumber(val.value)) {
-                val.value = 0;
+            if(!ui.core.isNumber(progress.value)) {
+                progress.value = 0;
             }
 
-            percent = val.value / val.total;
+            percent = progress.value / progress.total;
             if(isNaN(percent)) {
                 percent = 0;
             }
@@ -281,7 +282,7 @@ cellParameterFormatter = {
             barDiv.append(progressDiv);
 
             percentDiv = $("<div class='cell-progress-text font-highlight'/>");
-            percentDiv.append("<span>" + percent + "</span>");
+            percentDiv.append("<span style='margin:0'>" + percent + "</span>");
 
             div.append(barDiv);
             div.append(percentDiv);
@@ -329,10 +330,6 @@ cellParameterFormatter = {
         } else {
             prefix += "";
         }
-        
-        if(!ui.images) {
-            throw new ReferenceError("require ui.images");
-        }
         imageZoomer = ui.ctrls.ImageZoomer({
             getNext: function(val) {
                 var img = this.target;
@@ -377,7 +374,8 @@ cellParameterFormatter = {
                 "height": height + "px"
             });
             imagePanel.append(image);
-            image.setImage(prefix + imageSrc, width, height, fillMode)
+            image
+                .setImage(prefix + imageSrc, width, height, fillMode)
                 .then(
                     function(result) {
                         image.addImageZoomer(imageZoomer);
