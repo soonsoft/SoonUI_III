@@ -257,8 +257,8 @@ ui.mask = {
                 body.css("overflow", "hidden");
             }
             mask.css({
-                top: "0px",
-                left: "0px",
+                top: "0",
+                left: "0",
                 width: document.documentElement.clientWidth + "px",
                 height: document.documentElement.clientHeight + "px"
             });
