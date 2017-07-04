@@ -541,6 +541,8 @@ ui.define("ui.ctrls.ReportView", {
         this._checkedCount = 0;
 
         // 事件初始化
+        // 排序按钮点击事件
+        this.onSortHandler = $.proxy(onSort, this);
         // 全选按钮点击事件
         this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
         // 滚动条同步事件
@@ -1066,7 +1068,7 @@ ui.define("ui.ctrls.ReportView", {
             cell.click(this.onSortHandler);
             cell.addClass("sorter");
             cell.append("<i class='fa fa-sort' />");
-            this.sorterIndexes.push(index);
+            this._sorterIndexes.push(index);
         }
     },
     _renderPageList: function(rowCount) {
@@ -1124,7 +1126,7 @@ ui.define("ui.ctrls.ReportView", {
         } else {
             startRowIndex += 1;
         }
-        rows = columnInfo.tableBody[0].rows;
+        rows = columnInfo.bodyTable[0].rows;
         column = columnInfo.columns[columnInfo.columnIndex];
         len = ui.core.isNumber(endRowIndex) ? endRowIndex + 1 : rows.length;
         for (i = startRowIndex; i < len; i++) {
