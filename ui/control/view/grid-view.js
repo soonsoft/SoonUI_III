@@ -375,7 +375,7 @@ ui.define("ui.ctrls.GridView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
