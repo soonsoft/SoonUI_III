@@ -745,6 +745,94 @@ ui.define("ui.ctrls.Menu", {
         }
         return this.option.urlPrefix + result;
     },
+    _addMenuCodeToSrc: function (url, code) {
+        var result = this._getUrl(url);
+        if (result.indexOf("javascript:") == 0) {
+            return result;
+        }
+        if (ui.str.isEmpty(result)) {
+            return "javascript:void(0)";
+        }
+        if (!ui.str.isEmpty(code)) {
+            if (result.indexOf("?") > -1) {
+                result += "&_m=" + ui.str.base64Encode(code);
+            } else {
+                result += "?_m=" + ui.str.base64Encode(code);
+            }
+        }
+        return result;
+    },
+    _updateStatusToSrc: function (isAdd) {
+        var items,
+            i, len, item, j,
+            subItems,
+            subNodeName = "DD",
+            menuStatusFn;
+        if (isAdd) {
+            menuStatusFn = this._addMenuStatus;
+        } else {
+            menuStatusFn = this._removeMenuStatus;
+        }
+
+        items = this.menubarPanel.children().children()
+        for (i = 0, len = items.length; i < len; i++) {
+            item = $(items[i]);
+            if (item.next().nodeName() === subNodeName) {
+                i++;
+                subItems = item.next().children().children();
+                for (j = 0; j < subItems.length; j++) {
+                    menuStatusFn.call(this,
+                        $(subItems[j]).children(".menu-item-container").children("a"));
+                }
+            } else {
+                menuStatusFn.call(this,
+                    item.children(".menu-item-container").children("a"));
+            }
+        }
+    },
+    _addMenuStatus: function (anchor) {
+        var link, 
+            index;
+
+        link = this._getUrl(anchor.attr("href"));
+        if (link.indexOf("javascript:") === 0) {
+            return;
+        }
+        index = link.indexOf("?");
+        if (index == -1) {
+            link += "?_s=close";
+        } else {
+            link += "&_s=close";
+        }
+        anchor.attr("href", link);
+    },
+    _removeMenuStatus: function (anchor) {
+        var link,
+            linkArr,
+            params,
+            param;
+
+        link = this._getUrl(anchor.attr("href"));
+        if (link.indexOf("javascript:") === 0) {
+            return;
+        }
+        linkArr = link.split("?");
+        if (linkArr.length === 1) {
+            return;
+        }
+        params = linkArr[1].split("&");
+        for (var i = 0, len = params.length; i < len; i++) {
+            param = params[i];
+            if (param && param.indexOf("_s=") === 0) {
+                params.splice(i, 1);
+                break;
+            }
+        }
+        anchor.attr("href", linkArr[0] + "?" + params.join("&"));
+    },
+    _isCloseStatus: function () {
+        return ui.url.getLocationParam("_s") === "close";
+    },
 
     // 设置菜单内容
     setMenuList: function (menus) {
