@@ -40,12 +40,40 @@ var master = {
         }, ui.eventPriority.masterReady);
     },
     _initElements: function () {
+        var that;
         this.sidebarManager = ui.SidebarManager();
+        if(!this.noMenu) {
+            this.menu = ui.ctrls.Menu({
+                style: "modern",
+                menubarPanel: $(".ui-menu-panel"),
+                contentContainer: $(".content-container"),
+                menuButton: $(".ui-menu-button")
+            });
+
+            that = this;
+            this.menu.showed(function(e) {
+                if(this.isExtrusion()) {
+                    that.contentBodyWidth -= this.menuWidth;
+                }
+            });
+            this.menu.hided(function(e) {
+                if(this.isExtrusion()) {
+                    that.contentBodyWidth += this.menuWidth;
+                }
+            });
+        }
     },
     _initContentSize: function() {
         var bodyMinHeight,
             clientWidth,
-            clientHeight;
+            clientHeight,
+            that;
+
+        if(this.menu) {
+            if(this.menu.disableResizeable) {
+                return;
+            }
+        }
 
         clientWidth = document.documentElement.clientWidth;
         clientHeight = document.documentElement.clientHeight;
@@ -66,6 +94,10 @@ var master = {
         
         this.contentBodyHeight = bodyMinHeight;
         this.contentBodyWidth = clientWidth;
+
+        if(this.menu) {
+            this.menu.resize(this.contentBodyWidth, this.contentBodyHeight);
+        }
     },
     _initUserSettings: function() {
         var userProtrait,
@@ -150,7 +182,7 @@ var master = {
                 that._currentHighlightItem = elem;
                 that._currentHighlightItem.addClass("highlight-item-selected");
                 //ui.theme.changeHighlight("/Home/ChangeTheme", color);
-                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
+                $("#highlight").prop("href", ui.str.textFormat("../../dist/theme/color/ui.metro.{0}.css", color.Id));
                 ui.theme.setHighlight(color);
             });
         }
