@@ -1,4 +1,4 @@
-var showClass = "menu-show",
+var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     itemHeight = 30;
 
@@ -178,31 +178,22 @@ normalStyle = {
         return animator.start();
     },
     resize: function(contentWidth, contentHeight) {
-        var width;
-        if(!contentWidth) {
-            contentWidth = document.documentElement.clientWidth;
-        }
         if (this.isShow()) {
             //显示菜单
             if(this.isExtrusion()) {
-                if(ui.master) {
-                    ui.master.contentBodyWidth -= this.menuWidth;
-                    width = ui.master.contentBodyWidth;
-                } else {
-                    width = contentWidth;
+                if(!contentWidth) {
+                    contentWidth = document.documentElement.clientWidth;
                 }
                 this.option.contentContainer.css({
-                    "width": contentWidth + "px",
+                    "width": (contentWidth - this.menuWidth) + "px",
                     "left": this.menuWidth + "px"
                 });
             }
             this.option.menuPanel.css("left", "0px");
+            this.fire("showed");
         } else {
             //隐藏菜单
             if(this.isExtrusion()) {
-                if(this.master) {
-                    this.master.contentBodyWidth += this.menuWidth;
-                }
                 this.option.contentContainer.css({
                     "width": "100%",
                     "left": "0px"
@@ -211,6 +202,7 @@ normalStyle = {
             this.option.menuPanel.css({
                 "left": -this.menuWidth + "px"
             });
+            this.fire("hided");
         }
     }
 };
@@ -218,6 +210,8 @@ normalStyle = {
 modernStyle = {
     show: function(animation) {
         var subElem;
+
+        this.onMenuItemClickHandler = this.onMenuItemModernClickHandler;
         if (this._currentMenu) {
             //展开选中菜单的子菜单
             this.submenuPanel
@@ -235,7 +229,6 @@ modernStyle = {
             }
         }
 
-        this.onMenuItemClickHandler = this.onMenuItemModernClickHandler;
         this._updateStatusToSrc(false);
         
         this.resize();
@@ -244,6 +237,8 @@ modernStyle = {
     hide: function(animation) {
         var subElem,
             callback;
+
+        this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
         if (this._currentMenu) {
             //折叠已经展开的子菜单
             subElem = this._getSubmenuElement(false);
@@ -260,8 +255,6 @@ modernStyle = {
                     .removeClass("background-highlight");
             this._currentMenu = null;
         }
-
-        this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
         this._updateStatusToSrc(true);
 
         this.resize();
@@ -344,50 +337,31 @@ modernStyle = {
         }
     },
     resize: function(contentWidth, contentHeight) {
-        var width;
         if(!contentWidth) {
-            contentWidth = document.documentElement.clientWidth;
+            contentWidth = document.documentElement.clientWidth - this.menuNarrowWidth;
         }
         if (this.isShow()) {
             //展开菜单
             if(this.isExtrusion()) {
-                if(ui.master) {
-                    if (contentWidth) {
-                        ui.master.contentBodyWidth = contentWidth - this.menuWidth;
-                    } else {
-                        ui.master.contentBodyWidth -= (this.menuWidth - this.menuNarrowWidth);
-                    }
-                    width = ui.master.contentBodyWidth;
-                } else {
-                    width = contentWidth;
-                }
                 this.contentContainer.css({
-                    "width": width + "px",
+                    "width": (contentWidth - (this.menuWidth - this.menuNarrowWidth)) + "px",
                     "left": this.menuWidth + "px"
                 });
             }
             this.menubarPanel.removeClass("ui-menu-panel-narrow");
             this.menubarPanel.css("width", this.menuWidth + "px");
+            this.fire("showed");
         } else {
             //收缩菜单
             if(this.isExtrusion()) {
-                if(ui.master) {
-                    if (contentWidth) {
-                        ui.master.contentBodyWidth = contentWidth - this.menuNarrowWidth;
-                    } else {
-                        ui.master.contentBodyWidth += (this.menuWidth - this.menuNarrowWidth);
-                    }
-                    width = ui.master.contentBodyWidth;
-                } else {
-                    width = contentWidth;
-                }
                 this.contentContainer.css({
-                    "width": width + "px",
+                    "width": (contentWidth + (this.menuWidth - this.menuNarrowWidth)) + "px",
                     "left": this.menuNarrowWidth + "px"
                 });
             }
             this.menubarPanel.addClass("ui-menu-panel-narrow");
             this.menubarPanel.css("width", this.menuNarrowWidth + "px");
+            this.fire("hided");
         }
     },
     // 设置子菜单列表
@@ -551,6 +525,9 @@ ui.define("ui.ctrls.Menu", {
             animation: true
         };
     },
+    _defineEvents: function() {
+        return ["showed", "hided"];
+    },
     _create: function() {
         this.menuWidth = 240;
         this.menuNarrowWidth = 48;
@@ -585,18 +562,22 @@ ui.define("ui.ctrls.Menu", {
         this.onMenuItemNormalClickHandler = $.proxy(onMenuItemNormalClick, this);
         // 现代父菜单点击事件
         this.onMenuItemModernClickHandler = $.proxy(onMenuItemModernClick, this);
+        
+        // 默认设置为普通展开模式
         this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
     },
     _render: function() {
         var style,
             key;
+
+        this.menuList = $("<dl class='menu-list title-color' />");
         this.option.menuPanel.addClass("title-color");
-        this.option.menuPanel.children("dl").addClass("title-color");
         this.option.menuPanel.css("width", this.menuWidth + "px");
+        this.option.menuPanel.append(this.menuList);
         
         this._initMenuList();
         if (this.defaultShow()) {
-            this.menuButton.addClass(showClass);
+            this.option.menuButton.addClass(showClass);
         } else {
             this.hide(false);
         }
@@ -679,15 +660,38 @@ ui.define("ui.ctrls.Menu", {
     },
     _initMenuList: function () {
         var nextdd,
+            menuButton,
             that;
 
         //展开选中的子菜单
+        this._updateMenuSelectedStatus();
+
+        that = this;
+        //菜单点击事件
+        this.menuList.click(function (e) {
+            that.onMenuItemClickHandler(e);
+        });
+        
+        //菜单汉堡按钮点击事件
+        menuButton = this.option.menuButton;
+        menuButton.click(function (e) {
+            if (menuButton.hasClass(showClass)) {
+                menuButton.removeClass(showClass);
+                that.hide(that.hasAnimation);
+            } else {
+                menuButton.addClass(showClass);
+                that.show(that.hasAnimation);
+            }
+        });
+    },
+
+    _updateMenuSelectedStatus: function() {
         this._currentMenu = this.option.menuPanel.find("dt." + currentClass);
         if (this._currentMenu.length === 0) {
             this._currentMenu = null;
         }
         if (this._isCloseStatus()) {
-            this.menuButton.removeClass(showClass);
+            this.option.menuButton.removeClass(showClass);
             this.hide(false);
         } else if(this._currentMenu) {
             nextdd = this._currentMenu.next();
@@ -695,27 +699,11 @@ ui.define("ui.ctrls.Menu", {
                 this.subShow(nextdd, false);
             }
         }
-
-        that = this;
-        //菜单点击事件
-        this.option.menuPanel.find("dl").click(function (e) {
-            that.onMenuItemClickHandler(e);
-        });
-        //菜单汉堡按钮点击事件
-        this.menuButton.click(function (e) {
-            var elem = that.menuButton;
-            if (elem.hasClass(showClass)) {
-                elem.removeClass(showClass);
-                that.hide(that.hasAnimation);
-            } else {
-                elem.addClass(showClass);
-                that.show(that.hasAnimation);
-            }
-        });
     },
-
     _fireResize: function() {
-
+        this.disableResizeable = true;
+        ui.page.fire("resize");
+        this.disableResizeable = false;
     },
     _parentCode: function (code) {
         var index;
@@ -837,15 +825,14 @@ ui.define("ui.ctrls.Menu", {
     // 设置菜单内容
     setMenuList: function (menus) {
         var htmlBuilder,
-            menuList, menu, submenu,
+            menu, submenu,
             currClass, 
             resourceCode,
             parentCode,
-            i, len, j;
+            i, len, j,
+            that;
 
-
-        menuList = this.menubarPanel.children("dl");
-        menuList.empty();
+        this.menuList.empty();
         if (!Array.isArray(menus) || menus.length === 0) {
             return;
         }
@@ -867,7 +854,7 @@ ui.define("ui.ctrls.Menu", {
             htmlBuilder.push("<b class='menu-item-background'><b class='menu-item-color'></b></b>");
             htmlBuilder.push("<u class='menu-item-container'>");
             htmlBuilder.push("<i class='icon'>");
-            htmlBuilder.push("<img class='icon-image' src='", (menu.icon ? this.option.urlPrefix + menu.icon : ""), "' />");
+            htmlBuilder.push("<img class='icon-img' src='", (menu.icon ? this.option.urlPrefix + menu.icon : ""), "' />");
             htmlBuilder.push("</i>");
             htmlBuilder.push("<span class='menu-item-text'>", menu.resourceName, "</span>");
             if (!Array.isArray(menu.children) || menu.children.length === 0) {
@@ -894,7 +881,12 @@ ui.define("ui.ctrls.Menu", {
                 htmlBuilder.push("</ul></dd>");
             }
         }
-        menuList.html(htmlBuilder.join(""));
+        this.menuList.html(htmlBuilder.join(""));
+        
+        that = this;
+        setTimeout(function() {
+            that._updateMenuSelectedStatus();
+        });
     },
     hasAnimation: function() {
         return !!this.option.animation;
