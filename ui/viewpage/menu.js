@@ -846,7 +846,7 @@ ui.define("ui.ctrls.Menu", {
         for (i = 0, len = menus.length; i < len; i++) {
             menu = menus[i];
             if (ui.str.isEmpty(parentCode)) {
-                currClass = menu.resourceCode === resourceCode ? " current-menu background-highlight selected-menu" : "";
+                currClass = menu.resourceCode === resourceCode ? " current-menu background-highlight selection-menu" : "";
             } else {
                 currClass = menu.resourceCode === parentCode ? " current-menu background-highlight" : "";
             }
@@ -869,7 +869,7 @@ ui.define("ui.ctrls.Menu", {
                 htmlBuilder.push("<ul class='submenu-list'>");
                 for (j = 0; j < menu.children.length; j++) {
                     submenu = menu.children[j];
-                    currClass = submenu.resourceCode === resourceCode ? " selected-menu" : "";
+                    currClass = submenu.resourceCode === resourceCode ? " selection-menu" : "";
                     htmlBuilder.push("<li class='submenu-item", currClass, "'>");
                     htmlBuilder.push("<b class='menu-item-background'><b class='menu-item-color'></b></b>");
                     htmlBuilder.push("<u class='menu-item-container'>");
