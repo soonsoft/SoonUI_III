@@ -627,7 +627,7 @@ ui.define("ui.ctrls.Menu", {
         this.submenuPanel = $("<div class='submenu-slide-panel' />");
         this.submenuPanel.css({
             "left": this.menuNarrowWidth + "px",
-            "width": this.menuWidth + "px"
+            "width": this.menuWidth - this.menuNarrowWidth + "px"
         });
         this.submenuPanel.addClass("title-color");
         this.submenuList = $("<ul class='submenu-list' />");
