@@ -109,7 +109,7 @@ normalStyle = {
             return;
         }
 
-        animator = this.menuItemAnimator;
+        animator = this.submenuAnimator;
         animator.stop();
         animator.duration = 360;
 
@@ -158,7 +158,7 @@ normalStyle = {
             return;
         }
 
-        animator = this.menuItemAnimator;
+        animator = this.submenuAnimator;
         animator.stop();
         
         option = animator[0];
@@ -211,7 +211,7 @@ modernStyle = {
     show: function(animation) {
         var subElem;
 
-        this.onMenuItemClickHandler = this.onMenuItemModernClickHandler;
+        this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
         if (this._currentMenu) {
             //展开选中菜单的子菜单
             this.submenuPanel
@@ -238,7 +238,7 @@ modernStyle = {
         var subElem,
             callback;
 
-        this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
+        this.onMenuItemClickHandler = this.onMenuItemModernClickHandler;
         if (this._currentMenu) {
             //折叠已经展开的子菜单
             subElem = this._getSubmenuElement(false);
@@ -272,7 +272,7 @@ modernStyle = {
                 this.submenuPanel.css("display", "block");
                 return;
             }
-            animator = this.submenuAnimator;
+            animator = this.submenuPanelAnimator;
             if(animator.isStarted) {
                 return;
             }
@@ -321,7 +321,7 @@ modernStyle = {
                 return;
             }
 
-            animator = this.submenuAnimator;
+            animator = this.submenuPanelAnimator;
             if (animator.isStarted) {
                 return;
             }
@@ -330,7 +330,7 @@ modernStyle = {
             option.end = -(this.menuWidth - this.menuNarrowWidth);
 
             that = this;
-            animator.onEnd = endFunc;
+            animator.onEnd = endFn;
             animator.start().done(function () {
                 that.submenuList.html("");
             });
@@ -343,24 +343,24 @@ modernStyle = {
         if (this.isShow()) {
             //展开菜单
             if(this.isExtrusion()) {
-                this.contentContainer.css({
+                this.option.contentContainer.css({
                     "width": (contentWidth - (this.menuWidth - this.menuNarrowWidth)) + "px",
                     "left": this.menuWidth + "px"
                 });
             }
-            this.menubarPanel.removeClass("ui-menu-panel-narrow");
-            this.menubarPanel.css("width", this.menuWidth + "px");
+            this.option.menuPanel.removeClass("ui-menu-panel-narrow");
+            this.option.menuPanel.css("width", this.menuWidth + "px");
             this.fire("showed");
         } else {
             //收缩菜单
             if(this.isExtrusion()) {
-                this.contentContainer.css({
+                this.option.contentContainer.css({
                     "width": (contentWidth + (this.menuWidth - this.menuNarrowWidth)) + "px",
                     "left": this.menuNarrowWidth + "px"
                 });
             }
-            this.menubarPanel.addClass("ui-menu-panel-narrow");
-            this.menubarPanel.css("width", this.menuNarrowWidth + "px");
+            this.option.menuPanel.addClass("ui-menu-panel-narrow");
+            this.option.menuPanel.css("width", this.menuNarrowWidth + "px");
             this.fire("hided");
         }
     },
@@ -594,13 +594,13 @@ ui.define("ui.ctrls.Menu", {
         });
         if(this.isExtrusion()) {
             this.menuPanelAnimator.addTarget({
-                target: this.contentContainer,
+                target: this.option.contentContainer,
                 ease: ui.AnimationStyle.easeTo,
                 onChange: function (val, elem) {
                     elem.css("left", val + "px");
                 }
             }).addTarget({
-                target: this.contentContainer,
+                target: this.option.contentContainer,
                 ease: ui.AnimationStyle.easeTo,
                 onChange: function (val, elem) {
                     elem.css("width", val + "px");
@@ -700,6 +700,21 @@ ui.define("ui.ctrls.Menu", {
             }
         }
     },
+    _getSubmenuElement: function (isNarrow) {
+        var subElement;
+        if (!ui.core.isBoolean(isNarrow)) {
+            isNarrow = !this.isShow();
+        }
+        if (this.isModern() && isNarrow) {
+            subElement = this.submenuPanel;
+        } else {
+            subElement = this._currentMenu.next();
+            if(subElement.lenght == 0 || subElement.nodeName() !== "DD") {
+                subElement = null;
+            }
+        }
+        return subElement;
+    },
     _fireResize: function() {
         this.disableResizeable = true;
         ui.page.fire("resize");
@@ -719,7 +734,7 @@ ui.define("ui.ctrls.Menu", {
     _getUrl: function(url) {
         var http = /^(http|https):\/\/\w*/i,
             result;
-        if (ui.str.isNullOrEmpty(url)) {
+        if (ui.str.isEmpty(url)) {
             return "";
         }
         if (url.indexOf("javascript:") == 0) {
@@ -762,7 +777,7 @@ ui.define("ui.ctrls.Menu", {
             menuStatusFn = this._removeMenuStatus;
         }
 
-        items = this.menubarPanel.children().children()
+        items = this.option.menuPanel.children().children()
         for (i = 0, len = items.length; i < len; i++) {
             item = $(items[i]);
             if (item.next().nodeName() === subNodeName) {
