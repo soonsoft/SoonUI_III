@@ -45,7 +45,7 @@ var master = {
         if(!this.noMenu) {
             this.menu = ui.ctrls.Menu({
                 style: "modern",
-                menubarPanel: $(".ui-menu-panel"),
+                menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
                 menuButton: $(".ui-menu-button")
             });
