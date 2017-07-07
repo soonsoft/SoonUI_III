@@ -53,11 +53,15 @@ var master = {
             that = this;
             this.menu.showed(function(e) {
                 if(this.isExtrusion()) {
+                    that.contentBodyWidth -= this.menuWidth - this.menuNarrowWidth;
+                } else {
                     that.contentBodyWidth -= this.menuWidth;
                 }
             });
             this.menu.hided(function(e) {
                 if(this.isExtrusion()) {
+                    that.contentBodyWidth += this.menuWidth - this.menuNarrowWidth;
+                } else {
                     that.contentBodyWidth += this.menuWidth;
                 }
             });
