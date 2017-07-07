@@ -13,25 +13,25 @@
         opacity: 1;
     }
 
-.ui-menu-button-img {
-    position: relative;
-    margin-left: 8px;
-    margin-top: 8px;
-    width: 32px;
-    height: 32px;
-    border: none 0;
-}
+    .ui-menu-button .menu-button-img {
+        position: relative;
+        margin-left: 8px;
+        margin-top: 8px;
+        width: 32px;
+        height: 32px;
+        border: none 0;
+    }
 
 .ui-menu-button-show {
     opacity: 1;
 }
 
-.ui-menu-button-background {
-    display: none;
-    position: absolute;
-    width: 48px;
-    height: 100%;
-}
+    .ui-menu-button .menu-button-background {
+        display: none;
+        position: absolute;
+        width: 48px;
+        height: 100%;
+    }
 
     .ui-menu-button:hover .menu-button-background {
         display: inline-block;
@@ -202,8 +202,8 @@
         }
 
         .ui-menu-panel .submenu-panel .submenu-item {
-            height: 30;
-            line-height: 30;
+            height: 30px;
+            line-height: 30px;
             font-size: 13px;
             position: relative;
         }
@@ -240,6 +240,7 @@
             width: 100%;
             height: 48px;
             line-height: 48px;
+            position: relative;
         }
 
         .ui-menu-panel .submenu-slide-panel .submenu-item-text {
@@ -270,8 +271,8 @@
             display: block;
         }
 
-        .ui-menu-panel .menu-item:hover .menu-item-color, 
-        .ui-menu-panel .submenu-item:hover .menu-item-color {
+        .ui-menu-panel .menu-item:active .menu-item-color, 
+        .ui-menu-panel .submenu-item:active .menu-item-color {
             background-color: #000;
         }
 
