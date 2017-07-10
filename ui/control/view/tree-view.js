@@ -3,12 +3,12 @@
  * 树形列表
  */
 
-ui.define("ui.ctrls.TreeView", {
+ui.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
     _render: function() {
         var position;
 
         this.treePanel = this.element;
-        position = this.treePanel.css(position);
+        position = this.treePanel.css("position");
         
         this.treePanel
             .addClass("ui-selection-tree-panel")
@@ -21,3 +21,10 @@ ui.define("ui.ctrls.TreeView", {
         }
     }
 });
+
+$.fn.treeView = function(option) {
+    if(this.length === 0) {
+        return;
+    }
+    return ui.ctrls.TreeView(option, this);
+};
