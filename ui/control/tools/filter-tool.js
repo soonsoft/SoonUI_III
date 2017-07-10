@@ -1,12 +1,24 @@
 /* 内容过滤选择器 */
-var prefix = "filter_tool";
-var filterCount = 0;
+var prefix = "filter_tool",
+    filterCount = 0;
+
+function onItemClick (e) {
+    var elem = $(e.target);
+    var nodeName;
+    while ((nodeName = elem.nodeName()) !== "LABEL") {
+        if (nodeName === "DIV") {
+            return;
+        }
+        elem = elem.parent();
+    }
+    this._selectItem(elem);
+}
 
 ui.define("ui.ctrls.FilterTool", {
     _defineOption: function () {
         //data item is { text: "", value: "" }
         return {
-            data: [],
+            viewData: [],
             defaultIndex: 0,
             filterCss: null
         };
@@ -15,16 +27,19 @@ ui.define("ui.ctrls.FilterTool", {
         return ["selected", "deselected"];
     },
     _create: function () {
-        var i, len, item;
+        var i, len, 
+            item,
+            viewData;
 
-        this.data = Array.isArray(this.option.data) ? this.option.data : [];
         this.filterPanel = $("<div class='filter-tools-panel'>");
         this.parent = this.element;
         this.radioName = prefix + "_" + (filterCount++);
 
-        len = this.data.length;
-        for (i = 0; i < len; i++) {
-            item = this.data[i];
+        this.onItemClickHandler = $.proxy(onItemClick, this);
+
+        viewData = this.getViewData();
+        for (i = 0, len = viewData.length; i < len; i++) {
+            item = viewData[i];
             if (item.selected === true) {
                 this.option.defaultIndex = i;
             }
@@ -33,7 +48,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (this.option.filterCss) {
             this.filterPanel.css(this.option.filterCss);
         }
-        this.filterPanel.click($.proxy(this.onClickHandler, this));
+        this.filterPanel.click(this.onItemClickHandler);
         this.parent.append(this.filterPanel);
 
         if (!ui.core.isNumber(this.option.defaultIndex) || this.option.defaultIndex >= len || this.option.defaultIndex < 0) {
@@ -62,18 +77,7 @@ ui.define("ui.ctrls.FilterTool", {
 
         this.filterPanel.append(label);
     },
-    onClickHandler: function (e) {
-        var elem = $(e.target);
-        var nodeName;
-        while ((nodeName = elem.nodeName()) !== "LABEL") {
-            if (nodeName === "DIV") {
-                return;
-            }
-            elem = elem.parent();
-        }
-        this.selectFilterItem(elem);
-    },
-    selectFilterItem: function (label) {
+    _selectItem: function (label) {
         var item = label.data("dataItem"),
             currentItem;
         if (this.current) {
@@ -97,30 +101,89 @@ ui.define("ui.ctrls.FilterTool", {
         this.fire("selected", item);
     },
     _getIndexByValue: function(value) {
-        var index = -1;
-        if(!this.data) {
-            return index;
-        }
-        var i = this.data.length - 1;
-        for (; i >= 0; i--) {
-            if (this.data[i].value === value) {
+        var viewData,
+            index, 
+            i;
+
+        viewData = this.getViewData();
+        index = -1;
+        for (i = viewData.length - 1; i >= 0; i--) {
+            if (viewData[i].value === value) {
                 index = i;
                 break;
             }
         }
         return index;
     },
+    _setDisplayIndex: function(index, isHide) {
+        var viewData, 
+            label;
+
+        viewData = this.getViewData();
+        if (!viewData.length === 0) {
+            return;
+        }
+        if (!ui.core.isNumber(index)) {
+            index = 0;
+        }
+        if (index >= 0 && index < viewData.length) {
+            label = $(this.filterPanel.children()[index]);
+            if(isHide) {
+                label.addClass("filter-tools-item-hide");
+            } else {
+                label.removeClass("filter-tools-item-hide");
+            }
+            this._updateFirstClass();
+        }  
+    },
+    _updateFirstClass: function() {
+        var children,
+            i, len,
+            label,
+            firstLabel;
+        
+        children = this.filterPanel.children();
+        for(i, len = children.length; i < len; i++) {
+            label = $(children[i]);
+            if(label.hasClass("filter-tools-item-hide")) {
+                continue;
+            }
+            if(!firstLabel) {
+                firstLabel = label;
+            } else {
+                label.removeClass("filter-tools-item-first");
+            }
+        }
+        if(firstLabel) {
+            firstLabel.addClass("filter-tools-item-first");
+        }
+    },
+    getViewData: function() {
+        return Array.isArray(this.option.viewData)
+            ? this.option.viewData
+            : [];
+    },
+    getSelection: function () {
+        var currentItem = null;
+        if (this.current) {
+            currentItem = this.current.data("dataItem");
+        }
+        return currentItem;
+    },
     setIndex: function (index) {
-        if (!this.data) {
+        var viewData,
+            lable;
+
+        viewData = this.getViewData();
+        if (!viewData.length === 0) {
             return;
         }
         if (!$.isNumeric(index)) {
             index = 0;
         }
-        var label;
-        if (index >= 0 && index < this.data.length) {
+        if (index >= 0 && index < viewData.length) {
             label = $(this.filterPanel.children()[index]);
-            this.selectFilterItem(label);
+            this._selectItem(label);
         }
     },
     setValue: function(value) {
@@ -146,55 +209,9 @@ ui.define("ui.ctrls.FilterTool", {
         if(index > -1) {
             this.showIndex(index);
         }
-    },
-    _setDisplayIndex: function(index, isHide) {
-        if (!this.data) {
-            return;
-        }
-        if (!ui.core.isNumber(index)) {
-            index = 0;
-        }
-        var label;
-        if (index >= 0 && index < this.data.length) {
-            label = $(this.filterPanel.children()[index]);
-            if(isHide) {
-                label.addClass("filter-tools-item-hide");
-            } else {
-                label.removeClass("filter-tools-item-hide");
-            }
-            this._updateFirstClass();
-        }  
-    },
-    _updateFirstClass: function() {
-        var children = this.filterPanel.children();
-        var i = 0,
-            len = children.length,
-            label,
-            firstLabel;
-        for(; i < len; i++) {
-            label = $(children[i]);
-            if(label.hasClass("filter-tools-item-hide")) {
-                continue;
-            }
-            if(!firstLabel) {
-                firstLabel = label;
-            } else {
-                label.removeClass("filter-tools-item-first");
-            }
-        }
-        if(firstLabel) {
-            firstLabel.addClass("filter-tools-item-first");
-        }
-    },
-    getCurrent: function () {
-        var currentItem = null;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
-        }
-        return currentItem;
     }
 });
-$.fn.createFilterTools = function (option) {
+$.fn.filterTool = function (option) {
     if (this.length === 0) {
         return null;
     }
