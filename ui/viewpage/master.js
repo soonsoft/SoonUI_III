@@ -45,8 +45,12 @@ var master = {
         if(!this.noMenu) {
             this.menu = ui.ctrls.Menu({
                 style: "modern",
+                //style: "normal",
                 menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
+                extendMethod: "extrusion",
+                //contentContainer: null,
+                //extendMethod: "cover",
                 menuButton: $(".ui-menu-button")
             });
 
