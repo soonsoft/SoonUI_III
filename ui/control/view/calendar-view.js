@@ -88,7 +88,7 @@ function onDayHeadItemClick(e) {
 // 年视图
 function YearView(calendar) {
     if(this instanceof YearView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new YearView(calendar);
     }
@@ -159,9 +159,9 @@ YearView.prototype = {
 
         count = this.getMonthCount(width);
         if (count % 2) {
-            oddFn = this.oddStyle;
+            oddFn = this._oddStyle;
         } else {
-            oddFn = this.evenStyle;
+            oddFn = this._evenStyle;
         }
 
         cells = this.yearPanel.children();
@@ -555,7 +555,7 @@ YearView.prototype = {
 // 月视图
 function MonthView(calendar) {
     if(this instanceof MonthView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new MonthView(calendar);
     }
@@ -1035,7 +1035,7 @@ MonthView.prototype = {
 // 周视图
 function WeekView(calendar) {
     if(this instanceof WeekView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new WeekView(calendar);
     }
@@ -1085,7 +1085,6 @@ WeekView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
-        this.selector.active();
 
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -1145,7 +1144,7 @@ WeekView.prototype = {
         tbody = $("<tbody />");
 
         unitCount = this.calendar._getTimeCellCount();
-        for (; i < 24; i++) {
+        for (i = 0; i < 24; i++) {
             for(j = 0; j < unitCount; j++) {
                 tr = $("<tr />");
                 td = $("<td class='hour-name-cell' />");
@@ -1178,7 +1177,7 @@ WeekView.prototype = {
         }
 
         unitCount = this.calendar._getTimeCellCount();
-        len = 24 * count;
+        len = 24 * unitCount;
         for (i = 0; i < len; i++) {
             tr = $("<tr />");
             for (j = 0; j < 7; j++) {
@@ -1186,7 +1185,7 @@ WeekView.prototype = {
                 if (this.calendar.isWeekend(j)) {
                     td.addClass("week-hour-cell-weekend");
                 }
-                if ((i + 1) % count) {
+                if ((i + 1) % unitCount) {
                     td.addClass("week-hour-cell-odd");
                 }
                 tr.append(td);
@@ -1293,8 +1292,8 @@ WeekView.prototype = {
         container = $("<div class='schedule-container' />");
         scheduleItem.append(title).append(container);
 
-        bp = this.getPositionAndSize(beginCell);
-        ep = this.getPositionAndSize(endCell);
+        bp = this._getPositionAndSize(beginCell);
+        ep = this._getPositionAndSize(endCell);
         scheduleItem.css({
             "top": bp.top + "px",
             "left": bp.left + "px",
@@ -1648,7 +1647,7 @@ WeekView.prototype = {
 // 日视图
 function DayView(calendar) {
     if(this instanceof DayView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new DayView(calendar);
     }
@@ -1693,7 +1692,6 @@ DayView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
-        this.selector.active();
         
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -1871,7 +1869,7 @@ function Selector(view, panel, table) {
     if(this instanceof Selector) {
         this.initialize(view, panel, table);
     } else {
-        return new Selector(calendar);
+        return new Selector(view, panel, table);
     }
 }
 Selector.prototype = {
@@ -1904,15 +1902,15 @@ Selector.prototype = {
             this.onMouseDown($(e.target), e.clientX, e.clientY);
         }, this);
         this.mouseMoveHandler = $.proxy(function (e) {
-            if (!this.isBeginSelect) {
+            if (!this._isBeginSelect) {
                 return;
             }
             this.onMouseMove(e);
         }, this);
         this.mouseLeftButtonUpHandler = $.proxy(function (e) {
-            if (e.which !== 1 || !this.isBeginSelect)
+            if (e.which !== 1 || !this._isBeginSelect)
                 return;
-            this.isBeginSelect = false;
+            this._isBeginSelect = false;
             $(document).off("mousemove", this.mouseMoveHandler);
             $(document).off("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseUp(e);
@@ -2033,12 +2031,12 @@ Selector.prototype = {
             beginTime, endTime; 
 
         box = this.selectionBox;
-        p = this.getPositionAndSize(td);
-        beginIndex = td.locationInGrid.row;
-        endIndex = td.locationInGrid.row + 1;
+        p = this._getPositionAndSize(td);
+        beginIndex = td.hourIndex;
+        endIndex = td.hourIndex + 1;
         if (arguments.length > 1 && arguments[1]) {
-            endIndex = arguments[1].locationInGrid.row + 1;
-            var p2 = this.getPositionAndSize(arguments[1]);
+            endIndex = arguments[1].hourIndex + 1;
+            var p2 = this._getPositionAndSize(arguments[1]);
             p.height = p2.top + p2.height - p.top
         }
 
@@ -2206,7 +2204,7 @@ Selector.prototype = {
                 "height": p2.top + p2.height - p.top + "px"
             });
             this._selectDirection = "up";
-            this.autoScrollY(p.top, this._selectDirection);
+            this._autoScrollY(p.top, this._selectDirection);
         }
 
         beginTime = this.view.calendar.indexToTime(begin.hourIndex),
@@ -2602,7 +2600,7 @@ ui.define("ui.ctrls.CalendarView", {
         return Math.ceil(this._timeToCellNumber(time));
     },
     /** 将时间转换为周视图和日视图对应的position */
-    timeToPosition: function(time) {
+    timeToPosition: function(time, unitHeight) {
         if(!time) {
             time = "00:00";
         }
@@ -2671,7 +2669,7 @@ ui.define("ui.ctrls.CalendarView", {
     },
     /** 判断是否包含view视图 */
     hasView: function(viewName) {
-        return this.views.hasOwnProperty(viewName + "");
+        return this.views.hasOwnProperty((viewName + "").toUpperCase());
     },
     /** 判断视图是否为某个名称的视图 */
     isView: function(view, viewName) {
@@ -2700,7 +2698,7 @@ ui.define("ui.ctrls.CalendarView", {
             option,
             endFn;
         
-        view = this.views[(viewName + "").toLowerCase()];
+        view = this.views[(viewName + "").toUpperCase()];
         if(!view) {
             throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
         }
