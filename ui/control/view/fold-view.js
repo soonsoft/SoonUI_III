@@ -14,7 +14,7 @@ function onFoldTitleClick(e) {
         }
         elem = elem.parent();
     }
-    icon = elem.children("ui-fold-view-icon");
+    icon = elem.children(".ui-fold-view-icon");
     dd = elem.next();
     if(dd.css("display") === "none") {
         icon.removeClass("background-highlight")
@@ -32,7 +32,7 @@ function FoldView(element) {
     if(this instanceof FoldView) {
         this.initialize(element);
     } else {
-        return new FoldView();
+        return new FoldView(element);
     }
 }
 FoldView.prototype = {
@@ -55,7 +55,7 @@ FoldView.prototype = {
             text = dt.text();
             dt.addClass("ui-fold-view-title");
             div = $("<div class='ui-fold-view-icon border-highlight' />");
-            if(dt.next().css("display" === "none")) {
+            if(dt.next().css("display") === "none") {
                 div.addClass("background-highlight").text("+");
             } else {
                 div.addClass("font-highlight").text("-");
