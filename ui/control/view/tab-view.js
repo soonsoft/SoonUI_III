@@ -98,10 +98,11 @@ View.prototype = {
         } else {
             option.end = cssValue;
         }
-        option = this.viewAnimator[1];
+        option = this.animator[1];
         option.target = this.nextView;
         option.begin = parseFloat(option.target.css(this.animationCssItem));
         option.end = 0;
+        option.target.css("display", "block");
 
         this.animator.start();
     },
@@ -119,7 +120,7 @@ View.prototype = {
         }
         this.currentIndex = index;
         tabView._current = $(views[index]);
-        tavView._current.css({
+        tabView._current.css({
             "display": "block",
             "top": "0",
             "left": "0"
