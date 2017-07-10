@@ -2,6 +2,7 @@
 
 var selectedClass = "ui-tab-selection";
 
+function noop() {}
 // 视图模式
 function View(tabView) {
     if(this instanceof View) {
@@ -75,7 +76,7 @@ View.prototype = {
 
         if(animation === false) {
             this.bodySet(index);
-            this.fire("changed", index);
+            tabView.fire("changed", index);
             return;
         }
 
@@ -143,7 +144,7 @@ View.prototype = {
 };
 
 // 标签模式
-function Tab() {
+function Tab(tabView) {
     if(this instanceof Tab) {
         this.initialize(tabView);
     } else {
@@ -205,7 +206,7 @@ Tab.prototype = {
         tabView.tabs.addClass("font-highlight-hover");
 
         that = this;
-        this.tabPanel.click(function(e) {
+        tabView.tabPanel.click(function(e) {
             var elem = $(e.target);
             while(!elem.hasClass("ui-tab-button")) {
                 if(elem[0] === tabView.tabPanel[0]) {
@@ -223,6 +224,7 @@ Tab.prototype = {
         var tabView,
             result;
 
+        tabView = this.tabView;
         if(tabView._current && tabView._current[0] === view[0]) {
             return;
         }
@@ -236,9 +238,9 @@ Tab.prototype = {
             return;
         }
 
-        tabView = this.tabView;
         if(tabView._current && tabView.tabs) {
             tabView._current
+                .removeClass(selectedClass)
                 .removeClass("border-highlight")
                 .removeClass("font-highlight");
         }
@@ -256,7 +258,7 @@ Tab.prototype = {
             tabView.fire("changed", index);
         } else {
             this.bodyShow(index).done(function() {
-                that.fire("changed", index);
+                tabView.fire("changed", index);
             });
         }
     },
@@ -382,7 +384,7 @@ ui.define("ctrls.TabView", {
         view = view || this._current;
         if(tabs && view) {
             for(i = 0, len = tabs.length; i < len; i++) {
-                if(tab[i] === view[0]) {
+                if(tabs[i] === view[0]) {
                     return i;
                 }
             }
@@ -394,15 +396,15 @@ ui.define("ctrls.TabView", {
         if(!ui.core.isNumber(index)) {
             index = 0;
         }
-        this.showIndex(index, !!animation);
+        this.model.showIndex(index, !!animation);
     },
     /** 放置视图 */
     putBodies: function(width, height) {
         if(!ui.core.isNumber(width)) {
-            width = tabView.bodyPanel.width();
+            width = this.bodyPanel.width();
         }
         if(!ui.core.isNumber(height)) {
-            height = tabView.bodyPanel.height();
+            height = this.bodyPanel.height();
         }
         this.bodyWidth = width;
         this.bodyHeight = height;
