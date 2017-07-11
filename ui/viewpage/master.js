@@ -251,12 +251,6 @@ var master = {
         userProtrait.click(function(e) {
             that.sidebarManager.show("userSidebar");
         });
-        
-        
-        setTimeout(function() {
-            ui.theme.currentHighlight.Id
-        });
-        
     },
     /** 初始化页面方法 */
     pageInit: function (initObj, caller) {
