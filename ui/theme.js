@@ -11,7 +11,7 @@ function setHighlight(highlight) {
         sheet.prop("href", styleUrl);
     }
     ui.theme.currentHighlight = highlight;
-    ui.page.fire("highlightChanged", highlight);
+    ui.page.fire("hlchanged", highlight);
 }
 
 //主题
@@ -73,5 +73,6 @@ ui.theme = {
             highlight = ui.url.getParams(styleUrl).highlight;
         }
         this.currentHighlight = this.getHighlight(highlight);
+        ui.page.fire("highlightChanged", highlight);
     }
 };
