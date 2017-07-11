@@ -187,6 +187,9 @@ ui.ajax = {
     },
     /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
     postOnce: function (btn, url, params, success, failure, option) {
+        var text,
+            textFormat,
+            fn;
         btn = ui.getJQueryElement(btn);
         if(!btn) {
             throw new Error("没有正确设置要禁用的按钮");
@@ -195,15 +198,13 @@ ui.ajax = {
             option = {};
         }
 
-        var text = null,
-            textFormat = "正在{0}...",
-            func;
+        textFormat = "正在{0}...";
         if(option.textFormat) {
             textFormat = option.textFormat;
             delete option.textFormat;
         }
         btn.attr("disabled", "disabled");
-        func = function() {
+        fn = function() {
             btn.removeAttr("disabled");
         };
         if(btn.isNodeName("input")) {
@@ -213,7 +214,7 @@ ui.ajax = {
             } else {
                 btn.val(ui.str.stringFormat(textFormat, "处理"));
             }
-            func = function() {
+            fn = function() {
                 btn.val(text);
                 btn.removeAttr("disabled");
             };
@@ -221,19 +222,20 @@ ui.ajax = {
             text = btn.html();
             if(!ui._rhtml.test(text)) {
                 btn.text(ui.str.stringFormat(textFormat, text));
-                func = function() {
+                fn = function() {
                     btn.text(text);
                     btn.removeAttr("disabled");
                 };
             }
         }
         
-        option.complete = func;
+        option.complete = fn;
         return ajaxCall("POST", url, params, success, failure, option);
     },
     /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
     all: function () {
-        var promises;
+        var promises,
+            promise;
         if (arguments.length == 1) {
             promises = [arguments[0]];
         } else if (arguments.length > 1) {
@@ -241,7 +243,7 @@ ui.ajax = {
         } else {
             return;
         }
-        var promise = Promise.all(promises);
+        promise = Promise.all(promises);
         promise._then_old = promise.then;
 
         promise.then = function () {
