@@ -150,21 +150,43 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     return $.ajax(ajaxOption);
 }
 
+/**
+ * HttpRequest Method方式共有15种
+ * Get URL传参
+ * Head 没有ResponseBody，用于获取ResponseHead
+ * Post ReqeustBody提交数据
+ * Put 将客户端的数据发送到服务器上取代文档内容
+ * Delete 删除服务器上的文件
+ * Connect
+ * Options
+ * Trace
+ * Patch
+ * Move
+ * Copy
+ * Link
+ * Unlink
+ * Wrapped
+ * Extension-method
+ */
 ui.ajax = {
-    ajaxGet: function (url, args, success, failure, option) {
+    /** get方式 */
+    get: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("GET", url, args, success, failure, option);
+        return ajaxCall("GET", url, params, success, failure, option);
     },
-    ajaxPost: function (url, args, success, failure, option) {
-        return ajaxCall("POST", url, args, success, failure, option);
-    },
-    ajaxPostForm: function(url, args, success, failure, option) {
+    /** post方式 */
+    post: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("POST", url, args, success, failure, option);
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxPostOnce: function (btn, url, args, success, failure, option) {
+    /** post方式，提交数据为为Json格式 */
+    postJson: function(url, params, success, failure, option) {
+        return ajaxCall("POST", url, params, success, failure, option);
+    },
+    /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
+    postOnce: function (btn, url, params, success, failure, option) {
         btn = ui.getJQueryElement(btn);
         if(!btn) {
             throw new Error("没有正确设置要禁用的按钮");
@@ -207,9 +229,10 @@ ui.ajax = {
         }
         
         option.complete = func;
-        return ajaxCall("POST", url, args, success, failure, option);
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxAll: function () {
+    /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
+    all: function () {
         var promises;
         if (arguments.length == 1) {
             promises = [arguments[0]];

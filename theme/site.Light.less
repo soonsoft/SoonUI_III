@@ -72,15 +72,6 @@ body, ol, ul, li, dl, dt, dd, form, fieldset, pr, pc {
     padding: 0;
 }
 
-hr {
-    height: 1px;
-    border: none 0;
-    background-color: @fouth-bg-color;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-
 h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
     text-align: left;
@@ -110,6 +101,15 @@ h5 {
 
 h6 {
     font-size: @font-h6;
+}
+
+hr {
+    height: 1px;
+    border: none 0;
+    background-color: @fouth-bg-color;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 section, header, footer, address, article, aside, nav, menu {
@@ -277,29 +277,31 @@ a {
     list-style: none;
 }
 
-    .head-tab-title .tab-item {
-        line-height: 48px;
+    .head-tab-title .ui-tab-button {
         font-size: @font-h4;
         margin-left: 20px;
-        color: #fff;
         list-style: none;
+        overflow: hidden;
         float: left;
-        cursor: pointer;
-    }
-
-    .head-tab-title .tab-button {
         display:block;
-        height: 48px;
+        height: 100%;
         margin-top: 0;
         line-height: 48px;
+        border: none 0;
         text-align: center;
         text-decoration: none;
         color: #fff !important;
         position: relative;
         opacity: .6;
+        cursor: pointer;
     }
 
-    .head-tab-title .tab-item .head-tab-pointer {
+        .head-tab-title .ui-tab-button:hover {
+            opacity: 1;
+            color: #fff !important;
+        }
+
+    .head-tab-title .ui-tab-button .head-tab-pointer {
         position: absolute;
         bottom: 0;
         left: 50%;
@@ -315,11 +317,11 @@ a {
         border-style: dashed dashed solid dashed;
     }
 
-    .head-tab-title .tab-button-selection {
+    .head-tab-title .ui-tab-selection {
         opacity: 1;
     }
 
-        .head-tab-title .tab-button-selection .head-tab-pointer {
+        .head-tab-title .ui-tab-selection .head-tab-pointer {
             display: block;
         }
 
@@ -486,10 +488,12 @@ a {
     border-radius: 50%;
     line-height: 1em;
     height: 24px;
+    overflow: hidden;
 }
 
     .icon-button .fa {
-        font-size: @font-h6;
+        font-size: @font-h5;
+        line-height: 18px;
     }
 
     .icon-button:focus,
@@ -608,7 +612,18 @@ textarea {
         color: @readonly-color;
     }
 
-
+/* 通用遮罩层 */
+.mask-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    z-index: @mask-layer;
+    display: none;
+}
 
 /* 通用的关闭按钮 */
 .closable-button {
@@ -623,6 +638,7 @@ textarea {
     color: @tool-color;
     cursor: pointer;
 }
+
     .closable-button:hover {
         text-decoration: none;
     }
@@ -634,10 +650,9 @@ textarea {
 
 /* 不能选择 */
 .unselectable {
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 /*滚动条样式*/

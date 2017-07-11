@@ -1,3 +1,245 @@
+/* 菜单按钮 */
+.ui-menu-button {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  opacity: .7;
+}
+.ui-menu-button:hover {
+  opacity: 1;
+}
+.ui-menu-button .menu-button-img {
+  position: relative;
+  margin-left: 8px;
+  margin-top: 8px;
+  width: 32px;
+  height: 32px;
+  border: none 0;
+}
+.ui-menu-button-show {
+  opacity: 1;
+}
+.ui-menu-button .menu-button-background {
+  display: none;
+  position: absolute;
+  width: 48px;
+  height: 100%;
+}
+.ui-menu-button:hover .menu-button-background {
+  display: inline-block;
+}
+.ui-menu-button:active .menu-button-background {
+  opacity: .7;
+}
+.ui-menu-button-show .menu-button-background {
+  display: inline-block;
+}
+/* 内容区域 */
+.content-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 99;
+}
+/* 菜单面板 */
+.ui-menu-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  z-index: 100;
+  display: block;
+}
+/* 收窄的菜单面板 */
+.ui-menu-panel-narrow {
+  width: 48px;
+}
+.ui-menu-panel b,
+.ui-menu-panel u {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-weight: normal !important;
+  text-decoration: none !important;
+}
+.ui-menu-panel .menu-list {
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.ui-menu-panel .direct {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: inline-block;
+  width: 100%;
+  background-color: #000;
+  opacity: 0;
+}
+.ui-menu-panel .direct:hover {
+  text-decoration: none;
+}
+/* IE8兼容性 */
+.ui-menu-panel .direct:active {
+  background-color: #000;
+}
+.ui-menu-panel .menu-item-background {
+  width: 100%;
+  height: 100%;
+  position: absolute !important;
+  display: none;
+}
+.ui-menu-panel .menu-item-color {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: .2;
+}
+.ui-menu-panel .menu-item-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ui-menu-panel .allow {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  position: absolute;
+  right: 8px;
+  top: 12px;
+  text-align: center;
+  line-height: 24px;
+}
+.ui-menu-panel .menu-item-container .allow {
+  left: 100%;
+}
+/* 菜单项 dt */
+.ui-menu-panel .menu-item {
+  height: 48px;
+  font-size: 15px;
+  position: relative;
+  background-color: transparent;
+}
+.ui-menu-panel .menu-item .menu-item-container {
+  position: absolute;
+  width: auto;
+  left: 0;
+  right: 32px;
+}
+.ui-menu-panel-narrow .menu-item .menu-item-container {
+  overflow: hidden;
+  width: 48px;
+}
+.ui-menu-panel .menu-item-text {
+  margin-left: 8px;
+  line-height: 48px;
+}
+.ui-menu-panel .icon {
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  vertical-align: top;
+  margin-left: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.ui-menu-panel .icon-img {
+  height: 32px;
+  width: 32px;
+  vertical-align: top;
+  margin: 0;
+  border: none 0;
+}
+/* 普通风格的子菜单面板 dd */
+.ui-menu-panel .submenu-panel {
+  display: none;
+  height: 0;
+  overflow: hidden;
+  background-color: transparent;
+  position: relative;
+}
+.ui-menu-panel .submenu-panel .submenu-list {
+  cursor: pointer;
+  position: absolute;
+  width: 100%;
+}
+.ui-menu-panel .submenu-panel .submenu-item {
+  height: 30px;
+  line-height: 30px;
+  font-size: 13px;
+  position: relative;
+}
+.ui-menu-panel .submenu-panel .submenu-item-text {
+  margin-left: 47px;
+}
+/* 现代菜单的弹出子菜单面板 */
+.ui-menu-panel .submenu-slide-panel {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  top: 0;
+  left: 0;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  opacity: .1;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-list {
+  overflow: hidden;
+  position: relative;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-item {
+  width: 100%;
+  height: 48px;
+  line-height: 48px;
+  position: relative;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-item-text {
+  margin-left: 16px;
+}
+/* 交互样式 */
+.ui-menu-panel .menu-item,
+.ui-menu-panel .submenu-item {
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  -icab-text-overflow: ellipsis;
+  -khtml-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  opacity: .65;
+  cursor: pointer;
+}
+.ui-menu-panel .menu-item:hover,
+.ui-menu-panel .submenu-item:hover {
+  opacity: 1;
+}
+.ui-menu-panel .menu-item:hover .menu-item-background,
+.ui-menu-panel .submenu-item:hover .menu-item-background {
+  display: block;
+}
+.ui-menu-panel .menu-item:active .menu-item-color,
+.ui-menu-panel .submenu-item:active .menu-item-color {
+  background-color: #000;
+}
+.ui-menu-panel .selection-menu,
+.ui-menu-panel .current-menu {
+  opacity: 1;
+}
+
 .user-settings {
   position: absolute;
   top: 0;

@@ -894,13 +894,13 @@ Introsort.prototype = {
                 this.comparer = arguments[1];
             }
         }
-        if (Array.isArray(this.keys)) {
+        if (!Array.isArray(this.keys)) {
             return;
         }
         if (this.keys.length < 2) {
             return;
         }
-        if (Array.isArray(this.items)) {
+        if (!Array.isArray(this.items)) {
             this.items = null;
         }
         this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));
@@ -1258,13 +1258,16 @@ ui.mask = {
     isOpen: function() {
         return $(this.maskId).css("display") === "block";
     },
-    open: function() {
+    open: function(target, option) {
         var mask = $(this.maskId),
             body = $(document.body),
             offset;
-        if(this.core.isPlainObject(target)) {
+        if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
+        }
+        if(!target) {
+            target = option.target;
         }
         target = ui.getJQueryElement(target);
         if(!target) {
@@ -1308,10 +1311,10 @@ ui.mask = {
                 body.css("overflow", "hidden");
             }
             mask.css({
-                top: "0px",
-                left: "0px",
-                width: root.clientWidth + "px",
-                height: root.clientHeight + "px"
+                top: "0",
+                left: "0",
+                width: document.documentElement.clientWidth + "px",
+                height: document.documentElement.clientHeight + "px"
             });
         } else {
             offset = target.offset();
@@ -1683,7 +1686,7 @@ ui.str = {
         }
         return $("<span />").html(str).text();
     },
-    numberFormatScale: function (num, zeroCount) {
+    numberScaleFormat: function (num, zeroCount) {
         if (isNaN(num))
             return null;
         if (isNaN(zeroCount))
@@ -1719,11 +1722,11 @@ ui.str = {
         }
         return numText;
     },
-    formatMoney: function (value, symbol) {
+    moneyFormat: function (value, symbol) {
         if (!symbol) {
             symbol = "￥";
         }
-        var content = ui.str.numberFormatScale(value, 2);
+        var content = ui.str.numberScaleFormat(value, 2);
         if (!content) {
             return content;
         }
@@ -3589,7 +3592,7 @@ ImageLoader.fitCenter = function() {
         if (this.displayHeight > this.height) {
             this.displayHeight = this.height;
             this.displayWidth = Math.floor(this.originalWidth * (this.displayHeight / this.originalHeight));
-            this.marginLeft = Math.floor((this.width - width) / 2);
+            this.marginLeft = Math.floor((this.width - this.displayWidth) / 2);
         } else {
             // 图片比显示区域小，显示到中心
             this.marginLeft = Math.floor((this.width - this.displayWidth) / 2);
@@ -3667,7 +3670,7 @@ ImageLoader.prototype = {
             img.onerror = function () {
                 reject(img);
             };
-            reimg.src = src;
+            img.src = src;
         });
         return promise;
     }
@@ -3699,7 +3702,11 @@ ieVersion = IE();
 
 /** 为jquery添加一个获取元素标签类型的方法 */
 $.fn.nodeName = function () {
-    return this.prop("nodeName");
+    var nodeName = this.prop("nodeName");
+    if(this.length === 0 || !nodeName) {
+        throw new TypeError("nodeName is '" + nodeName + "'");
+    }
+    return nodeName;
 };
 
 /** 判断元素的tagName，不区分大小写 */
@@ -4288,7 +4295,7 @@ ui.define = function(name, base, prototype) {
 
 (function($, ui) {
 
-var doc = document;
+var doc = $(document);
 var body = $(doc.body);
 var defaultOption = {
     // 上下文
@@ -4331,7 +4338,7 @@ function mouseDown(e) {
     doc.on("mousemove", this.onMouseMoveHandler)
         .on("mouseup", this.onMouseUpHandler)
         .on("mouseleave", this.onMouseUpHandler);
-    doc.onselectstart = function() { return false; };
+    document.onselectstart = function() { return false; };
     /*
         .cancel-user-select {
             -webkit-user-select: none;
@@ -4379,7 +4386,7 @@ function mouseUp(e) {
     doc.off("mousemove", this.onMouseMoveHandler)
         .off("mouseup", this.onMouseUpHandler)
         .off("mouseleave", this.onMouseUpHandler);
-    doc.onselectstart = null;
+    document.onselectstart = null;
     this.option.target.removeClass("cancel-user-select");
 
     if(ui.core.isFunction(this.option.onEndDrag)) {
@@ -4402,11 +4409,12 @@ function MouseDragger(option) {
 MouseDragger.prototype = {
     constructor: MouseDragger,
     initialize: function(option) {
-        this.doc = document;
+        this.doc = null;
         this.shield = null;
         this.isTurnOn = false;
 
         this.option = $.extend(defaultOption, option);
+        this.doc = this.option.doc;
         if(this.option.hasIframe === true) {
             this.shield = $("<div>");
             this.shield.css({
@@ -4429,7 +4437,8 @@ MouseDragger.prototype = {
     on: function() {
         var target = this.option.target,
             handle = this.option.handle,
-            parent = this.option.parent;
+            parent = this.option.parent,
+            position;
         
         if(this.isTurnOn) {
             return;
@@ -4437,7 +4446,8 @@ MouseDragger.prototype = {
 
         this.isTurnOn = true;
         if(!parent.isNodeName("body")) {
-            this.originParentPosition = parent.css("position");
+            position = parent.css("position");
+            this.originParentPosition = position;
             if (position !== "absolute" && position !== "relative" && position !== "fixed") {
                 parent.css("position", "relative");
             }
@@ -4447,18 +4457,19 @@ MouseDragger.prototype = {
             target.css("position", "absolute");
         }
 
-        this.doc.on("mousedown", this, this.onMouseDown);
+        handle.on("mousedown", this.onMouseDownHandler);
         if(this.option.target)
             this.option.target.data("mouse-dragger", this);
     },
     off: function() {
+        var handle = this.option.handle;
         if(!this.isTurnOn) {
             return;
         }
 
         this.isTurnOn = false;
-        this.option.target
-            .off("mousedown", this.onMouseDown)
+        handle
+            .off("mousedown", this.onMouseDownHandler)
             .css("position", this.originTargetPosition);
         if(this._isDragStart) {
             this.onMouseUpHandler({
@@ -4718,7 +4729,7 @@ function setHighlight(highlight) {
         sheet.prop("href", styleUrl);
     }
     ui.theme.currentHighlight = highlight;
-    ui.page.fire("highlightChanged", highlight);
+    ui.page.fire("hlchanged", highlight);
 }
 
 //主题
@@ -4780,6 +4791,7 @@ ui.theme = {
             highlight = ui.url.getParams(styleUrl).highlight;
         }
         this.currentHighlight = this.getHighlight(highlight);
+        ui.page.fire("highlightChanged", highlight);
     }
 };
 

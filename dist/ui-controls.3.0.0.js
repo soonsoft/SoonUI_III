@@ -481,6 +481,7 @@ ui.define("ui.ctrls.SidebarBase", {
 
 (function($, ui) {
 // column style 默认提供的GridView和ReportView的格式化器
+var spanKey = "__temp$TdContext-";
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -511,7 +512,7 @@ var progressError = new Error("column.len或width设置太小，无法绘制进�
 
 // 列头格式化器
 columnFormatter = {
-    columnCheckboxAll: function (col) {
+    checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
         checkbox.click(this.onCheckboxAllClickHandler);
         this.resetColumnStateHandlers.checkboxAllCancel = function () {
@@ -558,18 +559,19 @@ cellFormatter = {
         span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
         return span;
     },
-    checkbox: function(val, col) {
+    check: function(val, col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox' />");
-        checkbox.attr("data-value", ui.str.htmlEncode(value));
+        checkbox.attr("data-value", val + "");
         return checkbox;
     },
     paragraph: function (val, col) {
         var p;
-        if(val === undefined || val === null || isNaN(val)) {
+        val += "";
+        if (val === "undefined" || val === "null" || val === "NaN") {
             return null;
         }
         p = $("<p class='table-cell-block' />");
-        p.text(val + "");
+        p.text(val);
         return p;
     },
     date: function(val, col) {
@@ -583,7 +585,7 @@ cellFormatter = {
         if(isNaN(date)) {
             span.text("无法转换");
         } else {
-            span.text([date.getFullYeaer(), "-",
+            span.text([date.getFullYear(), "-",
                 addZero(date.getMonth() + 1), "-",
                 addZero(date.getDate())].join(""));
         }
@@ -645,7 +647,7 @@ cellFormatter = {
     rowspan: function(val, col, idx, td) {
         var ctx,
             span,
-            key = "__temp$TdContext-" + col.column;
+            key = spanKey + col.column;
         if (idx === 0) {
             ctx = this[key] = {
                 rowSpan: 1,
@@ -724,41 +726,45 @@ cellParameterFormatter = {
             totalValue = null;
         }
         return function(val, col, idx, td) {
-            var div, 
+            var div, progress,
                 barDiv, progressDiv, percentDiv,
-                percent;
+                barWidth, percent;
 
-            if(ui.core.isNumber(val.value)) {
-                val.total = totalValue || 0;
+            progress = {};
+            if(ui.core.isNumber(val[0])) {
+                progress.value = val[0];
+                progress.total = totalValue || val[1] || 0;
             } else {
-                val = {
-                    value: val,
-                    total: totalValue || 0
-                };
+                progress.value = val;
+                progress.total = totalValue || 0;
             }
-            if(!ui.core.isNumber(val.total)) {
-                val.total = val.value;
+            if(progress.total === 0) {
+                progress.total = 1;
             }
-            if(val.total === 0) {
-                val.total = 1;
-            }
-            if(!ui.core.isNumber(val.value)) {
-                val.value = 0;
+            if(!ui.core.isNumber(progress.value)) {
+                progress.value = 0;
             }
 
-            percent = val.value / val.total;
+            percent = progress.value / progress.total;
             if(isNaN(percent)) {
                 percent = 0;
             }
             percent = ui.str.numberScaleFormat(percent * 100, 2) + "%";
             div = $("<div class='cell-progress-panel' />");
             barDiv = $("<div class='cell-progress-bar' />");
+            barWidth = progressWidth;
+            if(!ui.core.isNumber(barWidth)) {
+                barWidth = col.len - 12;
+            }
+            barWidth -= 52;
+            barDiv.css("width", barWidth + "px");
+
             progressDiv = $("<div class='cell-progress-value background-highlight' />");
             progressDiv.css("width", percent);
             barDiv.append(progressDiv);
 
             percentDiv = $("<div class='cell-progress-text font-highlight'/>");
-            percentDiv.append("<span>" + percent + "</span>");
+            percentDiv.append("<span style='margin:0'>" + percent + "</span>");
 
             div.append(barDiv);
             div.append(percentDiv);
@@ -767,21 +773,21 @@ cellParameterFormatter = {
             return div;
         };
     },
-    getRowspanFormatter: function(index, key, createFn) {
-        var columnKey = "__temp$TdContext-" + key;
+    getRowspanFormatter: function(key, createFn) {
+        var columnKey = spanKey + key;
         return function(val, col, idx, td) {
             var ctx;
             if (idx === 0) {
-                ctx = this[key] = {
+                ctx = this[columnKey] = {
                     rowSpan: 1,
-                    value: val,
+                    value: val[key],
                     td: td
                 };
             } else {
-                ctx = this[key];
-                if (ctx.value !== val) {
+                ctx = this[columnKey];
+                if (ctx.value !== val[key]) {
                     ctx.rowSpan = 1;
-                    ctx.value = val;
+                    ctx.value = val[key];
                     ctx.td = td;
                 } else {
                     ctx.rowSpan++;
@@ -805,10 +811,6 @@ cellParameterFormatter = {
             prefix = "";
         } else {
             prefix += "";
-        }
-        
-        if(!ui.images) {
-            throw new ReferenceError("require ui.images");
         }
         imageZoomer = ui.ctrls.ImageZoomer({
             getNext: function(val) {
@@ -854,7 +856,8 @@ cellParameterFormatter = {
                 "height": height + "px"
             });
             imagePanel.append(image);
-            image.setImage(prefix + imageSrc, width, height, fillMode)
+            image
+                .setImage(prefix + imageSrc, width, height, fillMode)
                 .then(
                     function(result) {
                         image.addImageZoomer(imageZoomer);
@@ -1989,7 +1992,7 @@ MessageBox.prototype = {
         messageItem = $("<div class='message-item' />")
         htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
         htmlBuilder.push("<div class='message-content'>");
-        if($.isFunction(text)) {
+        if(ui.core.isFunction(text)) {
             htmlBuilder.push(text());
         } else {
             htmlBuilder.push(ui.str.htmlEncode(text + ""));
@@ -3512,6 +3515,11 @@ function onDayItemClick(e) {
         }
         elem = elem.parent();
     }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 function onTodayButtonClick(e) {
@@ -4722,6 +4730,11 @@ function onItemClick(e) {
         }
         elem = elem.parent();
     }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 
@@ -5157,6 +5170,10 @@ function onTreeItemClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     nodeData = this._getNodeData(elem);
@@ -6150,6 +6167,7 @@ $.fn.autocompleteSelectionTree = function(option) {
 // CalendarView
 var timeTitleWidth = 80,
     hourHeight = 25,
+    currentTimeLineHeight = 17,
     sundayFirstWeek = ["日", "一", "二", "三", "四", "五", "六"],
     mondayFirstWeek = ["一", "二", "三", "四", "五", "六", "日"],
     viewTypes;
@@ -6194,6 +6212,10 @@ function onYearItemClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 // 月视图日期点击事件
@@ -6205,6 +6227,10 @@ function onMouseItemClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     this._selectItem(elem);
@@ -6229,7 +6255,7 @@ function onDayHeadItemClick(e) {
 // 年视图
 function YearView(calendar) {
     if(this instanceof YearView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new YearView(calendar);
     }
@@ -6244,6 +6270,9 @@ YearView.prototype = {
         this._selectList = [];
         this._current = null;
 
+        this.width = null;
+        this.height = null;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -6251,8 +6280,6 @@ YearView.prototype = {
         if (this.initialled) {
             return;
         }
-
-        this.year = this.calendar.currentDate.getFullYear();
 
         // 日期项点击事件
         this.onYearItemClickHandler = $.proxy(onYearItemClick, this);
@@ -6298,11 +6325,21 @@ YearView.prototype = {
             unitWidth, unitHeight,
             i;
 
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+
         count = this.getMonthCount(width);
         if (count % 2) {
-            oddFn = this.oddStyle;
+            oddFn = this._oddStyle;
         } else {
-            oddFn = this.evenStyle;
+            oddFn = this._evenStyle;
         }
 
         cells = this.yearPanel.children();
@@ -6319,8 +6356,10 @@ YearView.prototype = {
         }
         for (i = 0; i < 12; i++) {
             cell = $(cells[i]);
-            cell.css("width", unitWidth + "px")
-                .css("height", unitHeight + "px");
+            cell.css({
+                width: unitWidth + "px",
+                height: unitHeight + "px"
+            });
             cell.children(".year-month-content")
                 .css("height", unitHeight - 48 + "px");
             oddFn.call(this, cell, count, i);
@@ -6384,6 +6423,7 @@ YearView.prototype = {
             row = $("<tr />");
             for (j = 0; j < 7; j++) {
                 cell = $("<td class='year-month-table-cell' />");
+                row.append(cell);
                 if (i === 0 && j < startIndex) {
                     cell.addClass("ui-calendar-empty");
                     continue;
@@ -6396,7 +6436,6 @@ YearView.prototype = {
                     cell.append(dayVal);
                     dayNum++;
                 }
-                row.append(cell);
             }
             tbody.append(row);
         }
@@ -6424,7 +6463,7 @@ YearView.prototype = {
             dayCell;
 
         month = $($(months[date.getMonth()]).children()[1]);
-        indexer = this.calendar.getTableIndexOfMonth(date);
+        indexer = this.calendar.getTableIndexOf(date);
         dayCell = $(month.children()[0].tBodies[0].rows[indexer.rowIndex].cells[indexer.cellIndex]);
         return dayCell;
     },
@@ -6432,7 +6471,7 @@ YearView.prototype = {
         var eventData,
             selectedClass = "selected",
             i, len;
-        if (!this._isDateCell(td)) {
+        if (!this._isDateCell(elem)) {
             return;
         }
 
@@ -6464,11 +6503,11 @@ YearView.prototype = {
         } else {
             if(this._current) {
                 this._current.removeClass(selectedClass);
-                this._current = null;
                 if(this._current[0] === elem[0]) {
                     this.calendar.fire("deselected", eventData);
                     return;
                 }
+                this._current = null;
             }
             this._current = elem;
             this._current.addClass(selectedClass);
@@ -6481,7 +6520,7 @@ YearView.prototype = {
             i, len, item, 
             isFunctionValue;
 
-        if(Array.isArray(data)) {
+        if(!Array.isArray(data)) {
             return;
         }
         if(!dateField) {
@@ -6497,7 +6536,7 @@ YearView.prototype = {
         isFunctionValue = ui.core.isFunction(action);
 
         months = this.yearPanel.children(".year-month-panel");
-        for(i = 0, len = date.length; i < len; i++) {
+        for(i = 0, len = data.length; i < len; i++) {
             item = data[i];
             if(!(item instanceof Date)) {
                 date = getDateFn.call(item);
@@ -6696,7 +6735,7 @@ YearView.prototype = {
 // 月视图
 function MonthView(calendar) {
     if(this instanceof MonthView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new MonthView(calendar);
     }
@@ -6712,6 +6751,9 @@ MonthView.prototype = {
         this._selectList = [];
         this._current = null;
 
+        this.width = null;
+        this.height = null;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -6721,7 +6763,7 @@ MonthView.prototype = {
         }
 
         // 事件
-        this.onMonthItemClickHandler = $(onMouseItemClick, this);
+        this.onMonthItemClickHandler = $.proxy(onMouseItemClick, this);
 
         this._setCurrent();
         this.weekPanel = $("<div class='ui-calendar-month-week-view' />");
@@ -6752,7 +6794,7 @@ MonthView.prototype = {
             .append(colgroup)
             .append(thead);
         tr = $("<tr />");
-        weekNames = this.calendar.getWeekName();
+        weekNames = this.calendar.getWeekNames();
         for(i = 0, len = weekNames.length; i < len; i++) {
             colgroup.append("<col />");
             th = $("<th class='month-week-cell' />");
@@ -6772,29 +6814,28 @@ MonthView.prototype = {
         var tbody, colgroup, tr, td,
             day, first, last, startIndex,
             today, todayDate, checkTodayFn,
-            i, j, index,
-            isUpdate = false;
+            i, j, index;
 
         if (!this.daysTable) {
             this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
+            this.daysTable.click(this.onMonthItemClickHandler);
         } else {
             this.daysTable.html("");
-            isUpdate = true;
         }
 
         tbody = $("<tbody />");
         colgroup = $("<colgroup />");
-        for (i = 0; i < 7; j++) {
+        for (i = 0; i < 7; i++) {
             colgroup.append("<col />");
         }
         this.daysTable.append(colgroup).append(tbody);
 
         day = this.calendar.currentDate;
         first = new Date(day.getFullYear(), day.getMonth(), 1);
+        startIndex = this.calendar.getWeekIndexOf(first);
         last = (new Date(first.getFullYear(), first.getMonth() + 1, 0)).getDate();
         first = 1;
 
-        startIndex = this.calendar.getWeekIndexOf(first);
         today = new Date();
         todayDate = today.getDate();
         if (today.getFullYear() === day.getFullYear() && today.getMonth() === day.getMonth()) {
@@ -6810,6 +6851,13 @@ MonthView.prototype = {
             tr = $("<tr />");
             for (j = 0; j < 7; j++) {
                 td = $("<td class='month-days-cell' />");
+                tr.append(td);
+                if (i === 0 && j < startIndex) {
+                    continue;
+                } else if (index > last) {
+                    continue;
+                }
+
                 td.append("<div class='day-container' />");
                 if(this.calendar.isWeekend(j)) {
                     td.addClass("month-days-cell-weekend");
@@ -6817,14 +6865,8 @@ MonthView.prototype = {
                 if(j === 6) {
                     td.addClass("month-days-cell-last");
                 }
-                tr.append(td);
-                if (i === 0 && j < startIndex) {
-                    continue;
-                } else if (first > last) {
-                    continue;
-                }
 
-                td.children().html("<span class='month-date'>" + first + "</span>");
+                td.children().html("<span class='month-date'>" + index + "</span>");
                 if(checkTodayFn) {
                     checkTodayFn.call(this, td, index);
                 }
@@ -6836,9 +6878,6 @@ MonthView.prototype = {
             }
         }
         this.daysPanel.append(this.daysTable);
-        if(!isUpdate) {
-            this.daysTable.click(this.onMonthItemClickHandler);
-        }
     },
     _setCellSize: function (width, height) {
         var unitWidth,
@@ -6847,6 +6886,19 @@ MonthView.prototype = {
             lastHeight,
             prefix, weekNames,
             i, len;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+        // 减去head的高度
+        height -= 26;
+        this.daysPanel.css("height", height + "px");
 
         unitWidth = this._setCellWidth(width);
         rows = this.daysTable[0].rows;
@@ -6858,9 +6910,9 @@ MonthView.prototype = {
 
         for(i = 0; i < len; i++) {
             if(i < len - 1) {
-                $(rows[i]).children().css("min-height", unitHeight + "px");
+                $(rows[i]).children().css("height", unitHeight + "px");
             } else {
-                $(rows[i]).children().css("min-height", lastHeight + "px");
+                $(rows[i]).children().css("height", lastHeight + "px");
             }
         }
 
@@ -6880,8 +6932,8 @@ MonthView.prototype = {
             dcols;
         
         unitWidth = Math.floor(width / 7);
-        wcols = this.weekTable.chldren("colgroup").children("col");
-        dcols = this.daysTable.chldren("colgroup").children("col");
+        wcols = this.weekTable.children("colgroup").children();
+        dcols = this.daysTable.children("colgroup").children("col");
 
         wcols.splice(6, 1);
         dcols.splice(6, 1);
@@ -6922,7 +6974,7 @@ MonthView.prototype = {
             dayCell;
 
         rows = this.daysTable[0].tBodies[0].rows;
-        indexer = this.calendar.getTableIndexOfMonth(date);
+        indexer = this.calendar.getTableIndexOf(date);
         dayCell = $(rows[indexer.rowIndex].cells[indexer.cellIndex]);
         return dayCell;
     },
@@ -6932,7 +6984,7 @@ MonthView.prototype = {
             i, len, item, 
             isFunctionValue;
 
-        if(Array.isArray(data)) {
+        if(!Array.isArray(data)) {
             return;
         }
         if(!dateField) {
@@ -6982,11 +7034,15 @@ MonthView.prototype = {
     /** 向前切换 */
     previous: function() {
         var day = this.calendar.currentDate;
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.setMonth(day.getMonth() - 1)));
     },
     /** 向后切换 */
     next: function() {
         var day = this.calendar.currentDate;
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.setMonth(day.getMonth() + 1)));
     },
     /** 切换到当前 */
@@ -6994,6 +7050,8 @@ MonthView.prototype = {
         if (!day || !(day instanceof Date)) {
             day = new Date();
         }
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.getTime()));
     },
     /** 添加日程信息 */
@@ -7024,7 +7082,7 @@ MonthView.prototype = {
                     container,
                     builder;
                 
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 
                 if(scheduleList.length === 0) {
@@ -7159,9 +7217,6 @@ MonthView.prototype = {
     cancelSelection: YearView.prototype.cancelSelection,
     /** 设置视图的尺寸 */
     setSize: function(width, height) {
-        // 减去head的高度
-        height -= 26;
-        this.daysPanel.css("height", height + "px");
         this._setCellSize(width, height);
     },
     /** 获取月视图标题 */
@@ -7176,7 +7231,7 @@ MonthView.prototype = {
 // 周视图
 function WeekView(calendar) {
     if(this instanceof WeekView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new WeekView(calendar);
     }
@@ -7194,6 +7249,9 @@ WeekView.prototype = {
         this.weekDays = null;
         this.weekHours = [];
         this.initialled = false;
+
+        this.width = null;
+        this.height = null;
 
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
@@ -7226,7 +7284,6 @@ WeekView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
-        this.selector.active();
 
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -7286,7 +7343,7 @@ WeekView.prototype = {
         tbody = $("<tbody />");
 
         unitCount = this.calendar._getTimeCellCount();
-        for (; i < 24; i++) {
+        for (i = 0; i < 24; i++) {
             for(j = 0; j < unitCount; j++) {
                 tr = $("<tr />");
                 td = $("<td class='hour-name-cell' />");
@@ -7319,7 +7376,7 @@ WeekView.prototype = {
         }
 
         unitCount = this.calendar._getTimeCellCount();
-        len = 24 * count;
+        len = 24 * unitCount;
         for (i = 0; i < len; i++) {
             tr = $("<tr />");
             for (j = 0; j < 7; j++) {
@@ -7327,7 +7384,7 @@ WeekView.prototype = {
                 if (this.calendar.isWeekend(j)) {
                     td.addClass("week-hour-cell-weekend");
                 }
-                if ((i + 1) % count) {
+                if ((i + 1) % unitCount) {
                     td.addClass("week-hour-cell-odd");
                 }
                 tr.append(td);
@@ -7387,6 +7444,16 @@ WeekView.prototype = {
         var scrollWidth = 0,
             realWidth, unitWidth,
             wcols, hcols;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
         
         if (height < this.hourPanel[0].scrollHeight) {
             scrollWidth = ui.scrollbarWidth;
@@ -7434,8 +7501,8 @@ WeekView.prototype = {
         container = $("<div class='schedule-container' />");
         scheduleItem.append(title).append(container);
 
-        bp = this.getPositionAndSize(beginCell);
-        ep = this.getPositionAndSize(endCell);
+        bp = this._getPositionAndSize(beginCell);
+        ep = this._getPositionAndSize(endCell);
         scheduleItem.css({
             "top": bp.top + "px",
             "left": bp.left + "px",
@@ -7511,6 +7578,7 @@ WeekView.prototype = {
         return weekDay;
     },
     _changeWeek: function () {
+        this.calendar.currentDate = this.weekDays[0];
         this._setCurrent();
         this.clearSchedules();
         this.selector.cancelSelection();
@@ -7789,7 +7857,7 @@ WeekView.prototype = {
 // 日视图
 function DayView(calendar) {
     if(this instanceof DayView) {
-        this.initialize();
+        this.initialize(calendar);
     } else {
         return new DayView(calendar);
     }
@@ -7803,6 +7871,9 @@ DayView.prototype = {
         this.day = null;
         this.dayHours = [];
         this.initialled = false;
+
+        this.width = null;
+        this.height = null;
 
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
@@ -7834,7 +7905,6 @@ DayView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
-        this.selector.active();
         
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -7853,7 +7923,9 @@ DayView.prototype = {
     },
     _createDay: function () {
         this.dayTitle = $("<div class='ui-calendar-day-title' />");
-        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" 
+                + this._formatDayText(this.calendar.currentDate) 
+                + "</span>");
         this.dayPanel.append(this.dayTitle);
 
         this.dayTitle.click(this.onDayHeadItemClickHandler);
@@ -7863,26 +7935,39 @@ DayView.prototype = {
         var tbody, tr, td, 
             count, i, len;
 
-        this.hourTable = $("<table class='weekhour unselectable' cellspacing='0' cellpadding='0' />");
+        this.weekHour = $("<div class='week-hour-panel' />");
+        this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
         tbody = $("<tbody />");
         count = this.calendar._getTimeCellCount();
         len = 24 * count, i;
 
         for (i = 0; i < len; i++) {
             tr = $("<tr />");
-            td = $("<td class='hour-name-cell' style='width:100%' />");
+            td = $("<td class='week-hour-cell' style='width:100%' />");
             if ((i + 1) % count) {
-                td.addClass("hour-name-cell-odd");
+                td.addClass("week-hour-cell-odd");
             }
             tr.append(td);
             tbody.append(tr);
         }
         this.hourTable.append(tbody);
-        this.hourPanel.append(this.hourTable);
+        this.weekHour.append(this.hourTable);
+        this.hourPanel.append(this.weekHour);
     },
     _setCellSize: function (width, height) {
         var scrollWidth = 0,
             realWidth;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+
         if (height < this.hourPanel[0].scrollHeight) {
             scrollWidth = ui.scrollbarWidth;
         }
@@ -7922,7 +8007,9 @@ DayView.prototype = {
         this._setCurrent();
         this.clearSchedules();
         this.selector.cancelSelection();
-        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" 
+                + this._formatDayText(this.calendar.currentDate) 
+                + "</span>");
     },
     _getUnitHourNameHeight: WeekView.prototype._getUnitHourNameHeight,
     _getPositionAndSize: WeekView.prototype._getPositionAndSize,
@@ -7949,13 +8036,13 @@ DayView.prototype = {
     /** 向前切换 */
     previous: function() {
         var day = this.calendar.currentDate;
-        day.setDate(day - 1);
+        this.calendar.currentDate = new Date(day.setDate(day.getDate() - 1));
         this._changeDay();
     },
     /** 向后切换 */
     next: function() {
         var day = this.calendar.currentDate;
-        day.setDate(day + 1);
+        this.calendar.currentDate = new Date(day.setDate(day.getDate() + 1));
         this._changeDay();
     },
     /** 切换到当前 */
@@ -7998,7 +8085,7 @@ DayView.prototype = {
     },
     /** 获取日视图标题 */
     getTitle: function () {
-        return ui.str.stringFormat("{0}年{1}月{2}日",
+        return ui.str.textFormat("{0}年{1}月{2}日",
             this.year, this.month + 1, this.day);
     },
     /** 重写toString方法 */
@@ -8012,7 +8099,7 @@ function Selector(view, panel, table) {
     if(this instanceof Selector) {
         this.initialize(view, panel, table);
     } else {
-        return new Selector(calendar);
+        return new Selector(view, panel, table);
     }
 }
 Selector.prototype = {
@@ -8045,15 +8132,15 @@ Selector.prototype = {
             this.onMouseDown($(e.target), e.clientX, e.clientY);
         }, this);
         this.mouseMoveHandler = $.proxy(function (e) {
-            if (!this.isBeginSelect) {
+            if (!this._isBeginSelect) {
                 return;
             }
             this.onMouseMove(e);
         }, this);
         this.mouseLeftButtonUpHandler = $.proxy(function (e) {
-            if (e.which !== 1 || !this.isBeginSelect)
+            if (e.which !== 1 || !this._isBeginSelect)
                 return;
-            this.isBeginSelect = false;
+            this._isBeginSelect = false;
             $(document).off("mousemove", this.mouseMoveHandler);
             $(document).off("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseUp(e);
@@ -8174,12 +8261,12 @@ Selector.prototype = {
             beginTime, endTime; 
 
         box = this.selectionBox;
-        p = this.getPositionAndSize(td);
-        beginIndex = td.locationInGrid.row;
-        endIndex = td.locationInGrid.row + 1;
+        p = this._getPositionAndSize(td);
+        beginIndex = td.hourIndex;
+        endIndex = td.hourIndex + 1;
         if (arguments.length > 1 && arguments[1]) {
-            endIndex = arguments[1].locationInGrid.row + 1;
-            var p2 = this.getPositionAndSize(arguments[1]);
+            endIndex = arguments[1].hourIndex + 1;
+            var p2 = this._getPositionAndSize(arguments[1]);
             p.height = p2.top + p2.height - p.top
         }
 
@@ -8347,7 +8434,7 @@ Selector.prototype = {
                 "height": p2.top + p2.height - p.top + "px"
             });
             this._selectDirection = "up";
-            this.autoScrollY(p.top, this._selectDirection);
+            this._autoScrollY(p.top, this._selectDirection);
         }
 
         beginTime = this.view.calendar.indexToTime(begin.hourIndex),
@@ -8699,7 +8786,7 @@ ui.define("ui.ctrls.CalendarView", {
             result = null;
         if(date instanceof Date) {
             first = new Date(date.getFullYear(), date.getMonth(), 1);
-            startIndex = this.getWeekIndexOfDate(first);
+            startIndex = this.getWeekIndexOf(first);
             day = date.getDate() + startIndex - 1;
             result = {
                 rowIndex: Math.floor(day / 7),
@@ -8743,7 +8830,7 @@ ui.define("ui.ctrls.CalendarView", {
         return Math.ceil(this._timeToCellNumber(time));
     },
     /** 将时间转换为周视图和日视图对应的position */
-    timeToPosition: function(time) {
+    timeToPosition: function(time, unitHeight) {
         if(!time) {
             time = "00:00";
         }
@@ -8763,8 +8850,9 @@ ui.define("ui.ctrls.CalendarView", {
         }
         if(this._timeoutHandler) {
             clearTimeout(this._timeoutHandler);
+            this._timeoutHandler = null;
         }
-
+        parent.append(this.currentTimeElement);
         // 30秒更新一次
         updateInterval = 30 * 1000;
         that = this;
@@ -8783,7 +8871,7 @@ ui.define("ui.ctrls.CalendarView", {
             if(index === 0) {
                 elem.addClass("ui-current-time-top").css("top", top + "px");
             } else {
-                elem.removeClass("ui-current-time-top").css("top", top - ui.scrollbarWidth + "px");
+                elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
             }
             that._timeoutHandler = setTimeout(arguments.callee, updateInterval);
         };
@@ -8812,7 +8900,7 @@ ui.define("ui.ctrls.CalendarView", {
     },
     /** 判断是否包含view视图 */
     hasView: function(viewName) {
-        return this.views.hasOwnProperty(viewName + "");
+        return this.views.hasOwnProperty((viewName + "").toUpperCase());
     },
     /** 判断视图是否为某个名称的视图 */
     isView: function(view, viewName) {
@@ -8841,7 +8929,7 @@ ui.define("ui.ctrls.CalendarView", {
             option,
             endFn;
         
-        view = this.views[(viewName + "").toLowerCase()];
+        view = this.views[(viewName + "").toUpperCase()];
         if(!view) {
             throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
         }
@@ -8857,15 +8945,24 @@ ui.define("ui.ctrls.CalendarView", {
                 "opacity": 0
             });
             this.currentView.dormant();
+            this.currentView = null;
         }
+
+        this.currentView = view;
+        width = this.element.width();
+        this.currentView.viewPanel.css({
+            "display": "block",
+            "left": (width / 3) + "px"
+        });
+
         isInitialled = false;
         if(!view.initialled) {
             view.render();
             isInitialled = true;
         }
+
         isChanged = view.checkChange();
         view.setSize(this.element.width(), this.element.height());
-        this.currentView = view;
 
         that = this;
         endFn = function() {
@@ -8885,12 +8982,7 @@ ui.define("ui.ctrls.CalendarView", {
             endFn();
             return;
         }
-
-        width = this.element.width();
-        this.currentView.viewPanel.css({
-            "display": "block",
-            "left": (width / 3) + "px"
-        });
+        
         option = this.viewChangeAnimator[0];
         option.target = this.currentView.viewPanel;
         option.begin = width / 3;
@@ -8921,7 +9013,6 @@ $.fn.calendarView = function(option) {
     }
     if(!isCalendarViewThemeInitialized) {
         initCalendarViewTheme();
-        isCalendarViewThemeInitialized = true;
     }
     return ui.ctrls.CalendarView(option, this);
 };
@@ -8938,6 +9029,9 @@ function initCalendarViewTheme(colorInfo) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
             styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
+            themeStyle = styleHelper.styleSheet;
+        } else {
+            styleHelper = ui.StyleSheet(themeStyle);
         }
     } else {
         styleHelper = ui.StyleSheet(themeStyle);
@@ -9018,6 +9112,11 @@ function onBodyClick(e) {
         }
         elem = elem.parent();
     }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem);
 }
 
@@ -9058,7 +9157,7 @@ ui.define("ui.ctrls.CardView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
@@ -9088,14 +9187,14 @@ ui.define("ui.ctrls.CardView", {
         this.onBodyClickHandler = $.proxy(onBodyClick, this);
     },
     _render: function() {
-        if(!this.element || this.element.length === 0) {
-            return;
+        if(!this.element.hasClass("ui-card-view")) {
+            this.element.addClass("ui-card-view");
         }
 
         this._initBorderWidth();
-        this._initDataPrompt();
 
         this.viewBody = $("<div class='ui-card-view-body' />");
+        this._initDataPrompt();
         this.element.append(this.viewBody);
         this._initPagerPanel();
 
@@ -9137,7 +9236,7 @@ ui.define("ui.ctrls.CardView", {
                 text = text();
                 this._dataPrompt.append(text);
             }
-            this.gridBody.append(this._dataPrompt);
+            this.viewBody.append(this._dataPrompt);
         }
     },
     _initPagerPanel: function() {
@@ -9178,7 +9277,7 @@ ui.define("ui.ctrls.CardView", {
         
         isFunction = ui.core.isFunction(fn);
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
-        this.viewPanel.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
+        this.bodyPanel.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
         for(i = 0; i < rows; i++) {
             for(j = 0; j < marginInfo.count; j++) {
                 index = (i * marginInfo.count) + j;
@@ -9570,8 +9669,8 @@ ui.define("ui.ctrls.CardView", {
     /** 获取项目数 */
     count: function() {
         return Array.isArray(this.option.viewData)
-            ? 0
-            : this.option.viewData.length;
+            ? this.option.viewData.length
+            : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -9604,11 +9703,11 @@ ui.define("ui.ctrls.CardView", {
             width = null;
         }
         if(ui.core.isNumber(height)) {
-            height -= this.columnHeight + this.borderHeight;
+            height -= this.borderHeight;
             if(this.pager) {
                 height -= this.pagerHeight;
             }
-            this.gridBody.css("height", height + "px");
+            this.viewBody.css("height", height + "px");
             needRecompose = true;
         }
         if(ui.core.isNumber(width)) {
@@ -9625,7 +9724,7 @@ ui.define("ui.ctrls.CardView", {
     }
 });
 
-$.fn.cardView = function() {
+$.fn.cardView = function(option) {
     if(this.length === 0) {
         return;
     }
@@ -9654,7 +9753,7 @@ function onFoldTitleClick(e) {
         }
         elem = elem.parent();
     }
-    icon = elem.children("ui-fold-view-icon");
+    icon = elem.children(".ui-fold-view-icon");
     dd = elem.next();
     if(dd.css("display") === "none") {
         icon.removeClass("background-highlight")
@@ -9672,7 +9771,7 @@ function FoldView(element) {
     if(this instanceof FoldView) {
         this.initialize(element);
     } else {
-        return new FoldView();
+        return new FoldView(element);
     }
 }
 FoldView.prototype = {
@@ -9695,7 +9794,7 @@ FoldView.prototype = {
             text = dt.text();
             dt.addClass("ui-fold-view-title");
             div = $("<div class='ui-fold-view-icon border-highlight' />");
-            if(dt.next().css("display" === "none")) {
+            if(dt.next().css("display") === "none") {
                 div.addClass("background-highlight").text("+");
             } else {
                 div.addClass("font-highlight").text("-");
@@ -9943,6 +10042,7 @@ GridViewTree.prototype = {
         this.lazy = false;
         this.loadChildrenHandler = null;
         this.gridview = null;
+        this.isTreeNode = isTreeNode;
         
         this.onFoldButtonClickHandler = $.proxy(onFoldButtonClick, this);
     },
@@ -9973,7 +10073,7 @@ GridViewTree.prototype = {
             j;
         for (; i < len; i++) {
             item = viewData[i];
-            if (isTreeNode(item)) {
+            if (this.isTreeNode(item)) {
                 children = item[childrenField];
                 if (!children) {
                     continue;
@@ -10186,7 +10286,7 @@ GridViewTree.prototype = {
             item._level = 0;
         }
         span = $("<span />").text(val);
-        if (isTreeNode(item)) {
+        if (this.tree.isTreeNode(item)) {
             item._isFolded = false;
             span = [null, span[0]];
             if (this.tree.lazy) {
@@ -10240,7 +10340,7 @@ GridViewTree.prototype = {
 
             row = $("<tr />");
             viewData.splice(currRowIndex, 0, item);
-            this.gridview._createCells(row, item, currRowIndex);
+            this.gridview._createRowCells(row, item, currRowIndex);
             if (currRowIndex < viewData.length - 1) {
                 $(this.gridview.tableBody[0].rows[currRowIndex]).before(row);
             } else {
@@ -10250,7 +10350,7 @@ GridViewTree.prototype = {
             currRowIndex++;
         }
         this.gridview._updateScrollState();
-        this.gridview.refreshRowNumber(currRowIndex - 1);
+        this.gridview._refreshRowNumber(currRowIndex - 1);
 
         this._fixParentIndexes(rowData, rowIndex, len);
         this._fixTreeIndexes(
@@ -10309,8 +10409,8 @@ var cellCheckbox = "grid-checkbox",
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
 
-var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
-    checkboxFormatter = ui.ColumnStyle.cfn.checkbox,
+var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
+    checkboxFormatter = ui.ColumnStyle.cfn.check,
     columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
@@ -10441,12 +10541,12 @@ function changeChecked(cbx) {
         colIndex;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
         if(colIndex === -1) {
             return;
         }
         this._gridCheckboxAll = 
-            $(this.tableHead[0].tBodies[0].rows[0].cells[colIndex])
+            $(this.tableHead[0].tHead.rows[0].cells[colIndex])
                 .find("." + cellCheckboxAll);
     }
     if(checked) {
@@ -10522,6 +10622,10 @@ function onTableBodyClick(e) {
     var elem, tagName, selectedClass,
         exclude, result,
         nodeName;
+
+    if(!this.isSelectable()) {
+        return;
+    }
     
     elem = $(e.target);
     exclude = this.option.selection.exclude;
@@ -10552,6 +10656,10 @@ function onTableBodyClick(e) {
         elem = elem.parent();
     }
 
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
+    }
+
     this._selectItem(elem, selectedClass);
 }
 // 横向滚动条跟随事件处理
@@ -10568,17 +10676,17 @@ function onCheckboxAllClick(e) {
 
     e.stopPropagation();
 
+    cbxAll = $(e.target);
     cellIndex = cbxAll.parent().prop("cellIndex");
     if(cellIndex === -1) {
         return;
     }
 
-    cbxAll = $(e.target);
     checkedValue = !cbxAll.hasClass("fa-check-square");
     setChecked.call(this, cbxAll, checkedValue);
 
     if(this.option.selection.isRelateCheckbox === true && this.isMultiple()) {
-        selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
+        selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(checkedValue) {
             // 如果是要选中，需要同步行状态
             fn = function(td, checkbox) {
@@ -10586,7 +10694,7 @@ function onCheckboxAllClick(e) {
                 if(this.option.selection.type === "cell") {
                     elem = td;
                 } else {
-                    elem = elem.parent();
+                    elem = td.parent();
                 }
                 elem.context = checkbox[0];
                 this._selectItem(elem, selectedClass, checkedValue);
@@ -10670,7 +10778,7 @@ ui.define("ui.ctrls.GridView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
@@ -10693,6 +10801,22 @@ ui.define("ui.ctrls.GridView", {
         } else {
             this.pageIndex = 1;
             this.pageSize = defaultPageSize;
+        }
+
+        // 修正selection设置项
+        if(!this.option.selection) {
+            this.option.selection = {
+                type: "disabled"
+            };
+        } else {
+            if(ui.core.isString(this.option.selection.type)) {
+                this.option.selection.type = this.option.selection.type.toLowerCase();
+            } else {
+                this.option.selection.type = "disabled";
+            }
+            if(!this.option.selection.multiple) {
+                this.option.selection.isRelateCheckbox = false;
+            }
         }
 
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
@@ -10722,19 +10846,6 @@ ui.define("ui.ctrls.GridView", {
             this.element.addClass("ui-grid-view");
         }
         this._initBorderWidth();
-
-        // 修正selection设置项
-        if(!this.option.selection) {
-            this.option.selection = {
-                type: "disabled"
-            };
-        } else {
-            if(ui.core.isString(this.option.selection.type)) {
-                this.option.selection.type = this.option.selection.type.toLowerCase();
-            } else {
-                this.option.selection.type = "disabled";
-            }
-        }
 
         // 表头
         this.gridHead = $("<div class='ui-grid-head' />");
@@ -10854,7 +10965,8 @@ ui.define("ui.ctrls.GridView", {
         if (Array.isArray(c.column)) {
             value = {};
             for (i = 0, len = c.column.length; i < len; i++) {
-                value[c.column[i]] = this._getValue(rowData, c.column[i], c);
+                value[i] = value[c.column[i]] = 
+                    this._getValue(rowData, c.column[i], c);
             }
         } else {
             value = this._getValue(rowData, c.column, c);
@@ -10902,7 +11014,7 @@ ui.define("ui.ctrls.GridView", {
             cell.click(this.onSortHandler);
             cell.addClass("sorter");
             cell.append("<i class='fa fa-sort' />");
-            this.sorterIndexes.push(index);
+            this._sorterIndexes.push(index);
         }
     },
     _renderPageList: function(rowCount) {
@@ -10951,11 +11063,14 @@ ui.define("ui.ctrls.GridView", {
             cell.append(rowNumber.call(this, null, column, i));
         }
     },
-    _getColumnIndexByFormatter: function(formatter) {
+    _getColumnIndexByFormatter: function(formatter, field) {
         var i, 
             len = this.option.columns.length;
+        if(!field) {
+            field = "formatter";
+        }
         for(i = 0; i < len; i++) {
-            if(this.option.columns[i].formatter === rowNumber) {
+            if(this.option.columns[i][field] === formatter) {
                 return i;
             }
         }
@@ -10981,7 +11096,7 @@ ui.define("ui.ctrls.GridView", {
             i, len;
         for(i = 0, len = exArr.length; i < len; i++) {
             ex = ui.str.trim(exArr[i]);
-            match = ex.match(atttibutes);
+            match = ex.match(attributes);
             if(match) {
                 ex = ex.match(tag)[1];
                 if(ex === tagName) {
@@ -11154,9 +11269,7 @@ ui.define("ui.ctrls.GridView", {
         
         if (!this.tableBody) {
             this.tableBody = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
-            if (this.isSelectable()) {
-                this.tableBody.click(this.onTableBodyClickHandler);
-            }
+            this.tableBody.click(this.onTableBodyClickHandler);
             this.gridBody.append(this.tableBody);
         } else {
             this.gridBody.scrollTop(0);
@@ -11208,7 +11321,7 @@ ui.define("ui.ctrls.GridView", {
             result = [],
             i, len;
 
-        columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
         if(columnIndex === -1) {
             return result;
         }
@@ -11255,7 +11368,7 @@ ui.define("ui.ctrls.GridView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+            columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
@@ -11470,8 +11583,8 @@ ui.define("ui.ctrls.GridView", {
     /** 获取项目数 */
     count: function() {
         return Array.isArray(this.option.viewData)
-            ? 0
-            : this.option.viewData.length;
+            ? this.option.viewData.length
+            : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -11573,6 +11686,10 @@ function onListItemClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     index = this._getItemIndex(elem[0]);
@@ -12201,8 +12318,8 @@ var DATA_BODY = "DataBody",
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
 
-var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.columnCheckboxAll,
-    checkboxFormatter = ui.ColumnStyle.cfn.checkbox,
+var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
+    checkboxFormatter = ui.ColumnStyle.cfn.check,
     columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
     textFormatter = ui.ColumnStyle.cfn.text,
     rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
@@ -12349,7 +12466,7 @@ function changeChecked(cbx) {
         colIndex;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter);
+        colIndex = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
         if(colIndex === -1) {
             return;
         }
@@ -12482,7 +12599,7 @@ function onCheckboxAllClick(e) {
 
     e.stopPropagation();
 
-    columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+    columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
     if(!columnInfo) {
         return;
     }
@@ -12572,6 +12689,7 @@ function onTableFixedBodyClick(e) {
         }
         rowIndex = elem[0].rowIndex;
         elem = $(this.tableDataBody[0].rows[rowIndex]);
+        elem.context = e.target;
 
         this._selectItem(elem, "row-selected");
     }
@@ -12604,6 +12722,10 @@ function onTableDataBodyClick(e) {
             return;
         }
         elem = elem.parent();
+    }
+
+    if(elem[0] !== e.target) {
+        elem.context = e.target;
     }
 
     this._selectItem(elem, selectedClass);
@@ -12662,7 +12784,7 @@ ui.define("ui.ctrls.ReportView", {
         };
     },
     _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cencel"];
+        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
         if(this.option.pager) {
             events.push("pagechanging");
         }
@@ -12691,6 +12813,22 @@ ui.define("ui.ctrls.ReportView", {
             preparePager.call(this, this.option.pager);
         }
 
+        // 修正selection设置项
+        if(!this.option.selection) {
+            this.option.selection = {
+                type: "disabled"
+            };
+        } else {
+            if(ui.core.isString(this.option.selection.type)) {
+                this.option.selection.type = this.option.selection.type.toLowerCase();
+            } else {
+                this.option.selection.type = "disabled";
+            }
+            if(!this.option.selection.multiple) {
+                this.option.selection.isRelateCheckbox = false;
+            }
+        }
+
         if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
             this.option.width = false;
         }
@@ -12704,12 +12842,14 @@ ui.define("ui.ctrls.ReportView", {
         this._checkedCount = 0;
 
         // 事件初始化
+        // 排序按钮点击事件
+        this.onSortHandler = $.proxy(onSort, this);
         // 全选按钮点击事件
         this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
         // 滚动条同步事件
         this.onScrollingHandler = $.proxy(onScrolling, this);
         // 固定行点击事件
-        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick);
+        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick, this);
         // 数据行点击事件
         this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
     },
@@ -12719,20 +12859,6 @@ ui.define("ui.ctrls.ReportView", {
         }
 
         this._initBorderWidth();
-        this._initDataPrompt();
-
-        // 修正selection设置项
-        if(!this.option.selection) {
-            this.option.selection = {
-                type: "disabled"
-            };
-        } else {
-            if(ui.core.isString(this.option.selection.type)) {
-                this.option.selection.type = this.option.selection.type.toLowerCase();
-            } else {
-                this.option.selection.type = "disabled";
-            }
-        }
 
         // 表头
         this.reportHead = $("<div class='ui-report-head' />");
@@ -12750,6 +12876,7 @@ ui.define("ui.ctrls.ReportView", {
         this._fixedBodyScroll = $("<div class='fixed-body-scroll' />")
             .css("height", ui.scrollbarHeight);
         this.reportDataBody = $("<div class='data-body' />");
+        this._initDataPrompt();
         this.reportDataBody.scroll(this.onScrollingHandler);
         this.reportBody
             .append(this.reportFixedBody)
@@ -12797,7 +12924,7 @@ ui.define("ui.ctrls.ReportView", {
                 text = text();
                 this._dataPrompt.append(text);
             }
-            this.gridBody.append(this._dataPrompt);
+            this.reportDataBody.append(this._dataPrompt);
         }
     },
     _initSuitable: function() {
@@ -12810,11 +12937,11 @@ ui.define("ui.ctrls.ReportView", {
             context: this,
             target: this._fitLine,
             handle: this.reportDataHead,
-            onBeginDrag: function() {
+            onBeginDrag: function(arg) {
                 var elem, that, option,
                     elemOffset, panelOffset, left;
                 
-                elem = $(this.taget);
+                elem = $(arg.target);
                 if(!elem.isNodeName("b")) {
                     return false;
                 }
@@ -12836,7 +12963,7 @@ ui.define("ui.ctrls.ReportView", {
                     "display": "block"
                 });
             },
-            onMoving: function() {
+            onMoving: function(arg) {
                 var option,
                     that,
                     left;
@@ -12845,7 +12972,7 @@ ui.define("ui.ctrls.ReportView", {
                 that = option.context;
 
                 left = parseFloat(option.target.css("left"));
-                left += this.x;
+                left += arg.x;
 
                 if (left < option.leftLimit) {
                     left = option.leftLimit;
@@ -12855,11 +12982,12 @@ ui.define("ui.ctrls.ReportView", {
                 option.endLeft = left;
                 option.target.css("left", left + "px");
             },
-            onEndDrag: function() {
+            onEndDrag: function(arg) {
                 var option,
                     that,
                     colIndex, column,
-                    width, col;
+                    width, col,
+                    setWidthFn;
 
                 option = this.option;
                 that = option.context;
@@ -12878,13 +13006,18 @@ ui.define("ui.ctrls.ReportView", {
                     width = 30;
                 }
                 column.len = width;
-                if(that.tableDataBody) {
-                    col = that.tableDataBody.children("colgroup").children()[colIndex];
-                    if(col) {
-                        col = $(col);
-                        col.css("width", width + "px");
+                setWidthFn  = function(container) {
+                    var col;
+                    if(container) {
+                        col = container.children("colgroup").children()[colIndex];
+                        if(col) {
+                            col = $(col);
+                            col.css("width", column.len + "px");
+                        }
                     }
-                }
+                };
+                setWidthFn(that.tableDataHead);
+                setWidthFn(that.tableDataBody);
                 that._updateScrollState();
             }
         });
@@ -12955,7 +13088,7 @@ ui.define("ui.ctrls.ReportView", {
 
                 rows = tr.parent().children();
                 rowspan = rows.length;
-                th = $("<th class='scroll-cell' />");
+                th = $("<th class='ui-report-head-cell scroll-cell' />");
                 if (rowspan > 1) {
                     th.attr("rowspan", rowspan);
                 }
@@ -13052,7 +13185,7 @@ ui.define("ui.ctrls.ReportView", {
                         th.append(el);
                     }
 
-                    if (c.column || ui.core.isFunction(c.handler)) {
+                    if (c.column || ui.core.isFunction(c.formatter)) {
                         if (!c._columnKeys) {
                             c._columnKeys = {};
                         }
@@ -13084,7 +13217,7 @@ ui.define("ui.ctrls.ReportView", {
         for (i = 0; i < columns.length; i++) {
             c = columns[i];
             c.cellIndex = i;
-            colGroup.append(this.createCol(c));
+            colGroup.append(this._createCol(c));
 
             args = [c, c.cell];
             if (hasFn) {
@@ -13116,7 +13249,7 @@ ui.define("ui.ctrls.ReportView", {
         colGroup = $("<colgroup />");
         for (j = 0; j < columnLength; j++) {
             c = columns[j];
-            colGroup.append(this.createCol(c));
+            colGroup.append(this._createCol(c));
         }
 
         tbody = $("<tbody />");
@@ -13178,7 +13311,8 @@ ui.define("ui.ctrls.ReportView", {
         if (Array.isArray(c.column)) {
             value = {};
             for (i = 0, len = c.column.length; i < len; i++) {
-                value[c.column[i]] = this._getValue(rowData, c.column[i], c);
+                value[i] = value[c.column[i]] = 
+                    this._getValue(rowData, c.column[i], c);
             }
         } else {
             value = this._getValue(rowData, c.column, c);
@@ -13235,7 +13369,7 @@ ui.define("ui.ctrls.ReportView", {
             cell.click(this.onSortHandler);
             cell.addClass("sorter");
             cell.append("<i class='fa fa-sort' />");
-            this.sorterIndexes.push(index);
+            this._sorterIndexes.push(index);
         }
     },
     _renderPageList: function(rowCount) {
@@ -13260,9 +13394,9 @@ ui.define("ui.ctrls.ReportView", {
 
         if (sh > h) {
             //滚动条默认是17像素，在IE下会显示为16.5，有效值为16。为了修正此问题设置为17.1
-            this.dataHeadScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
+            this._dataHeadScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
-            this.dataHeadScrollCol.css("width", "0");
+            this._dataHeadScrollCol.css("width", "0");
         }
 
         if (sw > w) {
@@ -13293,7 +13427,7 @@ ui.define("ui.ctrls.ReportView", {
         } else {
             startRowIndex += 1;
         }
-        rows = columnInfo.tableBody[0].rows;
+        rows = columnInfo.bodyTable[0].rows;
         column = columnInfo.columns[columnInfo.columnIndex];
         len = ui.core.isNumber(endRowIndex) ? endRowIndex + 1 : rows.length;
         for (i = startRowIndex; i < len; i++) {
@@ -13319,7 +13453,7 @@ ui.define("ui.ctrls.ReportView", {
             this.pager.empty();
         }
     },
-    _getColumnIndexAndTableByFormatter: function(formatter) {
+    _getColumnIndexAndTableByFormatter: function(formatter, field) {
         var result, i, len;
         result = {
             columnIndex: -1,
@@ -13328,9 +13462,13 @@ ui.define("ui.ctrls.ReportView", {
             bodyTable: null
         };
 
+        if(!field) {
+            field = "formatter";
+        }
+
         if(this.fixedColumns) {
             for(i = 0, len = this.fixedColumns.length; i < len; i++) {
-                if(this.fixedColumns[i].formatter === formatter) {
+                if(this.fixedColumns[i][field] === formatter) {
                     result.columnIndex = i;
                     result.columns = this.fixedColumns;
                     result.headTable = this.tableFixedHead;
@@ -13341,7 +13479,7 @@ ui.define("ui.ctrls.ReportView", {
         }
         if(this.dataColumns) {
             for(i = 0, len = this.dataColumns.length; i < len; i++) {
-                if(this.dataColumns[i].formatter === formatter) {
+                if(this.dataColumns[i][field] === formatter) {
                     result.columnIndex = i;
                     result.columns = this.dataColumns;
                     result.headTable = this.tableDataHead;
@@ -13366,6 +13504,26 @@ ui.define("ui.ctrls.ReportView", {
             data.rowData = this.option.viewData[data.rowIndex];
         }
         return data;
+    },
+    _excludeElement: function(elem, exclude) {
+        var tagName = elem.nodeName().toLowerCase(),
+            exArr = exclude.split(","),
+            ex, match,
+            i, len;
+        for(i = 0, len = exArr.length; i < len; i++) {
+            ex = ui.str.trim(exArr[i]);
+            match = ex.match(attributes);
+            if(match) {
+                ex = ex.match(tag)[1];
+                if(ex === tagName) {
+                    return elem.attr(match[1]) !== match[4];
+                }
+            } else {
+                if(ex.toLowerCase() === tagName) {
+                    return false;
+                }
+            }
+        }
     },
     _selectItem: function(elem, selectedClass, selectValue) {
         var eventData, result,
@@ -13436,7 +13594,7 @@ ui.define("ui.ctrls.ReportView", {
             // 单选
             if(this._current) {
                 this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this_current[0] === elem[0]) {
+                if(this._current[0] === elem[0]) {
                     this._current = null;
                     this.fire("deselected", eventData);
                     return;
@@ -13510,7 +13668,7 @@ ui.define("ui.ctrls.ReportView", {
             result = [],
             i, len;
 
-        columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+        columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
         if(!columnInfo) {
             return result;
         }
@@ -13557,7 +13715,7 @@ ui.define("ui.ctrls.ReportView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter);
+            columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
             fn = function(elem) {
                 var checkbox,
                     rowIndex,
@@ -13615,7 +13773,7 @@ ui.define("ui.ctrls.ReportView", {
             return;
         }
         if(this._current && this._current[0] === row[0]) {
-            this_current = null;
+            this._current = null;
         }
         if(this.tableFixedBody) {
             $(this.tableFixedBody[0].rows[rowIndex]).remove();
@@ -13886,6 +14044,7 @@ $.fn.reportView = function(option) {
 
 var selectedClass = "ui-tab-selection";
 
+function noop() {}
 // 视图模式
 function View(tabView) {
     if(this instanceof View) {
@@ -13959,7 +14118,7 @@ View.prototype = {
 
         if(animation === false) {
             this.bodySet(index);
-            this.fire("changed", index);
+            tabView.fire("changed", index);
             return;
         }
 
@@ -13981,10 +14140,11 @@ View.prototype = {
         } else {
             option.end = cssValue;
         }
-        option = this.viewAnimator[1];
+        option = this.animator[1];
         option.target = this.nextView;
         option.begin = parseFloat(option.target.css(this.animationCssItem));
         option.end = 0;
+        option.target.css("display", "block");
 
         this.animator.start();
     },
@@ -14002,7 +14162,7 @@ View.prototype = {
         }
         this.currentIndex = index;
         tabView._current = $(views[index]);
-        tavView._current.css({
+        tabView._current.css({
             "display": "block",
             "top": "0",
             "left": "0"
@@ -14027,7 +14187,7 @@ View.prototype = {
 };
 
 // 标签模式
-function Tab() {
+function Tab(tabView) {
     if(this instanceof Tab) {
         this.initialize(tabView);
     } else {
@@ -14089,7 +14249,7 @@ Tab.prototype = {
         tabView.tabs.addClass("font-highlight-hover");
 
         that = this;
-        this.tabPanel.click(function(e) {
+        tabView.tabPanel.click(function(e) {
             var elem = $(e.target);
             while(!elem.hasClass("ui-tab-button")) {
                 if(elem[0] === tabView.tabPanel[0]) {
@@ -14107,6 +14267,7 @@ Tab.prototype = {
         var tabView,
             result;
 
+        tabView = this.tabView;
         if(tabView._current && tabView._current[0] === view[0]) {
             return;
         }
@@ -14120,9 +14281,9 @@ Tab.prototype = {
             return;
         }
 
-        tabView = this.tabView;
         if(tabView._current && tabView.tabs) {
             tabView._current
+                .removeClass(selectedClass)
                 .removeClass("border-highlight")
                 .removeClass("font-highlight");
         }
@@ -14140,7 +14301,7 @@ Tab.prototype = {
             tabView.fire("changed", index);
         } else {
             this.bodyShow(index).done(function() {
-                that.fire("changed", index);
+                tabView.fire("changed", index);
             });
         }
     },
@@ -14266,7 +14427,7 @@ ui.define("ctrls.TabView", {
         view = view || this._current;
         if(tabs && view) {
             for(i = 0, len = tabs.length; i < len; i++) {
-                if(tab[i] === view[0]) {
+                if(tabs[i] === view[0]) {
                     return i;
                 }
             }
@@ -14278,15 +14439,15 @@ ui.define("ctrls.TabView", {
         if(!ui.core.isNumber(index)) {
             index = 0;
         }
-        this.showIndex(index, !!animation);
+        this.model.showIndex(index, !!animation);
     },
     /** 放置视图 */
     putBodies: function(width, height) {
         if(!ui.core.isNumber(width)) {
-            width = tabView.bodyPanel.width();
+            width = this.bodyPanel.width();
         }
         if(!ui.core.isNumber(height)) {
-            height = tabView.bodyPanel.height();
+            height = this.bodyPanel.height();
         }
         this.bodyWidth = width;
         this.bodyHeight = height;
@@ -14408,12 +14569,12 @@ ui.ctrls.TabView.TabManager = TabManager;
  * 树形列表
  */
 
-ui.define("ui.ctrls.TreeView", {
+ui.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
     _render: function() {
         var position;
 
         this.treePanel = this.element;
-        position = this.treePanel.css(position);
+        position = this.treePanel.css("position");
         
         this.treePanel
             .addClass("ui-selection-tree-panel")
@@ -14426,6 +14587,13 @@ ui.define("ui.ctrls.TreeView", {
         }
     }
 });
+
+$.fn.treeView = function(option) {
+    if(this.length === 0) {
+        return;
+    }
+    return ui.ctrls.TreeView(option, this);
+};
 
 
 })(jQuery, ui);
@@ -15050,14 +15218,26 @@ $.fn.extendButton = function(option) {
 
 (function($, ui) {
 /* 内容过滤选择器 */
-var prefix = "filter_tool";
-var filterCount = 0;
+var prefix = "filter_tool",
+    filterCount = 0;
+
+function onItemClick (e) {
+    var elem = $(e.target);
+    var nodeName;
+    while ((nodeName = elem.nodeName()) !== "LABEL") {
+        if (nodeName === "DIV") {
+            return;
+        }
+        elem = elem.parent();
+    }
+    this._selectItem(elem);
+}
 
 ui.define("ui.ctrls.FilterTool", {
     _defineOption: function () {
         //data item is { text: "", value: "" }
         return {
-            data: [],
+            viewData: [],
             defaultIndex: 0,
             filterCss: null
         };
@@ -15066,16 +15246,19 @@ ui.define("ui.ctrls.FilterTool", {
         return ["selected", "deselected"];
     },
     _create: function () {
-        var i, len, item;
+        var i, len, 
+            item,
+            viewData;
 
-        this.data = Array.isArray(this.option.data) ? this.option.data : [];
         this.filterPanel = $("<div class='filter-tools-panel'>");
         this.parent = this.element;
         this.radioName = prefix + "_" + (filterCount++);
 
-        len = this.data.length;
-        for (i = 0; i < len; i++) {
-            item = this.data[i];
+        this.onItemClickHandler = $.proxy(onItemClick, this);
+
+        viewData = this.getViewData();
+        for (i = 0, len = viewData.length; i < len; i++) {
+            item = viewData[i];
             if (item.selected === true) {
                 this.option.defaultIndex = i;
             }
@@ -15084,7 +15267,7 @@ ui.define("ui.ctrls.FilterTool", {
         if (this.option.filterCss) {
             this.filterPanel.css(this.option.filterCss);
         }
-        this.filterPanel.click($.proxy(this.onClickHandler, this));
+        this.filterPanel.click(this.onItemClickHandler);
         this.parent.append(this.filterPanel);
 
         if (!ui.core.isNumber(this.option.defaultIndex) || this.option.defaultIndex >= len || this.option.defaultIndex < 0) {
@@ -15099,8 +15282,8 @@ ui.define("ui.ctrls.FilterTool", {
 
         item.index = index;
         var label = $("<label class='filter-tools-item' />"),
-            radio = $("<input type='radio' name='" + this.radioName + "'/>"),
-            span = $("<span />");
+            radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>"),
+            span = $("<span class='filter-tools-item-text' />");
         label.append(radio).append(span);
 
         if (index === 0) {
@@ -15113,18 +15296,7 @@ ui.define("ui.ctrls.FilterTool", {
 
         this.filterPanel.append(label);
     },
-    onClickHandler: function (e) {
-        var elem = $(e.target);
-        var nodeName;
-        while ((nodeName = elem.nodeName()) !== "LABEL") {
-            if (nodeName === "DIV") {
-                return;
-            }
-            elem = elem.parent();
-        }
-        this.selectFilterItem(elem);
-    },
-    selectFilterItem: function (label) {
+    _selectItem: function (label) {
         var item = label.data("dataItem"),
             currentItem;
         if (this.current) {
@@ -15148,30 +15320,89 @@ ui.define("ui.ctrls.FilterTool", {
         this.fire("selected", item);
     },
     _getIndexByValue: function(value) {
-        var index = -1;
-        if(!this.data) {
-            return index;
-        }
-        var i = this.data.length - 1;
-        for (; i >= 0; i--) {
-            if (this.data[i].value === value) {
+        var viewData,
+            index, 
+            i;
+
+        viewData = this.getViewData();
+        index = -1;
+        for (i = viewData.length - 1; i >= 0; i--) {
+            if (viewData[i].value === value) {
                 index = i;
                 break;
             }
         }
         return index;
     },
+    _setDisplayIndex: function(index, isHide) {
+        var viewData, 
+            label;
+
+        viewData = this.getViewData();
+        if (!viewData.length === 0) {
+            return;
+        }
+        if (!ui.core.isNumber(index)) {
+            index = 0;
+        }
+        if (index >= 0 && index < viewData.length) {
+            label = $(this.filterPanel.children()[index]);
+            if(isHide) {
+                label.addClass("filter-tools-item-hide");
+            } else {
+                label.removeClass("filter-tools-item-hide");
+            }
+            this._updateFirstClass();
+        }  
+    },
+    _updateFirstClass: function() {
+        var children,
+            i, len,
+            label,
+            firstLabel;
+        
+        children = this.filterPanel.children();
+        for(i, len = children.length; i < len; i++) {
+            label = $(children[i]);
+            if(label.hasClass("filter-tools-item-hide")) {
+                continue;
+            }
+            if(!firstLabel) {
+                firstLabel = label;
+            } else {
+                label.removeClass("filter-tools-item-first");
+            }
+        }
+        if(firstLabel) {
+            firstLabel.addClass("filter-tools-item-first");
+        }
+    },
+    getViewData: function() {
+        return Array.isArray(this.option.viewData)
+            ? this.option.viewData
+            : [];
+    },
+    getSelection: function () {
+        var currentItem = null;
+        if (this.current) {
+            currentItem = this.current.data("dataItem");
+        }
+        return currentItem;
+    },
     setIndex: function (index) {
-        if (!this.data) {
+        var viewData,
+            lable;
+
+        viewData = this.getViewData();
+        if (!viewData.length === 0) {
             return;
         }
         if (!$.isNumeric(index)) {
             index = 0;
         }
-        var label;
-        if (index >= 0 && index < this.data.length) {
+        if (index >= 0 && index < viewData.length) {
             label = $(this.filterPanel.children()[index]);
-            this.selectFilterItem(label);
+            this._selectItem(label);
         }
     },
     setValue: function(value) {
@@ -15197,55 +15428,9 @@ ui.define("ui.ctrls.FilterTool", {
         if(index > -1) {
             this.showIndex(index);
         }
-    },
-    _setDisplayIndex: function(index, isHide) {
-        if (!this.data) {
-            return;
-        }
-        if (!ui.core.isNumber(index)) {
-            index = 0;
-        }
-        var label;
-        if (index >= 0 && index < this.data.length) {
-            label = $(this.filterPanel.children()[index]);
-            if(isHide) {
-                label.addClass("filter-tools-item-hide");
-            } else {
-                label.removeClass("filter-tools-item-hide");
-            }
-            this._updateFirstClass();
-        }  
-    },
-    _updateFirstClass: function() {
-        var children = this.filterPanel.children();
-        var i = 0,
-            len = children.length,
-            label,
-            firstLabel;
-        for(; i < len; i++) {
-            label = $(children[i]);
-            if(label.hasClass("filter-tools-item-hide")) {
-                continue;
-            }
-            if(!firstLabel) {
-                firstLabel = label;
-            } else {
-                label.removeClass("filter-tools-item-first");
-            }
-        }
-        if(firstLabel) {
-            firstLabel.addClass("filter-tools-item-first");
-        }
-    },
-    getCurrent: function () {
-        var currentItem = null;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
-        }
-        return currentItem;
     }
 });
-$.fn.createFilterTools = function (option) {
+$.fn.filterTool = function (option) {
     if (this.length === 0) {
         return null;
     }

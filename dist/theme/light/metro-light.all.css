@@ -165,7 +165,7 @@
 .ui-calendar-month-day-view .month-days-cell .day-container {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 .ui-calendar-month-day-view .month-days-cell .month-date {
   font-size: 18px;
@@ -1116,7 +1116,7 @@ input.dateChooser-clear {
 .filter-tools-item-first {
   border-left: solid 1px transparent;
 }
-.filter-tools-item input {
+.filter-tools-item-radio {
   width: 0px;
   height: 0px;
   margin: 0px;
@@ -1124,7 +1124,7 @@ input.dateChooser-clear {
   visibility: hidden;
   display: none;
 }
-.filter-tools-item span {
+.filter-tools-item-text {
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -1269,7 +1269,11 @@ input.dateChooser-clear {
 }
 .ui-table-body .row-selected a,
 .ui-table-body .cell-selected a {
-  color: #ffffff;
+  color: #ffffff !important;
+}
+.ui-table-body .row-selected .grid-checkbox,
+.ui-table-body .cell-selected .grid-checkbox {
+  color: #ffffff !important;
 }
 .ui-table-body span,
 .ui-table-body a {
@@ -1309,32 +1313,38 @@ input.dateChooser-clear {
   background-color: #ff2968;
 }
 /* 进度条样式 */
-.ui-table-body .progress-panel {
+.ui-table-body .cell-progress-panel {
   margin-left: 5px;
   margin-right: 5px;
+  height: 20px;
 }
-.ui-table-body .progress-bar {
-  margin-top: 5px;
+.ui-table-body .cell-progress-bar {
+  margin-top: 4px;
   float: left;
   height: 12px;
   background-color: #dcdcdc;
   overflow: hidden;
 }
-.ui-table-body .progress-value {
+.ui-table-body .cell-progress-value {
   height: 12px;
 }
-.ui-table-body .progress-text {
+.ui-table-body .cell-progress-text {
   float: right;
   text-align: right;
   width: 52px;
+  font-size: 12px;
 }
-.ui-table-body .progress-text span {
-  margin-left: 0;
-  margin-right: 0;
+.ui-table-body .row-selected .cell-progress-bar,
+.ui-table-body .cell-selected .cell-progress-bar {
+  background-color: #888888;
 }
-.ui-table-body .row-selected .progress-text span,
-.ui-table-body .cell-selected .progress-text span {
-  color: #ffffff;
+.ui-table-body .row-selected .cell-progress-value,
+.ui-table-body .cell-selected .cell-progress-value {
+  background-color: #fff !important;
+}
+.ui-table-body .row-selected .cell-progress-text span,
+.ui-table-body .cell-selected .cell-progress-text span {
+  color: #fff;
 }
 /* GridTree 专有样式 */
 .ui-table-body .fold {
@@ -1360,11 +1370,13 @@ input.dateChooser-clear {
 }
 .ui-table-head .grid-checkbox-all,
 .ui-table-body .grid-checkbox {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   display: inline-block;
   vertical-align: middle;
-  color: #666666;
+  color: #888888;
+  cursor: pointer;
+  text-align: center;
 }
 .ui-table-head .grid-checkbox-all:active,
 .ui-table-body .grid-checkbox:active {
@@ -2026,6 +2038,31 @@ div.c_flyingDots div.c_loadingFallback {
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
 }
+.ui-report-view .fit-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  border: none 0;
+  margin: 0;
+  padding: 0;
+  display: none;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+.ui-report-view .fit-column-handle {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 2px;
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  opacity: .01;
+  cursor: col-resize;
+}
 /* 表头 */
 .ui-report-head {
   position: relative;
@@ -2052,9 +2089,6 @@ div.c_flyingDots div.c_loadingFallback {
   color: #333333;
   border-spacing: 0;
   border-collapse: collapse;
-}
-.ui-report-head tr {
-  height: 30px;
 }
 .ui-report-head-cell {
   padding: 0px;
@@ -2211,56 +2245,38 @@ div.c_flyingDots div.c_loadingFallback {
   background-color: #ff2968;
 }
 /* 进度条样式 */
-.ui-report-body .progress-panel {
+.ui-report-body .cell-progress-panel {
   margin-left: 5px;
   margin-right: 5px;
+  height: 20px;
 }
-.ui-report-body .progress-bar {
-  margin-top: 5px;
+.ui-report-body .cell-progress-bar {
+  margin-top: 4px;
   float: left;
   height: 12px;
   background-color: #dcdcdc;
   overflow: hidden;
 }
-.ui-report-body .progress-value {
+.ui-report-body .cell-progress-value {
   height: 12px;
 }
-.ui-report-body .progress-text {
+.ui-report-body .cell-progress-text {
   float: right;
   text-align: right;
   width: 52px;
+  font-size: 12px;
 }
-.ui-report-body .progress-text span {
-  margin-left: 0;
-  margin-right: 0;
+.ui-table-body .row-selected .cell-progress-bar,
+.ui-table-body .cell-selected .cell-progress-bar {
+  background-color: #888888;
 }
-.ui-report-body .row-selected .progress-text span,
-.ui-report-body .cell-selected .progress-text span {
+.ui-table-body .row-selected .cell-progress-value,
+.ui-table-body .cell-selected .cell-progress-value {
+  background-color: #fff !important;
+}
+.ui-table-body .row-selected .cell-progress-text span,
+.ui-table-body .cell-selected .cell-progress-text span {
   color: #fff;
-}
-.ui-report-body .fit-column-handle {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  width: 2px;
-  height: 100%;
-  display: block;
-  margin: 0;
-  padding: 0;
-  background-color: #ffffff;
-  opacity: .01;
-  cursor: col-resize;
-}
-.ui-report-body .fit-line {
-  position: absolute;
-  width: 1px;
-  height: 100%;
-  border: none 0;
-  margin: 0;
-  padding: 0;
-  display: none;
-  top: 0;
-  left: 0;
 }
 /* 底栏 */
 .ui-report-foot {
