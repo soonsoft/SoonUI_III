@@ -44,7 +44,7 @@ ui.theme = {
     },
     /** 修改高亮色 */
     changeHighlight: function(url, color) {
-        ui.ajax.ajaxPost(url, 
+        ui.ajax.postJson(url, 
             { themeId: color.Id },
             function(success) {
                 if(success.Result) {
