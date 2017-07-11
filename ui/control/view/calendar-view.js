@@ -297,7 +297,7 @@ YearView.prototype = {
             dayCell;
 
         month = $($(months[date.getMonth()]).children()[1]);
-        indexer = this.calendar.getTableIndexOfMonth(date);
+        indexer = this.calendar.getTableIndexOf(date);
         dayCell = $(month.children()[0].tBodies[0].rows[indexer.rowIndex].cells[indexer.cellIndex]);
         return dayCell;
     },
@@ -354,7 +354,7 @@ YearView.prototype = {
             i, len, item, 
             isFunctionValue;
 
-        if(Array.isArray(data)) {
+        if(!Array.isArray(data)) {
             return;
         }
         if(!dateField) {
@@ -370,7 +370,7 @@ YearView.prototype = {
         isFunctionValue = ui.core.isFunction(action);
 
         months = this.yearPanel.children(".year-month-panel");
-        for(i = 0, len = date.length; i < len; i++) {
+        for(i = 0, len = data.length; i < len; i++) {
             item = data[i];
             if(!(item instanceof Date)) {
                 date = getDateFn.call(item);
@@ -808,7 +808,7 @@ MonthView.prototype = {
             dayCell;
 
         rows = this.daysTable[0].tBodies[0].rows;
-        indexer = this.calendar.getTableIndexOfMonth(date);
+        indexer = this.calendar.getTableIndexOf(date);
         dayCell = $(rows[indexer.rowIndex].cells[indexer.cellIndex]);
         return dayCell;
     },
@@ -818,7 +818,7 @@ MonthView.prototype = {
             i, len, item, 
             isFunctionValue;
 
-        if(Array.isArray(data)) {
+        if(!Array.isArray(data)) {
             return;
         }
         if(!dateField) {
@@ -916,7 +916,7 @@ MonthView.prototype = {
                     container,
                     builder;
                 
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 
                 if(scheduleList.length === 0) {
@@ -2620,7 +2620,7 @@ ui.define("ui.ctrls.CalendarView", {
             result = null;
         if(date instanceof Date) {
             first = new Date(date.getFullYear(), date.getMonth(), 1);
-            startIndex = this.getWeekIndexOfDate(first);
+            startIndex = this.getWeekIndexOf(first);
             day = date.getDate() + startIndex - 1;
             result = {
                 rowIndex: Math.floor(day / 7),
