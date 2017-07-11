@@ -63,8 +63,8 @@ ui.define("ui.ctrls.FilterTool", {
 
         item.index = index;
         var label = $("<label class='filter-tools-item' />"),
-            radio = $("<input type='radio' name='" + this.radioName + "'/>"),
-            span = $("<span />");
+            radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>"),
+            span = $("<span class='filter-tools-item-text' />");
         label.append(radio).append(span);
 
         if (index === 0) {
