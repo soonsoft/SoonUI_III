@@ -100,7 +100,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         context = {
             error: {}
         };
-    if ($.isFunction(args)) {
+    if (ui.core.isFunction(args)) {
         errorFn = successFn;
         successFn = args;
         args = null;
@@ -135,13 +135,13 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         }
     }
 
-    if ($.isFunction(successFn)) {
+    if (ui.core.isFunction(successFn)) {
         context.successFn = successFn;
         ajaxOption.success = function(d, s, r) {
             successHandler(context, d, s, r);
         };
     }
-    if ($.isFunction(errorFn)) {
+    if (ui.core.isFunction(errorFn)) {
         context.errorFn = errorFn;
         ajaxOption.error = function(r, s, t) {
             errorHandler(context, r, s, t);
@@ -248,7 +248,7 @@ ui.ajax = {
 
         promise.then = function () {
             var context;
-            if (arguments.length > 1 && $.isFunction(arguments[1])) {
+            if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
                 context = {
                     error: {},
                     errorFn: arguments[1]
