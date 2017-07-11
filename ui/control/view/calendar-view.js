@@ -1,6 +1,7 @@
 // CalendarView
 var timeTitleWidth = 80,
     hourHeight = 25,
+    currentTimeLineHeight = 17,
     sundayFirstWeek = ["日", "一", "二", "三", "四", "五", "六"],
     mondayFirstWeek = ["一", "二", "三", "四", "五", "六", "日"],
     viewTypes;
@@ -103,6 +104,9 @@ YearView.prototype = {
         this._selectList = [];
         this._current = null;
 
+        this.width = null;
+        this.height = null;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -110,8 +114,6 @@ YearView.prototype = {
         if (this.initialled) {
             return;
         }
-
-        this.year = this.calendar.currentDate.getFullYear();
 
         // 日期项点击事件
         this.onYearItemClickHandler = $.proxy(onYearItemClick, this);
@@ -157,6 +159,16 @@ YearView.prototype = {
             unitWidth, unitHeight,
             i;
 
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+
         count = this.getMonthCount(width);
         if (count % 2) {
             oddFn = this._oddStyle;
@@ -178,8 +190,10 @@ YearView.prototype = {
         }
         for (i = 0; i < 12; i++) {
             cell = $(cells[i]);
-            cell.css("width", unitWidth + "px")
-                .css("height", unitHeight + "px");
+            cell.css({
+                width: unitWidth + "px",
+                height: unitHeight + "px"
+            });
             cell.children(".year-month-content")
                 .css("height", unitHeight - 48 + "px");
             oddFn.call(this, cell, count, i);
@@ -243,6 +257,7 @@ YearView.prototype = {
             row = $("<tr />");
             for (j = 0; j < 7; j++) {
                 cell = $("<td class='year-month-table-cell' />");
+                row.append(cell);
                 if (i === 0 && j < startIndex) {
                     cell.addClass("ui-calendar-empty");
                     continue;
@@ -255,7 +270,6 @@ YearView.prototype = {
                     cell.append(dayVal);
                     dayNum++;
                 }
-                row.append(cell);
             }
             tbody.append(row);
         }
@@ -291,7 +305,7 @@ YearView.prototype = {
         var eventData,
             selectedClass = "selected",
             i, len;
-        if (!this._isDateCell(td)) {
+        if (!this._isDateCell(elem)) {
             return;
         }
 
@@ -323,11 +337,11 @@ YearView.prototype = {
         } else {
             if(this._current) {
                 this._current.removeClass(selectedClass);
-                this._current = null;
                 if(this._current[0] === elem[0]) {
                     this.calendar.fire("deselected", eventData);
                     return;
                 }
+                this._current = null;
             }
             this._current = elem;
             this._current.addClass(selectedClass);
@@ -571,6 +585,9 @@ MonthView.prototype = {
         this._selectList = [];
         this._current = null;
 
+        this.width = null;
+        this.height = null;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -580,7 +597,7 @@ MonthView.prototype = {
         }
 
         // 事件
-        this.onMonthItemClickHandler = $(onMouseItemClick, this);
+        this.onMonthItemClickHandler = $.proxy(onMouseItemClick, this);
 
         this._setCurrent();
         this.weekPanel = $("<div class='ui-calendar-month-week-view' />");
@@ -611,7 +628,7 @@ MonthView.prototype = {
             .append(colgroup)
             .append(thead);
         tr = $("<tr />");
-        weekNames = this.calendar.getWeekName();
+        weekNames = this.calendar.getWeekNames();
         for(i = 0, len = weekNames.length; i < len; i++) {
             colgroup.append("<col />");
             th = $("<th class='month-week-cell' />");
@@ -631,29 +648,28 @@ MonthView.prototype = {
         var tbody, colgroup, tr, td,
             day, first, last, startIndex,
             today, todayDate, checkTodayFn,
-            i, j, index,
-            isUpdate = false;
+            i, j, index;
 
         if (!this.daysTable) {
             this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
+            this.daysTable.click(this.onMonthItemClickHandler);
         } else {
             this.daysTable.html("");
-            isUpdate = true;
         }
 
         tbody = $("<tbody />");
         colgroup = $("<colgroup />");
-        for (i = 0; i < 7; j++) {
+        for (i = 0; i < 7; i++) {
             colgroup.append("<col />");
         }
         this.daysTable.append(colgroup).append(tbody);
 
         day = this.calendar.currentDate;
         first = new Date(day.getFullYear(), day.getMonth(), 1);
+        startIndex = this.calendar.getWeekIndexOf(first);
         last = (new Date(first.getFullYear(), first.getMonth() + 1, 0)).getDate();
         first = 1;
 
-        startIndex = this.calendar.getWeekIndexOf(first);
         today = new Date();
         todayDate = today.getDate();
         if (today.getFullYear() === day.getFullYear() && today.getMonth() === day.getMonth()) {
@@ -669,6 +685,13 @@ MonthView.prototype = {
             tr = $("<tr />");
             for (j = 0; j < 7; j++) {
                 td = $("<td class='month-days-cell' />");
+                tr.append(td);
+                if (i === 0 && j < startIndex) {
+                    continue;
+                } else if (index > last) {
+                    continue;
+                }
+
                 td.append("<div class='day-container' />");
                 if(this.calendar.isWeekend(j)) {
                     td.addClass("month-days-cell-weekend");
@@ -676,14 +699,8 @@ MonthView.prototype = {
                 if(j === 6) {
                     td.addClass("month-days-cell-last");
                 }
-                tr.append(td);
-                if (i === 0 && j < startIndex) {
-                    continue;
-                } else if (first > last) {
-                    continue;
-                }
 
-                td.children().html("<span class='month-date'>" + first + "</span>");
+                td.children().html("<span class='month-date'>" + index + "</span>");
                 if(checkTodayFn) {
                     checkTodayFn.call(this, td, index);
                 }
@@ -695,9 +712,6 @@ MonthView.prototype = {
             }
         }
         this.daysPanel.append(this.daysTable);
-        if(!isUpdate) {
-            this.daysTable.click(this.onMonthItemClickHandler);
-        }
     },
     _setCellSize: function (width, height) {
         var unitWidth,
@@ -706,6 +720,19 @@ MonthView.prototype = {
             lastHeight,
             prefix, weekNames,
             i, len;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+        // 减去head的高度
+        height -= 26;
+        this.daysPanel.css("height", height + "px");
 
         unitWidth = this._setCellWidth(width);
         rows = this.daysTable[0].rows;
@@ -717,9 +744,9 @@ MonthView.prototype = {
 
         for(i = 0; i < len; i++) {
             if(i < len - 1) {
-                $(rows[i]).children().css("min-height", unitHeight + "px");
+                $(rows[i]).children().css("height", unitHeight + "px");
             } else {
-                $(rows[i]).children().css("min-height", lastHeight + "px");
+                $(rows[i]).children().css("height", lastHeight + "px");
             }
         }
 
@@ -739,8 +766,8 @@ MonthView.prototype = {
             dcols;
         
         unitWidth = Math.floor(width / 7);
-        wcols = this.weekTable.chldren("colgroup").children("col");
-        dcols = this.daysTable.chldren("colgroup").children("col");
+        wcols = this.weekTable.children("colgroup").children();
+        dcols = this.daysTable.children("colgroup").children("col");
 
         wcols.splice(6, 1);
         dcols.splice(6, 1);
@@ -841,11 +868,15 @@ MonthView.prototype = {
     /** 向前切换 */
     previous: function() {
         var day = this.calendar.currentDate;
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.setMonth(day.getMonth() - 1)));
     },
     /** 向后切换 */
     next: function() {
         var day = this.calendar.currentDate;
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.setMonth(day.getMonth() + 1)));
     },
     /** 切换到当前 */
@@ -853,6 +884,8 @@ MonthView.prototype = {
         if (!day || !(day instanceof Date)) {
             day = new Date();
         }
+        this.width = null;
+        this.height = null;
         this._changeMonth(new Date(day.getTime()));
     },
     /** 添加日程信息 */
@@ -1018,9 +1051,6 @@ MonthView.prototype = {
     cancelSelection: YearView.prototype.cancelSelection,
     /** 设置视图的尺寸 */
     setSize: function(width, height) {
-        // 减去head的高度
-        height -= 26;
-        this.daysPanel.css("height", height + "px");
         this._setCellSize(width, height);
     },
     /** 获取月视图标题 */
@@ -1053,6 +1083,9 @@ WeekView.prototype = {
         this.weekDays = null;
         this.weekHours = [];
         this.initialled = false;
+
+        this.width = null;
+        this.height = null;
 
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
@@ -1245,6 +1278,16 @@ WeekView.prototype = {
         var scrollWidth = 0,
             realWidth, unitWidth,
             wcols, hcols;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
         
         if (height < this.hourPanel[0].scrollHeight) {
             scrollWidth = ui.scrollbarWidth;
@@ -1369,6 +1412,7 @@ WeekView.prototype = {
         return weekDay;
     },
     _changeWeek: function () {
+        this.calendar.currentDate = this.weekDays[0];
         this._setCurrent();
         this.clearSchedules();
         this.selector.cancelSelection();
@@ -1662,6 +1706,9 @@ DayView.prototype = {
         this.dayHours = [];
         this.initialled = false;
 
+        this.width = null;
+        this.height = null;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -1710,7 +1757,9 @@ DayView.prototype = {
     },
     _createDay: function () {
         this.dayTitle = $("<div class='ui-calendar-day-title' />");
-        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" 
+                + this._formatDayText(this.calendar.currentDate) 
+                + "</span>");
         this.dayPanel.append(this.dayTitle);
 
         this.dayTitle.click(this.onDayHeadItemClickHandler);
@@ -1720,26 +1769,39 @@ DayView.prototype = {
         var tbody, tr, td, 
             count, i, len;
 
-        this.hourTable = $("<table class='weekhour unselectable' cellspacing='0' cellpadding='0' />");
+        this.weekHour = $("<div class='week-hour-panel' />");
+        this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
         tbody = $("<tbody />");
         count = this.calendar._getTimeCellCount();
         len = 24 * count, i;
 
         for (i = 0; i < len; i++) {
             tr = $("<tr />");
-            td = $("<td class='hour-name-cell' style='width:100%' />");
+            td = $("<td class='week-hour-cell' style='width:100%' />");
             if ((i + 1) % count) {
-                td.addClass("hour-name-cell-odd");
+                td.addClass("week-hour-cell-odd");
             }
             tr.append(td);
             tbody.append(tr);
         }
         this.hourTable.append(tbody);
-        this.hourPanel.append(this.hourTable);
+        this.weekHour.append(this.hourTable);
+        this.hourPanel.append(this.weekHour);
     },
     _setCellSize: function (width, height) {
         var scrollWidth = 0,
             realWidth;
+
+        if(!width || !height) {
+            return;
+        }
+        if(this.width === width && this.height === height) {
+            return;
+        }
+
+        this.width = width;
+        this.height = height;
+
         if (height < this.hourPanel[0].scrollHeight) {
             scrollWidth = ui.scrollbarWidth;
         }
@@ -1779,7 +1841,9 @@ DayView.prototype = {
         this._setCurrent();
         this.clearSchedules();
         this.selector.cancelSelection();
-        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + this._formatDayText() + "</span>");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" 
+                + this._formatDayText(this.calendar.currentDate) 
+                + "</span>");
     },
     _getUnitHourNameHeight: WeekView.prototype._getUnitHourNameHeight,
     _getPositionAndSize: WeekView.prototype._getPositionAndSize,
@@ -1806,13 +1870,13 @@ DayView.prototype = {
     /** 向前切换 */
     previous: function() {
         var day = this.calendar.currentDate;
-        day.setDate(day - 1);
+        this.calendar.currentDate = new Date(day.setDate(day.getDate() - 1));
         this._changeDay();
     },
     /** 向后切换 */
     next: function() {
         var day = this.calendar.currentDate;
-        day.setDate(day + 1);
+        this.calendar.currentDate = new Date(day.setDate(day.getDate() + 1));
         this._changeDay();
     },
     /** 切换到当前 */
@@ -1855,7 +1919,7 @@ DayView.prototype = {
     },
     /** 获取日视图标题 */
     getTitle: function () {
-        return ui.str.stringFormat("{0}年{1}月{2}日",
+        return ui.str.textFormat("{0}年{1}月{2}日",
             this.year, this.month + 1, this.day);
     },
     /** 重写toString方法 */
@@ -2620,8 +2684,9 @@ ui.define("ui.ctrls.CalendarView", {
         }
         if(this._timeoutHandler) {
             clearTimeout(this._timeoutHandler);
+            this._timeoutHandler = null;
         }
-
+        parent.append(this.currentTimeElement);
         // 30秒更新一次
         updateInterval = 30 * 1000;
         that = this;
@@ -2640,7 +2705,7 @@ ui.define("ui.ctrls.CalendarView", {
             if(index === 0) {
                 elem.addClass("ui-current-time-top").css("top", top + "px");
             } else {
-                elem.removeClass("ui-current-time-top").css("top", top - ui.scrollbarWidth + "px");
+                elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
             }
             that._timeoutHandler = setTimeout(arguments.callee, updateInterval);
         };
@@ -2714,15 +2779,24 @@ ui.define("ui.ctrls.CalendarView", {
                 "opacity": 0
             });
             this.currentView.dormant();
+            this.currentView = null;
         }
+
+        this.currentView = view;
+        width = this.element.width();
+        this.currentView.viewPanel.css({
+            "display": "block",
+            "left": (width / 3) + "px"
+        });
+
         isInitialled = false;
         if(!view.initialled) {
             view.render();
             isInitialled = true;
         }
+
         isChanged = view.checkChange();
         view.setSize(this.element.width(), this.element.height());
-        this.currentView = view;
 
         that = this;
         endFn = function() {
@@ -2742,12 +2816,7 @@ ui.define("ui.ctrls.CalendarView", {
             endFn();
             return;
         }
-
-        width = this.element.width();
-        this.currentView.viewPanel.css({
-            "display": "block",
-            "left": (width / 3) + "px"
-        });
+        
         option = this.viewChangeAnimator[0];
         option.target = this.currentView.viewPanel;
         option.begin = width / 3;
@@ -2794,6 +2863,9 @@ function initCalendarViewTheme(colorInfo) {
         themeStyle = $("#GlobalThemeChangeStyle");
         if (themeStyle.length == 0) {
             styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
+            themeStyle = styleHelper.styleSheet;
+        } else {
+            styleHelper = ui.StyleSheet(themeStyle);
         }
     } else {
         styleHelper = ui.StyleSheet(themeStyle);
