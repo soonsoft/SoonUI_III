@@ -16,7 +16,11 @@ ieVersion = IE();
 
 /** 为jquery添加一个获取元素标签类型的方法 */
 $.fn.nodeName = function () {
-    return this.prop("nodeName");
+    var nodeName = this.prop("nodeName");
+    if(this.length === 0 || !nodeName) {
+        throw new TypeError("nodeName is '" + nodeName + "'");
+    }
+    return nodeName;
 };
 
 /** 判断元素的tagName，不区分大小写 */
