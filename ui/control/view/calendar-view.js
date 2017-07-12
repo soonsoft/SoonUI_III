@@ -534,7 +534,7 @@ YearView.prototype = {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var selectedClass
+        var selectedClass,
             elem,
             i, len;
 
@@ -1543,7 +1543,7 @@ WeekView.prototype = {
         }
 
         for(i = 0, len = data.length; i < len; i++) {
-            item = date[i];
+            item = data[i];
             scheduleInfo = {
                 data: item
             };
@@ -1552,7 +1552,7 @@ WeekView.prototype = {
             if(!(scheduleInfo.beginDate instanceof Date) || !(scheduleInfo.endDate instanceof Date)) {
                 continue;
             }
-            scheduleInfo.columnIndex = getColumnFunc.call(this, scheduleInfo.beginDate);
+            scheduleInfo.columnIndex = getColumnFn.call(this, scheduleInfo.beginDate);
             beginTime = formatTime(scheduleInfo.beginDate);
             endTime = formatTime(scheduleInfo.endDate, scheduleInfo.beginDate);
             scheduleInfo.beginRowIndex = this.calendar.timeToIndex(beginTime);
@@ -2347,8 +2347,8 @@ Selector.prototype = {
         pointX = (weekDay + 1) * this.cellWidth - 1;
         beginPointY = (this.view.calendar.timeToIndex(beginTime) + 1) * this.cellHeight - 1;
         endPointY = this.view.calendar.timeToIndex(endTime) * this.cellHeight - 1;
-        begin = this.getCellByPoint(pointX, beginPointY);
-        end = this.getCellByPoint(pointX, endPointY);
+        begin = this._getCellByPoint(pointX, beginPointY);
+        end = this._getCellByPoint(pointX, endPointY);
 
         this.focusX = pointX;
         this.focusY = beginPointY;
@@ -2473,7 +2473,8 @@ ui.define("ui.ctrls.CalendarView", {
     },
     _render: function() {
         var i, len,
-            viewName;
+            viewName,
+            that;
 
         this.element
             .addClass("ui-calendar-view")
@@ -2498,7 +2499,11 @@ ui.define("ui.ctrls.CalendarView", {
                 }
             }
         }
-        this.changeView(this.option.defaultView, false);
+        that = this;
+        // 延迟显示默认视图，给绑定事件留时间
+        setTimeout(function() {
+            that.changeView(that.option.defaultView, false);
+        });
     },
     _getTimeCellCount: function () {
         return Math.floor(60 / this.option.unitTime) || 1;
@@ -2833,11 +2838,17 @@ ui.define("ui.ctrls.CalendarView", {
     /** 设置大小 */
     setSize: function(width, height) {
         this.element.css("height", height + "px");
-        this.currentView.setSize(width, height);
+        if(this.currentView) {
+            this.currentView.setSize(width, height);
+        }
     },
     /** 获取当前视图的标题文字信息 */
     getTitle: function() {
-        return this.currentView.getTitle();
+        if(this.currentView) {
+            return this.currentView.getTitle();
+        } else {
+            return "";
+        }
     }
 });
 
