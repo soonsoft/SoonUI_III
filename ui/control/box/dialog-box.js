@@ -248,6 +248,8 @@ ui.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
+            // 内容是否包含iframe
+            hasIframe: false,
             // box的宽度
             width: defaultWidth,
             // box的高度
@@ -308,18 +310,21 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentPanel = $("<section class='ui-dialog-box-content' />");
         this.operatePanel = null;
 
+        this.box
+            .append(this.titlePanel)
+            .append(this.contentPanel);
+
         this._initTitle();
         this._initContent();
         this._initOperateButtons();
         this._initClosableButton();
 
-        body = $(document.body);
-        body.append(this.box);
         this.animator.addTarget({
             target: this.box,
             ease: ui.AnimationStyle.easeFromTo
         });
 
+        body = $(document.body);
         if(this.maskable()) {
             this.mask = $("<div class='ui-dialog-box-mask' />");
             body.append(this.mask);
@@ -328,6 +333,7 @@ ui.define("ui.ctrls.DialogBox", {
                 ease: ui.AnimationStyle.easeFrom
             });
         }
+        body.append(this.box);
 
         if(this.draggable()) {
             this._initDraggable();
@@ -363,11 +369,13 @@ ui.define("ui.ctrls.DialogBox", {
         closeBtn.click(function() {
             that.hide();
         });
+        this.box.append(closeBtn);
     },
     _initContent: function() {
         if(this.option.src) {
+            this.option.hasIframe = true;
             this.element = $("<iframe class='content-frame' frameborder='0' scrolling='auto' />");
-            this.element.prop(src, this.option.src);
+            this.element.prop("src", this.option.src);
         }
         this.contentPanel.append(this.element);
     },
@@ -388,7 +396,7 @@ ui.define("ui.ctrls.DialogBox", {
         var option = {
             target: this.box,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe")
+            hasIframe: this.hasIframe()
         };
         this.titlePanel
             .addClass("draggable-handle")
@@ -397,27 +405,31 @@ ui.define("ui.ctrls.DialogBox", {
     _initResizeable: function() {
         var option;
         this.resizeHandle = $("<u class='resize-handle' />");
-        this.box.append(thsi.resizeHandle);
+        this.box.append(this.resizeHandle);
 
         option = {
-            target: this,
+            context: this,
+            target: this.box,
+            handle: this.resizeHandle,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe"),
+            hasIframe: this.hasIframe(),
             minWidth: 320,
             minHeight: 240,
             onMoving: function(arg) {
                 var op = this.option,
+                    that,
                     width, 
                     height;
-                width = op.target.offsetWidth + x;
-                height = op.target.offsetHeight + y;
+                that = op.context;
+                width = that.offsetWidth + arg.x;
+                height = that.offsetHeight + arg.y;
                 if (width < option.minWidth) {
                     width = option.minWidth;
                 }
                 if (height < option.minHeight) {
                     height = option.minHeight;
                 }
-                op.target._setSize(width, height);
+                that._setSize(width, height);
             }
         };
         this.resizer = ui.MouseDragger(option);
@@ -510,6 +522,10 @@ ui.define("ui.ctrls.DialogBox", {
     draggable: function() {
         return !!this.option.draggable;
     },
+    /** 内容是否包含iframe标签 */
+    hasIframe: function() {
+        return !!this.option.hasIframe;
+    },
     /** 设置标题 */
     setTitle: function(title, hasHr, style) {
         var titleContent,
@@ -530,7 +546,7 @@ ui.define("ui.ctrls.DialogBox", {
         titleInner = $("<div class='title-inner-panel' />");
         titleInner.append(titleContent);
         if(hasHr) {
-            titleInner.apend("<hr class='ui-dialog-box-spline background-highlight' />");
+            titleInner.append("<hr class='ui-dialog-box-spline background-highlight' />");
         }
         this.titlePanel.append(titleInner);
 
@@ -538,7 +554,7 @@ ui.define("ui.ctrls.DialogBox", {
             for(i = 0, len = style.length; i < len; i++) {
                 this.titlePanel.addClass(style[i]);
             }
-        } else if(this.core.isPlainObject(style)) {
+        } else if(ui.core.isPlainObject(style)) {
             this.titlePanel.css(style);
         }
     },
