@@ -902,11 +902,11 @@ MonthView.prototype = {
                 textField: "text"
             };
         }
-        if(ui.core.isFunction(option.idField)) {
-            getValueFn = option.idField;
+        if(ui.core.isFunction(option.textField)) {
+            getValueFn = option.textField;
         } else {
             getValueFn = function() {
-                return this[option.idField] || null;
+                return this[option.textField] || null;
             };
         }
         if(!ui.core.isFunction(action)) {
@@ -2875,9 +2875,9 @@ function initCalendarViewTheme(colorInfo) {
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .4);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
-    
     styleHelper.setRule(".ui-calendar-selector", {
         "background-color": color
     });
@@ -2893,10 +2893,20 @@ function initCalendarViewTheme(colorInfo) {
     styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
         "background-color": color
     });
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .85);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
         "background-color": color
+    });
+
+    color = ui.color.overlay(colorInfo.Color, baseColor, .7);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-item", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-border", {
+        "background-color": colorInfo.Color
     });
 }
 ui.page.hlchanged(function(e, colorInfo) {
