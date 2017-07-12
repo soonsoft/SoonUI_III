@@ -193,7 +193,7 @@ $.fn.draggable = function(option) {
     if (!option || !option.target || !option.parent) {
         return;
     }
-    if (!core.isDomObject(this[0]) || elem.nodeName() === "BODY") {
+    if (!ui.core.isDomObject(this[0]) || this.nodeName() === "BODY") {
         return;
     }
 
