@@ -117,7 +117,7 @@ MouseDragger.prototype = {
         this.shield = null;
         this.isTurnOn = false;
 
-        this.option = $.extend(defaultOption, option);
+        this.option = $.extend({}, defaultOption, option);
         this.doc = this.option.doc;
         if(this.option.hasIframe === true) {
             this.shield = $("<div>");
