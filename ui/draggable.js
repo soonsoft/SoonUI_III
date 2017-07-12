@@ -1,7 +1,7 @@
 
-var doc = $(document);
-var body = $(doc.body);
-var defaultOption = {
+var doc = $(document),
+    body = $(doc.body),
+    defaultOption = {
     // 上下文
     context: null,
     // 拖动的目标
