@@ -1,6 +1,6 @@
 
 var doc = $(document),
-    body = $(doc.body),
+    body = $(document.body),
     defaultOption = {
     // 上下文
     context: null,
@@ -120,7 +120,7 @@ MouseDragger.prototype = {
         this.option = $.extend({}, defaultOption, option);
         this.doc = this.option.doc;
         if(this.option.hasIframe === true) {
-            this.shield = $("<div>");
+            this.shield = $("<div class='drag-shield'>");
             this.shield.css({
                 "position": "fixed",
                 "top": "0px",
@@ -128,9 +128,9 @@ MouseDragger.prototype = {
                 "width": "100%",
                 "height": "100%",
                 "z-index": "999999",
-                "background-color": "#ffffff",
+                "background-color": "#fff",
                 "filter": "Alpha(opacity=1)",
-                "opacity": ".1"    
+                "opacity": ".01"    
             });
         }
 
