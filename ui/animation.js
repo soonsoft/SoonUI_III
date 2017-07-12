@@ -3,13 +3,18 @@
  */
 
 //初始化动画播放器
-var prefix = ["ms", "moz", "webkit", "o"],
-    i = 0;
 var requestAnimationFrame,
-    cancelAnimationFrame;
-for (; i < prefix.length && !requestAnimationFrame; i++) {
-    requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
-    cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    cancelAnimationFrame,
+    prefix = ["ms", "moz", "webkit", "o"],
+    i;
+    
+requestAnimationFrame = window.requestAnimationFrame;
+cancelAnimationFrame = window.cancelAnimationFrame;
+if(!requestAnimationFrame) {
+    for (i = 0; i < prefix.length && !requestAnimationFrame; i++) {
+        requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
+        cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    }
 }
 if (!requestAnimationFrame) {
     requestAnimationFrame = function (callback, fps) {
