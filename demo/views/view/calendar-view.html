@@ -1,10 +1,37 @@
 <partial id="title">CALENDAR VIEW</partial>
 
 <partial id="content">
-    <div class="toolbar"></div>
+    <div id="toolbar" class="toolbar">
+        <ul class="tools">
+            <li class="tool-item">
+                <div id="viewFilter" style="margin-top:8px;"></div>
+            </li>
+        </ul>
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="previous" class="tool-action-button" href="javascript:void(0)" title="后退">
+                    <i class="fa fa-chevron-left"></i>
+                </a>
+                <a id="today" class="tool-action-button" href="javascript:void(0)" title="今日">
+                    <span>今</span>
+                </a>
+                <a id="next" class="tool-action-button" href="javascript:void(0)" title="前进">
+                    <i class="fa fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="calendarView"></div>
 </partial>
 
-<partial id="style"></partial>
+<partial id="style">
+    <style type="text/css">
+        .filter-tools-item-text {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+    </style>
+</partial>
 
 <partial id="script">
     <script type="text/javascript">
@@ -12,13 +39,44 @@
             window.pageLogic = {
                 init: {
                     before: function() {
-                        alert("yes");
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        // 创建日历视图
+                        this.calendarView = $("#calendarView").calendarView({
+                            // 默认显示年视图
+                            defaultView: "YearView",
+                            // 星期天是一个周的第一天
+                            sundayFirst: true,
+                            // 年视图可以多选
+                            yearMultipleSelect: true,
+                            // 月视图可以多选
+                            monthMultipleSelect: true
+                        });
                     },
                     layout: function() {
-
+                        // 注册resize事件
+                        ui.master.resize(function(e) {
+                            var width, 
+                                height,
+                                calendarViewHeight;
+                            
+                            // 有master自动计算的内容区域的宽度和高度
+                            width = ui.master.contentBodyWidth;
+                            height = ui.master.contentBodyHeight;
+                            // 去掉40是toolbar的高度
+                            calendarViewHeight = height - 40;
+                            pageLogic.calendarView.setSize(width, calendarViewHeight);
+                        });
                     },
                     after: function() {
-
+                        // 创建过滤器对象
+                        this.viewFilter = $("#viewFilter").filterTool({
+                            viewData: [
+                                { text: "年", value: "YearView", selected: true },
+                                { text: "月", value: "MonthView" },
+                                { text: "周", value: "WeekView" },
+                                { text: "日", value: "DayView" }
+                            ]
+                        });
                     },
                     events: function() {
 
