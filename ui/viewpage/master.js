@@ -288,6 +288,16 @@ var master = {
             }
         }
     },
+    /** 创建toolbar */
+    createToolbar: function(id, extendShow) {
+        if(!id) {
+            return null;
+        }
+        return ui.Toolbar({
+            toolbarId: id,
+            defaultExtendShow: !!extendShow
+        });
+    },
     /** 获取一个有效的url */
     getUrl: function(url) {
         var char;
