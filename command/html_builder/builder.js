@@ -4,16 +4,16 @@ module.exports = function( grunt ) {
     var fs = require( "fs" ),
         path = require("path"),
         rootPath = __dirname + "/../../",
-        distPath,
-        layout = "demo/views/shared/layout.html";
+        distPath;
 
     var partialBegin = /<partial([^<]+)?[\/]?>/gi,
         partialEnd = /<\/partial([\s\b]+)?>/gi,
-        layoutKey = /@\{([^@]+)\}/gi,
+        layoutKey = /@\{([^@\{\}]+)\}/gi,
         textFormatReg = /\\?\{([^{}]+)\}/gm;
 
-    var layoutText,
-        partialIdList;
+    var layoutDirectory = "demo/views/shared",
+        layout = "demo/views/shared/layout.html",
+        layoutMap = new Map();
 
     function format (str, params) {
         var Arr_slice = Array.prototype.slice;
@@ -30,21 +30,45 @@ module.exports = function( grunt ) {
         });
     }
 
-    function prepareLayout(path) {
-        if(!fs.existsSync(path)) {
-            return null;
+    function prepareLayout(layoutDir) {
+        let files = fs.readdirSync(layoutDir);
+        for(let i = 0; i < files.length; i++) {
+            let file = files[i];
+            let filename = path.join(layoutDir, file);
+            let fileInfo = fs.statSync(filename);
+            if(fileInfo.isFile() && path.extname(filename).toLowerCase() === ".html") {
+                createLayout(filename);
+            }
         }
-        layoutText = fs.readFileSync(path, "utf8");
+    }
+
+    function createLayout(layoutFilename) {
+        if(layoutMap.has(layoutFilename)) {
+            return;
+        }
+        if(!fs.existsSync(layoutFilename)) {
+            return;
+        }
+        let layoutInfo = {
+            layoutText: null,
+            partialIdList: []
+        };
+        let layoutText = fs.readFileSync(layoutFilename, "utf8");
         if(!layoutText) {
             throw new Error("layout is empty");
         }
+        layoutInfo.layoutText = layoutText;
+
         let idArray = layoutText.match(layoutKey);
-        for(let i = 0; i < idArray.length; i++) {
-            let id = idArray[i];
-            id = id.substring(2);
-            id = id.substring(0, id.length - 1);
-            partialIdList.push(id);
+        if(Array.isArray(idArray)) {
+            for(let i = 0; i < idArray.length; i++) {
+                let id = idArray[i];
+                id = id.substring(2);
+                id = id.substring(0, id.length - 1);
+                layoutInfo.partialIdList.push(id);
+            }
         }
+        layoutMap.set(layoutFilename, layoutInfo);
     }
 
     function createPartial(viewPath) {
@@ -56,6 +80,28 @@ module.exports = function( grunt ) {
         let begin;
         let attr;
         let end;
+
+        let layoutInfo = layoutMap.get(layout);
+        let array = html.match(layoutKey);
+        if(Array.isArray(array)) {
+            for(let i = 0; i < array.length; i++) {
+                let text = array[i];
+                text = text.substring(2);
+                text = text.substring(0, text.length - 1);
+                let arr = text.split(":");
+                if(arr[0].toLowerCase() === "layout") {
+                    let key = (arr[1] + "").toLowerCase();
+                    key = path.join(rootPath, key);
+                    if(layoutMap.has(key)) {
+                        layoutInfo = layoutMap.get(key);
+                    }
+                }
+                break;
+            }
+        }
+        if(!layoutInfo) {
+            return;
+        }
         
         partialBegin.lastIndex = 0;
         partialEnd.lastIndex = 0;
@@ -80,18 +126,18 @@ module.exports = function( grunt ) {
             partials[id] = text;
         }
         
-        buildView(partials, viewPath);
+        buildView(partials, viewPath, layoutInfo);
     }
 
-    function buildView(partials, viewPath) {
-        let template = layoutText + "";
-        for(let i = 0; i < partialIdList.length; i++) {
-            let partialId = partialIdList[i];
+    function buildView(partials, viewPath, layoutInfo) {
+        let template = layoutInfo.layoutText;
+        for(let i = 0; i < layoutInfo.partialIdList.length; i++) {
+            let partialId = layoutInfo.partialIdList[i];
             template = template.replace(new RegExp("@{" + partialId + "}", "g"), partials[partialId]);
         }
 
         let dirname = path.dirname(viewPath);
-        dirname = dirname.substring(dirname.lastIndexOf("/") + 1);
+        dirname = dirname.substring(dirname.lastIndexOf(path.sep) + 1);
         let filename = path.basename(viewPath, path.extname(viewPath));
 
         let distFilename = format(distPath, dirname, filename);
@@ -137,23 +183,23 @@ module.exports = function( grunt ) {
         "html-build",
         "构建页面",
         function() {
-            var templateSrc = path.join(rootPath, this.data.views),
-                layoutPath = path.join(rootPath, layout);
-            
             distPath = this.data.dist;
-            layoutText = "";
-            partialIdList = [];
 
-            let layoutFile = grunt.file.expand(layoutPath);
+            let templateSrc = path.join(rootPath, this.data.views);
+            let layoutFile = grunt.file.expand(path.join(rootPath, layout));
             if(layoutFile.length > 0) {
-                layoutFile = layoutFile[0];
+                layout = path.join(layoutFile[0]);
             }
-            prepareLayout(layoutFile);
+            let layoutDir = grunt.file.expand(path.join(rootPath, layoutDirectory));
+            if(layoutDir.length > 0) {
+                layoutDir = layoutDir[0];
+            }
+            prepareLayout(layoutDir);
 
             let files = grunt.file.expand(templateSrc);
             for(let i = 0; i < files.length; i++) {
-                let filename = files[i];
-                if(filename === layoutFile) {
+                let filename = path.join(files[i]);
+                if(layoutMap.has(filename)) {
                     continue;
                 }
                 createPartial(filename);
