@@ -447,7 +447,7 @@ YearView.prototype = {
         this._updateSchedules(data, dateField, formatterFn);
     },
     /** 移除日程信息 */
-    removeSchedules: function() {
+    removeSchedules: function(data, dateField, action) {
         var formatterFn;
 
         if(!ui.core.isFunction(action)) {
@@ -498,7 +498,7 @@ YearView.prototype = {
         if(this.isMultiple()) {
             result = [];
             for(i = 0, len = this._selectList.length; i < len; i++) {
-                result.push(this._getDateByCell($(this._selectItem[i])));
+                result.push(this._getDateByCell($(this._selectList[i])));
             }
         } else {
             if(this._current) {
