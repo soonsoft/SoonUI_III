@@ -979,7 +979,7 @@ MonthView.prototype = {
                     index,
                     i, len, scheduleItem;
                 
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 
                 if(scheduleList.length === 0) {
