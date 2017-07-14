@@ -1,10 +1,13 @@
 <partial id="title">CALENDAR VIEW</partial>
 
 <partial id="content">
-    <div id="toolbar" class="toolbar">
+    <div id="toolbar" class="toolbar clear">
         <ul class="tools">
             <li class="tool-item">
                 <div id="viewFilter" style="margin-top:8px;"></div>
+            </li>
+            <li class="tool-item">
+                <span id="calendarTitle" class="font-highlight" style="font-size:16px;line-height:40px;"></span>
             </li>
         </ul>
         <ul class="tools" style="float:right">
@@ -20,6 +23,54 @@
                 </a>
             </li>
         </ul>
+        <div class="toolbar-extend">
+            <ul class="tools">
+                <li class="tool-item">
+                    <div class="top-container">
+                        <button id="yearSchedule" class="tool-button button-highlight" style="width:70px">显示角标</button>
+                        <button id="yearRemoveSchedule" class="tool-button" style="width:70px">移除周六</button>
+                        <br />
+                        <button id="yearSelect" class="tool-button" style="width:70px">选择周末</button>
+                        <button id="yearGet" class="tool-button" style="width:70px">获取选项</button>
+                        <br />
+                        <button id="yearCancel" class="tool-button" style="width:70px">取消选择</button>
+                    </div>
+                    <div class="bottom-title">
+                        <span>年视图</span>
+                    </div>
+                </li>
+                <li class="tool-item">
+                    <hr class="extend-spliter" />
+                </li>
+                <li class="tool-item">
+                    <div class="top-container"></div>
+                    <div class="bottom-title">
+                        <span>月视图</span>
+                    </div>
+                </li>
+                <li class="tool-item">
+                    <hr class="extend-spliter" />
+                </li>
+                <li class="tool-item">
+                    <div class="top-container"></div>
+                    <div class="bottom-title">
+                        <span>周视图</span>
+                    </div>
+                </li>
+                <li class="tool-item">
+                    <hr class="extend-spliter" />
+                </li>
+                <li class="tool-item">
+                    <div class="top-container"></div>
+                    <div class="bottom-title">
+                        <span>日视图</span>
+                    </div>
+                </li>
+                <li class="tool-item">
+                    <hr class="extend-spliter" />
+                </li>
+            </ul>
+        </div>
     </div>
     <div id="calendarView"></div>
 </partial>
@@ -29,6 +80,31 @@
         .filter-tools-item-text {
             margin-left: 20px;
             margin-right: 20px;
+        }
+
+        .toolbar .toolbar-extend .extend-spliter {
+            margin-top: 8px;
+            height: 104px;
+        }
+
+        .toolbar .top-container {
+            width: 150px;
+            height: 96px;
+            line-height: 30px;
+        }
+
+            .toolbar .top-container .tool-button {
+                line-height: 20px;
+                vertical-align: top;
+                margin-top: 6px;
+            }
+
+        .toolbar .bottom-title {
+            width: 100%;
+            text-align: center;
+            height: 24px;
+            line-height: 24px;
+            font-size: 12px;
         }
     </style>
 </partial>
@@ -51,6 +127,27 @@
                             // 月视图可以多选
                             monthMultipleSelect: true
                         });
+                        this.calendarView.viewChanged(function(e, view) {
+                            $("#calendarTitle").text(view.getTitle());
+                        });
+                        this.calendarView.changed(function(e, view) {
+                            $("#calendarTitle").text(view.getTitle());
+                            if(this.isView(view, "YearView")) {
+                                if(pageLogic.yearSchedule) {
+                                    loadYearSchedule(view);
+                                }
+                            } else if(this.isView(view, "MonthView")) {
+                                //view.addSchedules(loadMonthSchedule(), "date");
+                            } else if(this.isView(view, "WeekView")) {
+                                // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
+                                //     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
+                                // });
+                            } else if (this.isView(view, "DayView")) {
+                                // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
+                                //     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
+                                // });
+                            }
+                        });
                     },
                     layout: function() {
                         // 注册resize事件
@@ -62,8 +159,8 @@
                             // 有master自动计算的内容区域的宽度和高度
                             width = ui.master.contentBodyWidth;
                             height = ui.master.contentBodyHeight;
-                            // 去掉40是toolbar的高度
-                            calendarViewHeight = height - 40;
+
+                            calendarViewHeight = height - pageLogic.toolbar.height;
                             pageLogic.calendarView.setSize(width, calendarViewHeight);
                         });
                     },
@@ -77,15 +174,146 @@
                                 { text: "日", value: "DayView" }
                             ]
                         });
+                        this.viewFilter.selected(function(e, item) {
+                            pageLogic.calendarView.changeView(item.value);
+                        });
+                        $("#calendarTitle").text(pageLogic.calendarView.getTitle());
                     },
                     events: function() {
-
+                        // 视图内容切换
+                        $("#previous").click(function(e) {
+                            pageLogic.calendarView.previous();
+                        });
+                        $("#today").click(function(e) {
+                            pageLogic.calendarView.today();
+                        });
+                        $("#next").click(function(e) {
+                            pageLogic.calendarView.next();
+                        });
+                        
+                        bindYearEvents();
+                        
                     },
                     load: function() {
 
                     }
                 }
             };
+
+            // 年视图相关方法
+            function bindYearEvents() {
+                var getViewFn = function() {
+                    var view = pageLogic.calendarView.currentView;
+                    if(!pageLogic.calendarView.isView(view, "YearView")) {
+                        ui.messageShow("请先切换到年视图");
+                        return;
+                    }
+                    return view;
+                };
+                $("#yearSchedule").click(function(e) {
+                    var elem = $(e.target),
+                        view = getViewFn();
+                    if(view) {
+                        if(!elem.hasClass("background-highlight")) {
+                            elem.addClass("background-highlight");
+                            pageLogic.yearSchedule = true;
+                            loadYearSchedule(view);
+                        } else {
+                            elem.removeClass("background-highlight");
+                            pageLogic.yearSchedule = true;
+                            view.clearSchedules();
+                        }
+                    }
+                });
+                $("#yearRemoveSchedule").click(function(e) {
+                    var view = getViewFn(),
+                        selectionData;
+                    if(view) {
+                        removeSaturdaySchedule(view);
+                    }
+                });
+                $("#yearSelect").click(function(e) {
+                    var view = getViewFn();
+                    if(view) {
+                        selectWeekendWithYear(view);
+                    }
+                });
+                $("#yearGet").click(function(e) {
+                    var view = getViewFn(),
+                        selectionData;
+                    if(view) {
+                        selectionData = getSelectionWeekend(view);
+                        if(selectionData.length > 0) {
+                            alert(selectionData);
+                        } else {
+                            ui.messageShow("没有选择的日期");
+                        }
+                    }
+                });
+                $("#yearCancel").click(function(e) {
+                    var view = getViewFn();
+                    if(view) {
+                        view.cancelSelection();
+                    }
+                });
+            }
+            function loadYearSchedule(view) {
+                var data = [],
+                    year = view.year,
+                    i, j, d;
+                for(var i = 0; i < 12; i++) {
+                    d = new Date(year, i + 1, 0);
+                    for(j = 1; j < d.getDate(); j++) {
+                        if(ui.random.getNum(1, 10) > 5) {
+                            continue;
+                        }
+                        data.push(new Date(year, i, j));
+                    }
+                }
+
+                view.addSchedules(data, "date", function(item) {
+                    this.prop("title", ui.str.dateFormat(item, "yyyy-MM-dd"));
+                });
+            }
+            function removeSaturdaySchedule(view) {
+                var year = view.year,
+                    date = new Date(year, 0, 1),
+                    data = [];
+                date.setDate(date.getDate() + 6 - date.getDay());
+                while(date.getFullYear() === year) {
+                    data.push(new Date(date.getTime()));
+                    date.setDate(date.getDate() + 7);
+                }
+                view.removeSchedules(data, "date", function(item) {
+                    this.removeAttr("title");
+                });
+            }
+            function selectWeekendWithYear(view) {
+                var year = view.year,
+                    date = new Date(year, 0, 1),
+                    data = [];
+                date.setDate(date.getDate() + 6 - date.getDay());
+                while(date.getFullYear() === year) {
+                    data.push(new Date(date.getTime()));
+                    if(date.getMonth() != 11 && date.getDate() != 31) {
+                        data.push(new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1));
+                    }
+
+                    date.setDate(date.getDate() + 7);
+                }
+                view.setSelection(data);
+            }
+            function getSelectionWeekend(view) {
+                var data = view.getSelection(),
+                    i, len;
+                for(i = 0, len = data.length; i < len; i++) {
+                    data[i] = ui.str.dateFormat(data[i], "yyyy-MM-dd");
+                }
+                return data;
+            }
+            
+
+            // 月视图相关方法
         })();
     </script>
 </partial>
