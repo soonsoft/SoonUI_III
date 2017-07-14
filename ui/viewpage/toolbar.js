@@ -78,7 +78,7 @@ Toolbar.prototype = {
             moreActions;
         if(this.extendButton.length === 0) {
             moreTool = $("<ul class='tools' style='float:right;margin-left:0px;'></ul>");
-            moreActions = $("<li class='tool-action-button'></li>");
+            moreActions = $("<li class='tool-item action-buttons'></li>");
             moreTool.append(moreActions);
             if(this.tools.length === 0) {
                 this.extendPanel.parent().before(moreTool);

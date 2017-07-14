@@ -223,6 +223,7 @@ a {
     min-width: 768px;
     position: relative;
     overflow: hidden;
+    visibility: hidden;
 }
 
 /* 底部 */
@@ -390,6 +391,25 @@ a {
     overflow: hidden;
 }
 
+    .toolbar .tools {
+        margin-left: 10px;
+        height: 100%;
+        overflow: hidden;
+        float: left;
+    }
+
+    .toolbar .tool-item {
+        float: left;
+        list-style: none;
+        height: 100%;
+        margin-right: 10px;
+        line-height: 40px;
+    }
+
+    .toolbar .action-buttons {
+        margin: 0;
+    }
+
     .toolbar .tool-action-button {
         height: 40px;
         width: 40px;
@@ -403,6 +423,7 @@ a {
     
         .toolbar .tool-action-button:hover {
             background-color: @panel-hover-color;
+	    text-decoration: none;
         }
         
         .toolbar .tool-action-button:active {
@@ -442,21 +463,6 @@ a {
             background-color: @tool-color;
             height: 100%;
         }
-
-    .toolbar .tools {
-        margin-left: 10px;
-        height: 100%;
-        overflow: hidden;
-        float: left;
-    }
-
-    .toolbar .tool-item {
-        float: left;
-        list-style: none;
-        height: 100%;
-        margin-right: 10px;
-        line-height: 40px;
-    }
 
 /* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
 .icon-button, 

@@ -2214,13 +2214,18 @@ ui.random = random;
  */
 
 //初始化动画播放器
-var prefix = ["ms", "moz", "webkit", "o"],
-    i = 0;
 var requestAnimationFrame,
-    cancelAnimationFrame;
-for (; i < prefix.length && !requestAnimationFrame; i++) {
-    requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
-    cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    cancelAnimationFrame,
+    prefix = ["ms", "moz", "webkit", "o"],
+    i;
+    
+requestAnimationFrame = window.requestAnimationFrame;
+cancelAnimationFrame = window.cancelAnimationFrame;
+if(!requestAnimationFrame) {
+    for (i = 0; i < prefix.length && !requestAnimationFrame; i++) {
+        requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
+        cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    }
 }
 if (!requestAnimationFrame) {
     requestAnimationFrame = function (callback, fps) {
@@ -3056,7 +3061,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         context = {
             error: {}
         };
-    if ($.isFunction(args)) {
+    if (ui.core.isFunction(args)) {
         errorFn = successFn;
         successFn = args;
         args = null;
@@ -3091,13 +3096,13 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         }
     }
 
-    if ($.isFunction(successFn)) {
+    if (ui.core.isFunction(successFn)) {
         context.successFn = successFn;
         ajaxOption.success = function(d, s, r) {
             successHandler(context, d, s, r);
         };
     }
-    if ($.isFunction(errorFn)) {
+    if (ui.core.isFunction(errorFn)) {
         context.errorFn = errorFn;
         ajaxOption.error = function(r, s, t) {
             errorHandler(context, r, s, t);
@@ -3106,21 +3111,46 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     return $.ajax(ajaxOption);
 }
 
+/**
+ * HttpRequest Method方式共有15种
+ * Get URL传参
+ * Head 没有ResponseBody，用于获取ResponseHead
+ * Post ReqeustBody提交数据
+ * Put 将客户端的数据发送到服务器上取代文档内容
+ * Delete 删除服务器上的文件
+ * Connect
+ * Options
+ * Trace
+ * Patch
+ * Move
+ * Copy
+ * Link
+ * Unlink
+ * Wrapped
+ * Extension-method
+ */
 ui.ajax = {
-    ajaxGet: function (url, args, success, failure, option) {
+    /** get方式 */
+    get: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("GET", url, args, success, failure, option);
+        return ajaxCall("GET", url, params, success, failure, option);
     },
-    ajaxPost: function (url, args, success, failure, option) {
-        return ajaxCall("POST", url, args, success, failure, option);
-    },
-    ajaxPostForm: function(url, args, success, failure, option) {
+    /** post方式 */
+    post: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("POST", url, args, success, failure, option);
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxPostOnce: function (btn, url, args, success, failure, option) {
+    /** post方式，提交数据为为Json格式 */
+    postJson: function(url, params, success, failure, option) {
+        return ajaxCall("POST", url, params, success, failure, option);
+    },
+    /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
+    postOnce: function (btn, url, params, success, failure, option) {
+        var text,
+            textFormat,
+            fn;
         btn = ui.getJQueryElement(btn);
         if(!btn) {
             throw new Error("没有正确设置要禁用的按钮");
@@ -3129,15 +3159,13 @@ ui.ajax = {
             option = {};
         }
 
-        var text = null,
-            textFormat = "正在{0}...",
-            func;
+        textFormat = "正在{0}...";
         if(option.textFormat) {
             textFormat = option.textFormat;
             delete option.textFormat;
         }
         btn.attr("disabled", "disabled");
-        func = function() {
+        fn = function() {
             btn.removeAttr("disabled");
         };
         if(btn.isNodeName("input")) {
@@ -3147,7 +3175,7 @@ ui.ajax = {
             } else {
                 btn.val(ui.str.stringFormat(textFormat, "处理"));
             }
-            func = function() {
+            fn = function() {
                 btn.val(text);
                 btn.removeAttr("disabled");
             };
@@ -3155,18 +3183,20 @@ ui.ajax = {
             text = btn.html();
             if(!ui._rhtml.test(text)) {
                 btn.text(ui.str.stringFormat(textFormat, text));
-                func = function() {
+                fn = function() {
                     btn.text(text);
                     btn.removeAttr("disabled");
                 };
             }
         }
         
-        option.complete = func;
-        return ajaxCall("POST", url, args, success, failure, option);
+        option.complete = fn;
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxAll: function () {
-        var promises;
+    /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
+    all: function () {
+        var promises,
+            promise;
         if (arguments.length == 1) {
             promises = [arguments[0]];
         } else if (arguments.length > 1) {
@@ -3174,12 +3204,12 @@ ui.ajax = {
         } else {
             return;
         }
-        var promise = Promise.all(promises);
+        promise = Promise.all(promises);
         promise._then_old = promise.then;
 
         promise.then = function () {
             var context;
-            if (arguments.length > 1 && $.isFunction(arguments[1])) {
+            if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
                 context = {
                     error: {},
                     errorFn: arguments[1]
@@ -4295,9 +4325,9 @@ ui.define = function(name, base, prototype) {
 
 (function($, ui) {
 
-var doc = $(document);
-var body = $(doc.body);
-var defaultOption = {
+var doc = $(document),
+    body = $(document.body),
+    defaultOption = {
     // 上下文
     context: null,
     // 拖动的目标
@@ -4413,10 +4443,10 @@ MouseDragger.prototype = {
         this.shield = null;
         this.isTurnOn = false;
 
-        this.option = $.extend(defaultOption, option);
+        this.option = $.extend({}, defaultOption, option);
         this.doc = this.option.doc;
         if(this.option.hasIframe === true) {
-            this.shield = $("<div>");
+            this.shield = $("<div class='drag-shield'>");
             this.shield.css({
                 "position": "fixed",
                 "top": "0px",
@@ -4424,9 +4454,9 @@ MouseDragger.prototype = {
                 "width": "100%",
                 "height": "100%",
                 "z-index": "999999",
-                "background-color": "#ffffff",
+                "background-color": "#fff",
                 "filter": "Alpha(opacity=1)",
-                "opacity": ".1"    
+                "opacity": ".01"    
             });
         }
 
@@ -4489,7 +4519,7 @@ $.fn.draggable = function(option) {
     if (!option || !option.target || !option.parent) {
         return;
     }
-    if (!core.isDomObject(this[0]) || elem.nodeName() === "BODY") {
+    if (!ui.core.isDomObject(this[0]) || this.nodeName() === "BODY") {
         return;
     }
 
@@ -4596,8 +4626,9 @@ StyleSheet.prototype = {
             nodeName = styleElement.nodeName();
             if (nodeName === "STYLE" || nodeName === "LINK") {
                 this.styleSheet = styleElement.prop("sheet");
-                if (!this.styleSheet)
+                if (!this.styleSheet) {
                     this.styleSheet = styleElement.prop("styleSheet");
+                }
                 if (this.styleSheet) {
                     this.styleSheet = $(this.styleSheet);
                 }
@@ -4638,7 +4669,8 @@ StyleSheet.prototype = {
     },
     setRule: function(selector, styles) {
         var rules,
-            rule;
+            rule,
+            index;
         if(ui.str.isEmpty(selector)) {
             return;
         }
@@ -4647,17 +4679,21 @@ StyleSheet.prototype = {
         }
 
         rule = this.getRule(selector);
-        if(rule) {
-            $(rule).css(styles);
-        } else {
+        if(!rule) {
             selector = selector.toLowerCase();
             rules = getRules.call(this.styleSheet);
+            index = rules.length;
             if(ui.core.isFunction(this.styleSheet[0].insertRule)) {
-                this.styleSheet[0].insertRule(selector, styles, rules.length);
+                this.styleSheet[0].insertRule(selector + " {}", index);
             } else if(ui.core.isFunction(this.styleSheet[0].addRule)) {
-                this.styleSheet[0].addRule(selector, styles, rules.length);
+                this.styleSheet[0].addRule(selector, " ", index);
+            } else {
+                return;
             }
+            rules = getRules.call(this.styleSheet);
+            rule = rules[index];
         }
+        $(rule).css(styles);
     },
     removeRule: function(selector) {
         var rules;
@@ -4762,7 +4798,7 @@ ui.theme = {
     },
     /** 修改高亮色 */
     changeHighlight: function(url, color) {
-        ui.ajax.ajaxPost(url, 
+        ui.ajax.postJson(url, 
             { themeId: color.Id },
             function(success) {
                 if(success.Result) {

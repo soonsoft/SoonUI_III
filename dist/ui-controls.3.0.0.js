@@ -1356,6 +1356,8 @@ ui.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
+            // 内容是否包含iframe
+            hasIframe: false,
             // box的宽度
             width: defaultWidth,
             // box的高度
@@ -1416,18 +1418,21 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentPanel = $("<section class='ui-dialog-box-content' />");
         this.operatePanel = null;
 
+        this.box
+            .append(this.titlePanel)
+            .append(this.contentPanel);
+
         this._initTitle();
         this._initContent();
         this._initOperateButtons();
         this._initClosableButton();
 
-        body = $(document.body);
-        body.append(this.box);
         this.animator.addTarget({
             target: this.box,
             ease: ui.AnimationStyle.easeFromTo
         });
 
+        body = $(document.body);
         if(this.maskable()) {
             this.mask = $("<div class='ui-dialog-box-mask' />");
             body.append(this.mask);
@@ -1436,6 +1441,7 @@ ui.define("ui.ctrls.DialogBox", {
                 ease: ui.AnimationStyle.easeFrom
             });
         }
+        body.append(this.box);
 
         if(this.draggable()) {
             this._initDraggable();
@@ -1471,11 +1477,13 @@ ui.define("ui.ctrls.DialogBox", {
         closeBtn.click(function() {
             that.hide();
         });
+        this.box.append(closeBtn);
     },
     _initContent: function() {
         if(this.option.src) {
+            this.option.hasIframe = true;
             this.element = $("<iframe class='content-frame' frameborder='0' scrolling='auto' />");
-            this.element.prop(src, this.option.src);
+            this.element.prop("src", this.option.src);
         }
         this.contentPanel.append(this.element);
     },
@@ -1496,7 +1504,7 @@ ui.define("ui.ctrls.DialogBox", {
         var option = {
             target: this.box,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe")
+            hasIframe: this.hasIframe()
         };
         this.titlePanel
             .addClass("draggable-handle")
@@ -1505,27 +1513,31 @@ ui.define("ui.ctrls.DialogBox", {
     _initResizeable: function() {
         var option;
         this.resizeHandle = $("<u class='resize-handle' />");
-        this.box.append(thsi.resizeHandle);
+        this.box.append(this.resizeHandle);
 
         option = {
-            target: this,
+            context: this,
+            target: this.box,
+            handle: this.resizeHandle,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe"),
+            hasIframe: this.hasIframe(),
             minWidth: 320,
             minHeight: 240,
             onMoving: function(arg) {
                 var op = this.option,
+                    that,
                     width, 
                     height;
-                width = op.target.offsetWidth + x;
-                height = op.target.offsetHeight + y;
+                that = op.context;
+                width = that.offsetWidth + arg.x;
+                height = that.offsetHeight + arg.y;
                 if (width < option.minWidth) {
                     width = option.minWidth;
                 }
                 if (height < option.minHeight) {
                     height = option.minHeight;
                 }
-                op.target._setSize(width, height);
+                that._setSize(width, height);
             }
         };
         this.resizer = ui.MouseDragger(option);
@@ -1618,6 +1630,10 @@ ui.define("ui.ctrls.DialogBox", {
     draggable: function() {
         return !!this.option.draggable;
     },
+    /** 内容是否包含iframe标签 */
+    hasIframe: function() {
+        return !!this.option.hasIframe;
+    },
     /** 设置标题 */
     setTitle: function(title, hasHr, style) {
         var titleContent,
@@ -1638,7 +1654,7 @@ ui.define("ui.ctrls.DialogBox", {
         titleInner = $("<div class='title-inner-panel' />");
         titleInner.append(titleContent);
         if(hasHr) {
-            titleInner.apend("<hr class='ui-dialog-box-spline background-highlight' />");
+            titleInner.append("<hr class='ui-dialog-box-spline background-highlight' />");
         }
         this.titlePanel.append(titleInner);
 
@@ -1646,7 +1662,7 @@ ui.define("ui.ctrls.DialogBox", {
             for(i = 0, len = style.length; i < len; i++) {
                 this.titlePanel.addClass(style[i]);
             }
-        } else if(this.core.isPlainObject(style)) {
+        } else if(ui.core.isPlainObject(style)) {
             this.titlePanel.css(style);
         }
     },
@@ -6613,7 +6629,7 @@ YearView.prototype = {
         this._updateSchedules(data, dateField, formatterFn);
     },
     /** 移除日程信息 */
-    removeSchedules: function() {
+    removeSchedules: function(data, dateField, action) {
         var formatterFn;
 
         if(!ui.core.isFunction(action)) {
@@ -6664,7 +6680,7 @@ YearView.prototype = {
         if(this.isMultiple()) {
             result = [];
             for(i = 0, len = this._selectList.length; i < len; i++) {
-                result.push(this._getDateByCell($(this._selectItem[i])));
+                result.push(this._getDateByCell($(this._selectList[i])));
             }
         } else {
             if(this._current) {
@@ -6700,7 +6716,7 @@ YearView.prototype = {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var selectedClass
+        var selectedClass,
             elem,
             i, len;
 
@@ -6710,7 +6726,7 @@ YearView.prototype = {
                 elem = $(this._selectList[i]);
                 elem.removeClass(selectedClass);
             }
-            this._selectItem = [];
+            this._selectList = [];
         } else {
             if(this._current) {
                 this._current.removeClass(selectedClass);
@@ -6947,7 +6963,7 @@ MonthView.prototype = {
 
         this._setCurrent();
         this._createDays();
-        this._setCellSize(this.viewPanel.width(), this.viewPanel.height() - 26);
+        this._setCellSize(this.viewPanel.width(), this.viewPanel.height());
 
         this._current = null;
         this._selectList = [];
@@ -7068,11 +7084,11 @@ MonthView.prototype = {
                 textField: "text"
             };
         }
-        if(ui.core.isFunction(option.idField)) {
-            getValueFn = option.idField;
+        if(ui.core.isFunction(option.textField)) {
+            getValueFn = option.textField;
         } else {
             getValueFn = function() {
-                return this[option.idField] || null;
+                return this[option.textField] || null;
             };
         }
         if(!ui.core.isFunction(action)) {
@@ -7080,7 +7096,9 @@ MonthView.prototype = {
                 var scheduleList,
                     items,
                     container,
-                    builder;
+                    builder,
+                    itemStyle,
+                    borderStyle;
                 
                 container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
@@ -7094,9 +7112,16 @@ MonthView.prototype = {
                 items = scheduleList.data("schedule-items");
                 items.push(item);
 
+                if(item.backgroundColor) {
+                    itemStyle = " style='background-color:" + item.backgroundColor + "'";
+                }
+                if(item.borderColor) {
+                    borderStyle = " style='background-color:" + item.borderColor + "'";
+                }
+
                 builder = [];
-                builder.push("<li class='schedule-item'>");
-                builder.push("<b class='schedule-border'></b>");
+                builder.push("<li class='schedule-item'", itemStyle, ">");
+                builder.push("<b class='schedule-border'", borderStyle, "></b>");
                 builder.push("<span class='schedule-text'>", getValueFn.call(item), "</span>");
                 builder.push("</li>");
                 scheduleList.append(builder.join(""));
@@ -7136,7 +7161,7 @@ MonthView.prototype = {
                     index,
                     i, len, scheduleItem;
                 
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 
                 if(scheduleList.length === 0) {
@@ -7709,7 +7734,7 @@ WeekView.prototype = {
         }
 
         for(i = 0, len = data.length; i < len; i++) {
-            item = date[i];
+            item = data[i];
             scheduleInfo = {
                 data: item
             };
@@ -7718,7 +7743,7 @@ WeekView.prototype = {
             if(!(scheduleInfo.beginDate instanceof Date) || !(scheduleInfo.endDate instanceof Date)) {
                 continue;
             }
-            scheduleInfo.columnIndex = getColumnFunc.call(this, scheduleInfo.beginDate);
+            scheduleInfo.columnIndex = getColumnFn.call(this, scheduleInfo.beginDate);
             beginTime = formatTime(scheduleInfo.beginDate);
             endTime = formatTime(scheduleInfo.endDate, scheduleInfo.beginDate);
             scheduleInfo.beginRowIndex = this.calendar.timeToIndex(beginTime);
@@ -8513,8 +8538,8 @@ Selector.prototype = {
         pointX = (weekDay + 1) * this.cellWidth - 1;
         beginPointY = (this.view.calendar.timeToIndex(beginTime) + 1) * this.cellHeight - 1;
         endPointY = this.view.calendar.timeToIndex(endTime) * this.cellHeight - 1;
-        begin = this.getCellByPoint(pointX, beginPointY);
-        end = this.getCellByPoint(pointX, endPointY);
+        begin = this._getCellByPoint(pointX, beginPointY);
+        end = this._getCellByPoint(pointX, endPointY);
 
         this.focusX = pointX;
         this.focusY = beginPointY;
@@ -8639,7 +8664,8 @@ ui.define("ui.ctrls.CalendarView", {
     },
     _render: function() {
         var i, len,
-            viewName;
+            viewName,
+            that;
 
         this.element
             .addClass("ui-calendar-view")
@@ -8664,7 +8690,11 @@ ui.define("ui.ctrls.CalendarView", {
                 }
             }
         }
-        this.changeView(this.option.defaultView, false);
+        that = this;
+        // 延迟显示默认视图，给绑定事件留时间
+        setTimeout(function() {
+            that.changeView(that.option.defaultView, false);
+        });
     },
     _getTimeCellCount: function () {
         return Math.floor(60 / this.option.unitTime) || 1;
@@ -8999,11 +9029,17 @@ ui.define("ui.ctrls.CalendarView", {
     /** 设置大小 */
     setSize: function(width, height) {
         this.element.css("height", height + "px");
-        this.currentView.setSize(width, height);
+        if(this.currentView) {
+            this.currentView.setSize(width, height);
+        }
     },
     /** 获取当前视图的标题文字信息 */
     getTitle: function() {
-        return this.currentView.getTitle();
+        if(this.currentView) {
+            return this.currentView.getTitle();
+        } else {
+            return "";
+        }
     }
 });
 
@@ -9041,9 +9077,9 @@ function initCalendarViewTheme(colorInfo) {
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .4);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
-    
     styleHelper.setRule(".ui-calendar-selector", {
         "background-color": color
     });
@@ -9059,10 +9095,20 @@ function initCalendarViewTheme(colorInfo) {
     styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
         "background-color": color
     });
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .85);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
         "background-color": color
+    });
+
+    color = ui.color.overlay(colorInfo.Color, baseColor, .7);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-item", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-border", {
+        "background-color": colorInfo.Color
     });
 }
 ui.page.hlchanged(function(e, colorInfo) {

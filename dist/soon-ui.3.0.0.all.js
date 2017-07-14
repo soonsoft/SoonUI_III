@@ -2214,13 +2214,18 @@ ui.random = random;
  */
 
 //初始化动画播放器
-var prefix = ["ms", "moz", "webkit", "o"],
-    i = 0;
 var requestAnimationFrame,
-    cancelAnimationFrame;
-for (; i < prefix.length && !requestAnimationFrame; i++) {
-    requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
-    cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    cancelAnimationFrame,
+    prefix = ["ms", "moz", "webkit", "o"],
+    i;
+    
+requestAnimationFrame = window.requestAnimationFrame;
+cancelAnimationFrame = window.cancelAnimationFrame;
+if(!requestAnimationFrame) {
+    for (i = 0; i < prefix.length && !requestAnimationFrame; i++) {
+        requestAnimationFrame = window[prefix[i] + "RequestAnimationFrame"];
+        cancelAnimationFrame = window[prefix[i] + "CancelAnimationFrame"] || window[prefix[i] + "CancelRequestAnimationFrame"];
+    }
 }
 if (!requestAnimationFrame) {
     requestAnimationFrame = function (callback, fps) {
@@ -3056,7 +3061,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         context = {
             error: {}
         };
-    if ($.isFunction(args)) {
+    if (ui.core.isFunction(args)) {
         errorFn = successFn;
         successFn = args;
         args = null;
@@ -3091,13 +3096,13 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         }
     }
 
-    if ($.isFunction(successFn)) {
+    if (ui.core.isFunction(successFn)) {
         context.successFn = successFn;
         ajaxOption.success = function(d, s, r) {
             successHandler(context, d, s, r);
         };
     }
-    if ($.isFunction(errorFn)) {
+    if (ui.core.isFunction(errorFn)) {
         context.errorFn = errorFn;
         ajaxOption.error = function(r, s, t) {
             errorHandler(context, r, s, t);
@@ -3106,21 +3111,46 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     return $.ajax(ajaxOption);
 }
 
+/**
+ * HttpRequest Method方式共有15种
+ * Get URL传参
+ * Head 没有ResponseBody，用于获取ResponseHead
+ * Post ReqeustBody提交数据
+ * Put 将客户端的数据发送到服务器上取代文档内容
+ * Delete 删除服务器上的文件
+ * Connect
+ * Options
+ * Trace
+ * Patch
+ * Move
+ * Copy
+ * Link
+ * Unlink
+ * Wrapped
+ * Extension-method
+ */
 ui.ajax = {
-    ajaxGet: function (url, args, success, failure, option) {
+    /** get方式 */
+    get: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("GET", url, args, success, failure, option);
+        return ajaxCall("GET", url, params, success, failure, option);
     },
-    ajaxPost: function (url, args, success, failure, option) {
-        return ajaxCall("POST", url, args, success, failure, option);
-    },
-    ajaxPostForm: function(url, args, success, failure, option) {
+    /** post方式 */
+    post: function (url, params, success, failure, option) {
         if(!option) option = {};
         option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("POST", url, args, success, failure, option);
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxPostOnce: function (btn, url, args, success, failure, option) {
+    /** post方式，提交数据为为Json格式 */
+    postJson: function(url, params, success, failure, option) {
+        return ajaxCall("POST", url, params, success, failure, option);
+    },
+    /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
+    postOnce: function (btn, url, params, success, failure, option) {
+        var text,
+            textFormat,
+            fn;
         btn = ui.getJQueryElement(btn);
         if(!btn) {
             throw new Error("没有正确设置要禁用的按钮");
@@ -3129,15 +3159,13 @@ ui.ajax = {
             option = {};
         }
 
-        var text = null,
-            textFormat = "正在{0}...",
-            func;
+        textFormat = "正在{0}...";
         if(option.textFormat) {
             textFormat = option.textFormat;
             delete option.textFormat;
         }
         btn.attr("disabled", "disabled");
-        func = function() {
+        fn = function() {
             btn.removeAttr("disabled");
         };
         if(btn.isNodeName("input")) {
@@ -3147,7 +3175,7 @@ ui.ajax = {
             } else {
                 btn.val(ui.str.stringFormat(textFormat, "处理"));
             }
-            func = function() {
+            fn = function() {
                 btn.val(text);
                 btn.removeAttr("disabled");
             };
@@ -3155,18 +3183,20 @@ ui.ajax = {
             text = btn.html();
             if(!ui._rhtml.test(text)) {
                 btn.text(ui.str.stringFormat(textFormat, text));
-                func = function() {
+                fn = function() {
                     btn.text(text);
                     btn.removeAttr("disabled");
                 };
             }
         }
         
-        option.complete = func;
-        return ajaxCall("POST", url, args, success, failure, option);
+        option.complete = fn;
+        return ajaxCall("POST", url, params, success, failure, option);
     },
-    ajaxAll: function () {
-        var promises;
+    /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
+    all: function () {
+        var promises,
+            promise;
         if (arguments.length == 1) {
             promises = [arguments[0]];
         } else if (arguments.length > 1) {
@@ -3174,12 +3204,12 @@ ui.ajax = {
         } else {
             return;
         }
-        var promise = Promise.all(promises);
+        promise = Promise.all(promises);
         promise._then_old = promise.then;
 
         promise.then = function () {
             var context;
-            if (arguments.length > 1 && $.isFunction(arguments[1])) {
+            if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
                 context = {
                     error: {},
                     errorFn: arguments[1]
@@ -4295,9 +4325,9 @@ ui.define = function(name, base, prototype) {
 
 (function($, ui) {
 
-var doc = $(document);
-var body = $(doc.body);
-var defaultOption = {
+var doc = $(document),
+    body = $(document.body),
+    defaultOption = {
     // 上下文
     context: null,
     // 拖动的目标
@@ -4413,10 +4443,10 @@ MouseDragger.prototype = {
         this.shield = null;
         this.isTurnOn = false;
 
-        this.option = $.extend(defaultOption, option);
+        this.option = $.extend({}, defaultOption, option);
         this.doc = this.option.doc;
         if(this.option.hasIframe === true) {
-            this.shield = $("<div>");
+            this.shield = $("<div class='drag-shield'>");
             this.shield.css({
                 "position": "fixed",
                 "top": "0px",
@@ -4424,9 +4454,9 @@ MouseDragger.prototype = {
                 "width": "100%",
                 "height": "100%",
                 "z-index": "999999",
-                "background-color": "#ffffff",
+                "background-color": "#fff",
                 "filter": "Alpha(opacity=1)",
-                "opacity": ".1"    
+                "opacity": ".01"    
             });
         }
 
@@ -4489,7 +4519,7 @@ $.fn.draggable = function(option) {
     if (!option || !option.target || !option.parent) {
         return;
     }
-    if (!core.isDomObject(this[0]) || elem.nodeName() === "BODY") {
+    if (!ui.core.isDomObject(this[0]) || this.nodeName() === "BODY") {
         return;
     }
 
@@ -4596,8 +4626,9 @@ StyleSheet.prototype = {
             nodeName = styleElement.nodeName();
             if (nodeName === "STYLE" || nodeName === "LINK") {
                 this.styleSheet = styleElement.prop("sheet");
-                if (!this.styleSheet)
+                if (!this.styleSheet) {
                     this.styleSheet = styleElement.prop("styleSheet");
+                }
                 if (this.styleSheet) {
                     this.styleSheet = $(this.styleSheet);
                 }
@@ -4638,7 +4669,8 @@ StyleSheet.prototype = {
     },
     setRule: function(selector, styles) {
         var rules,
-            rule;
+            rule,
+            index;
         if(ui.str.isEmpty(selector)) {
             return;
         }
@@ -4647,17 +4679,21 @@ StyleSheet.prototype = {
         }
 
         rule = this.getRule(selector);
-        if(rule) {
-            $(rule).css(styles);
-        } else {
+        if(!rule) {
             selector = selector.toLowerCase();
             rules = getRules.call(this.styleSheet);
+            index = rules.length;
             if(ui.core.isFunction(this.styleSheet[0].insertRule)) {
-                this.styleSheet[0].insertRule(selector, styles, rules.length);
+                this.styleSheet[0].insertRule(selector + " {}", index);
             } else if(ui.core.isFunction(this.styleSheet[0].addRule)) {
-                this.styleSheet[0].addRule(selector, styles, rules.length);
+                this.styleSheet[0].addRule(selector, " ", index);
+            } else {
+                return;
             }
+            rules = getRules.call(this.styleSheet);
+            rule = rules[index];
         }
+        $(rule).css(styles);
     },
     removeRule: function(selector) {
         var rules;
@@ -4762,7 +4798,7 @@ ui.theme = {
     },
     /** 修改高亮色 */
     changeHighlight: function(url, color) {
-        ui.ajax.ajaxPost(url, 
+        ui.ajax.postJson(url, 
             { themeId: color.Id },
             function(success) {
                 if(success.Result) {
@@ -6212,6 +6248,8 @@ ui.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
+            // 内容是否包含iframe
+            hasIframe: false,
             // box的宽度
             width: defaultWidth,
             // box的高度
@@ -6272,18 +6310,21 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentPanel = $("<section class='ui-dialog-box-content' />");
         this.operatePanel = null;
 
+        this.box
+            .append(this.titlePanel)
+            .append(this.contentPanel);
+
         this._initTitle();
         this._initContent();
         this._initOperateButtons();
         this._initClosableButton();
 
-        body = $(document.body);
-        body.append(this.box);
         this.animator.addTarget({
             target: this.box,
             ease: ui.AnimationStyle.easeFromTo
         });
 
+        body = $(document.body);
         if(this.maskable()) {
             this.mask = $("<div class='ui-dialog-box-mask' />");
             body.append(this.mask);
@@ -6292,6 +6333,7 @@ ui.define("ui.ctrls.DialogBox", {
                 ease: ui.AnimationStyle.easeFrom
             });
         }
+        body.append(this.box);
 
         if(this.draggable()) {
             this._initDraggable();
@@ -6327,11 +6369,13 @@ ui.define("ui.ctrls.DialogBox", {
         closeBtn.click(function() {
             that.hide();
         });
+        this.box.append(closeBtn);
     },
     _initContent: function() {
         if(this.option.src) {
+            this.option.hasIframe = true;
             this.element = $("<iframe class='content-frame' frameborder='0' scrolling='auto' />");
-            this.element.prop(src, this.option.src);
+            this.element.prop("src", this.option.src);
         }
         this.contentPanel.append(this.element);
     },
@@ -6352,7 +6396,7 @@ ui.define("ui.ctrls.DialogBox", {
         var option = {
             target: this.box,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe")
+            hasIframe: this.hasIframe()
         };
         this.titlePanel
             .addClass("draggable-handle")
@@ -6361,27 +6405,31 @@ ui.define("ui.ctrls.DialogBox", {
     _initResizeable: function() {
         var option;
         this.resizeHandle = $("<u class='resize-handle' />");
-        this.box.append(thsi.resizeHandle);
+        this.box.append(this.resizeHandle);
 
         option = {
-            target: this,
+            context: this,
+            target: this.box,
+            handle: this.resizeHandle,
             parent: $(document.body),
-            hasIframe: this.element.isNodeName("iframe"),
+            hasIframe: this.hasIframe(),
             minWidth: 320,
             minHeight: 240,
             onMoving: function(arg) {
                 var op = this.option,
+                    that,
                     width, 
                     height;
-                width = op.target.offsetWidth + x;
-                height = op.target.offsetHeight + y;
+                that = op.context;
+                width = that.offsetWidth + arg.x;
+                height = that.offsetHeight + arg.y;
                 if (width < option.minWidth) {
                     width = option.minWidth;
                 }
                 if (height < option.minHeight) {
                     height = option.minHeight;
                 }
-                op.target._setSize(width, height);
+                that._setSize(width, height);
             }
         };
         this.resizer = ui.MouseDragger(option);
@@ -6474,6 +6522,10 @@ ui.define("ui.ctrls.DialogBox", {
     draggable: function() {
         return !!this.option.draggable;
     },
+    /** 内容是否包含iframe标签 */
+    hasIframe: function() {
+        return !!this.option.hasIframe;
+    },
     /** 设置标题 */
     setTitle: function(title, hasHr, style) {
         var titleContent,
@@ -6494,7 +6546,7 @@ ui.define("ui.ctrls.DialogBox", {
         titleInner = $("<div class='title-inner-panel' />");
         titleInner.append(titleContent);
         if(hasHr) {
-            titleInner.apend("<hr class='ui-dialog-box-spline background-highlight' />");
+            titleInner.append("<hr class='ui-dialog-box-spline background-highlight' />");
         }
         this.titlePanel.append(titleInner);
 
@@ -6502,7 +6554,7 @@ ui.define("ui.ctrls.DialogBox", {
             for(i = 0, len = style.length; i < len; i++) {
                 this.titlePanel.addClass(style[i]);
             }
-        } else if(this.core.isPlainObject(style)) {
+        } else if(ui.core.isPlainObject(style)) {
             this.titlePanel.css(style);
         }
     },
@@ -11469,7 +11521,7 @@ YearView.prototype = {
         this._updateSchedules(data, dateField, formatterFn);
     },
     /** 移除日程信息 */
-    removeSchedules: function() {
+    removeSchedules: function(data, dateField, action) {
         var formatterFn;
 
         if(!ui.core.isFunction(action)) {
@@ -11520,7 +11572,7 @@ YearView.prototype = {
         if(this.isMultiple()) {
             result = [];
             for(i = 0, len = this._selectList.length; i < len; i++) {
-                result.push(this._getDateByCell($(this._selectItem[i])));
+                result.push(this._getDateByCell($(this._selectList[i])));
             }
         } else {
             if(this._current) {
@@ -11556,7 +11608,7 @@ YearView.prototype = {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var selectedClass
+        var selectedClass,
             elem,
             i, len;
 
@@ -11566,7 +11618,7 @@ YearView.prototype = {
                 elem = $(this._selectList[i]);
                 elem.removeClass(selectedClass);
             }
-            this._selectItem = [];
+            this._selectList = [];
         } else {
             if(this._current) {
                 this._current.removeClass(selectedClass);
@@ -11803,7 +11855,7 @@ MonthView.prototype = {
 
         this._setCurrent();
         this._createDays();
-        this._setCellSize(this.viewPanel.width(), this.viewPanel.height() - 26);
+        this._setCellSize(this.viewPanel.width(), this.viewPanel.height());
 
         this._current = null;
         this._selectList = [];
@@ -11924,11 +11976,11 @@ MonthView.prototype = {
                 textField: "text"
             };
         }
-        if(ui.core.isFunction(option.idField)) {
-            getValueFn = option.idField;
+        if(ui.core.isFunction(option.textField)) {
+            getValueFn = option.textField;
         } else {
             getValueFn = function() {
-                return this[option.idField] || null;
+                return this[option.textField] || null;
             };
         }
         if(!ui.core.isFunction(action)) {
@@ -11936,7 +11988,9 @@ MonthView.prototype = {
                 var scheduleList,
                     items,
                     container,
-                    builder;
+                    builder,
+                    itemStyle,
+                    borderStyle;
                 
                 container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
@@ -11950,9 +12004,16 @@ MonthView.prototype = {
                 items = scheduleList.data("schedule-items");
                 items.push(item);
 
+                if(item.backgroundColor) {
+                    itemStyle = " style='background-color:" + item.backgroundColor + "'";
+                }
+                if(item.borderColor) {
+                    borderStyle = " style='background-color:" + item.borderColor + "'";
+                }
+
                 builder = [];
-                builder.push("<li class='schedule-item'>");
-                builder.push("<b class='schedule-border'></b>");
+                builder.push("<li class='schedule-item'", itemStyle, ">");
+                builder.push("<b class='schedule-border'", borderStyle, "></b>");
                 builder.push("<span class='schedule-text'>", getValueFn.call(item), "</span>");
                 builder.push("</li>");
                 scheduleList.append(builder.join(""));
@@ -11992,7 +12053,7 @@ MonthView.prototype = {
                     index,
                     i, len, scheduleItem;
                 
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 
                 if(scheduleList.length === 0) {
@@ -12565,7 +12626,7 @@ WeekView.prototype = {
         }
 
         for(i = 0, len = data.length; i < len; i++) {
-            item = date[i];
+            item = data[i];
             scheduleInfo = {
                 data: item
             };
@@ -12574,7 +12635,7 @@ WeekView.prototype = {
             if(!(scheduleInfo.beginDate instanceof Date) || !(scheduleInfo.endDate instanceof Date)) {
                 continue;
             }
-            scheduleInfo.columnIndex = getColumnFunc.call(this, scheduleInfo.beginDate);
+            scheduleInfo.columnIndex = getColumnFn.call(this, scheduleInfo.beginDate);
             beginTime = formatTime(scheduleInfo.beginDate);
             endTime = formatTime(scheduleInfo.endDate, scheduleInfo.beginDate);
             scheduleInfo.beginRowIndex = this.calendar.timeToIndex(beginTime);
@@ -13369,8 +13430,8 @@ Selector.prototype = {
         pointX = (weekDay + 1) * this.cellWidth - 1;
         beginPointY = (this.view.calendar.timeToIndex(beginTime) + 1) * this.cellHeight - 1;
         endPointY = this.view.calendar.timeToIndex(endTime) * this.cellHeight - 1;
-        begin = this.getCellByPoint(pointX, beginPointY);
-        end = this.getCellByPoint(pointX, endPointY);
+        begin = this._getCellByPoint(pointX, beginPointY);
+        end = this._getCellByPoint(pointX, endPointY);
 
         this.focusX = pointX;
         this.focusY = beginPointY;
@@ -13495,7 +13556,8 @@ ui.define("ui.ctrls.CalendarView", {
     },
     _render: function() {
         var i, len,
-            viewName;
+            viewName,
+            that;
 
         this.element
             .addClass("ui-calendar-view")
@@ -13520,7 +13582,11 @@ ui.define("ui.ctrls.CalendarView", {
                 }
             }
         }
-        this.changeView(this.option.defaultView, false);
+        that = this;
+        // 延迟显示默认视图，给绑定事件留时间
+        setTimeout(function() {
+            that.changeView(that.option.defaultView, false);
+        });
     },
     _getTimeCellCount: function () {
         return Math.floor(60 / this.option.unitTime) || 1;
@@ -13855,11 +13921,17 @@ ui.define("ui.ctrls.CalendarView", {
     /** 设置大小 */
     setSize: function(width, height) {
         this.element.css("height", height + "px");
-        this.currentView.setSize(width, height);
+        if(this.currentView) {
+            this.currentView.setSize(width, height);
+        }
     },
     /** 获取当前视图的标题文字信息 */
     getTitle: function() {
-        return this.currentView.getTitle();
+        if(this.currentView) {
+            return this.currentView.getTitle();
+        } else {
+            return "";
+        }
     }
 });
 
@@ -13897,9 +13969,9 @@ function initCalendarViewTheme(colorInfo) {
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .4);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
-    
     styleHelper.setRule(".ui-calendar-selector", {
         "background-color": color
     });
@@ -13915,10 +13987,20 @@ function initCalendarViewTheme(colorInfo) {
     styleHelper.setRule(".ui-calendar-year-view .year-month-table .selected", {
         "background-color": color
     });
+
     color = ui.color.overlay(colorInfo.Color, baseColor, .85);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
         "background-color": color
+    });
+
+    color = ui.color.overlay(colorInfo.Color, baseColor, .7);
+    color = ui.color.rgb2hex(color.red, color.green, color.blue);
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-item", {
+        "background-color": color
+    });
+    styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-border", {
+        "background-color": colorInfo.Color
     });
 }
 ui.page.hlchanged(function(e, colorInfo) {
@@ -22630,6 +22712,7 @@ var master = {
             if(window.pageLogic) {
                 that.pageInit(pageLogic.init, pageLogic);
             }
+            that.body.css("visibility", "visible");
         }, ui.eventPriority.masterReady);
     },
     _initElements: function () {
@@ -22783,7 +22866,7 @@ var master = {
                 that._currentHighlightItem = elem;
                 that._currentHighlightItem.addClass("highlight-item-selected");
                 //ui.theme.changeHighlight("/Home/ChangeTheme", color);
-                $("#highlight").prop("href", ui.str.textFormat("../../dist/theme/color/ui.metro.{0}.css", color.Id));
+                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
                 ui.theme.setHighlight(color);
             });
         }
@@ -22880,6 +22963,16 @@ var master = {
                 fn.call(ui);
             }
         }
+    },
+    /** 创建toolbar */
+    createToolbar: function(id, extendShow) {
+        if(!id) {
+            return null;
+        }
+        return ui.Toolbar({
+            toolbarId: id,
+            defaultExtendShow: !!extendShow
+        });
     },
     /** 获取一个有效的url */
     getUrl: function(url) {
@@ -24026,7 +24119,7 @@ Toolbar.prototype = {
             moreActions;
         if(this.extendButton.length === 0) {
             moreTool = $("<ul class='tools' style='float:right;margin-left:0px;'></ul>");
-            moreActions = $("<li class='action-buttons'></li>");
+            moreActions = $("<li class='tool-item action-buttons'></li>");
             moreTool.append(moreActions);
             if(this.tools.length === 0) {
                 this.extendPanel.parent().before(moreTool);

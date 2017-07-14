@@ -107,15 +107,15 @@
 }
 .ui-calendar-year-view .year-day-marker {
   display: inline-block;
-  width: 0px;
-  height: 0px;
+  width: 0;
+  height: 0;
   border-width: 3px;
   border-left-color: transparent !important;
   border-bottom-color: transparent !important;
   border-style: solid solid dashed dashed;
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: 0;
+  right: 0;
 }
 /* 月视图 */
 .ui-calendar-month-week-view {
@@ -181,12 +181,13 @@
 .ui-calendar-month-day-view .month-days-cell .schedule-item {
   width: 100%;
   height: 20px;
-  line-height: 14px;
+  line-height: 20px;
   margin: 0 0 1px 0;
   padding: 0;
   list-style: none;
   overflow: hidden;
   position: relative;
+  color: #666;
 }
 .ui-calendar-month-day-view .month-days-cell .schedule-border {
   position: absolute;
@@ -245,7 +246,7 @@
 .ui-calendar-day-title {
   position: absolute;
   left: 80px;
-  top: 0px;
+  top: 0;
   width: 100%;
   height: 100%;
   cursor: pointer;
@@ -309,7 +310,7 @@
   height: auto;
   top: 0;
   left: 80px;
-  right: 0px;
+  right: 0;
   padding: 0;
   margin: 0;
 }
@@ -359,7 +360,7 @@
   overflow: hidden;
 }
 .ui-calendar-hour-panel .schedule-item-panel .schedule-content-text {
-  margin: 0px;
+  margin: 0;
   line-height: 1.5em;
   text-overflow: ellipsis;
   text-align: justify;
@@ -371,7 +372,6 @@
   border: solid 2px #666666;
   display: none;
   cursor: default;
-  z-index: 10000;
   color: #fff;
   top: -2px;
   left: -2px;
@@ -931,14 +931,19 @@ input.dateChooser-clear {
   bottom: 0;
   margin: 0;
   padding: 0;
-  background-color: #000000;
+  background-color: #000;
   opacity: 0;
   z-index: 9999;
   display: none;
 }
-.closable-button {
-  right: 5px;
-  top: 5px;
+.ui-dialog-box .closable-button {
+  font: 26px/24px Tahoma, Verdana, sans-serif;
+  width: 40px;
+  height: 40px;
+  right: 0;
+  top: 0;
+  line-height: 36px;
+  text-align: center;
 }
 /* 标题部分 */
 .ui-dialog-box-title {
@@ -954,7 +959,7 @@ input.dateChooser-clear {
   padding-right: 16px;
   height: 100%;
 }
-.ui-dialog-box-title .title-inner-panel .text-text {
+.ui-dialog-box-title .title-inner-panel .title-text {
   font-size: 16px;
   line-height: 40px;
 }
@@ -966,6 +971,7 @@ input.dateChooser-clear {
   padding-bottom: 0;
   border: none 0;
   height: 1px;
+  width: auto;
 }
 /* 内容部分 */
 .ui-dialog-box-content {
