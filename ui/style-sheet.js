@@ -40,8 +40,9 @@ StyleSheet.prototype = {
             nodeName = styleElement.nodeName();
             if (nodeName === "STYLE" || nodeName === "LINK") {
                 this.styleSheet = styleElement.prop("sheet");
-                if (!this.styleSheet)
+                if (!this.styleSheet) {
                     this.styleSheet = styleElement.prop("styleSheet");
+                }
                 if (this.styleSheet) {
                     this.styleSheet = $(this.styleSheet);
                 }
@@ -82,7 +83,8 @@ StyleSheet.prototype = {
     },
     setRule: function(selector, styles) {
         var rules,
-            rule;
+            rule,
+            index;
         if(ui.str.isEmpty(selector)) {
             return;
         }
@@ -91,17 +93,21 @@ StyleSheet.prototype = {
         }
 
         rule = this.getRule(selector);
-        if(rule) {
-            $(rule).css(styles);
-        } else {
+        if(!rule) {
             selector = selector.toLowerCase();
             rules = getRules.call(this.styleSheet);
+            index = rules.length;
             if(ui.core.isFunction(this.styleSheet[0].insertRule)) {
-                this.styleSheet[0].insertRule(selector, styles, rules.length);
+                this.styleSheet[0].insertRule(selector + " {}", index);
             } else if(ui.core.isFunction(this.styleSheet[0].addRule)) {
-                this.styleSheet[0].addRule(selector, styles, rules.length);
+                this.styleSheet[0].addRule(selector, " ", index);
+            } else {
+                return;
             }
+            rules = getRules.call(this.styleSheet);
+            rule = rules[index];
         }
+        $(rule).css(styles);
     },
     removeRule: function(selector) {
         var rules;
