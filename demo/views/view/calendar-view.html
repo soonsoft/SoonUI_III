@@ -43,7 +43,15 @@
                     <hr class="extend-spliter" />
                 </li>
                 <li class="tool-item">
-                    <div class="top-container"></div>
+                    <div class="top-container">
+                        <button id="monthSchedule" class="tool-button button-highlight" style="width:70px">显示日程</button>
+                        <button id="monthRemoveSchedule" class="tool-button" style="width:70px">移除日程</button>
+                        <br />
+                        <button id="monthSelect" class="tool-button" style="width:70px">选择周末</button>
+                        <button id="monthGet" class="tool-button" style="width:70px">获取选项</button>
+                        <br />
+                        <button id="monthCancel" class="tool-button" style="width:70px">取消选择</button>
+                    </div>
                     <div class="bottom-title">
                         <span>月视图</span>
                     </div>
@@ -137,6 +145,9 @@
                                     loadYearSchedule(view);
                                 }
                             } else if(this.isView(view, "MonthView")) {
+                                if(pageLogic.monthSchedule) {
+                                    loadMonthSchedule(view);
+                                }
                                 //view.addSchedules(loadMonthSchedule(), "date");
                             } else if(this.isView(view, "WeekView")) {
                                 // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
@@ -192,7 +203,7 @@
                         });
                         
                         bindYearEvents();
-                        
+                        bindMonthEvents();
                     },
                     load: function() {
 
@@ -228,7 +239,7 @@
                 $("#yearRemoveSchedule").click(function(e) {
                     var view = getViewFn(),
                         selectionData;
-                    if(view) {
+                    if(view && pageLogic.yearSchedule) {
                         removeSaturdaySchedule(view);
                     }
                 });
@@ -314,6 +325,116 @@
             
 
             // 月视图相关方法
+            function bindMonthEvents() {
+                var getViewFn = function() {
+                    var view = pageLogic.calendarView.currentView;
+                    if(!pageLogic.calendarView.isView(view, "MonthView")) {
+                        ui.messageShow("请先切换到月视图");
+                        return;
+                    }
+                    return view;
+                };
+                $("#monthSchedule").click(function(e) {
+                    var elem = $(e.target),
+                        view = getViewFn();
+                    if(view) {
+                        if(!elem.hasClass("background-highlight")) {
+                            elem.addClass("background-highlight");
+                            pageLogic.monthSchedule = true;
+                            loadMonthSchedule(view);
+                        } else {
+                            elem.removeClass("background-highlight");
+                            pageLogic.monthSchedule = true;
+                            view.clearSchedules();
+                        }
+                    }
+                });
+                $("#monthRemoveSchedule").click(function(e) {
+                    var view = getViewFn(),
+                        selectionData;
+                    if(view) {
+                    }
+                });
+                $("#monthSelect").click(function(e) {
+                    var view = getViewFn();
+                    if(view) {
+                    }
+                });
+                $("#monthGet").click(function(e) {
+                    var view = getViewFn(),
+                        selectionData;
+                    if(view) {
+                        selectionData = [];
+                        if(selectionData.length > 0) {
+                            alert(selectionData);
+                        } else {
+                            ui.messageShow("没有选择的日期");
+                        }
+                    }
+                });
+                $("#monthCancel").click(function(e) {
+                    var view = getViewFn();
+                    if(view) {
+                        view.cancelSelection();
+                    }
+                });
+            }
+            function loadMonthSchedule(view) {
+                var count = ui.random.getNum(20, 100),
+                    data = [],
+                    today = new Date(),
+                    textArray = ["会议", "看电影", "晚餐", "学习插花", "锻炼身体", "Coding", "玩游戏", "干家务"];
+                for(var i = 0; i < count; i++) {
+                    data[i] = {
+                        date: new Date(
+                            today.getFullYear(), 
+                            today.getMonth(), 
+                            ui.random.getNum(1, 28), 
+                            ui.random.getNum(0, 24), 
+                            ui.random.getNum(0, 60), 
+                            0),
+                        text: "",
+                        color: ui.theme.Colors[ui.random.getNum(0, ui.theme.Colors.length)].Color
+                    };
+                    data[i].text = ui.str.dateFormat(data[i].date, "HH:mm") 
+                        + " " 
+                        + textArray[ui.random.getNum(0, textArray.length)];
+                }
+                view.addSchedules(data, "date", function(item) {
+                    var scheduleList,
+                        items,
+                        container,
+                        builder,
+                        baseColor = ui.theme.backgroundColor || "#FFFFFF",
+                        bgcolor;
+
+                    bgcolor = ui.color.overlay(item.color, baseColor, .7);
+                    bgcolor = ui.color.rgb2hex(bgcolor.red, bgcolor.green, bgcolor.blue);
+                    
+                    container = this.children(".day-container");
+                    scheduleList = container.children(".schedule-list");
+                    
+                    if(scheduleList.length === 0) {
+                        scheduleList = $("<ul class='schedule-list' />");
+                        scheduleList.data("schedule-items", []);
+                        container.append(scheduleList);
+                    }
+
+                    items = scheduleList.data("schedule-items");
+                    items.push(item);
+
+                    builder = [];
+                    builder.push("<li class='schedule-item' style='color:#666;background-color:", bgcolor, "'>");
+                    builder.push("<b class='schedule-border' style='background-color:", item.color, "'></b>");
+                    builder.push("<span class='schedule-text'>", item.text, "</span>");
+                    builder.push("</li>");
+                    scheduleList.append(builder.join(""));
+                });
+            }
+
+            // 周视图相关方法
+
+            // 日视图相关方法
         })();
     </script>
 </partial>
