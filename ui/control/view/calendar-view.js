@@ -914,7 +914,9 @@ MonthView.prototype = {
                 var scheduleList,
                     items,
                     container,
-                    builder;
+                    builder,
+                    itemStyle,
+                    borderStyle;
                 
                 container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
@@ -928,9 +930,16 @@ MonthView.prototype = {
                 items = scheduleList.data("schedule-items");
                 items.push(item);
 
+                if(item.backgroundColor) {
+                    itemStyle = " style='background-color:" + item.backgroundColor + "'";
+                }
+                if(item.borderColor) {
+                    borderStyle = " style='background-color:" + item.borderColor + "'";
+                }
+
                 builder = [];
-                builder.push("<li class='schedule-item'>");
-                builder.push("<b class='schedule-border'></b>");
+                builder.push("<li class='schedule-item'", itemStyle, ">");
+                builder.push("<b class='schedule-border'", borderStyle, "></b>");
                 builder.push("<span class='schedule-text'>", getValueFn.call(item), "</span>");
                 builder.push("</li>");
                 scheduleList.append(builder.join(""));
