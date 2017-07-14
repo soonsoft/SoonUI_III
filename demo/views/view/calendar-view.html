@@ -60,7 +60,9 @@
                     <hr class="extend-spliter" />
                 </li>
                 <li class="tool-item">
-                    <div class="top-container"></div>
+                    <div class="top-container">
+                        <button id="weekSchedule" class="tool-button button-highlight" style="width:70px">显示日程</button>
+                    </div>
                     <div class="bottom-title">
                         <span>周视图</span>
                     </div>
@@ -148,16 +150,22 @@
                                 if(pageLogic.monthSchedule) {
                                     loadMonthSchedule(view);
                                 }
-                                //view.addSchedules(loadMonthSchedule(), "date");
                             } else if(this.isView(view, "WeekView")) {
-                                // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
-                                //     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
-                                // });
+                                if(pageLogic.weekSchedule) {
+                                    loadWeekSchedule(view);
+                                }
                             } else if (this.isView(view, "DayView")) {
                                 // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
                                 //     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
                                 // });
                             }
+                        });
+                        this.calendarView.weekTitleClick(function (e, view, weekIndex) {
+                            if (view.hasSchedule(weekIndex)) {
+                                ui.messageShow("已经设置工时，不能选择全天！");
+                                return;
+                            }
+                            view.selector.setSelectionByTime(weekIndex, "08:00:00", "18:00:00");
                         });
                     },
                     layout: function() {
@@ -204,6 +212,7 @@
                         
                         bindYearEvents();
                         bindMonthEvents();
+                        bindWeekEvents();
                     },
                     load: function() {
 
@@ -246,14 +255,14 @@
                 $("#yearSelect").click(function(e) {
                     var view = getViewFn();
                     if(view) {
-                        selectWeekendWithYear(view);
+                        selectWeekendOfYear(view);
                     }
                 });
                 $("#yearGet").click(function(e) {
                     var view = getViewFn(),
                         selectionData;
                     if(view) {
-                        selectionData = getSelectionWeekend(view);
+                        selectionData = getSelectionWeekendOfYear(view);
                         if(selectionData.length > 0) {
                             alert(selectionData);
                         } else {
@@ -299,7 +308,7 @@
                     this.removeAttr("title");
                 });
             }
-            function selectWeekendWithYear(view) {
+            function selectWeekendOfYear(view) {
                 var year = view.year,
                     date = new Date(year, 0, 1),
                     data = [];
@@ -314,7 +323,7 @@
                 }
                 view.setSelection(data);
             }
-            function getSelectionWeekend(view) {
+            function getSelectionWeekendOfYear(view) {
                 var data = view.getSelection(),
                     i, len;
                 for(i = 0, len = data.length; i < len; i++) {
@@ -353,18 +362,20 @@
                     var view = getViewFn(),
                         selectionData;
                     if(view) {
+                        removeSaturdaySchedule(view);
                     }
                 });
                 $("#monthSelect").click(function(e) {
                     var view = getViewFn();
                     if(view) {
+                        selectWeekendOfMonth(view);
                     }
                 });
                 $("#monthGet").click(function(e) {
                     var view = getViewFn(),
                         selectionData;
                     if(view) {
-                        selectionData = [];
+                        selectionData = getSelectionWeekendOfMonth(view);
                         if(selectionData.length > 0) {
                             alert(selectionData);
                         } else {
@@ -408,10 +419,109 @@
                         + " " 
                         + textArray[ui.random.getNum(0, textArray.length)];
                 }
+                pageLogic.currentMonthSchedules = data;
                 view.addSchedules(data, "date");
+            }
+            function removeSaturdaySchedule(view) {
+                var data = pageLogic.currentMonthSchedules,
+                    i, len,
+                    result = [],
+                    count = ui.random.getNum(1, Math.floor(data.length / 3));
+                if(Array.isArray(data)) {
+                    for(i = 0, len = count; i < len; i++) {
+                        result.push(data[ui.random.getNum(0, data.length)]);
+                    }
+                    view.removeSchedules(data);
+                }
+            }
+            function selectWeekendOfMonth(view) {
+                var year = view.year,
+                    month = view.month,
+                    date = new Date(year, month, 1),
+                    data = [];
+                date.setDate(date.getDate() + 6 - date.getDay());
+                while(date.getFullYear() == year && date.getMonth() == month) {
+                    data.push(new Date(date.getTime()));
+                    if(date.getMonth() != 11 && date.getDate() != 31) {
+                        data.push(new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1));
+                    }
+
+                    date.setDate(date.getDate() + 7);
+                }
+                view.setSelection(data);
+            }
+            function getSelectionWeekendOfMonth(view) {
+                var data = view.getSelection(),
+                    i, len;
+                for(i = 0, len = data.length; i < len; i++) {
+                    data[i] = ui.str.dateFormat(data[i], "yyyy-MM-dd");
+                }
+                return data;
             }
 
             // 周视图相关方法
+            function bindWeekEvents() {
+                var getViewFn = function() {
+                    var view = pageLogic.calendarView.currentView;
+                    if(!pageLogic.calendarView.isView(view, "WeekView")) {
+                        ui.messageShow("请先切换到周视图");
+                        return;
+                    }
+                    return view;
+                };
+                $("#weekSchedule").click(function(e) {
+                    var elem = $(e.target),
+                        view = getViewFn();
+                    if(view) {
+                        if(!elem.hasClass("background-highlight")) {
+                            elem.addClass("background-highlight");
+                            pageLogic.weekSchedule = true;
+                            loadWeekSchedule(view);
+                        } else {
+                            elem.removeClass("background-highlight");
+                            pageLogic.weekSchedule = true;
+                            view.clearSchedules();
+                        }
+                    }
+                });
+            }
+            function loadWeekSchedule(view) {
+                var count = ui.random.getNum(0, view.weekDays.length),
+                    i, len,
+                    date, temp,
+                    index,
+                    data;
+                temp = [];
+                for(i = 0, len = view.weekDays.length; i < len; i++) {
+                    temp.push(view.weekDays[i]);
+                }
+                data = [];
+                for(i = 0, len = count; i < len; i++) {
+                    index = ui.random.getNum(0, temp.length);
+                    date = temp[index];
+                    temp.splice(index, 1);
+                    data.push({
+                        "BeginTime": new Date(
+                                date.getFullYear(), 
+                                date.getMonth(), 
+                                date.getDate(), 
+                                ui.random.getNum(0, 12),
+                                ui.random.getNum(0, 2) ? 30 : 0, 
+                                0),
+                        "EndTime": new Date(
+                                date.getFullYear(), 
+                                date.getMonth(), 
+                                date.getDate(), 
+                                ui.random.getNum(12, 24),
+                                ui.random.getNum(0, 2) ? 30 : 0, 
+                                0),
+                        "Text": "用大炮打蚊子"
+                    });
+                }
+                view.addSchedules(data, "BeginTime", "EndTime", function(item, container) {
+                    container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
+                });
+            }
 
             // 日视图相关方法
         })();
