@@ -383,7 +383,9 @@
                 var count = ui.random.getNum(20, 100),
                     data = [],
                     today = new Date(),
+                    baseColor = ui.theme.backgroundColor || "#FFFFFF",
                     textArray = ["会议", "看电影", "晚餐", "学习插花", "锻炼身体", "Coding", "玩游戏", "干家务"];
+                
                 for(var i = 0; i < count; i++) {
                     data[i] = {
                         date: new Date(
@@ -394,42 +396,19 @@
                             ui.random.getNum(0, 60), 
                             0),
                         text: "",
-                        color: ui.theme.Colors[ui.random.getNum(0, ui.theme.Colors.length)].Color
+                        borderColor: ui.theme.Colors[ui.random.getNum(0, ui.theme.Colors.length)].Color,
+                        backgroundColor: null
                     };
+                    data[i].backgroundColor = ui.color.overlay(data[i].borderColor, baseColor, .7);
+                    data[i].backgroundColor = ui.color.rgb2hex(
+                            data[i].backgroundColor.red, 
+                            data[i].backgroundColor.green, 
+                            data[i].backgroundColor.blue);
                     data[i].text = ui.str.dateFormat(data[i].date, "HH:mm") 
                         + " " 
                         + textArray[ui.random.getNum(0, textArray.length)];
                 }
-                view.addSchedules(data, "date", function(item) {
-                    var scheduleList,
-                        items,
-                        container,
-                        builder,
-                        baseColor = ui.theme.backgroundColor || "#FFFFFF",
-                        bgcolor;
-
-                    bgcolor = ui.color.overlay(item.color, baseColor, .7);
-                    bgcolor = ui.color.rgb2hex(bgcolor.red, bgcolor.green, bgcolor.blue);
-                    
-                    container = this.children(".day-container");
-                    scheduleList = container.children(".schedule-list");
-                    
-                    if(scheduleList.length === 0) {
-                        scheduleList = $("<ul class='schedule-list' />");
-                        scheduleList.data("schedule-items", []);
-                        container.append(scheduleList);
-                    }
-
-                    items = scheduleList.data("schedule-items");
-                    items.push(item);
-
-                    builder = [];
-                    builder.push("<li class='schedule-item' style='color:#666;background-color:", bgcolor, "'>");
-                    builder.push("<b class='schedule-border' style='background-color:", item.color, "'></b>");
-                    builder.push("<span class='schedule-text'>", item.text, "</span>");
-                    builder.push("</li>");
-                    scheduleList.append(builder.join(""));
-                });
+                view.addSchedules(data, "date");
             }
 
             // 周视图相关方法
