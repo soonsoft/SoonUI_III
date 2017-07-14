@@ -544,7 +544,7 @@ YearView.prototype = {
                 elem = $(this._selectList[i]);
                 elem.removeClass(selectedClass);
             }
-            this._selectItem = [];
+            this._selectList = [];
         } else {
             if(this._current) {
                 this._current.removeClass(selectedClass);
