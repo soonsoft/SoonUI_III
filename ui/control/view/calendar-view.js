@@ -781,7 +781,7 @@ MonthView.prototype = {
 
         this._setCurrent();
         this._createDays();
-        this._setCellSize(this.viewPanel.width(), this.viewPanel.height() - 26);
+        this._setCellSize(this.viewPanel.width(), this.viewPanel.height());
 
         this._current = null;
         this._selectList = [];
