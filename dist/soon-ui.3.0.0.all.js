@@ -24269,7 +24269,7 @@ Toolbar.prototype = {
         }
     },
     _fireResize: function() {
-        ui.fire("resize");
+        ui.page.fire("resize");
     },
     isExtendPin: function() {
         return this.pinButton.hasClass("extend-pin");  
