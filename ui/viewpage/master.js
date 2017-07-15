@@ -21,11 +21,11 @@ var master = {
     contentBodyHeight: 0,
 
     init: function() {
+        var that = this;
         this.toolbar = {
             height: 40,
             extendHeight: 0
         };
-        var that = this;
         ui.page.ready(function (e) {
             that._initElements();
             that._initContentSize();

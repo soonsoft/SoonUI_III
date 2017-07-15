@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     var themeColor = [
         {
             // 主题名
-            name: "Light",
+            name: "light",
             // 描述
             description: "光明",
             // 背景色
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
         },
         {
             // 主题名
-            name: "Dark",
+            name: "dark",
             // 描述
             description: "暗夜",
             // 背景色

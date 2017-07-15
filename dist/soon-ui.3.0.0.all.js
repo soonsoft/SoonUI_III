@@ -13254,11 +13254,6 @@ Selector.prototype = {
 
         return x >= left && x <= right && y >= top && y <= bottom;
     },
-    _checkSelectable: function(td) {
-        var count = this.view.calendar._getTimeCellCount();
-        this.selectableMin = 0;
-        this.selectableMax = 24 * count - 1;
-    },
     _changeToGridPoint: function(x, y) {
         var position = this.panel.offset();
         position.left = position.left + timeTitleWidth;
@@ -13279,6 +13274,7 @@ Selector.prototype = {
     },
 
     // 事件处理
+    /** 鼠标按下，开始选择 */
     onMouseDown: function(elem, x, y) {
         var td, 
             nodeName, 
@@ -13310,12 +13306,13 @@ Selector.prototype = {
         this._selectCell(td);
 
         //确定可选区间
-        this._checkSelectable(td);
+        this.checkSelectable(td);
 
         this._isBeginSelect = true;
         this.focusX = point.gridX;
         this.focusY = point.gridY;
     },
+    /** 鼠标移动 */
     onMouseMove: function (e) {
         var point,
             td, 
@@ -13358,6 +13355,7 @@ Selector.prototype = {
         endTime = this.view.calendar.indexToTime(end.hourIndex + 1);
         box.boxTextSpan.text(beginTime + " - " + endTime);
     },
+    /** 鼠标释放 */
     onMouseUp: function(e) {
         if (!this._clickInGrid) {
             return;
@@ -13366,6 +13364,7 @@ Selector.prototype = {
             this.onSelectCompleted();
         }
     },
+    /** 选则完成处理 */
     onSelectCompleted: function() {
         var box = null,
             that = this;
@@ -13385,7 +13384,47 @@ Selector.prototype = {
             that.view.calendar.fire("selected", that.view, box, data);
         }, 50);
     },
+    /** 确定可选择区域 */
+    checkSelectable: function(td) {
+        var count,
+            hours,
+            min, max,
+            hour, i;
 
+        count = this.view.calendar._getTimeCellCount();
+        this.selectableMin = 0;
+        this.selectableMax = 24 * count - 1;
+        
+        if(this.view.calendar.option.weekSingleSelect) {
+            hours = this.view._getScheduleInfo(td.weekIndex);
+            min = -1;
+            max = 24 * count;
+
+            if (hours) {
+                for (i = 0; i < hours.length; i++) {
+                    hour = hours[i];
+                    if (hour.beginRowIndex < td.hourIndex) {
+                        if (hour.beginRowIndex > min)
+                            min = hour.beginRowIndex;
+                    } else {
+                        if (hour.beginRowIndex < max)
+                            max = hour.beginRowIndex;
+                    }
+                    if (hour.endRowIndex < td.hourIndex) {
+                        if (hour.endRowIndex > min)
+                            min = hour.endRowIndex;
+                    } else {
+                        if (hour.endRowIndex < max)
+                            max = hour.endRowIndex;
+                    }
+                }
+            }
+            this.selectableMin = min + 1;
+            this.selectableMax = max - 1;
+        }
+    },
+
+    /** 获取选则的内容 */
     getSelection: function() {
         var result,
             cells,
@@ -13422,6 +13461,7 @@ Selector.prototype = {
         }
         return result;
     },
+    /** 根据时间设置选则的区域 */
     setSelectionByTime: function (weekDay, beginTime, endTime) {
         var pointX,
             beginPointY, endPointY,
@@ -13441,6 +13481,7 @@ Selector.prototype = {
         this._startCell = begin;
         this._selectCell(begin, end);
     },
+    /** 取消选择 */
     cancelSelection: function () {
         var box = this.selectionBox;
         box.css("display", "none");
@@ -13451,12 +13492,14 @@ Selector.prototype = {
 
         this.view.calendar.fire("deselected", this.view, box);
     },
+    /** 激活选择器 */
     active: function (justEvent) {
         if (!justEvent) {
             this.selectionBox.css("display", "none");
         }
         $(document).on("mousedown", this.mouseLeftButtonDownHandler);
     },
+    /** 休眠选择器 */
     dormant: function (justEvent) {
         if (!justEvent) {
             this.cancelSelection();
@@ -13484,10 +13527,12 @@ ui.define("ui.ctrls.CalendarView", {
             sundayFirst: false,
             // 开始日期
             startDate: null,
-            // 年是否可以多选
+            // 年视图是否可以多选
             yearMultipleSelect: false,
-            // 月是否可以多选
+            // 月视图是否可以多选
             monthMultipleSelect: false,
+            // 周视图已经添加日程的时间段不能再次选择
+            weekSingleSelect: false,
             // 周视图标题格式化器
             formatWeekDayHead: null,
             // 日视图标题格式化器
@@ -22696,11 +22741,11 @@ var master = {
     contentBodyHeight: 0,
 
     init: function() {
+        var that = this;
         this.toolbar = {
             height: 40,
             extendHeight: 0
         };
-        var that = this;
         ui.page.ready(function (e) {
             that._initElements();
             that._initContentSize();

@@ -135,7 +135,10 @@
                             // 年视图可以多选
                             yearMultipleSelect: true,
                             // 月视图可以多选
-                            monthMultipleSelect: true
+                            monthMultipleSelect: true,
+                            // 周试图有Schedule的地方就不能选择了
+                            weekSingleSelect: true
+
                         });
                         this.calendarView.viewChanged(function(e, view) {
                             $("#calendarTitle").text(view.getTitle());
