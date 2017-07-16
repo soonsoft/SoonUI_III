@@ -365,7 +365,7 @@
                     var view = getViewFn(),
                         selectionData;
                     if(view) {
-                        removeSaturdaySchedule(view);
+                        removeMonthSchedule(view);
                     }
                 });
                 $("#monthSelect").click(function(e) {
@@ -425,7 +425,7 @@
                 pageLogic.currentMonthSchedules = data;
                 view.addSchedules(data, "date");
             }
-            function removeSaturdaySchedule(view) {
+            function removeMonthSchedule(view) {
                 var data = pageLogic.currentMonthSchedules,
                     i, len,
                     result = [],
