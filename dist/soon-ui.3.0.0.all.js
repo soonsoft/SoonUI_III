@@ -12083,19 +12083,18 @@ MonthView.prototype = {
             scheduleList,
             i, len;
         
-        i = 1;
         len = (new Date(this.year, this.month + 1, 0)).getDate();
         if(!ui.core.isFunction(removeAction)) {
             removeAction = function() {
                 var container,
                     scheduleList;
-                container = this.children("day-container");
+                container = this.children(".day-container");
                 scheduleList = container.children(".schedule-list");
                 scheduleList.removeData("schedule-items");
                 scheduleList.remove();
             };
         }
-        for (; i <= len; i++) {
+        for (i = 1; i <= len; i++) {
             cell = this._getCellByDate(new Date(this.year, this.month, i));
             removeAction.call(cell);
         }
