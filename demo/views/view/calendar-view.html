@@ -83,6 +83,9 @@
         </div>
     </div>
     <div id="calendarView"></div>
+    <div id="weekCtrlPanel" class="unselectable border-highlight theme-panel">
+        <div class="week-container"></div>
+    </div>
 </partial>
 
 <partial id="style">
@@ -116,6 +119,23 @@
             line-height: 24px;
             font-size: 12px;
         }
+
+        #weekCtrlPanel {
+            position: absolute;
+            display: none;
+            width: 240px;
+            height: auto;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 1000;
+        }
+
+            #weekCtrlPanel .week-container {
+                width: 215px;
+                margin-left: auto;
+                margin-right: auto;
+                height: 300px;
+            }
     </style>
 </partial>
 
@@ -140,9 +160,17 @@
                             weekSingleSelect: true
 
                         });
+                        // 视图切换事件
                         this.calendarView.viewChanged(function(e, view) {
                             $("#calendarTitle").text(view.getTitle());
+                            if (this.isView(view, "WeekView")) {
+                                if (!view.weekCtrlPanel) {
+                                    view.weekCtrlPanel = $("#weekCtrlPanel");
+                                    view.hourPanel.append(view.weekCtrlPanel);
+                                }
+                            }
                         });
+                        // 视图内容变化事件
                         this.calendarView.changed(function(e, view) {
                             $("#calendarTitle").text(view.getTitle());
                             if(this.isView(view, "YearView")) {
@@ -158,14 +186,50 @@
                                     loadWeekSchedule(view);
                                 }
                             } else if (this.isView(view, "DayView")) {
-                                // view.addSchedules(loadWeekSchedule(), "BeginTime", "EndTime", function(item, container) {
-                                //     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
-                                // });
+                                if(pageLogic.daySchedule) {
+                                    loadDaySchedule(view);
+                                }
+                            }
+                        });
+                        // 视图选择前事件
+                        this.calendarView.selecting(function(e, eventData) {
+                            var view = eventData.view;
+                            if(this.isView(view, "WeekView")) {
+                                hideWeekCtrlPanel(view);
+                            } else if(this.isView(view, "DayView")) {
+
+                            }
+                        });
+                        // 视图选择事件
+                        this.calendarView.selected(function(e, eventData) {
+                            var view = eventData.view;
+                            if (this.isView(view, "YearView")) {
+                                ui.messageShow(view.toString());
+                            } else if (this.isView(view, "MonthView")) {
+                                ui.messageShow(view.toString());
+                            } else if (this.isView(view, "WeekView")) {
+                                showWeekCtrlPanel(eventData.view, eventData.element, {
+                                    top: eventData.top,
+                                    left: eventData.left,
+                                    parentWidth: eventData.parentWidth,
+                                    parentHeight: eventData.parentHeight
+                                });
+                            } else if (this.isView(view, "DayView")) {
+
+                            }
+                        });
+                        // 取消选择事件
+                        this.calendarView.deselected(function(e, eventData) {
+                            var view = eventData.view;
+                            if (this.isView(view, "WeekView")) {
+                                hideWeekCtrlPanel(view);
+                            } else if (this.isView(view, "DayView")) {
+
                             }
                         });
                         this.calendarView.weekTitleClick(function (e, view, weekIndex) {
                             if (view.hasSchedule(weekIndex)) {
-                                ui.messageShow("已经设置工时，不能选择全天！");
+                                ui.messageShow("已经设置日程信息，不能选择全天！");
                                 return;
                             }
                             view.selector.setSelectionByTime(weekIndex, "08:00:00", "18:00:00");
@@ -524,6 +588,34 @@
                 view.addSchedules(data, "BeginTime", "EndTime", function(item, container) {
                     container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
                 });
+            }
+            function showWeekCtrlPanel(view, box, boxPosition) {
+                var boxWidth,
+                    wcpWidth, wcpHeight,
+                    top, left;
+
+                boxWidth = box.outerWidth();
+                wcpWidth = view.weekCtrlPanel.outerWidth();
+                wcpHeight = view.weekCtrlPanel.outerHeight();
+                top = boxPosition.top;
+                left = boxPosition.left + box.outerWidth();
+
+                if (top + wcpHeight > boxPosition.parentHeight) {
+                    top = boxPosition.parentHeight - wcpHeight + 1;
+                }
+                if (left + wcpWidth > boxPosition.parentWidth) {
+                    left = boxPosition.left - wcpWidth;
+                }
+                view.weekCtrlPanel.css({
+                    "display": "block",
+                    "left": left + "px",
+                    "top": top + "px"
+                });
+            }
+            function hideWeekCtrlPanel(view) {
+                if(view.weekCtrlPanel) {
+                    view.weekCtrlPanel.css("display", "none");
+                }
             }
 
             // 日视图相关方法

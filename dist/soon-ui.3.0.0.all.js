@@ -13025,7 +13025,6 @@ Selector.prototype = {
         this.panel = panel;
         this.grid = table;
 
-        this._isBeginSelect = false;
         this.cellWidth = 1;
         this.cellHeight = 25;
 
@@ -13041,11 +13040,14 @@ Selector.prototype = {
     },
     _initEvents: function() {
         this.mouseLeftButtonDownHandler = $.proxy(function (e) {
-            if (e.which !== 1)
+            if (e.which !== 1) {
                 return;
+            }
+            this.selectAnimator.onEnd = null;
             $(document).on("mousemove", this.mouseMoveHandler);
             $(document).on("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseDown($(e.target), e.clientX, e.clientY);
+            this._isBeginSelect = true;
         }, this);
         this.mouseMoveHandler = $.proxy(function (e) {
             if (!this._isBeginSelect) {
@@ -13054,8 +13056,9 @@ Selector.prototype = {
             this.onMouseMove(e);
         }, this);
         this.mouseLeftButtonUpHandler = $.proxy(function (e) {
-            if (e.which !== 1 || !this._isBeginSelect)
+            if (e.which !== 1 || !this._isBeginSelect) {
                 return;
+            }
             this._isBeginSelect = false;
             $(document).off("mousemove", this.mouseMoveHandler);
             $(document).off("mouseup", this.mouseLeftButtonUpHandler);
@@ -13072,8 +13075,7 @@ Selector.prototype = {
                 }
                 elem.css("top", val + "px");
             }
-        });
-        this.selectAnimator.addTarget(this.selectionBox, {
+        }).addTarget(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 elem.css("left", val + "px");
@@ -13092,12 +13094,6 @@ Selector.prototype = {
                 elem.css("height", val + "px");
             }
         });
-        this.selectAnimator.onEnd = function () {
-            if (that.animating && !that.isBeginSelect) {
-                that.onSelectCompleted();
-            }
-            that.animating = false;
-        };
         this.selectAnimator.duration = 200;
         this.selectAnimator.fps = 60;
     },
@@ -13173,8 +13169,7 @@ Selector.prototype = {
     _selectCell: function(td) {
         var box, 
             p, beginIndex, endIndex,
-            option,
-            beginTime, endTime; 
+            option; 
 
         box = this.selectionBox;
         p = this._getPositionAndSize(td);
@@ -13206,13 +13201,12 @@ Selector.prototype = {
         option.end = p.height;
 
         box.css("display", "block");
-        this.animating = true;
         this.selectAnimator.start();
 
         //设置选择时间
-        beginTime = this.view.calendar.indexToTime(beginIndex);
-        endTime = this.view.calendar.indexToTime(endIndex);
-        box.boxTextSpan.text(beginTime + " - " + endTime);
+        this._beginTime = this.view.calendar.indexToTime(beginIndex);
+        this._endTime = this.view.calendar.indexToTime(endIndex);
+        box.boxTextSpan.text(this._beginTime + " - " + this._endTime);
     },
     _autoScrollY: function (value, direction) {
         var currentScrollY,
@@ -13277,7 +13271,8 @@ Selector.prototype = {
     onMouseDown: function(elem, x, y) {
         var td, 
             nodeName, 
-            point;
+            point,
+            eventData;
         
         if (!this._isClickInGrid(x, y)) {
             this._clickInGrid = false;
@@ -13290,14 +13285,21 @@ Selector.prototype = {
             if(!elem.hasClass("click-enabled")) {
                 return;
             }
-            td = this._getCellByPoint(this.focusX, point.gridY);
+            td = this._getCellByPoint(point.gridX, point.gridY);
         } else {
             td = elem;
             td.weekIndex = td[0].cellIndex;
             td.hourIndex = td.parent()[0].rowIndex;
         }
 
-        if(this.view.calendar.fire("selecting", this.view) === false) {
+        eventData = {
+            view: this.view,
+            element: this.selectionBox,
+            weekIndex: td.weekIndex,
+            hourIndex: td.hourIndex,
+            originElement: null
+        };
+        if(this.view.calendar.fire("selecting", eventData) === false) {
             return;
         }
 
@@ -13307,7 +13309,6 @@ Selector.prototype = {
         //确定可选区间
         this.checkSelectable(td);
 
-        this._isBeginSelect = true;
         this.focusX = point.gridX;
         this.focusY = point.gridY;
     },
@@ -13317,8 +13318,7 @@ Selector.prototype = {
             td, 
             p, p2,
             box,
-            begin, end,
-            beginTime, endTime;
+            begin, end;
         
         point = this._changeToGridPoint(e.clientX, e.clientY);
         td = this._getCellByPoint(this.focusX, point.gridY);
@@ -13350,37 +13350,64 @@ Selector.prototype = {
             this._autoScrollY(p.top, this._selectDirection);
         }
 
-        beginTime = this.view.calendar.indexToTime(begin.hourIndex),
-        endTime = this.view.calendar.indexToTime(end.hourIndex + 1);
-        box.boxTextSpan.text(beginTime + " - " + endTime);
+        this._beginTime = this.view.calendar.indexToTime(begin.hourIndex),
+        this._endTime = this.view.calendar.indexToTime(end.hourIndex + 1);
+        box.boxTextSpan.text(this._beginTime + " - " + this._endTime);
     },
     /** 鼠标释放 */
     onMouseUp: function(e) {
+        var that = this;
         if (!this._clickInGrid) {
             return;
         }
-        if (!this.animating) {
+        if (this.selectAnimator.isStarted) {
+            this.selectAnimator.onEnd = function () {
+                that.onSelectCompleted();
+            };
+        } else {
             this.onSelectCompleted();
         }
     },
     /** 选则完成处理 */
     onSelectCompleted: function() {
-        var box = null,
-            that = this;
+        var box,
+            date, arr,
+            beginHour, beginMinute,
+            endHour, endMinute,
+            that;
         if (arguments.length > 0 && arguments[0]) {
             box = arguments[0];
         } else {
             box = this.selectionBox;
         }
+
+        date = this.view.weekDays[this._startCell.weekIndex];
+        arr = this._beginTime.split(":");
+        beginHour = parseInt(arr[0], 10);
+        beginMinute = parseInt(arr[1], 10);
+        arr = this._endTime.split(":");
+        endHour = parseInt(arr[0], 10);
+        endMinute = parseInt(arr[1], 10);
+
+        this._startCell = null;
+        this._beginTime = null;
+        this._endTime = null;
+
+        that = this;
         //保证动画流畅
         setTimeout(function () {
-            var data = {
+            var eventData = {
+                view: that.view,
+                beginTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), beginHour, beginMinute, 0),
+                endTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute, 0),
+                element: box,
+                originElement: null,
                 top: parseFloat(box.css("top")),
                 left: parseFloat(box.css("left")),
                 parentWidth: that.view.viewPanel.width() - timeTitleWidth,
                 parentHeight: that.view.hourTable.outerHeight()
             };
-            that.view.calendar.fire("selected", that.view, box, data);
+            that.view.calendar.fire("selected", eventData);
         }, 50);
     },
     /** 确定可选择区域 */
