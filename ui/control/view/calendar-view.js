@@ -2020,6 +2020,12 @@ Selector.prototype = {
                 elem.css("height", val + "px");
             }
         });
+        this.selectAnimator.onEnd = function () {
+            if(that._isNotCompletedYet) {
+                that._isNotCompletedYet = false;
+                that.onSelectCompleted();
+            }
+        };
         this.selectAnimator.duration = 200;
         this.selectAnimator.fps = 60;
     },
@@ -2127,6 +2133,7 @@ Selector.prototype = {
         option.end = p.height;
 
         box.css("display", "block");
+        this._isNotCompletedYet = false;
         this.selectAnimator.start();
 
         //设置选择时间
@@ -2287,9 +2294,7 @@ Selector.prototype = {
             return;
         }
         if (this.selectAnimator.isStarted) {
-            this.selectAnimator.onEnd = function () {
-                that.onSelectCompleted();
-            };
+            this._isNotCompletedYet = true;
         } else {
             this.onSelectCompleted();
         }
