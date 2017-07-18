@@ -309,7 +309,7 @@ Animator.prototype.doAnimation = function () {
 
                 that.isStarted = false;
                 that.stopHandle = null;
-                if ($.isFunction(that.onEnd)) {
+                if (ui.core.isFunction(that.onEnd)) {
                     that.onEnd.call(that);
                 }
             } else {
@@ -354,8 +354,8 @@ Animator.prototype.start = function (duration) {
     var flag,
         fn,
         that = this;
-    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : noop;
-    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : noop;
+    this.onBegin = ui.core.isFunction(this.onBegin) ? this.onBegin : noop;
+    this.onEnd = ui.core.isFunction(this.onEnd) ? this.onEnd : noop;
     
     var _resolve, _reject;
     var promise = new Promise(function(resolve, reject) {
