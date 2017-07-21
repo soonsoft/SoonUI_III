@@ -1,5 +1,8 @@
 // column style 默认提供的GridView和ReportView的格式化器
-var spanKey = "__temp$TdContext-";
+var spanKey = "_RowspanContext",
+    hoverViewKey = "_HoverView";
+
+function noop() {}
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -30,6 +33,7 @@ var progressError = new Error("column.len或width设置太小，无法绘制进�
 
 // 列头格式化器
 columnFormatter = {
+    /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
         checkbox.click(this.onCheckboxAllClickHandler);
@@ -39,6 +43,7 @@ columnFormatter = {
         };
         return checkbox;
     },
+    /** 列头文本 */
     columnText: function (col) {
         var span = $("<span class='table-cell-text' />"),
             value = col.text;
@@ -48,6 +53,7 @@ columnFormatter = {
         span.text(value);
         return span;
     },
+    /** 空列 */
     empty: function (col) {
         return null;
     }
@@ -55,6 +61,7 @@ columnFormatter = {
 
 // 单元格格式化器
 cellFormatter = {
+    /** 单行文本 */
     text: function (val, col) {
         var span;
         val += "";
@@ -65,9 +72,11 @@ cellFormatter = {
         span.text(val);
         return span;
     },
+    /** 空单元格 */
     empty: function (val, col) {
         return null;
     },
+    /** 行号 */
     rowNumber: function (val, col, idx) {
         var span;
         if(val === "no-count") {
@@ -77,11 +86,13 @@ cellFormatter = {
         span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
         return span;
     },
+    /** 多选框 */
     check: function(val, col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox' />");
         checkbox.attr("data-value", val + "");
         return checkbox;
     },
+    /** 多行文本 */
     paragraph: function (val, col) {
         var p;
         val += "";
@@ -92,6 +103,7 @@ cellFormatter = {
         p.text(val);
         return p;
     },
+    /** 日期 yyyy-MM-dd */
     date: function(val, col) {
         var span,
             date = getDate(val);
@@ -109,6 +121,7 @@ cellFormatter = {
         }
         return span;
     },
+    /** 时间 HH:mm:ss */
     time: function(val, col) {
         var span,
             date = getDate(val);
@@ -126,6 +139,7 @@ cellFormatter = {
         }
         return span;
     },
+    /** 日期时间 yyyy-MM-dd hh:mm:ss */
     datetime: function(val, col) {
         var span,
             date = getDate(val);
@@ -146,9 +160,31 @@ cellFormatter = {
         }
         return span;
     },
+    /** 短时期时间，不显示秒 yyyy-MM-dd hh:mm */
+    shortDatetime: function(val, col) {
+        var span,
+            date = getDate(val);
+        if(date === null) {
+            return null;
+        }
+
+        span = $("<span />");
+        if(isNaN(date)) {
+            span.text("无法转换");
+        } else {
+            span.text([date.getFullYear(), "-",
+                addZero(date.getMonth() + 1), "-",
+                addZero(date.getDate()), " ",
+                addZero(date.getHours()), ":",
+                addZero(date.getMinutes())].join(""));
+        }
+        return span;
+    },
+    /** 人民币，￥9,999.00 */
     money: function(val, col) {
         return getMoney("￥", val);
     },
+    /** 手机号码，136-1151-8560 */
     cellPhone: function(val, col) {
         var span;
         if(!val) {
@@ -162,18 +198,18 @@ cellFormatter = {
         }
         return span;
     },
+    /** 相同内容自动合并 */
     rowspan: function(val, col, idx, td) {
         var ctx,
-            span,
-            key = spanKey + col.column;
+            span;
         if (idx === 0) {
-            ctx = this[key] = {
+            ctx = col[spanKey] = {
                 rowSpan: 1,
                 value: val,
                 td: td
             };
         } else {
-            ctx = this[key];
+            ctx = col[spanKey];
             if (ctx.value !== val) {
                 ctx.rowSpan = 1;
                 ctx.value = val;
@@ -191,6 +227,7 @@ cellFormatter = {
 
 // 带参数的单元格格式化器
 cellParameterFormatter = {
+    /** 格式化boolean类型 */
     getBooleanFormatter: function(trueText, falseText, nullText) {
         var width = 16,
             trueWidth,
@@ -220,6 +257,7 @@ cellParameterFormatter = {
             return span;
         };
     },
+    /** 数字小数格式化 */
     getNumberFormatter: function(decimalLen) {
         return function(val, col) {
             if(!ui.core.isNumber(val)) {
@@ -228,11 +266,13 @@ cellParameterFormatter = {
             return $("<span />").text(ui.str.numberScaleFormat(val, decimalLen));
         };
     },
+    /** 其它国家货币格式化 */
     getMoneyFormatter: function(symbol) {
         return function(val, col) {
             return getMoney(symbol, col);
         };
     },
+    /** 进度条格式化 */
     getProgressFormatter: function(progressWidth, totalValue) {
         var defaultWidth = 162;
         if (!ui.core.isNumber(progressWidth) || progressWidth < 60) {
@@ -291,18 +331,18 @@ cellParameterFormatter = {
             return div;
         };
     },
+    /** 跨行合并 */
     getRowspanFormatter: function(key, createFn) {
-        var columnKey = spanKey + key;
         return function(val, col, idx, td) {
             var ctx;
             if (idx === 0) {
-                ctx = this[columnKey] = {
+                ctx = col[spanKey] = {
                     rowSpan: 1,
                     value: val[key],
                     td: td
                 };
             } else {
-                ctx = this[columnKey];
+                ctx = col[spanKey];
                 if (ctx.value !== val[key]) {
                     ctx.rowSpan = 1;
                     ctx.value = val[key];
@@ -317,6 +357,7 @@ cellParameterFormatter = {
             return createFn.apply(this, arguments);
         };
     },
+    /** 显示图片，并具有点击放大浏览功能 */
     getImageFormatter: function(width, height, prefix, defaultSrc, fillMode) {
         var imageZoomer;
         if(ui.core.isNumber(width) || width <= 0) {
@@ -389,6 +430,48 @@ cellParameterFormatter = {
                         imagePanel.addClass("failed-image");
                     });
             return imagePanel;
+        };
+    },
+    /** 悬停提示 */
+    hoverView: function(viewWidth, viewHeight, formatViewFn) {
+        if(!ui.core.isNumber(viewWidth) || viewWidth <= 0) {
+            viewWidth = 160;
+        }
+        if(!ui.core.isNumber(viewHeight) || viewHeight <= 0) {
+            viewHeight = 160;
+        }
+        if(!ui.core.isFunction(formatViewFn)) {
+            formatViewFn = noop;
+        }
+        return function(val, col, idx) {
+            var hoverView = col[hoverViewKey],
+                anchor;
+            if(!hoverView) {
+                hoverView = ui.ctrls.HoverView({
+                    width: viewWidth,
+                    height: viewHeight
+                });
+                hoverView._contextCtrl = this;
+                hoverView.showing(function(e) {
+                    var rowData,
+                        index,
+                        result;
+                    this.empty();
+                    index = parseInt(this.target.attr("data-rowIndex"), 10);
+                    rowData = this._contextCtrl.getRowData(index);
+                    result = formatViewFn.call(this._contextCtrl, rowData);
+                    if(result) {
+                        this.append(result);
+                    }
+                });
+                col[hoverViewKey] = hoverView;
+            }
+
+            anchor = $("<a href='javascript:void(0)' class='grid-hover-target' />");
+            anchor.text(val + " ");
+            anchor.addHoverView(hoverView);
+            anchor.attr("data-rowIndex", idx);
+            return anchor;
         };
     }
 };
