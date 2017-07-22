@@ -12,8 +12,7 @@ ui.define("ui.ctrls.HoverView", {
         return ["showing", "showed", "hiding", "hided"];
     },
     _create: function () {
-        this.viewPanel = $("<div class='hover-view-panel' />");
-        this.viewPanel.addClass(borderColor);
+        this.viewPanel = $("<div class='hover-view-panel border-highlight' />");
         this.viewPanel.css({
             "width": this.option.width + "px",
             "max-height": this.option.height + "px"
