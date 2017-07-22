@@ -10,7 +10,9 @@ ui.define("ui.ctrls.SwitchButton", {
         return ["changed"];
     },
     _create: function() {
-        this.switchBox = $("<label class='switch-button' />");
+        var that;
+        
+        this.switchBox = $("<label class='ui-switch-button' />");
         this.inner = $("<div class='switch-inner theme-border-color' />");
         this.thumb = $("<div class='switch-thumb' />");
         
@@ -35,7 +37,7 @@ ui.define("ui.ctrls.SwitchButton", {
         this.width = this.switchBox.width();
         this.height = this.switchBox.height();
         
-        var that = this;
+        that = this;
         this.element.change(function(e) {
             that.onChange();
         });
@@ -98,12 +100,15 @@ ui.define("ui.ctrls.SwitchButton", {
         this.animator.start();
     },
     _close: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.removeClass("switch-open");
         this.inner
             .removeClass("border-highlight")
             .removeClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.beginColor = "#FFFFFF";
         option.endColor = this.thumbColor;
         option.begin = 0;
@@ -116,13 +121,16 @@ ui.define("ui.ctrls.SwitchButton", {
         this.animator.start();     
     },
     _lollipopOpen: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.addClass("switch-open");
         this.inner.addClass("background-highlight");
         this.thumb
             .addClass("border-highlight")
             .addClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.begin = 0;
         option.end = 0;
         
@@ -132,13 +140,16 @@ ui.define("ui.ctrls.SwitchButton", {
         this.animator.start();
     },
     _lollipopClose: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.removeClass("switch-open");
         this.inner.removeClass("background-highlight");
         this.thumb
             .removeClass("border-highlight")
             .removeClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.begin = 0;
         option.end = 0;
         
@@ -173,8 +184,7 @@ ui.define("ui.ctrls.SwitchButton", {
         return this.element.prop("checked");
     },
     setChecked: function(value) {
-        var checked;
-        checked = this.element.prop("checked");
+        var checked = this.element.prop("checked");
         if((!!arguments[0]) !== checked) {
             this.element.prop("checked", arguments[0]);
             this.onChange();
