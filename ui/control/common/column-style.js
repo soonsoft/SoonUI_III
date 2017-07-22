@@ -473,6 +473,29 @@ cellParameterFormatter = {
             anchor.attr("data-rowIndex", idx);
             return anchor;
         };
+    },
+    /** 开关按钮 */
+    switchButton: function(changeFn, style) {
+        if(!ui.core.isFunction(changeFn)) {
+            changeFn = noop;
+        }
+        if(!ui.core.isString(style)) {
+            style = null;
+        }
+
+        return function(val, col, idx) {
+            var checkbox,
+                switchButton;
+            
+            checkbox = $("<input type='checkbox' />");
+            checkbox.val(val);
+            switchButton = checkbox.switchButton({
+                style: style
+            });
+            switchButton.changed(changeFn);
+            checkbox.data("switchButton", switchButton);
+            return switchButton.switchBox;
+        };
     }
 };
 
