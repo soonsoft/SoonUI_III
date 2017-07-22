@@ -488,8 +488,9 @@ cellParameterFormatter = {
                 switchButton;
             
             checkbox = $("<input type='checkbox' />");
-            checkbox.val(val);
+            checkbox.prop("checked", !!val);
             switchButton = checkbox.switchButton({
+                thumbColor: ui.theme.currentTheme === "Light" ? "#666666" : "#888888",
                 style: style
             });
             switchButton.changed(changeFn);
