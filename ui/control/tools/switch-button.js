@@ -2,6 +2,9 @@
 ui.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
+            width: 44,
+            height: 24,
+            thumbColor: null,
             readonly: false,
             style: null
         };
@@ -13,17 +16,27 @@ ui.define("ui.ctrls.SwitchButton", {
         var that;
         
         this.switchBox = $("<label class='ui-switch-button' />");
-        this.inner = $("<div class='switch-inner theme-border-color' />");
+        this.inner = $("<div class='switch-inner' />");
         this.thumb = $("<div class='switch-thumb' />");
         
         if(this.option.style === "lollipop") {
             this.switchBox.addClass("switch-lollipop");
             this._open = this._lollipopOpen;
             this._close = this._lollipopClose;
+            this.thumbSize = 24;
         } else if(this.option.style === "marshmallow") {
             this.switchBox.addClass("switch-marshmallow");
             this._open = this._lollipopOpen;
             this._close = this._lollipopClose;
+            this.thumbSize = 20;
+        } else {
+            this.thumbSize = 18;
+        }
+
+        if(this.option.thumbColor) {
+            this.thumb.css("background-color", this.option.thumbColor);
+        } else {
+            this.option.thumbColor = this.thumb.css("background-color");
         }
 
         this._createAnimator();
@@ -33,32 +46,32 @@ ui.define("ui.ctrls.SwitchButton", {
         this.switchBox
             .append(this.inner)
             .append(this.thumb);
-            
-        this.width = this.switchBox.width();
-        this.height = this.switchBox.height();
+        
+        this.width = this.option.width || parseFloat(this.switchBox.css("width"));
+        this.height = this.option.height || parseFloat(this.switchBox.css("height"));
         
         that = this;
         this.element.change(function(e) {
             that.onChange();
         });
-        
-        this.readonly(this.option.readonly);
-        this.thumbColor = this.thumb.css("background-color");
-        if(this.checked()) {
-            this._open();
-        }
 
         this.defineProperty("readonly", this.getReadonly, this.setReadonly);
         this.defineProperty("value", this.getValue, this.setValue);
         this.defineProperty("checked", this.getChecked, this.setChecked);
+        
+        this.readonly = !!this.option.readonly;
+        if(this.checked) {
+            this._open();
+        }
     },
     _createAnimator: function() {
         this.animator = ui.animator({
             target: this.thumb,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
-                this.target.css("background-color", 
-                    ui.color.overlay(this.beginColor, this.endColor, val / 100));
+                var color = color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
+                color = ui.color.rgb2hex(color.red, color.green, color.blue);
+                this.target.css("background-color", color);
             }
         }).addTarget({
             target: this.thumb,
@@ -71,7 +84,7 @@ ui.define("ui.ctrls.SwitchButton", {
     },
     onChange: function() {
         var checked = this.element.prop("checked");
-        if(this.readonly()) {
+        if(this.readonly) {
             this.element.prop("checked", !checked);
             return;
         }
@@ -89,14 +102,14 @@ ui.define("ui.ctrls.SwitchButton", {
             .addClass("border-highlight")
             .addClass("background-highlight");
         var option = this.animator[0];
-        option.beginColor = this.thumbColor;
+        option.beginColor = this.option.thumbColor;
         option.endColor = "#FFFFFF";
         option.begin = 0;
         option.end = 100;
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumb.width() - 3;
+        option.end = this.width - this.thumbSize - 3;
         this.animator.start();
     },
     _close: function() {
@@ -110,7 +123,7 @@ ui.define("ui.ctrls.SwitchButton", {
         
         option = this.animator[0];
         option.beginColor = "#FFFFFF";
-        option.endColor = this.thumbColor;
+        option.endColor = this.option.thumbColor;
         option.begin = 0;
         option.end = 100;
         
@@ -136,7 +149,7 @@ ui.define("ui.ctrls.SwitchButton", {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumb.outerWidth();
+        option.end = this.option.width - this.thumbSize;
         this.animator.start();
     },
     _lollipopClose: function() {
