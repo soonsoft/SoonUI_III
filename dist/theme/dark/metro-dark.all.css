@@ -1343,7 +1343,7 @@ input.dateChooser-clear {
 }
 .ui-table-body .row-selected .cell-progress-bar,
 .ui-table-body .cell-selected .cell-progress-bar {
-  background-color: #888888;
+  background-color: #aaaaaa;
 }
 .ui-table-body .row-selected .cell-progress-value,
 .ui-table-body .cell-selected .cell-progress-value {
@@ -1381,7 +1381,7 @@ input.dateChooser-clear {
   height: 16px;
   display: inline-block;
   vertical-align: middle;
-  color: #888888;
+  color: #aaaaaa;
   cursor: pointer;
   text-align: center;
 }
@@ -2275,7 +2275,7 @@ div.c_flyingDots div.c_loadingFallback {
 }
 .ui-table-body .row-selected .cell-progress-bar,
 .ui-table-body .cell-selected .cell-progress-bar {
-  background-color: #888888;
+  background-color: #aaaaaa;
 }
 .ui-table-body .row-selected .cell-progress-value,
 .ui-table-body .cell-selected .cell-progress-value {
@@ -2373,7 +2373,7 @@ div.c_flyingDots div.c_loadingFallback {
   line-height: 16px;
   text-align: right;
   font-size: 14px;
-  color: #888888;
+  color: #aaaaaa;
 }
 /* 对应的文本框样式 */
 input.select-text {
@@ -2433,7 +2433,7 @@ input.ui-selection-list-clear {
   line-height: 16px;
   text-align: right;
   font-size: 14px;
-  color: #888888;
+  color: #aaaaaa;
 }
 .ui-selection-tree-dt .fold-button {
   width: 14px;
@@ -2542,7 +2542,7 @@ input.ui-selection-list-clear {
 	Name: 暗夜
 */
 /********* Switch Button ***********/
-.switch-button {
+.ui-switch-button {
   display: inline-block;
   height: 24px;
   line-height: 24px !important;
@@ -2551,7 +2551,7 @@ input.ui-selection-list-clear {
   overflow: hidden;
   vertical-align: middle;
 }
-.switch-button .switch-inner {
+.ui-switch-button .switch-inner {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -2562,7 +2562,7 @@ input.ui-selection-list-clear {
   width: 40px;
   height: 20px;
 }
-.switch-button .switch-thumb {
+.ui-switch-button .switch-thumb {
   position: absolute;
   width: 18px;
   height: 18px;
@@ -2571,7 +2571,7 @@ input.ui-selection-list-clear {
   left: 3px;
   background-color: #888888;
 }
-.switch-button input {
+.ui-switch-button input {
   position: absolute;
   left: -20px;
 }

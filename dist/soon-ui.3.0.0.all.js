@@ -2,7 +2,24 @@
     SoonUI 主命名空间声明
  */
 ( function( global, factory ) {
-
+	/**
+	 * 严格模式
+	 * 变量必须声明后再使用
+	 * 函数的参数不能有同名属性，否则报错
+	 * 不能使用with语句
+	 * 不能对只读属性赋值，否则报错
+	 * 不能使用前缀0表示八进制数，否则报错
+	 * 不能删除不可删除的属性，否则报错
+	 * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
+	 * eval不会在它的外层作用域引入变量
+	 * eval和arguments不能被重新赋值
+	 * arguments不会自动反映函数参数的变化
+	 * 不能使用arguments.callee
+	 * 不能使用arguments.caller
+	 * 禁止this指向全局对象
+	 * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
+	 * 增加了保留字（比如protected、static和interface）
+	 */
 	"use strict";
 
 	if ( typeof module === "object" && typeof module.exports === "object" ) {
@@ -2520,7 +2537,7 @@ Animator.prototype.doAnimation = function () {
 
                 that.isStarted = false;
                 that.stopHandle = null;
-                if ($.isFunction(that.onEnd)) {
+                if (ui.core.isFunction(that.onEnd)) {
                     that.onEnd.call(that);
                 }
             } else {
@@ -2565,8 +2582,8 @@ Animator.prototype.start = function (duration) {
     var flag,
         fn,
         that = this;
-    this.onBegin = $.isFunction(this.onBegin) ? this.onBegin : noop;
-    this.onEnd = $.isFunction(this.onEnd) ? this.onEnd : noop;
+    this.onBegin = ui.core.isFunction(this.onBegin) ? this.onBegin : noop;
+    this.onEnd = ui.core.isFunction(this.onEnd) ? this.onEnd : noop;
     
     var _resolve, _reject;
     var promise = new Promise(function(resolve, reject) {
@@ -4781,13 +4798,14 @@ ui.theme = {
     /** 获取高亮色 */
     getHighlight: function (highlight) {
         var highlightInfo,
-            info;
+            info,
+            i, len;
         if (!highlight) {
             highlight = this.defaultHighlight;
         }
-        if (Array.isArray(this.Colors)) {
-            for (var i = 0, l = this.Colors.length; i < l; i++) {
-                info = this.Colors[i];
+        if (Array.isArray(this.highlights)) {
+            for (i = 0, len = this.highlights.length; i < len; i++) {
+                info = this.highlights[i];
                 if (info.Id === highlight) {
                     highlightInfo = info;
                     break;
@@ -5373,7 +5391,10 @@ ui.define("ui.ctrls.SidebarBase", {
 
 (function($, ui) {
 // column style 默认提供的GridView和ReportView的格式化器
-var spanKey = "__temp$TdContext-";
+var spanKey = "_RowspanContext",
+    hoverViewKey = "_HoverView";
+
+function noop() {}
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -5404,6 +5425,7 @@ var progressError = new Error("column.len或width设置太小，无法绘制进�
 
 // 列头格式化器
 columnFormatter = {
+    /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
         checkbox.click(this.onCheckboxAllClickHandler);
@@ -5413,6 +5435,7 @@ columnFormatter = {
         };
         return checkbox;
     },
+    /** 列头文本 */
     columnText: function (col) {
         var span = $("<span class='table-cell-text' />"),
             value = col.text;
@@ -5422,6 +5445,7 @@ columnFormatter = {
         span.text(value);
         return span;
     },
+    /** 空列 */
     empty: function (col) {
         return null;
     }
@@ -5429,6 +5453,7 @@ columnFormatter = {
 
 // 单元格格式化器
 cellFormatter = {
+    /** 单行文本 */
     text: function (val, col) {
         var span;
         val += "";
@@ -5439,9 +5464,11 @@ cellFormatter = {
         span.text(val);
         return span;
     },
+    /** 空单元格 */
     empty: function (val, col) {
         return null;
     },
+    /** 行号 */
     rowNumber: function (val, col, idx) {
         var span;
         if(val === "no-count") {
@@ -5451,11 +5478,13 @@ cellFormatter = {
         span.text((this.pageIndex - 1) * this.pageSize + (idx + 1));
         return span;
     },
+    /** 多选框 */
     check: function(val, col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox' />");
         checkbox.attr("data-value", val + "");
         return checkbox;
     },
+    /** 多行文本 */
     paragraph: function (val, col) {
         var p;
         val += "";
@@ -5466,6 +5495,7 @@ cellFormatter = {
         p.text(val);
         return p;
     },
+    /** 日期 yyyy-MM-dd */
     date: function(val, col) {
         var span,
             date = getDate(val);
@@ -5483,6 +5513,7 @@ cellFormatter = {
         }
         return span;
     },
+    /** 时间 HH:mm:ss */
     time: function(val, col) {
         var span,
             date = getDate(val);
@@ -5500,6 +5531,7 @@ cellFormatter = {
         }
         return span;
     },
+    /** 日期时间 yyyy-MM-dd hh:mm:ss */
     datetime: function(val, col) {
         var span,
             date = getDate(val);
@@ -5520,9 +5552,31 @@ cellFormatter = {
         }
         return span;
     },
+    /** 短时期时间，不显示秒 yyyy-MM-dd hh:mm */
+    shortDatetime: function(val, col) {
+        var span,
+            date = getDate(val);
+        if(date === null) {
+            return null;
+        }
+
+        span = $("<span />");
+        if(isNaN(date)) {
+            span.text("无法转换");
+        } else {
+            span.text([date.getFullYear(), "-",
+                addZero(date.getMonth() + 1), "-",
+                addZero(date.getDate()), " ",
+                addZero(date.getHours()), ":",
+                addZero(date.getMinutes())].join(""));
+        }
+        return span;
+    },
+    /** 人民币，￥9,999.00 */
     money: function(val, col) {
         return getMoney("￥", val);
     },
+    /** 手机号码，136-1151-8560 */
     cellPhone: function(val, col) {
         var span;
         if(!val) {
@@ -5536,18 +5590,18 @@ cellFormatter = {
         }
         return span;
     },
+    /** 相同内容自动合并 */
     rowspan: function(val, col, idx, td) {
         var ctx,
-            span,
-            key = spanKey + col.column;
+            span;
         if (idx === 0) {
-            ctx = this[key] = {
+            ctx = col[spanKey] = {
                 rowSpan: 1,
                 value: val,
                 td: td
             };
         } else {
-            ctx = this[key];
+            ctx = col[spanKey];
             if (ctx.value !== val) {
                 ctx.rowSpan = 1;
                 ctx.value = val;
@@ -5565,6 +5619,7 @@ cellFormatter = {
 
 // 带参数的单元格格式化器
 cellParameterFormatter = {
+    /** 格式化boolean类型 */
     getBooleanFormatter: function(trueText, falseText, nullText) {
         var width = 16,
             trueWidth,
@@ -5594,6 +5649,7 @@ cellParameterFormatter = {
             return span;
         };
     },
+    /** 数字小数格式化 */
     getNumberFormatter: function(decimalLen) {
         return function(val, col) {
             if(!ui.core.isNumber(val)) {
@@ -5602,11 +5658,13 @@ cellParameterFormatter = {
             return $("<span />").text(ui.str.numberScaleFormat(val, decimalLen));
         };
     },
+    /** 其它国家货币格式化 */
     getMoneyFormatter: function(symbol) {
         return function(val, col) {
             return getMoney(symbol, col);
         };
     },
+    /** 进度条格式化 */
     getProgressFormatter: function(progressWidth, totalValue) {
         var defaultWidth = 162;
         if (!ui.core.isNumber(progressWidth) || progressWidth < 60) {
@@ -5665,18 +5723,18 @@ cellParameterFormatter = {
             return div;
         };
     },
+    /** 跨行合并 */
     getRowspanFormatter: function(key, createFn) {
-        var columnKey = spanKey + key;
         return function(val, col, idx, td) {
             var ctx;
             if (idx === 0) {
-                ctx = this[columnKey] = {
+                ctx = col[spanKey] = {
                     rowSpan: 1,
                     value: val[key],
                     td: td
                 };
             } else {
-                ctx = this[columnKey];
+                ctx = col[spanKey];
                 if (ctx.value !== val[key]) {
                     ctx.rowSpan = 1;
                     ctx.value = val[key];
@@ -5691,6 +5749,7 @@ cellParameterFormatter = {
             return createFn.apply(this, arguments);
         };
     },
+    /** 显示图片，并具有点击放大浏览功能 */
     getImageFormatter: function(width, height, prefix, defaultSrc, fillMode) {
         var imageZoomer;
         if(ui.core.isNumber(width) || width <= 0) {
@@ -5763,6 +5822,72 @@ cellParameterFormatter = {
                         imagePanel.addClass("failed-image");
                     });
             return imagePanel;
+        };
+    },
+    /** 悬停提示 */
+    hoverView: function(viewWidth, viewHeight, formatViewFn) {
+        if(!ui.core.isNumber(viewWidth) || viewWidth <= 0) {
+            viewWidth = 160;
+        }
+        if(!ui.core.isNumber(viewHeight) || viewHeight <= 0) {
+            viewHeight = 160;
+        }
+        if(!ui.core.isFunction(formatViewFn)) {
+            formatViewFn = noop;
+        }
+        return function(val, col, idx) {
+            var hoverView = col[hoverViewKey],
+                anchor;
+            if(!hoverView) {
+                hoverView = ui.ctrls.HoverView({
+                    width: viewWidth,
+                    height: viewHeight
+                });
+                hoverView._contextCtrl = this;
+                hoverView.showing(function(e) {
+                    var rowData,
+                        index,
+                        result;
+                    this.empty();
+                    index = parseInt(this.target.attr("data-rowIndex"), 10);
+                    rowData = this._contextCtrl.getRowData(index);
+                    result = formatViewFn.call(this._contextCtrl, rowData);
+                    if(result) {
+                        this.append(result);
+                    }
+                });
+                col[hoverViewKey] = hoverView;
+            }
+
+            anchor = $("<a href='javascript:void(0)' class='grid-hover-target' />");
+            anchor.text(val + " ");
+            anchor.addHoverView(hoverView);
+            anchor.attr("data-rowIndex", idx);
+            return anchor;
+        };
+    },
+    /** 开关按钮 */
+    switchButton: function(changeFn, style) {
+        if(!ui.core.isFunction(changeFn)) {
+            changeFn = noop;
+        }
+        if(!ui.core.isString(style)) {
+            style = null;
+        }
+
+        return function(val, col, idx) {
+            var checkbox,
+                switchButton;
+            
+            checkbox = $("<input type='checkbox' />");
+            checkbox.prop("checked", !!val);
+            switchButton = checkbox.switchButton({
+                thumbColor: ui.theme.currentTheme === "Light" ? "#666666" : "#888888",
+                style: style
+            });
+            switchButton.changed(changeFn);
+            checkbox.data("switchButton", switchButton);
+            return switchButton.switchBox;
         };
     }
 };
@@ -12169,6 +12294,8 @@ WeekView.prototype = {
         this.width = null;
         this.height = null;
 
+        this.singleSelect = !!this.calendar.option.weekSingleSelect;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -12200,6 +12327,9 @@ WeekView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.getDateByIndex = function(index) {
+            return this.view.weekDays[index];
+        };
 
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -12699,7 +12829,7 @@ WeekView.prototype = {
     },
     /** 设置选中的元素 返回数组 */
     getSelection: function() {
-        var hours, date,
+        var hours, date, time,
             i, len,
             result;
 
@@ -12710,7 +12840,8 @@ WeekView.prototype = {
         }
 
         date = this.weekDays[hours.weekIndex];
-        for(i = 0, len = cells.length; i < len; i++) {
+        for(i = 0, len = hours.timeArray.length; i < len; i++) {
+            time = hours.timeArray[i];
             result.push(new Date(
                 date.getFullYear(), 
                 date.getMonth(), 
@@ -12791,6 +12922,8 @@ DayView.prototype = {
         this.width = null;
         this.height = null;
 
+        this.singleSelect = !!this.calendar.option.daySingleSelect;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -12821,6 +12954,9 @@ DayView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.getDateByIndex = function(index) {
+            return new Date(this.view.year, this.view.month, this.view.day);
+        };
         
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -12994,6 +13130,47 @@ DayView.prototype = {
     hasSchedule: function () {
         return this.dayHours.length > 0;
     },
+    /** 设置选中的元素 返回数组 */
+    getSelection: function() {
+        var hours, date, time,
+            i, len,
+            result;
+
+        result = [];
+        hours = this.selector.getSelection();
+        if(!hours) {
+            return result;
+        }
+
+        date = new Date(this.year, this.month, this.day);
+        for(i = 0, len = hours.timeArray.length; i < len; i++) {
+            time = hours.timeArray[i];
+            result.push(new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(), 
+                time.hours, 
+                time.minutes, 
+                time.seconds));
+        }
+        return result;
+    },
+    /** 设置选中状态 */
+    setSelection: function(start, end) {
+        var startTime, 
+            endTime;
+        if(!(start instanceof Date) || !(end instanceof Date)) {
+            return;
+        }
+
+        startTime = ui.str.dateFormat(start, "hh:mm:ss");
+        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        this.selector.setSelectionByTime(0, startTime, endTime);
+    },
+    /** 取消选中状态 */
+    cancelSelection: function() {
+        this.selector.cancelSelection();
+    },
     /** 设置日视图尺寸 */
     setSize: function (width, height) {
         this.hourPanel.css("height", height - hourHeight + "px");
@@ -13010,7 +13187,6 @@ DayView.prototype = {
     }
 };
 // 选择器
-// TODO 废除locationInGrid对象，改为直接访问hourIndex, weekIndex
 function Selector(view, panel, table) {
     if(this instanceof Selector) {
         this.initialize(view, panel, table);
@@ -13043,11 +13219,11 @@ Selector.prototype = {
             if (e.which !== 1) {
                 return;
             }
-            this.selectAnimator.onEnd = null;
             $(document).on("mousemove", this.mouseMoveHandler);
             $(document).on("mouseup", this.mouseLeftButtonUpHandler);
-            this.onMouseDown($(e.target), e.clientX, e.clientY);
-            this._isBeginSelect = true;
+            if(this.onMouseDown($(e.target), e.clientX, e.clientY)) {
+                this._isBeginSelect = true;
+            }
         }, this);
         this.mouseMoveHandler = $.proxy(function (e) {
             if (!this._isBeginSelect) {
@@ -13094,6 +13270,12 @@ Selector.prototype = {
                 elem.css("height", val + "px");
             }
         });
+        this.selectAnimator.onEnd = function () {
+            if(that._isNotCompletedYet) {
+                that._isNotCompletedYet = false;
+                that.onSelectCompleted();
+            }
+        };
         this.selectAnimator.duration = 200;
         this.selectAnimator.fps = 60;
     },
@@ -13127,7 +13309,7 @@ Selector.prototype = {
         table = this.grid[0];
         for (i = 1; i < count; i++) {
             row = table.rows[i + first.hourIndex];
-            cell = $(tableRow.cells[first.weekIndex]);
+            cell = $(row.cells[first.weekIndex]);
             cell.hourIndex = i + first.hourIndex;
             cell.weekIndex = first.weekIndex;
             cells.push(cell);
@@ -13201,6 +13383,7 @@ Selector.prototype = {
         option.end = p.height;
 
         box.css("display", "block");
+        this._isNotCompletedYet = false;
         this.selectAnimator.start();
 
         //设置选择时间
@@ -13311,6 +13494,7 @@ Selector.prototype = {
 
         this.focusX = point.gridX;
         this.focusY = point.gridY;
+        return true;
     },
     /** 鼠标移动 */
     onMouseMove: function (e) {
@@ -13361,9 +13545,7 @@ Selector.prototype = {
             return;
         }
         if (this.selectAnimator.isStarted) {
-            this.selectAnimator.onEnd = function () {
-                that.onSelectCompleted();
-            };
+            this._isNotCompletedYet = true;
         } else {
             this.onSelectCompleted();
         }
@@ -13381,7 +13563,7 @@ Selector.prototype = {
             box = this.selectionBox;
         }
 
-        date = this.view.weekDays[this._startCell.weekIndex];
+        date = this.getDateByIndex(this._startCell.weekIndex);
         arr = this._beginTime.split(":");
         beginHour = parseInt(arr[0], 10);
         beginMinute = parseInt(arr[1], 10);
@@ -13421,7 +13603,7 @@ Selector.prototype = {
         this.selectableMin = 0;
         this.selectableMax = 24 * count - 1;
         
-        if(this.view.calendar.option.weekSingleSelect) {
+        if(this.view.singleSelect) {
             hours = this.view._getScheduleInfo(td.weekIndex);
             min = -1;
             max = 24 * count;
@@ -13483,7 +13665,7 @@ Selector.prototype = {
         result.weekIndex = cells[0].weekIndex;
         result.timeArray.push(getDateFn(cells[0].hourIndex));
         for(i = 0, len = cells.length; i < len; i++) {
-            result.push(getDateFn(cells[i].hourIndex + 1));
+            result.timeArray.push(getDateFn(cells[i].hourIndex + 1));
         }
         return result;
     },
@@ -13516,7 +13698,10 @@ Selector.prototype = {
         this.focusX = 0;
         this.focusY = 0;
 
-        this.view.calendar.fire("deselected", this.view, box);
+        this.view.calendar.fire("deselected", {
+            view: this.view, 
+            element: box
+        });
     },
     /** 激活选择器 */
     active: function (justEvent) {
@@ -13557,8 +13742,10 @@ ui.define("ui.ctrls.CalendarView", {
             yearMultipleSelect: false,
             // 月视图是否可以多选
             monthMultipleSelect: false,
-            // 周视图已经添加日程的时间段不能再次选择
+            // 周视图已经添加日程的时间段后不能再次选择
             weekSingleSelect: false,
+            // 日视图已经添加日程的时间段后不能再次选择
+            daySingleSelect: false,
             // 周视图标题格式化器
             formatWeekDayHead: null,
             // 日视图标题格式化器
@@ -13861,7 +14048,7 @@ ui.define("ui.ctrls.CalendarView", {
             elem = that.currentTimeElement;
             
             elem.html("<span class='ui-current-time-text'>" + time.substring(0, 5) + "</span>");
-            if(index === 0) {
+            if(index <= 1) {
                 elem.addClass("ui-current-time-top").css("top", top + "px");
             } else {
                 elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
@@ -20466,8 +20653,7 @@ ui.define("ui.ctrls.HoverView", {
         return ["showing", "showed", "hiding", "hided"];
     },
     _create: function () {
-        this.viewPanel = $("<div class='hover-view-panel' />");
-        this.viewPanel.addClass(borderColor);
+        this.viewPanel = $("<div class='hover-view-panel border-highlight' />");
         this.viewPanel.css({
             "width": this.option.width + "px",
             "max-height": this.option.height + "px"
@@ -20945,6 +21131,9 @@ $.fn.slidebar = function(option) {
 ui.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
+            width: 44,
+            height: 24,
+            thumbColor: null,
             readonly: false,
             style: null
         };
@@ -20953,18 +21142,30 @@ ui.define("ui.ctrls.SwitchButton", {
         return ["changed"];
     },
     _create: function() {
-        this.switchBox = $("<label class='switch-button' />");
-        this.inner = $("<div class='switch-inner theme-border-color' />");
+        var that;
+        
+        this.switchBox = $("<label class='ui-switch-button' />");
+        this.inner = $("<div class='switch-inner' />");
         this.thumb = $("<div class='switch-thumb' />");
         
         if(this.option.style === "lollipop") {
             this.switchBox.addClass("switch-lollipop");
             this._open = this._lollipopOpen;
             this._close = this._lollipopClose;
+            this.thumbSize = 24;
         } else if(this.option.style === "marshmallow") {
             this.switchBox.addClass("switch-marshmallow");
             this._open = this._lollipopOpen;
             this._close = this._lollipopClose;
+            this.thumbSize = 20;
+        } else {
+            this.thumbSize = 18;
+        }
+
+        if(this.option.thumbColor) {
+            this.thumb.css("background-color", this.option.thumbColor);
+        } else {
+            this.option.thumbColor = this.thumb.css("background-color");
         }
 
         this._createAnimator();
@@ -20974,32 +21175,32 @@ ui.define("ui.ctrls.SwitchButton", {
         this.switchBox
             .append(this.inner)
             .append(this.thumb);
-            
-        this.width = this.switchBox.width();
-        this.height = this.switchBox.height();
         
-        var that = this;
+        this.width = this.option.width || parseFloat(this.switchBox.css("width"));
+        this.height = this.option.height || parseFloat(this.switchBox.css("height"));
+        
+        that = this;
         this.element.change(function(e) {
             that.onChange();
         });
-        
-        this.readonly(this.option.readonly);
-        this.thumbColor = this.thumb.css("background-color");
-        if(this.checked()) {
-            this._open();
-        }
 
         this.defineProperty("readonly", this.getReadonly, this.setReadonly);
         this.defineProperty("value", this.getValue, this.setValue);
         this.defineProperty("checked", this.getChecked, this.setChecked);
+        
+        this.readonly = !!this.option.readonly;
+        if(this.checked) {
+            this._open();
+        }
     },
     _createAnimator: function() {
         this.animator = ui.animator({
             target: this.thumb,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
-                this.target.css("background-color", 
-                    ui.color.overlay(this.beginColor, this.endColor, val / 100));
+                var color = color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
+                color = ui.color.rgb2hex(color.red, color.green, color.blue);
+                this.target.css("background-color", color);
             }
         }).addTarget({
             target: this.thumb,
@@ -21012,7 +21213,7 @@ ui.define("ui.ctrls.SwitchButton", {
     },
     onChange: function() {
         var checked = this.element.prop("checked");
-        if(this.readonly()) {
+        if(this.readonly) {
             this.element.prop("checked", !checked);
             return;
         }
@@ -21030,25 +21231,28 @@ ui.define("ui.ctrls.SwitchButton", {
             .addClass("border-highlight")
             .addClass("background-highlight");
         var option = this.animator[0];
-        option.beginColor = this.thumbColor;
+        option.beginColor = this.option.thumbColor;
         option.endColor = "#FFFFFF";
         option.begin = 0;
         option.end = 100;
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumb.width() - 3;
+        option.end = this.width - this.thumbSize - 3;
         this.animator.start();
     },
     _close: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.removeClass("switch-open");
         this.inner
             .removeClass("border-highlight")
             .removeClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.beginColor = "#FFFFFF";
-        option.endColor = this.thumbColor;
+        option.endColor = this.option.thumbColor;
         option.begin = 0;
         option.end = 100;
         
@@ -21059,29 +21263,35 @@ ui.define("ui.ctrls.SwitchButton", {
         this.animator.start();     
     },
     _lollipopOpen: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.addClass("switch-open");
         this.inner.addClass("background-highlight");
         this.thumb
             .addClass("border-highlight")
             .addClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.begin = 0;
         option.end = 0;
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumb.outerWidth();
+        option.end = this.option.width - this.thumbSize;
         this.animator.start();
     },
     _lollipopClose: function() {
+        var option;
+
         this.animator.stop();
         this.switchBox.removeClass("switch-open");
         this.inner.removeClass("background-highlight");
         this.thumb
             .removeClass("border-highlight")
             .removeClass("background-highlight");
-        var option = this.animator[0];
+        
+        option = this.animator[0];
         option.begin = 0;
         option.end = 0;
         
@@ -21116,8 +21326,7 @@ ui.define("ui.ctrls.SwitchButton", {
         return this.element.prop("checked");
     },
     setChecked: function(value) {
-        var checked;
-        checked = this.element.prop("checked");
+        var checked = this.element.prop("checked");
         if((!!arguments[0]) !== checked) {
             this.element.prop("checked", arguments[0]);
             this.onChange();
@@ -22861,7 +23070,7 @@ var master = {
             highlightPanel,
             operateList,
             htmlBuilder,
-            i, len, color,
+            i, len, highlight,
             sidebar,
             that;
 
@@ -22892,20 +23101,22 @@ var master = {
         userInfo.append(htmlBuilder.join(""));
 
         //初始化当前用户的主题ID
-        ui.theme.initHighlight();
+        if(!ui.theme.currentHighlight) {
+            ui.theme.initHighlight();
+        }
         // 高亮色
-        if(Array.isArray(ui.theme.Colors)) {
+        if(Array.isArray(ui.theme.highlights)) {
             htmlBuilder = [];
             htmlBuilder.push("<h3 class='highlight-group-title font-highlight'>个性色</h3>");
             htmlBuilder.push("<div style='width:100%;height:auto'>");
-            for(i = 0, len = ui.theme.Colors.length; i < len; i++) {
-                color = ui.theme.Colors[i];
+            for(i = 0, len = ui.theme.highlights.length; i < len; i++) {
+                highlight = ui.theme.highlights[i];
                 htmlBuilder.push("<a class='highlight-item");
-                if(color.Id === ui.theme.currentHighlight.Id) {
+                if(highlight.Id === ui.theme.currentHighlight.Id) {
                     htmlBuilder.push(" highlight-item-selected");
                 }
-                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", color.Color, ";");
-                htmlBuilder.push("' title='", color.Name, "' data-index='", i, "'>");
+                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", highlight.Color, ";");
+                htmlBuilder.push("' title='", highlight.Name, "' data-index='", i, "'>");
                 htmlBuilder.push("<i class='fa fa-check-circle highlight-item-checker'></i>");
                 htmlBuilder.push("</a>");
             }
@@ -22919,7 +23130,7 @@ var master = {
             });
             highlightPanel.click(function(e) {
                 var elem,
-                    color;
+                    highlight;
                 elem = $(e.target);
                 while(!elem.hasClass("highlight-item")) {
                     if(elem.hasClass("highlight-panel")) {
@@ -22928,7 +23139,7 @@ var master = {
                     elem = elem.parent();
                 }
 
-                color = ui.theme.Colors[parseInt(elem.attr("data-index"), 10)];
+                highlight = ui.theme.highlights[parseInt(elem.attr("data-index"), 10)];
 
                 if(that._currentHighlightItem) {
                     that._currentHighlightItem.removeClass("highlight-item-selected");
@@ -22936,9 +23147,9 @@ var master = {
 
                 that._currentHighlightItem = elem;
                 that._currentHighlightItem.addClass("highlight-item-selected");
-                //ui.theme.changeHighlight("/Home/ChangeTheme", color);
-                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
-                ui.theme.setHighlight(color);
+                //ui.theme.changeHighlight("/Home/ChangeTheme", highlight);
+                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                ui.theme.setHighlight(highlight);
             });
         }
 

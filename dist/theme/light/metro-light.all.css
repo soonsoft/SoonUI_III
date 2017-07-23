@@ -2542,7 +2542,7 @@ input.ui-selection-list-clear {
 	Name: 光明
 */
 /********* Switch Button ***********/
-.switch-button {
+.ui-switch-button {
   display: inline-block;
   height: 24px;
   line-height: 24px !important;
@@ -2551,7 +2551,7 @@ input.ui-selection-list-clear {
   overflow: hidden;
   vertical-align: middle;
 }
-.switch-button .switch-inner {
+.ui-switch-button .switch-inner {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -2562,7 +2562,7 @@ input.ui-selection-list-clear {
   width: 40px;
   height: 20px;
 }
-.switch-button .switch-thumb {
+.ui-switch-button .switch-thumb {
   position: absolute;
   width: 18px;
   height: 18px;
@@ -2571,7 +2571,7 @@ input.ui-selection-list-clear {
   left: 3px;
   background-color: #666666;
 }
-.switch-button input {
+.ui-switch-button input {
   position: absolute;
   left: -20px;
 }

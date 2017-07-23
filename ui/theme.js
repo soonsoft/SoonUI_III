@@ -27,13 +27,14 @@ ui.theme = {
     /** 获取高亮色 */
     getHighlight: function (highlight) {
         var highlightInfo,
-            info;
+            info,
+            i, len;
         if (!highlight) {
             highlight = this.defaultHighlight;
         }
-        if (Array.isArray(this.Colors)) {
-            for (var i = 0, l = this.Colors.length; i < l; i++) {
-                info = this.Colors[i];
+        if (Array.isArray(this.highlights)) {
+            for (i = 0, len = this.highlights.length; i < len; i++) {
+                info = this.highlights[i];
                 if (info.Id === highlight) {
                     highlightInfo = info;
                     break;

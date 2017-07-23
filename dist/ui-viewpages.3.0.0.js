@@ -118,7 +118,7 @@ var master = {
             highlightPanel,
             operateList,
             htmlBuilder,
-            i, len, color,
+            i, len, highlight,
             sidebar,
             that;
 
@@ -149,20 +149,22 @@ var master = {
         userInfo.append(htmlBuilder.join(""));
 
         //初始化当前用户的主题ID
-        ui.theme.initHighlight();
+        if(!ui.theme.currentHighlight) {
+            ui.theme.initHighlight();
+        }
         // 高亮色
-        if(Array.isArray(ui.theme.Colors)) {
+        if(Array.isArray(ui.theme.highlights)) {
             htmlBuilder = [];
             htmlBuilder.push("<h3 class='highlight-group-title font-highlight'>个性色</h3>");
             htmlBuilder.push("<div style='width:100%;height:auto'>");
-            for(i = 0, len = ui.theme.Colors.length; i < len; i++) {
-                color = ui.theme.Colors[i];
+            for(i = 0, len = ui.theme.highlights.length; i < len; i++) {
+                highlight = ui.theme.highlights[i];
                 htmlBuilder.push("<a class='highlight-item");
-                if(color.Id === ui.theme.currentHighlight.Id) {
+                if(highlight.Id === ui.theme.currentHighlight.Id) {
                     htmlBuilder.push(" highlight-item-selected");
                 }
-                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", color.Color, ";");
-                htmlBuilder.push("' title='", color.Name, "' data-index='", i, "'>");
+                htmlBuilder.push("' href='javascript:void(0)' style='background-color:", highlight.Color, ";");
+                htmlBuilder.push("' title='", highlight.Name, "' data-index='", i, "'>");
                 htmlBuilder.push("<i class='fa fa-check-circle highlight-item-checker'></i>");
                 htmlBuilder.push("</a>");
             }
@@ -176,7 +178,7 @@ var master = {
             });
             highlightPanel.click(function(e) {
                 var elem,
-                    color;
+                    highlight;
                 elem = $(e.target);
                 while(!elem.hasClass("highlight-item")) {
                     if(elem.hasClass("highlight-panel")) {
@@ -185,7 +187,7 @@ var master = {
                     elem = elem.parent();
                 }
 
-                color = ui.theme.Colors[parseInt(elem.attr("data-index"), 10)];
+                highlight = ui.theme.highlights[parseInt(elem.attr("data-index"), 10)];
 
                 if(that._currentHighlightItem) {
                     that._currentHighlightItem.removeClass("highlight-item-selected");
@@ -193,9 +195,9 @@ var master = {
 
                 that._currentHighlightItem = elem;
                 that._currentHighlightItem.addClass("highlight-item-selected");
-                //ui.theme.changeHighlight("/Home/ChangeTheme", color);
-                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", color.Id));
-                ui.theme.setHighlight(color);
+                //ui.theme.changeHighlight("/Home/ChangeTheme", highlight);
+                $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                ui.theme.setHighlight(highlight);
             });
         }
 

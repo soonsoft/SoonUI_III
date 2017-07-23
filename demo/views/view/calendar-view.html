@@ -83,8 +83,27 @@
         </div>
     </div>
     <div id="calendarView"></div>
-    <div id="weekCtrlPanel" class="unselectable border-highlight theme-panel">
-        <div class="week-container"></div>
+    <div id="weekCtrlPanel" class="schedule-editor unselectable border-highlight theme-panel">
+        <div class="schedule-editor-container">
+            <label style="line-height:30px">日程描述</label>
+            <br />
+            <textarea id="weekScheduleDetail" name="weekScheduleDetail" rows="0" cols="0" style="width:211px;height:192px"></textarea>
+            <div class="button-panel">
+                <input id="weekScheduleOk" type="button" class="button background-highlight" value="保存" />
+                <input id="weekScheduleCancel" type="button" class="button" value="取消" />
+            </div>
+        </div>
+    </div>
+    <div id="dayCtrlPanel" class="schedule-editor cunselectable border-highlight theme-panel">
+        <div class="schedule-editor-container">
+            <label style="line-height:30px">日程描述</label>
+            <br />
+            <textarea id="dayScheduleDetail" name="dayScheduleDetail" rows="0" cols="0" style="width:211px;height:192px"></textarea>
+            <div class="button-panel">
+                <input id="dayScheduleOk" type="button" class="button background-highlight" value="保存" />
+                <input id="dayScheduleCancel" type="button" class="button" value="取消" />
+            </div>
+        </div>
     </div>
 </partial>
 
@@ -120,21 +139,28 @@
             font-size: 12px;
         }
 
-        #weekCtrlPanel {
+        .schedule-editor {
             position: absolute;
             display: none;
             width: 240px;
             height: auto;
             border-width: 2px;
             border-style: solid;
-            z-index: 1000;
+            z-index: 9999;
+            display: none;
         }
 
-            #weekCtrlPanel .week-container {
+            .schedule-editor .schedule-editor-container {
                 width: 215px;
                 margin-left: auto;
                 margin-right: auto;
-                height: 300px;
+            }
+
+            .schedule-editor .button-panel {
+                margin-top: 12px;
+                margin-bottom: 12px;
+                width: 100%;
+                text-align: right;
             }
     </style>
 </partial>
@@ -146,94 +172,8 @@
                 init: {
                     before: function() {
                         this.toolbar = ui.master.createToolbar("toolbar");
-                        // 创建日历视图
-                        this.calendarView = $("#calendarView").calendarView({
-                            // 默认显示年视图
-                            defaultView: "YearView",
-                            // 星期天是一个周的第一天
-                            sundayFirst: true,
-                            // 年视图可以多选
-                            yearMultipleSelect: true,
-                            // 月视图可以多选
-                            monthMultipleSelect: true,
-                            // 周试图有Schedule的地方就不能选择了
-                            weekSingleSelect: true
-
-                        });
-                        // 视图切换事件
-                        this.calendarView.viewChanged(function(e, view) {
-                            $("#calendarTitle").text(view.getTitle());
-                            if (this.isView(view, "WeekView")) {
-                                if (!view.weekCtrlPanel) {
-                                    view.weekCtrlPanel = $("#weekCtrlPanel");
-                                    view.hourPanel.append(view.weekCtrlPanel);
-                                }
-                            }
-                        });
-                        // 视图内容变化事件
-                        this.calendarView.changed(function(e, view) {
-                            $("#calendarTitle").text(view.getTitle());
-                            if(this.isView(view, "YearView")) {
-                                if(pageLogic.yearSchedule) {
-                                    loadYearSchedule(view);
-                                }
-                            } else if(this.isView(view, "MonthView")) {
-                                if(pageLogic.monthSchedule) {
-                                    loadMonthSchedule(view);
-                                }
-                            } else if(this.isView(view, "WeekView")) {
-                                if(pageLogic.weekSchedule) {
-                                    loadWeekSchedule(view);
-                                }
-                            } else if (this.isView(view, "DayView")) {
-                                if(pageLogic.daySchedule) {
-                                    loadDaySchedule(view);
-                                }
-                            }
-                        });
-                        // 视图选择前事件
-                        this.calendarView.selecting(function(e, eventData) {
-                            var view = eventData.view;
-                            if(this.isView(view, "WeekView")) {
-                                hideWeekCtrlPanel(view);
-                            } else if(this.isView(view, "DayView")) {
-
-                            }
-                        });
-                        // 视图选择事件
-                        this.calendarView.selected(function(e, eventData) {
-                            var view = eventData.view;
-                            if (this.isView(view, "YearView")) {
-                                ui.messageShow(view.toString());
-                            } else if (this.isView(view, "MonthView")) {
-                                ui.messageShow(view.toString());
-                            } else if (this.isView(view, "WeekView")) {
-                                showWeekCtrlPanel(eventData.view, eventData.element, {
-                                    top: eventData.top,
-                                    left: eventData.left,
-                                    parentWidth: eventData.parentWidth,
-                                    parentHeight: eventData.parentHeight
-                                });
-                            } else if (this.isView(view, "DayView")) {
-
-                            }
-                        });
-                        // 取消选择事件
-                        this.calendarView.deselected(function(e, eventData) {
-                            var view = eventData.view;
-                            if (this.isView(view, "WeekView")) {
-                                hideWeekCtrlPanel(view);
-                            } else if (this.isView(view, "DayView")) {
-
-                            }
-                        });
-                        this.calendarView.weekTitleClick(function (e, view, weekIndex) {
-                            if (view.hasSchedule(weekIndex)) {
-                                ui.messageShow("已经设置日程信息，不能选择全天！");
-                                return;
-                            }
-                            view.selector.setSelectionByTime(weekIndex, "08:00:00", "18:00:00");
-                        });
+                        
+                        initializeCalendarView.call(this);
                     },
                     layout: function() {
                         // 注册resize事件
@@ -280,12 +220,117 @@
                         bindYearEvents();
                         bindMonthEvents();
                         bindWeekEvents();
+                        bindDayEvents();
                     },
                     load: function() {
 
                     }
                 }
             };
+
+            // 初始化CalendarView视图
+            function initializeCalendarView() {
+                // 创建日历视图
+                this.calendarView = $("#calendarView").calendarView({
+                    // 默认显示年视图
+                    defaultView: "YearView",
+                    // 星期天是一个周的第一天
+                    sundayFirst: true,
+                    // 年视图可以多选
+                    yearMultipleSelect: true,
+                    // 月视图可以多选
+                    monthMultipleSelect: true,
+                    // 周视图有Schedule的地方就不能选择了
+                    weekSingleSelect: true,
+                    // 日视图有Schedule的地方就不能选择了
+                    daySingleSelect: true
+
+                });
+                // 视图切换事件
+                this.calendarView.viewChanged(function(e, view) {
+                    $("#calendarTitle").text(view.getTitle());
+                    if (this.isView(view, "WeekView")) {
+                        if (!view.weekCtrlPanel) {
+                            view.weekCtrlPanel = $("#weekCtrlPanel");
+                            view.hourPanel.append(view.weekCtrlPanel);
+                        }
+                    } else if(this.isView(view, "DayView")) {
+                        if(!view.dayCtrlPanel) {
+                            view.dayCtrlPanel = $("#dayCtrlPanel");
+                            view.hourPanel.append(view.dayCtrlPanel);
+                        }
+                    }
+                });
+                // 视图内容变化事件
+                this.calendarView.changed(function(e, view) {
+                    $("#calendarTitle").text(view.getTitle());
+                    if(this.isView(view, "YearView")) {
+                        if(pageLogic.yearSchedule) {
+                            loadYearSchedule(view);
+                        }
+                    } else if(this.isView(view, "MonthView")) {
+                        if(pageLogic.monthSchedule) {
+                            loadMonthSchedule(view);
+                        }
+                    } else if(this.isView(view, "WeekView")) {
+                        if(pageLogic.weekSchedule) {
+                            loadWeekSchedule(view);
+                        }
+                    } else if (this.isView(view, "DayView")) {
+                        if(pageLogic.daySchedule) {
+                            loadDaySchedule(view);
+                        }
+                    }
+                });
+                // 视图选择前事件
+                this.calendarView.selecting(function(e, eventData) {
+                    var view = eventData.view;
+                    if(this.isView(view, "WeekView")) {
+                        hideWeekCtrlPanel(view);
+                    } else if(this.isView(view, "DayView")) {
+                        hideDayCtrlPanel(view);
+                    }
+                });
+                // 视图选择事件
+                this.calendarView.selected(function(e, eventData) {
+                    var view = eventData.view;
+                    if (this.isView(view, "YearView")) {
+                        ui.messageShow(view.toString());
+                    } else if (this.isView(view, "MonthView")) {
+                        ui.messageShow(view.toString());
+                    } else if (this.isView(view, "WeekView")) {
+                        showWeekCtrlPanel(eventData.view, eventData.element, {
+                            top: eventData.top,
+                            left: eventData.left,
+                            parentWidth: eventData.parentWidth,
+                            parentHeight: eventData.parentHeight
+                        });
+                    } else if (this.isView(view, "DayView")) {
+                        showDayCtrlPanel(eventData.view, eventData.element, {
+                            top: eventData.top,
+                            left: eventData.left,
+                            parentWidth: eventData.parentWidth,
+                            parentHeight: eventData.parentHeight
+                        });
+                    }
+                });
+                // 取消选择事件
+                this.calendarView.deselected(function(e, eventData) {
+                    var view = eventData.view;
+                    if (this.isView(view, "WeekView")) {
+                        hideWeekCtrlPanel(view);
+                    } else if (this.isView(view, "DayView")) {
+                        hideDayCtrlPanel(view);
+                    }
+                });
+                this.calendarView.weekTitleClick(function (e, view, weekIndex) {
+                    if (view.hasSchedule(weekIndex)) {
+                        ui.messageShow("已经设置日程信息，不能选择全天！");
+                        return;
+                    }
+                    view.selector.setSelectionByTime(weekIndex, "08:00:00", "18:00:00");
+                });
+            }
 
             // 年视图相关方法
             function bindYearEvents() {
@@ -551,6 +596,13 @@
                         }
                     }
                 });
+                $("#weekScheduleOk").click(function (e) {
+                    addWeekDaySchedule();
+                });
+                $("#weekScheduleCancel").click(function (e) {
+                    var view = pageLogic.calendarView.currentView;
+                    view.selector.cancelSelection();
+                });
             }
             function loadWeekSchedule(view) {
                 var count = ui.random.getNum(0, view.weekDays.length),
@@ -598,7 +650,7 @@
                 wcpWidth = view.weekCtrlPanel.outerWidth();
                 wcpHeight = view.weekCtrlPanel.outerHeight();
                 top = boxPosition.top;
-                left = boxPosition.left + box.outerWidth();
+                left = boxPosition.left + boxWidth;
 
                 if (top + wcpHeight > boxPosition.parentHeight) {
                     top = boxPosition.parentHeight - wcpHeight + 1;
@@ -614,11 +666,100 @@
             }
             function hideWeekCtrlPanel(view) {
                 if(view.weekCtrlPanel) {
+                    $("#weekScheduleDetail").val("");
                     view.weekCtrlPanel.css("display", "none");
                 }
             }
+            function addWeekDaySchedule() {
+                var data = [],
+                    view,
+                    text,
+                    selectionDates,
+                    weekday;
+                text = $("#weekScheduleDetail").val();
+                if(text.length === 0) {
+                    ui.messageShow("日程内容不能为空");
+                    return;
+                }
+
+                view = pageLogic.calendarView.currentView;
+                selectionDates = view.getSelection();
+                if(selectionDates.length === 0) {
+                    return;
+                }
+                
+                data.push({
+                    BeginTime: selectionDates[0],
+                    EndTime: selectionDates[selectionDates.length - 1],
+                    Text: text
+                });
+                view.addSchedules(data, "BeginTime", "EndTime", function(item, container) {
+                    container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
+                });
+                view.cancelSelection();
+            }
 
             // 日视图相关方法
+            function bindDayEvents() {
+                $("#dayScheduleOk").click(function (e) {
+                    addDayDaySchedule();
+                });
+                $("#dayScheduleCancel").click(function (e) {
+                    var view = pageLogic.calendarView.currentView;
+                    view.selector.cancelSelection();
+                });
+            }
+            function showDayCtrlPanel(view, box, boxPosition) {
+                var boxWidth,
+                    wcpWidth, wcpHeight,
+                    top, left;
+
+                boxWidth = box.outerWidth();
+                wcpWidth = view.dayCtrlPanel.outerWidth();
+                wcpHeight = view.dayCtrlPanel.outerHeight();
+                top = boxPosition.top;
+                left = boxPosition.left + ((boxWidth - wcpWidth) / 2);
+
+                view.dayCtrlPanel.css({
+                    "display": "block",
+                    "left": left + "px",
+                    "top": top + "px"
+                });
+            }
+            function hideDayCtrlPanel(view) {
+                if(view.dayCtrlPanel) {
+                    $("#dayScheduleDetail").val("");
+                    view.dayCtrlPanel.css("display", "none");
+                }
+            }
+            function addDayDaySchedule() {
+                var data = [],
+                    view,
+                    text,
+                    selectionDates,
+                    weekday;
+                text = $("#dayScheduleDetail").val();
+                if(text.length === 0) {
+                    ui.messageShow("日程内容不能为空");
+                    return;
+                }
+
+                view = pageLogic.calendarView.currentView;
+                selectionDates = view.getSelection();
+                if(selectionDates.length === 0) {
+                    return;
+                }
+                
+                data.push({
+                    BeginTime: selectionDates[0],
+                    EndTime: selectionDates[selectionDates.length - 1],
+                    Text: text
+                });
+                view.addSchedules(data, "BeginTime", "EndTime", function(item, container) {
+                    container.html("<p class='schedule-content-text'>" + item.data.Text + "</p>");
+                });
+                view.cancelSelection();
+            }
         })();
     </script>
 </partial>

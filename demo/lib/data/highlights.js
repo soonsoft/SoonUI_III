@@ -1,5 +1,5 @@
 ;(function(ui) {
-	ui.theme.Colors = [
+	ui.theme.highlights = [
 		{"Name":"琥珀色","Id":"Amber","Color":"#F29D00"},
 		{"Name":"蓝色","Id":"Blue","Color":"#2078EF"},
 		{"Name":"褐色","Id":"Brown","Color":"#752918"},

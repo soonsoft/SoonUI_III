@@ -1095,6 +1095,8 @@ WeekView.prototype = {
         this.width = null;
         this.height = null;
 
+        this.singleSelect = !!this.calendar.option.weekSingleSelect;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -1126,6 +1128,9 @@ WeekView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.getDateByIndex = function(index) {
+            return this.view.weekDays[index];
+        };
 
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -1625,7 +1630,7 @@ WeekView.prototype = {
     },
     /** 设置选中的元素 返回数组 */
     getSelection: function() {
-        var hours, date,
+        var hours, date, time,
             i, len,
             result;
 
@@ -1636,7 +1641,8 @@ WeekView.prototype = {
         }
 
         date = this.weekDays[hours.weekIndex];
-        for(i = 0, len = cells.length; i < len; i++) {
+        for(i = 0, len = hours.timeArray.length; i < len; i++) {
+            time = hours.timeArray[i];
             result.push(new Date(
                 date.getFullYear(), 
                 date.getMonth(), 
@@ -1717,6 +1723,8 @@ DayView.prototype = {
         this.width = null;
         this.height = null;
 
+        this.singleSelect = !!this.calendar.option.daySingleSelect;
+
         this.viewPanel = $("<div class='calendar-view-panel' />");
         this.calendar.element.append(this.viewPanel);
     },
@@ -1747,6 +1755,9 @@ DayView.prototype = {
             .append(this.hourPanel);
 
         this.selector = Selector(this, this.hourPanel, this.hourTable);
+        this.selector.getDateByIndex = function(index) {
+            return new Date(this.view.year, this.view.month, this.view.day);
+        };
         
         this.hourAnimator = ui.animator(this.hourPanel, {
             ease: ui.AnimationStyle.easeTo,
@@ -1920,6 +1931,47 @@ DayView.prototype = {
     hasSchedule: function () {
         return this.dayHours.length > 0;
     },
+    /** 设置选中的元素 返回数组 */
+    getSelection: function() {
+        var hours, date, time,
+            i, len,
+            result;
+
+        result = [];
+        hours = this.selector.getSelection();
+        if(!hours) {
+            return result;
+        }
+
+        date = new Date(this.year, this.month, this.day);
+        for(i = 0, len = hours.timeArray.length; i < len; i++) {
+            time = hours.timeArray[i];
+            result.push(new Date(
+                date.getFullYear(), 
+                date.getMonth(), 
+                date.getDate(), 
+                time.hours, 
+                time.minutes, 
+                time.seconds));
+        }
+        return result;
+    },
+    /** 设置选中状态 */
+    setSelection: function(start, end) {
+        var startTime, 
+            endTime;
+        if(!(start instanceof Date) || !(end instanceof Date)) {
+            return;
+        }
+
+        startTime = ui.str.dateFormat(start, "hh:mm:ss");
+        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        this.selector.setSelectionByTime(0, startTime, endTime);
+    },
+    /** 取消选中状态 */
+    cancelSelection: function() {
+        this.selector.cancelSelection();
+    },
     /** 设置日视图尺寸 */
     setSize: function (width, height) {
         this.hourPanel.css("height", height - hourHeight + "px");
@@ -1936,7 +1988,6 @@ DayView.prototype = {
     }
 };
 // 选择器
-// TODO 废除locationInGrid对象，改为直接访问hourIndex, weekIndex
 function Selector(view, panel, table) {
     if(this instanceof Selector) {
         this.initialize(view, panel, table);
@@ -1969,11 +2020,11 @@ Selector.prototype = {
             if (e.which !== 1) {
                 return;
             }
-            this.selectAnimator.onEnd = null;
             $(document).on("mousemove", this.mouseMoveHandler);
             $(document).on("mouseup", this.mouseLeftButtonUpHandler);
-            this.onMouseDown($(e.target), e.clientX, e.clientY);
-            this._isBeginSelect = true;
+            if(this.onMouseDown($(e.target), e.clientX, e.clientY)) {
+                this._isBeginSelect = true;
+            }
         }, this);
         this.mouseMoveHandler = $.proxy(function (e) {
             if (!this._isBeginSelect) {
@@ -2059,7 +2110,7 @@ Selector.prototype = {
         table = this.grid[0];
         for (i = 1; i < count; i++) {
             row = table.rows[i + first.hourIndex];
-            cell = $(tableRow.cells[first.weekIndex]);
+            cell = $(row.cells[first.weekIndex]);
             cell.hourIndex = i + first.hourIndex;
             cell.weekIndex = first.weekIndex;
             cells.push(cell);
@@ -2244,6 +2295,7 @@ Selector.prototype = {
 
         this.focusX = point.gridX;
         this.focusY = point.gridY;
+        return true;
     },
     /** 鼠标移动 */
     onMouseMove: function (e) {
@@ -2312,7 +2364,7 @@ Selector.prototype = {
             box = this.selectionBox;
         }
 
-        date = this.view.weekDays[this._startCell.weekIndex];
+        date = this.getDateByIndex(this._startCell.weekIndex);
         arr = this._beginTime.split(":");
         beginHour = parseInt(arr[0], 10);
         beginMinute = parseInt(arr[1], 10);
@@ -2352,7 +2404,7 @@ Selector.prototype = {
         this.selectableMin = 0;
         this.selectableMax = 24 * count - 1;
         
-        if(this.view.calendar.option.weekSingleSelect) {
+        if(this.view.singleSelect) {
             hours = this.view._getScheduleInfo(td.weekIndex);
             min = -1;
             max = 24 * count;
@@ -2414,7 +2466,7 @@ Selector.prototype = {
         result.weekIndex = cells[0].weekIndex;
         result.timeArray.push(getDateFn(cells[0].hourIndex));
         for(i = 0, len = cells.length; i < len; i++) {
-            result.push(getDateFn(cells[i].hourIndex + 1));
+            result.timeArray.push(getDateFn(cells[i].hourIndex + 1));
         }
         return result;
     },
@@ -2447,7 +2499,10 @@ Selector.prototype = {
         this.focusX = 0;
         this.focusY = 0;
 
-        this.view.calendar.fire("deselected", this.view, box);
+        this.view.calendar.fire("deselected", {
+            view: this.view, 
+            element: box
+        });
     },
     /** 激活选择器 */
     active: function (justEvent) {
@@ -2488,8 +2543,10 @@ ui.define("ui.ctrls.CalendarView", {
             yearMultipleSelect: false,
             // 月视图是否可以多选
             monthMultipleSelect: false,
-            // 周视图已经添加日程的时间段不能再次选择
+            // 周视图已经添加日程的时间段后不能再次选择
             weekSingleSelect: false,
+            // 日视图已经添加日程的时间段后不能再次选择
+            daySingleSelect: false,
             // 周视图标题格式化器
             formatWeekDayHead: null,
             // 日视图标题格式化器
@@ -2792,7 +2849,7 @@ ui.define("ui.ctrls.CalendarView", {
             elem = that.currentTimeElement;
             
             elem.html("<span class='ui-current-time-text'>" + time.substring(0, 5) + "</span>");
-            if(index === 0) {
+            if(index <= 1) {
                 elem.addClass("ui-current-time-top").css("top", top + "px");
             } else {
                 elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
