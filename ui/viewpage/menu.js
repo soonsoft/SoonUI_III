@@ -777,7 +777,7 @@ ui.define("ui.ctrls.Menu", {
             menuStatusFn = this._removeMenuStatus;
         }
 
-        items = this.option.menuPanel.children().children()
+        items = this.option.menuPanel.children(".menu-list").children(".menu-item");
         for (i = 0, len = items.length; i < len; i++) {
             item = $(items[i]);
             if (item.next().nodeName() === subNodeName) {
