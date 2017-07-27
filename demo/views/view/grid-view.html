@@ -1,5 +1,7 @@
 @{layout:demo/views/shared/menu-layout.html}
-<partial id="title">GRID VIEW</partial>
+
+<partial id="title">表格</partial>
+<partial id="header">GRID VIEW</partial>
 
 <partial id="content">
     <div class="toolbar"></div>
@@ -40,7 +42,7 @@
                     columns: [
                         { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
                         { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
-                        { text: "缩略图", column: "image", len: 120, formatter: ui.ColumnStyle.cfnp.getImageFormatter(120, 90, "../", "../content/images/disabled_l1.png") },
+                        { text: "缩略图", column: "image", len: 120, formatter: ui.ColumnStyle.cfnp.getImageFormatter(120, 90, "", "../../content/images/disabled_l1.png") },
                         { text: "姓名", column: "name", sort: true, len: 100 },
                         { text: "年龄", column: "age", len: 60, align: "right", sort: true },
                         //{ text: "点数", column: "point", len: 60, align: "right", formatter: ui.ColumnStyle.cfn.rowspan },
@@ -70,7 +72,7 @@
                         { formatter: ui.ColumnStyle.empty }
                     ],
                     selection: {
-                        type: "cell",
+                        type: "row",
                         multiple: false,
                         isRelateCheckbox: false
                     }
@@ -115,7 +117,7 @@
                         status: !!ui.random.getNum(0, 2),
                         number: ui.random.getNum(1111, 2222)  / 1.356,
                         hoverText: "详情",
-                        image: "content/pictures/" + ui.random.getNum(1, 30) + ".jpg",
+                        image: "../../content/pictures/" + ui.random.getNum(1, 30) + ".jpg",
                     });
                 }
 

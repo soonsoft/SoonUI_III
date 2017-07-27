@@ -45,13 +45,13 @@ var master = {
         this.sidebarManager = ui.SidebarManager();
         if(!this.noMenu) {
             this.menu = ui.ctrls.Menu({
-                style: "modern",
-                //style: "normal",
+                //style: "modern",
+                style: "normal",
                 menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
-                extendMethod: "extrusion",
+                //extendMethod: "extrusion",
                 //contentContainer: null,
-                //extendMethod: "cover",
+                extendMethod: "cover",
                 menuButton: $(".ui-menu-button")
             });
 

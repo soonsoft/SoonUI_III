@@ -48,13 +48,13 @@ var master = {
         this.sidebarManager = ui.SidebarManager();
         if(!this.noMenu) {
             this.menu = ui.ctrls.Menu({
-                style: "modern",
-                //style: "normal",
+                //style: "modern",
+                style: "normal",
                 menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
-                extendMethod: "extrusion",
+                //extendMethod: "extrusion",
                 //contentContainer: null,
-                //extendMethod: "cover",
+                extendMethod: "cover",
                 menuButton: $(".ui-menu-button")
             });
 
@@ -864,11 +864,19 @@ ui.define("ui.ctrls.Menu", {
         return ["showed", "hided"];
     },
     _create: function() {
+        var style,
+            key;
+
         this.menuWidth = 240;
         this.menuNarrowWidth = 48;
         this._menuButtonBg = null;
         if(this.option.menuButton) {
-            this._menuButtonBg = this.option.menuButton.children("b");
+            this._menuButtonBg = $("<b class='menu-button-background title-color'></b>");
+            this.option.menuButton.append(this._menuButtonBg);
+            this.option.menuButton
+                    .append("<b class='menu-inner-line a'></b>")
+                    .append("<b class='menu-inner-line b'></b>")
+                    .append("<b class='menu-inner-line c'></b>");
         }
 
         if(this.option.style !== "modern") {
@@ -877,9 +885,13 @@ ui.define("ui.ctrls.Menu", {
 
         if(this.isModern()) {
             style = modernStyle;
+            this.hamburgButton = "modern-hamburg";
+            this.hamburgCloseButton = "modern-hamburg-close";
             this._initSubmenuPanel();
         } else {
             style = normalStyle;
+            this.hamburgButton = "normal-hamburg";
+            this.hamburgCloseButton = "normal-hamburg-close";
         }
 
         for(key in style) {
@@ -909,10 +921,14 @@ ui.define("ui.ctrls.Menu", {
         this.option.menuPanel.addClass("title-color");
         this.option.menuPanel.css("width", this.menuWidth + "px");
         this.option.menuPanel.append(this.menuList);
+
+        this.option.menuButton.addClass(this.hamburgButton);
         
         this._initMenuList();
         if (this.defaultShow()) {
-            this.option.menuButton.addClass(showClass);
+            this.option.menuButton
+                    .addClass(showClass)
+                    .addClass(this.hamburgCloseButton);
         } else {
             this.hide(false);
         }
@@ -1011,10 +1027,10 @@ ui.define("ui.ctrls.Menu", {
         menuButton = this.option.menuButton;
         menuButton.click(function (e) {
             if (menuButton.hasClass(showClass)) {
-                menuButton.removeClass(showClass);
+                menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);;
                 that.hide(that.hasAnimation);
             } else {
-                menuButton.addClass(showClass);
+                menuButton.addClass(showClass).addClass(that.hamburgCloseButton);;
                 that.show(that.hasAnimation);
             }
         });
@@ -1026,7 +1042,7 @@ ui.define("ui.ctrls.Menu", {
             this._currentMenu = null;
         }
         if (this._isCloseStatus()) {
-            this.option.menuButton.removeClass(showClass);
+            this.option.menuButton.removeClass(showClass).removeClass(this.hamburgCloseButton);;
             this.hide(false);
         } else if(this._currentMenu) {
             nextdd = this._currentMenu.next();
@@ -1112,7 +1128,7 @@ ui.define("ui.ctrls.Menu", {
             menuStatusFn = this._removeMenuStatus;
         }
 
-        items = this.option.menuPanel.children().children()
+        items = this.option.menuPanel.children(".menu-list").children(".menu-item");
         for (i = 0, len = items.length; i < len; i++) {
             item = $(items[i]);
             if (item.next().nodeName() === subNodeName) {
@@ -1248,7 +1264,8 @@ ui.define("ui.ctrls.Menu", {
         return this.option.menuButton.hasClass(showClass);
     },
     defaultShow: function() {
-        return true;
+        // TODO
+        return false;
     },
     isExtrusion: function() {
         return this.option.extendMethod === "extrusion" 

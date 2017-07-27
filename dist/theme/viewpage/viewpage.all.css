@@ -37,10 +37,185 @@
 .ui-menu-button-show .menu-button-background {
   display: inline-block;
 }
+/* 默认风格的汉堡菜单 */
+.normal-hamburg .menu-inner-line {
+  background-color: #fff;
+  width: 24px;
+  height: 2px;
+  display: block;
+  position: absolute;
+  left: 12px;
+}
+.normal-hamburg b.a {
+  top: 17px;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.normal-hamburg b.b {
+  top: 23px;
+  opacity: 1;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+}
+.normal-hamburg b.c {
+  bottom: 17px;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.normal-hamburg-close b.a {
+  -webkit-transform: translate3d(0, 8px, 0) rotate(45deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(0, 6px, 0) rotate(45deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+.normal-hamburg-close b.b {
+  opacity: 0;
+  -webkit-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(4px, 0, 0) rotate(-180deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+.normal-hamburg-close b.c {
+  -webkit-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(0, -6px, 0) rotate(-45deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+/* 现代风格的汉堡菜单 */
+.modern-hamburg .menu-inner-line {
+  background-color: #fff;
+  width: 24px;
+  height: 2px;
+  display: block;
+  position: absolute;
+  left: 12px;
+}
+.modern-hamburg b.a {
+  top: 17px;
+  opacity: 1;
+  -webkit-transform: translate(0, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -o-transform: translate(0, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -ms-transform: translate(0, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -moz-transform: translate(0, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  transform: translate(0, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+}
+.modern-hamburg b.b {
+  top: 23px;
+  -webkit-transform: rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.modern-hamburg b.c {
+  bottom: 17px;
+  opacity: 1;
+  -webkit-transform: translate(0, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -o-transform: translate(0, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -ms-transform: translate(0, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -moz-transform: translate(0, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  transform: translate(0, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+}
+.modern-hamburg-close b.a {
+  opacity: 0;
+  -webkit-transform: translate(24px, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate(24px, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate(24px, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate(24px, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate(24px, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.modern-hamburg-close b.b {
+  -webkit-transform: rotate(90deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -o-transform: rotate(90deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -ms-transform: rotate(90deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -moz-transform: rotate(90deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  transform: rotate(90deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+}
+.modern-hamburg-close b.c {
+  opacity: 0;
+  -webkit-transform: translate(-12px, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate(-12px, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate(-12px, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate(-12px, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate(-12px, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
 /* 内容区域 */
 .content-container {
   position: absolute;
   top: 0;
+  width: 100%;
   height: 100%;
   z-index: 99;
 }

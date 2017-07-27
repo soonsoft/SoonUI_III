@@ -929,7 +929,8 @@ ui.define("ui.ctrls.Menu", {
         return this.option.menuButton.hasClass(showClass);
     },
     defaultShow: function() {
-        return true;
+        // TODO
+        return false;
     },
     isExtrusion: function() {
         return this.option.extendMethod === "extrusion" 
