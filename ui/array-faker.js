@@ -62,6 +62,15 @@ ArrayFaker.prototype = {
     splice: arrayInstance.splice,
     concat: arrayInstance.concat,
     slice: arrayInstance.slice,
+    forEach: arrayInstance.forEach,
+    map: arrayInstance.map,
+    filter: arrayInstance.filter,
+    every: arrayInstance.every,
+    some: arrayInstance.some,
+    reduce: arrayInstance.reduce,
+    reduceRight: arrayInstance.reduceRight,
+    indexOf: arrayInstance.indexOf,
+    lastIndexOf: arrayInstance.lastIndexOf,
     constructor: ui.ArrayFaker,
     get: function (num) {
         return num === undefined ? Array.prototype.slice.call(this) : this[num];
