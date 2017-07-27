@@ -33,6 +33,15 @@ delete KeyArray.prototype.pop;
 delete KeyArray.prototype.splice;
 delete KeyArray.prototype.concat;
 delete KeyArray.prototype.slice;
+delete KeyArray.prototype.forEach;
+delete KeyArray.prototype.map;
+delete KeyArray.prototype.filter;
+delete KeyArray.prototype.every;
+delete KeyArray.prototype.some;
+delete KeyArray.prototype.reduce;
+delete KeyArray.prototype.reduceRight;
+delete KeyArray.prototype.indexOf;
+delete KeyArray.prototype.lastIndexOf;
 
 // 初始化
 KeyArray.prototype.initialize = function() {
