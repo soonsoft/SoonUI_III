@@ -18,9 +18,10 @@ ArrayFaker.prototype = {
     },
     makeArray: function (arr) {
         //把传入参数变成数组
-        var ret = [];
+        var ret = [],
+            i;
         if (arr !== null) {
-            var i = arr.length;
+            i = arr.length;
             //单个元素，但window, string、 function有 'length'的属性，加其它的判断
             if (i === null || arr.split || arr.setInterval || arr.call) {
                 ret[0] = arr;
@@ -35,18 +36,6 @@ ArrayFaker.prototype = {
         }
         return ret;
     },
-    inArray: function (elem, array) {
-        for (var i = 0, length = array.length; i < length; i++) {
-            // Use === because on IE, window == document
-            if (array[i] === elem) {
-                return i;
-            }
-        }
-        return -1;
-    },
-    index: function (el) { 
-        return this.inArray(el, this); 
-    },
     toString: function () {
         //返回一个字符串
         var array = Array.prototype.slice.call(this);
@@ -54,6 +43,9 @@ ArrayFaker.prototype = {
     },
     valueOf: function () {
         return Array.prototype.slice.call(this);
+    },
+    get: function (num) {
+        return num === undefined ? Array.prototype.slice.call(this) : this[num];
     },
     shift: arrayInstance.shift,
     push: arrayInstance.push,
@@ -71,10 +63,7 @@ ArrayFaker.prototype = {
     reduceRight: arrayInstance.reduceRight,
     indexOf: arrayInstance.indexOf,
     lastIndexOf: arrayInstance.lastIndexOf,
-    constructor: ui.ArrayFaker,
-    get: function (num) {
-        return num === undefined ? Array.prototype.slice.call(this) : this[num];
-    }
+    constructor: ui.ArrayFaker
 };
 
 ui.ArrayFaker = ArrayFaker;
