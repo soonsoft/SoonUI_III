@@ -142,87 +142,138 @@ TileGroup.prototype = {
         if(this.length === 0) {
             return;
         }
-    },
-    _scan: function(size, rows, countX, countY, rowIndex) {
-        var i, j,
+    },    
+    _calculatePosition: function(size, positionBox, currentPosition, countX, countY) {
+        var row, cell,
             x, y,
-            row, nextRow,
-            indexX, indexY;
+            indexX, xLen, 
+            indexY, yLen,
+            positionX, positionY;
+
+        x = currentPosition.x;
+        y = currentPosition.y;
 
         for(;;) {
-            row = rows[rowIndex];
-            if(!row) {
-                row = new ArrayFaker(size * tileSize.medium.countX);
-                row.freeCount = row.length;
-                rows[rowIndex] = row;
+            // 确保有空间
+            for(i = 0; i < countY; i++) {
+                if(!positionBox[y + i]) {
+                    // 用最小单位来作为网格标注，以免浪费空间
+                    positionBox[y + i] = new Array(size * tileSize.medium.countX);
+                }
             }
-            indexY = rowIndex;
-            for(i = 0; i < row.length; i++) {
-                y = countY;
-                j = rowIndex;
-                while(y--) {
-                    nextRow = rows[j];
-                    if(!nextRow) {
-                        nextRow = new ArrayFaker(size * tileSize.medium.countX);
-                        nextRow.freeCount = nextRow.length;
-                        rows[j] = nextRow;
+
+            positionX = x;
+            positionY = y;
+
+            // 检查合适的空间
+            for(indexY = y, yLen = y + countY; indexY < yLen; indexY++) {
+                row = positionBox[indexY];
+                for(;;) {
+                    indexX = x;
+                    xLen = x + countX;
+                    if(xLen > row.length || indexX >= row.length) {
+                        positionX = -1;
+                        break;
                     }
-                    j++;
-                    x = countX;
-                    while(x--) {
-                        if(row[i++]) {
-                            indexX = -1;
+                    for(; indexX < xLen; indexX++) {
+                        if(row[indexX]) {
+                            // 发现起始点已经被使用则位移
+                            x = indexX + 1;
+                            positionX = -1;
                             break;
                         }
                     }
-                    if(indexX === -1) {
+                    if(positionX !== -1) {
                         break;
+                    } else {
+                        positionX = x;
                     }
                 }
-            }
-            if(indexX !== -1 && indexY !== -1) {
-                y = countY;
-                j = indexY;
-                while(y) {
-                    row = rows[j++];
-                    i = indexX;
-                    while(x) {
-                        row[i++] = true;
-                        row.freeCount--;
-                        x--;
-                    }
-                    y--;
+                if(positionX === -1) {
+                    break;
                 }
-                return {
-                    x: indexX,
-                    y: indexY
-                };
-                
             }
-            rowIndex++;
+
+            if(positionX !== -1 && positionY !== -1) {
+                currentPosition.x = positionX;
+                currentPosition.y = positionY;
+                // 标记空间已经被使用
+                for(indexY = positionY, yLen = positionY + countY; indexY < yLen; indexY++) {
+                    row = positionBox[indexY];
+                    for(indexX = positionX, xLen = positionX + countX; indexX < xLen; indexX++) {
+                        row[indexX] = true;
+                    }
+                }
+                return;
+            }
+        
+            x = 0;
+            y += 2;
         }
     },
     arrange: function(size) {
-        var rows = [],
-            rowIndex = 0,
-            row,
-            i, len,
-            tilePosition,
-            tile;
+        var i, len,
+            standard,
+            smallCount, smallX, smallY, smallIndex,
+            positionBox, currentPosition;
 
-        for(i = 0, len = this.length; i < len; i++) {
+        standard = tileSize.medium;
+        positionBox = [];
+        // 本次的起始位置
+        currentPosition = {
+            x: 0,
+            y: 0
+        };
+        // 每一次循环都是medium的倍数
+        for(i = 0, len = this.length; i < len;) {
             tile = this[i];
-            if(rows[rowIndex].freeCount < tile.countX) {
-                rowIndex++;
+            if(tile.countX <= standard.countX && tile.countY <= standard.countY) {
+                this._calculatePosition(size, positionBox, currentPosition, standard.countX, standard.countY);
+            } else {
+                this._calculatePosition(size, positionBox, currentPosition, tile.countX, tile.countY);
             }
-            tilePosition = this._scan(size, rows, tile.countX, tile.countY, rowIndex);
-            tile.tilePanel.css({
-                top: tilePosition.y * (tileSize.small.height + tileMargin) + "px",
-                left: tilePosition.x * (tileSize.small.width + tileMargin) + "px"
-            });
+
+            if(tile.type === "small") {
+                smallCount = tileSize.medium.countX * tileSize.medium.countY;
+                smallX = currentPosition.x;
+                smallY = currentPosition.y;
+                smallIndex = 1;
+                // 获取连续的小磁贴，最多获取4枚，组成一个medium磁贴
+                while(smallIndex <= smallCount) {
+                    tile = this[i];
+                    if(tile.type !== "small") {
+                        break;
+                    }
+                    if(smallIndex > tileSize.medium.countX) {
+                        smallX = currentPosition.x;
+                        smallY = currentPosition.y + 1;
+                    } else if(smallX % 2 === 0) {
+                        smallX = currentPosition.x + 1;
+                    }
+                    tile.tilePanel.css({
+                        top: currentPosition.y * (tileSize.small.height + tileMargin) + "px",
+                        left: currentPosition.x * (tileSize.small.width + tileMargin) + "px"
+                    });
+                    smallIndex++;
+                    i++;
+                }
+                currentPosition.x += tileSize.medium.countX;
+            } else {
+                tile.tilePanel.css({
+                    top: currentPosition.y * (tileSize.small.height + tileMargin) + "px",
+                    left: currentPosition.x * (tileSize.small.width + tileMargin) + "px"
+                });
+                currentPosition.x += tile.countX;
+                i++;
+            }
         }
-        
+
+        len = positionBox[0].length;
+        this.width = len * tileSize.small.width + (len - 1) * tileMargin;
+        len = positionBox.length;
+        this.height = len * tileSize.small.height + (len - 1) * tileMargin;
     },
+
     addTile: function(tileInfo) {
         var tile = new Tile(tileInfo);
         ArrayFaker.prototype.push(tile);
@@ -272,7 +323,9 @@ TileContainer.prototype = {
             }
         }
         return {
+            // 水平放几组
             groupCount: groupCount ? groupCount : 1,
+            // 每组一行放几个标准磁贴
             groupSize: size
         };
     },
