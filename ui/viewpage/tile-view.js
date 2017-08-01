@@ -19,15 +19,27 @@ var defineProperty = ui.ctrls.CtrlBase.defineProperty,
     tileInfoProperties = ["name", "title", "icon", "link", "color"];
 
 // 磁贴
-function Tile(tileInfo) {
+/*
+    tileInfo: {
+        name: string 磁贴名称，用于动态更新，不能重复,
+        type: string 磁贴类型，small|medium|wide|large,
+        color: string 磁贴颜色,
+        title: string 磁贴标题,
+        icon: string 磁贴图标,
+        link: string 磁贴调整的URL，如果为null则点击磁贴不会发生跳转,
+        interval: int 动态更新的时间间隔,
+        updateFn: function 动态更新的方法
+    }
+ */
+function Tile(tileInfo, group) {
     if(this instanceof Tile) {
-        this.initialize(tileInfo);
+        this.initialize(tileInfo, group);
     } else {
-        return new Tile(tileInfo);
+        return new Tile(tileInfo, group);
     }
 }
 Tile.prototype = {
-    initialize: function(tileInfo) {
+    initialize: function(tileInfo, group) {
         var type;
 
         this.type = (tileInfo.type + "").toLowerCase();
@@ -35,6 +47,9 @@ Tile.prototype = {
         if(!type) {
             throw new TypeError("Invalid tile type: " + this.type);
         }
+
+        this.group = group;
+        this.isDynamic = false;
 
         this.width = type.width;
         this.height = type.height;
@@ -92,6 +107,10 @@ Tile.prototype = {
                     .append(this.contentPanel)
                     .append(this.titlePanel);
             if(this.updateFn) {
+                this.isDynamic = true;
+                if(!ui.core.isNumber(this.interval) || this.interval <= 0) {
+                    this.interval = 60;
+                }
                 this.smallIconImg = $("<img class='tile-small-icon' />");
                 this.smallIconImg.prop("src", this.iconSrc);
                 this.tilePanel.append(this.smallIconImg);
@@ -101,7 +120,7 @@ Tile.prototype = {
         }
 
         this.linkAnchor = null;
-        if(this.link) {
+        if(ui.core.isString(this.link) && this.link.length > 0) {
             this.linkAnchor = $("<a class='tile-link " + this.type + "' />");
             this.linkAnchor.prop("href", this.link);
             this.tilePanel.append(this.linkAnchor);
@@ -114,20 +133,25 @@ Tile.prototype = {
     }
 };
 
-function TileGroup(tileInfos) {
+function TileGroup(tileInfos, container) {
     if(this instanceof TileGroup) {
-        this.initialize(tileInfos);
+        this.initialize(tileInfos, container);
     } else {
-        return new TileGroup(tileInfos);
+        return new TileGroup(tileInfos, container);
     }
 }
 TileGroup.prototype = {
-    initialize: function(tileInfos) {
+    initialize: function(tileInfos, container) {
         var arr = new Array(tileInfos.length),
-            tileGridCount = 0;
+            that;
+        
+        this.container = container;
+        that = this;
         tileInfos.forEach(function(tileInfo) {
             var tile = new Tile(tileInfo);
-            tileGridCount += tile.countX * tile.countY;
+            if(tile.isDynamic) {
+                that.container.putDynamicTile(tile);
+            }
             arr.push(tile);
         });
         
@@ -405,9 +429,16 @@ TileContainer.prototype = {
     },
     /** 添加组 */
     addGroup: function(groupName, tileInfos) {
+        var group;
         if(!Array.isArray(tileInfos) || tileInfos.length === 0) {
             return;
         }
-        this.groups.push(TileGroup(tileInfos));
+        group = new TileGroup(tileInfos, this);
+        this.groups.push(group);
+    },
+    /** 放置动态磁贴 */
+    putDynamicTile: function(dynamicTile) {
+        // TODO
     }
 };
+
