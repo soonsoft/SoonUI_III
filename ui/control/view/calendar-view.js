@@ -617,7 +617,7 @@ MonthView.prototype = {
         this.month = date.getMonth();
     },
     _createWeek: function () {
-        var weekName,
+        var weekNames,
             colgroup, thead, tr, th,
             i, len;
 
@@ -1153,7 +1153,8 @@ WeekView.prototype = {
     _createWeek: function() {
         var thead, 
             colgroup,
-            tr, th, date, i;
+            tr, th, date, 
+            i, day;
 
         this.weekTable = $("<table class='ui-calendar-weekday unselectable' cellspacing='0' cellpadding='0' />");
         thead = $("<thead />");
@@ -1212,7 +1213,7 @@ WeekView.prototype = {
     },
     _createHour: function() {
         var tbody, colgroup, tr, td,
-            i, len, unitCount;
+            i, len, j, unitCount;
 
         this.weekHour = $("<div class='week-hour-panel' />");
         this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
@@ -2854,7 +2855,7 @@ ui.define("ui.ctrls.CalendarView", {
             } else {
                 elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
             }
-            that._timeoutHandler = setTimeout(arguments.callee, updateInterval);
+            that._timeoutHandler = setTimeout(updateTimeFn, updateInterval);
         };
         this._timeoutHandler = setTimeout(updateTimeFn);
     },

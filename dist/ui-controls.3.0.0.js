@@ -1,4 +1,5 @@
 // Source: ui/control/base/dropdown-base.js
+"use strict";
 
 (function($, ui) {
 var htmlClickHideHandler = [],
@@ -276,6 +277,7 @@ ui.define("ui.ctrls.DropDownBase", {
 })(jQuery, ui);
 
 // Source: ui/control/base/sidebar-base.js
+"use strict";
 
 (function($, ui) {
 //侧滑面板基类
@@ -478,6 +480,7 @@ ui.define("ui.ctrls.SidebarBase", {
 })(jQuery, ui);
 
 // Source: ui/control/common/column-style.js
+"use strict";
 
 (function($, ui) {
 // column style 默认提供的GridView和ReportView的格式化器
@@ -992,6 +995,7 @@ ui.ColumnStyle = {
 })(jQuery, ui);
 
 // Source: ui/control/common/pager.js
+"use strict";
 
 (function($, ui) {
 //控件分页逻辑，GridView, ReportView, flowView
@@ -1211,6 +1215,7 @@ ui.ctrls.Pager = Pager;
 })(jQuery, ui);
 
 // Source: ui/control/box/dialog-box.js
+"use strict";
 
 (function($, ui) {
 var defaultWidth = 640,
@@ -1930,6 +1935,7 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 })(jQuery, ui);
 
 // Source: ui/control/box/loading-box.js
+"use strict";
 
 (function($, ui) {
 // 加载提示框
@@ -2013,6 +2019,7 @@ ui.loadingHide = function() {
 })(jQuery, ui);
 
 // Source: ui/control/box/message-box.js
+"use strict";
 
 (function($, ui) {
 // MessageBox
@@ -2227,6 +2234,7 @@ ui.failedShow = function(text) {
 })(jQuery, ui);
 
 // Source: ui/control/box/option-box.js
+"use strict";
 
 (function($, ui) {
 // OptionBox
@@ -2350,6 +2358,7 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 })(jQuery, ui);
 
 // Source: ui/control/select/chooser.js
+"use strict";
 
 (function($, ui) {
 
@@ -2956,6 +2965,7 @@ $.fn.chooser = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/color-picker.js
+"use strict";
 
 (function($, ui) {
 
@@ -3368,6 +3378,7 @@ $.fn.colorPicker = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/date-chooser.js
+"use strict";
 
 (function($, ui) {
 var language,
@@ -4769,6 +4780,7 @@ $.fn.dateChooser = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-list.js
+"use strict";
 
 (function($, ui) {
 
@@ -5193,6 +5205,7 @@ $.fn.selectionList = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-tree.js
+"use strict";
 
 (function($, ui) {
 /**
@@ -6002,6 +6015,7 @@ $.fn.selectionTree = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-tree4autocomplete.js
+"use strict";
 
 (function($, ui) {
 
@@ -6285,6 +6299,7 @@ $.fn.autocompleteSelectionTree = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/calendar-view.js
+"use strict";
 
 (function($, ui) {
 // CalendarView
@@ -6906,7 +6921,7 @@ MonthView.prototype = {
         this.month = date.getMonth();
     },
     _createWeek: function () {
-        var weekName,
+        var weekNames,
             colgroup, thead, tr, th,
             i, len;
 
@@ -7442,7 +7457,8 @@ WeekView.prototype = {
     _createWeek: function() {
         var thead, 
             colgroup,
-            tr, th, date, i;
+            tr, th, date, 
+            i, day;
 
         this.weekTable = $("<table class='ui-calendar-weekday unselectable' cellspacing='0' cellpadding='0' />");
         thead = $("<thead />");
@@ -7501,7 +7517,7 @@ WeekView.prototype = {
     },
     _createHour: function() {
         var tbody, colgroup, tr, td,
-            i, len, unitCount;
+            i, len, j, unitCount;
 
         this.weekHour = $("<div class='week-hour-panel' />");
         this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
@@ -9143,7 +9159,7 @@ ui.define("ui.ctrls.CalendarView", {
             } else {
                 elem.removeClass("ui-current-time-top").css("top", top - currentTimeLineHeight + "px");
             }
-            that._timeoutHandler = setTimeout(arguments.callee, updateInterval);
+            that._timeoutHandler = setTimeout(updateTimeFn, updateInterval);
         };
         this._timeoutHandler = setTimeout(updateTimeFn);
     },
@@ -9359,11 +9375,12 @@ ui.page.hlchanged(function(e, colorInfo) {
 })(jQuery, ui);
 
 // Source: ui/control/view/card-view.js
+"use strict";
 
 (function($, ui) {
 // CardView
 
-var selectedClass = "ui-card-view-selection";
+var selectedClass = "ui-card-view-selection",
     frameBorderWidth = 4;
 
 function preparePager(option) {
@@ -10021,6 +10038,7 @@ $.fn.cardView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/fold-view.js
+"use strict";
 
 (function($, ui) {
 // 折叠视图
@@ -10114,6 +10132,7 @@ $.fn.foldView = function() {
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view-group.js
+"use strict";
 
 (function($, ui) {
 // GridViewGroup
@@ -10275,6 +10294,7 @@ ui.ctrls.GridViewGroup = GridViewGroup;
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view-tree.js
+"use strict";
 
 (function($, ui) {
 // GridViewTree
@@ -10681,6 +10701,7 @@ ui.ctrls.GridViewTree = GridViewTree;
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view.js
+"use strict";
 
 (function($, ui) {
 // grid view
@@ -11936,6 +11957,7 @@ $.fn.gridView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/list-view.js
+"use strict";
 
 (function($, ui) {
 //list view
@@ -12583,6 +12605,7 @@ $.fn.listView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/report-view.js
+"use strict";
 
 (function($, ui) {
 // Report View
@@ -14324,6 +14347,7 @@ $.fn.reportView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/tab-view.js
+"use strict";
 
 (function($, ui) {
 // TabView
@@ -14848,6 +14872,7 @@ ui.ctrls.TabView.TabManager = TabManager;
 })(jQuery, ui);
 
 // Source: ui/control/view/tree-view.js
+"use strict";
 
 (function($, ui) {
 
@@ -14885,6 +14910,7 @@ $.fn.treeView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/confirm-button.js
+"use strict";
 
 (function($, ui) {
 /* 确认按钮 */
@@ -15095,6 +15121,7 @@ $.fn.confirmClick = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/extend-button.js
+"use strict";
 
 (function($, ui) {
 /* 扩展按钮 */
@@ -15501,6 +15528,7 @@ $.fn.extendButton = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/filter-tool.js
+"use strict";
 
 (function($, ui) {
 /* 内容过滤选择器 */
@@ -15677,7 +15705,7 @@ ui.define("ui.ctrls.FilterTool", {
     },
     setIndex: function (index) {
         var viewData,
-            lable;
+            label;
 
         viewData = this.getViewData();
         if (!viewData.length === 0) {
@@ -15727,6 +15755,7 @@ $.fn.filterTool = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/hover-view.js
+"use strict";
 
 (function($, ui) {
 /* 悬停视图 */
@@ -15975,6 +16004,7 @@ $.fn.addHoverView = function (view) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/slidebar.js
+"use strict";
 
 (function($, ui) {
 // Slidebar
@@ -16215,6 +16245,7 @@ $.fn.slidebar = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/switch-button.js
+"use strict";
 
 (function($, ui) {
 /* 开关按钮 */
@@ -16444,6 +16475,7 @@ $.fn.switchButton = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/uploader.js
+"use strict";
 
 (function($, ui) {
 // uploader
@@ -16776,6 +16808,7 @@ $.fn.uploader = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-preview.js
+"use strict";
 
 (function($, ui) {
 //图片预览视图
@@ -17145,6 +17178,7 @@ $.fn.imagePreview = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-viewer.js
+"use strict";
 
 (function($, ui) {
 //图片轮播视图
@@ -17469,6 +17503,7 @@ $.fn.imageViewer = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-watcher.js
+"use strict";
 
 (function($, ui) {
 //图片局部放大查看器
@@ -17633,6 +17668,7 @@ $.fn.imageWatcher = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-zoomer.js
+"use strict";
 
 (function($, ui) {
 function getLargeImageSrc(img) {

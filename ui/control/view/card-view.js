@@ -1,6 +1,6 @@
 // CardView
 
-var selectedClass = "ui-card-view-selection";
+var selectedClass = "ui-card-view-selection",
     frameBorderWidth = 4;
 
 function preparePager(option) {

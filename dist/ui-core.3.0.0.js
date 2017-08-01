@@ -55,6 +55,7 @@
 } );
 
 // Source: ui/core.js
+"use strict";
 
 (function($, ui) {
 // core
@@ -225,6 +226,7 @@ core.isTouchAvailable = function() {
 })(jQuery, ui);
 
 // Source: ui/ecmascript-extends.js
+"use strict";
 
 (function($, ui) {
 // 为ECMAScript3 添加ECMAScript5的方法
@@ -441,6 +443,7 @@ if(typeof Function.prototype.bind !== "function") {
 })(jQuery, ui);
 
 // Source: ui/promise.js
+"use strict";
 
 (function($, ui) {
 // promise
@@ -674,6 +677,7 @@ window.Promise = nativePromise || uiPromise;
 })(jQuery, ui);
 
 // Source: ui/array-faker.js
+"use strict";
 
 (function($, ui) {
 // Array Faker
@@ -696,9 +700,10 @@ ArrayFaker.prototype = {
     },
     makeArray: function (arr) {
         //把传入参数变成数组
-        var ret = [];
+        var ret = [],
+            i;
         if (arr !== null) {
-            var i = arr.length;
+            i = arr.length;
             //单个元素，但window, string、 function有 'length'的属性，加其它的判断
             if (i === null || arr.split || arr.setInterval || arr.call) {
                 ret[0] = arr;
@@ -713,18 +718,6 @@ ArrayFaker.prototype = {
         }
         return ret;
     },
-    inArray: function (elem, array) {
-        for (var i = 0, length = array.length; i < length; i++) {
-            // Use === because on IE, window == document
-            if (array[i] === elem) {
-                return i;
-            }
-        }
-        return -1;
-    },
-    index: function (el) { 
-        return this.inArray(el, this); 
-    },
     toString: function () {
         //返回一个字符串
         var array = Array.prototype.slice.call(this);
@@ -733,6 +726,9 @@ ArrayFaker.prototype = {
     valueOf: function () {
         return Array.prototype.slice.call(this);
     },
+    get: function (num) {
+        return num === undefined ? Array.prototype.slice.call(this) : this[num];
+    },
     shift: arrayInstance.shift,
     push: arrayInstance.push,
     sort: arrayInstance.sort,
@@ -740,10 +736,16 @@ ArrayFaker.prototype = {
     splice: arrayInstance.splice,
     concat: arrayInstance.concat,
     slice: arrayInstance.slice,
-    constructor: ui.ArrayFaker,
-    get: function (num) {
-        return num === undefined ? Array.prototype.slice.call(this) : this[num];
-    }
+    forEach: arrayInstance.forEach,
+    map: arrayInstance.map,
+    filter: arrayInstance.filter,
+    every: arrayInstance.every,
+    some: arrayInstance.some,
+    reduce: arrayInstance.reduce,
+    reduceRight: arrayInstance.reduceRight,
+    indexOf: arrayInstance.indexOf,
+    lastIndexOf: arrayInstance.lastIndexOf,
+    constructor: ui.ArrayFaker
 };
 
 ui.ArrayFaker = ArrayFaker;
@@ -752,6 +754,7 @@ ui.ArrayFaker = ArrayFaker;
 })(jQuery, ui);
 
 // Source: ui/keyarray.js
+"use strict";
 
 (function($, ui) {
 /*
@@ -789,6 +792,15 @@ delete KeyArray.prototype.pop;
 delete KeyArray.prototype.splice;
 delete KeyArray.prototype.concat;
 delete KeyArray.prototype.slice;
+delete KeyArray.prototype.forEach;
+delete KeyArray.prototype.map;
+delete KeyArray.prototype.filter;
+delete KeyArray.prototype.every;
+delete KeyArray.prototype.some;
+delete KeyArray.prototype.reduce;
+delete KeyArray.prototype.reduceRight;
+delete KeyArray.prototype.indexOf;
+delete KeyArray.prototype.lastIndexOf;
 
 // 初始化
 KeyArray.prototype.initialize = function() {
@@ -872,6 +884,7 @@ ui.KeyArray = KeyArray;
 })(jQuery, ui);
 
 // Source: ui/introsort.js
+"use strict";
 
 (function($, ui) {
 // sorter introsort
@@ -1067,6 +1080,7 @@ ui.Introsort = Introsort;
 })(jQuery, ui);
 
 // Source: ui/util.js
+"use strict";
 
 (function($, ui) {
 // util
@@ -1389,6 +1403,7 @@ ui.mask = {
 })(jQuery, ui);
 
 // Source: ui/util-string.js
+"use strict";
 
 (function($, ui) {
 // string util
@@ -1770,6 +1785,7 @@ ui.str = {
 })(jQuery, ui);
 
 // Source: ui/util-object.js
+"use strict";
 
 (function($, ui) {
 //object
@@ -1849,6 +1865,7 @@ ui.obj = {
 })(jQuery, ui);
 
 // Source: ui/util-url.js
+"use strict";
 
 (function($, ui) {
 //url
@@ -1962,6 +1979,7 @@ ui.url = {
 })(jQuery, ui);
 
 // Source: ui/util-structure-transform.js
+"use strict";
 
 (function($, ui) {
 // 数据结构转换
@@ -2081,6 +2099,7 @@ ui.trans = {
 })(jQuery, ui);
 
 // Source: ui/util-random.js
+"use strict";
 
 (function($, ui) {
 
@@ -2224,6 +2243,7 @@ ui.random = random;
 })(jQuery, ui);
 
 // Source: ui/animation.js
+"use strict";
 
 (function($, ui) {
 /*
@@ -2638,6 +2658,7 @@ ui.animator = function (target, option) {
 })(jQuery, ui);
 
 // Source: ui/custom-event.js
+"use strict";
 
 (function($, ui) {
 // custom event
@@ -2755,6 +2776,7 @@ ui.CustomEvent = CustomEvent;
 })(jQuery, ui);
 
 // Source: ui/json.js
+"use strict";
 
 (function($, ui) {
 // json2
@@ -2974,6 +2996,7 @@ JSON.parse = function (text, reviver) {
 })(jQuery, ui);
 
 // Source: ui/ajax.js
+"use strict";
 
 (function($, ui) {
 // ajax
@@ -3244,6 +3267,7 @@ ui.ajax = {
 })(jQuery, ui);
 
 // Source: ui/cookie.js
+"use strict";
 
 (function($, ui) {
 // cookie 操作
@@ -3337,6 +3361,7 @@ ui.cookie = {
 })(jQuery, ui);
 
 // Source: ui/color.js
+"use strict";
 
 (function($, ui) {
 // color
@@ -3477,6 +3502,7 @@ ui.color = {
 })(jQuery, ui);
 
 // Source: ui/browser.js
+"use strict";
 
 (function($, ui) {
 // browser
@@ -3599,6 +3625,7 @@ if (ui.browser.ie) {
 })(jQuery, ui);
 
 // Source: ui/image-loader.js
+"use strict";
 
 (function($, ui) {
 // image loader
@@ -3729,6 +3756,7 @@ ui.ImageLoader = ImageLoader;
 })(jQuery, ui);
 
 // Source: ui/jquery-extends.js
+"use strict";
 
 (function($, ui) {
 // jquery extends
@@ -4054,6 +4082,7 @@ $.fn.textinput = function(data, fn) {
 })(jQuery, ui);
 
 // Source: ui/define.js
+"use strict";
 
 (function($, ui) {
 function noop() {
@@ -4339,6 +4368,7 @@ ui.define = function(name, base, prototype) {
 })(jQuery, ui);
 
 // Source: ui/draggable.js
+"use strict";
 
 (function($, ui) {
 
@@ -4599,6 +4629,7 @@ $.fn.undraggable = function() {
 })(jQuery, ui);
 
 // Source: ui/style-sheet.js
+"use strict";
 
 (function($, ui) {
 
@@ -4767,6 +4798,7 @@ ui.StyleSheet = StyleSheet;
 })(jQuery, ui);
 
 // Source: ui/theme.js
+"use strict";
 
 (function($, ui) {
 
@@ -4853,6 +4885,7 @@ ui.theme = {
 })(jQuery, ui);
 
 // Source: ui/page.js
+"use strict";
 
 (function($, ui) {
 
