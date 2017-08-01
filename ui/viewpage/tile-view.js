@@ -13,7 +13,8 @@ var tileSize = {
 };
 var tileMargin = 4,
     titleHeight = 24,
-    edgeDistance = 48;
+    edgeDistance = 48,
+    groupTitleHeight = 48;
 var defineProperty = ui.ctrls.CtrlBase.defineProperty,
     tileInfoProperties = ["name", "title", "icon", "link", "color"];
 
@@ -77,14 +78,21 @@ Tile.prototype = {
         if(this.type !== "small") {
             // 内容面板
             this.contentPanel = $("<div class='tile-content' />");
+            this.contentPanel.append(this.iconImg);
+
             // 动态信息面板
             this.updatePanel = $("<div class='update-panel' />");
-            this.contentPanel.append(this.iconImg).append(this.updatePanel);
+            this.contentPanel.append(this.updatePanel);
+
             // 磁贴标题
             this.titlePanel = $("<div class='tile-title' />");
-            this.tilePanel.append(this.contentPanel).append(this.titlePanel);
+            this.titlePanel.html("<span class='tile-title-text'>" + this.title + "</span>");
+            
+            this.tilePanel
+                    .append(this.contentPanel)
+                    .append(this.titlePanel);
             if(this.updateFn) {
-                this.smallIconImg = $("<img class='tile-icon' />");
+                this.smallIconImg = $("<img class='tile-small-icon' />");
                 this.smallIconImg.prop("src", this.iconSrc);
                 this.tilePanel.append(this.smallIconImg);
             }
@@ -125,24 +133,25 @@ TileGroup.prototype = {
         
         ArrayFaker.prototype.setArray.call(this, arr);
 
+        this.titleHeight = groupTitleHeight;
+
         this._render();
-        this._calculateGrid();
     },
     _render: function() {
         var i, len;
 
         this.groupPanel = $("<div class='ui-tile-group' />");
         this.groupPanel.css("visibility", "hidden");
-        
+        this.groupTitle = $("<div class='ui-tile-group-title' />");
+        this.groupContent = $("<div class='ui-tile-group-content' />");
+        this.groupPanel
+                .append(this.groupTitle)
+                .append(this.groupContent);
+
         for(i = 0, len = this.length; i < len; i++) {
-            this.groupPanel.append(this[i].tilePanel);
+            this.groupContent.append(this[i].tilePanel);
         }
-    },
-    _calculateGrid: function() {
-        if(this.length === 0) {
-            return;
-        }
-    },    
+    }, 
     _calculatePosition: function(size, positionBox, currentPosition, countX, countY) {
         var row, cell,
             x, y,
@@ -272,29 +281,42 @@ TileGroup.prototype = {
         this.width = len * tileSize.small.width + (len - 1) * tileMargin;
         len = positionBox.length;
         this.height = len * tileSize.small.height + (len - 1) * tileMargin;
+        
+        this.groupContent.css("height", this.height + "px");
+        this.height += this.titleHeight;
+        this.groupPanel.css({
+            "width": this.width + "px",
+            "height": this.height + "px"
+        });
     },
 
     addTile: function(tileInfo) {
         var tile = new Tile(tileInfo);
         ArrayFaker.prototype.push(tile);
     },
-    removeTile: function(tile) {
+    removeTile: function(tileInfo) {
 
     }
 };
 
 // 磁贴容器
-function TileContainer() {
+function TileContainer(containerPanel) {
     if(this instanceof TileContainer) {
-        this.initialize();
+        this.initialize(containerPanel);
     } else {
-        return new TileContainer();
+        return new TileContainer(containerPanel);
     }
 }
 TileContainer.prototype = {
-    initialize: function() {
+    initialize: function(containerPanel) {
         this.groups = [];
-        this.container = null;
+
+        this.container = ui.getJQueryElement(containerPanel);
+        if(!this.container) {
+            this.container = $("<div class='ui-tile-container' />");
+        } else {
+            this.container.addClass("ui-tile-container");
+        }
     },
     _calculateGroupLayoutInfo: function(containerWidth) {
         var size,
@@ -329,20 +351,56 @@ TileContainer.prototype = {
             groupSize: size
         };
     },
+    /** 布局磁贴 */
     layout: function(containerWidth, containerHeight) {
         var groupLayoutInfo,
-            i, len;
+            groupWholeWidth,
+            groupWholeHeight,
+            groupEdgeDistance, 
+            scrollWidth,
+            group,
+            groupTemp
+            i, len, j;
 
+        if(this.groups.length === 0) {
+            return;
+        }
         groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth);
         
         // 排列每一组磁贴
+        groupWholeHeight = 0;
         for(i = 0, len = this.groups.length; i < len; i++) {
-            this.groups[i].arrange(groupLayoutInfo.groupSize);
+            group = this.groups[i];
+            group.arrange(groupLayoutInfo.groupSize);
+            groupWholeHeight += group.height;
         }
 
+        scrollWidth = 0;
+        if(groupWholeHeight > containerHeight) {
+            scrollWidth = ui.scrollbarWidth;
+        }
+        groupWholeWidth = this.groups[0].width * groupLayoutInfo.groupSize + edgeDistance * (groupLayoutInfo.groupSize - 1);
+        groupEdgeDistance = (containerWidth - groupEdgeDistance - groupWholeWidth) / 2;
+        
         // 排列组
-        for(i = 0, len = this.groups.length; i < len; i++) {
-
+        groupTemp = {};
+        for(i = 0, len = this.groups.length; i < len;) {
+            groupTemp.left = groupEdgeDistance;
+            for(j = 0; j < groupLayoutInfo.groupSize; j++) {
+               group = this.groups[i];
+               if(groupTemp[j] === undefined) {
+                   groupTemp[j] = 0;
+               }
+               group.left = groupTemp.left;
+               group.top = groupTemp[j];
+               group.groupPanel.css({
+                   "left": group.left + "px",
+                   "top": group.top + "px"
+               });
+               groupTemp.left += group.width + edgeDistance;
+               groupTemp[j] += group.height;
+               i++; 
+            }
         }
     },
     /** 添加组 */
@@ -351,16 +409,5 @@ TileContainer.prototype = {
             return;
         }
         this.groups.push(TileGroup(tileInfos));
-    },
-    /** 添加一个磁贴 */
-    addTile: function(groupIndex, tile) {
-        if(!(tile instanceof Tile)) {
-            throw new TypeError("the arguments tile is not Tile");
-        }
-    },
-    /** 设置容器的大小 */
-    setSize: function(width, height) {
-
     }
 };
-
