@@ -28,7 +28,7 @@ var defineProperty = ui.ctrls.CtrlBase.defineProperty,
         icon: string 磁贴图标,
         link: string 磁贴调整的URL，如果为null则点击磁贴不会发生跳转,
         interval: int 动态更新的时间间隔,
-        updateFn: function 动态更新的方法
+        updateFn: function 动态更新的方法 参数： tile，isLastTile
     }
  */
 function Tile(tileInfo, group) {
@@ -126,10 +126,35 @@ Tile.prototype = {
             this.tilePanel.append(this.linkAnchor);
         }
     },
-    update: function() {
-        if(ui.core.isFunction(this.updateFn)) {
-            this.updateFn();
+    /** 更新磁贴内容区，推送文字 */
+    updateContent: function(content) {
+        var builder,
+            i, len;
+
+        if(ui.core.isString(content)) {
+            builder = ["<p class='update-inner'><span>", content, "</span></p>"];
+            this.updatePanel.html(builder.join(""));
+        } else if(Array.isArray(content)) {
+            builder = [];
+            builder.push("<p class='update-inner'>");
+            for(i = 0, len = content.length; i < len; i++) {
+                builder.push("<span>", content[i], "</span>");
+                if(len < len - 1) {
+                    builder.push("<br />");
+                }
+            }
+            builder.push("</p>");
+            this.updatePanel.html(builder.join(""));
+        } else if(ui.core.isFunction(content)) {
+            content.call(this);
+        } else {
+            return;
         }
+        
+        // TODO animation
+    },
+    /** 更新整个磁贴 */
+    updateTile: function() {
     }
 };
 
@@ -334,6 +359,8 @@ function TileContainer(containerPanel) {
 TileContainer.prototype = {
     initialize: function(containerPanel) {
         this.groups = [];
+        this.dynamicMap = {};
+        this.dynamicTiles = {};
 
         this.container = ui.getJQueryElement(containerPanel);
         if(!this.container) {
@@ -438,7 +465,71 @@ TileContainer.prototype = {
     },
     /** 放置动态磁贴 */
     putDynamicTile: function(dynamicTile) {
-        // TODO
+        var tileName,
+            dynamicInfo,
+            interval;
+
+        tileName = dynamicTile.name;
+        if(!tileName) {
+            throw new TypeError("tileName can not be null");
+        }
+        if(this.dynamicTiles.hasOwnProperty(tileName)) {
+            throw new TypeError("The dynamicTile is exist which name is '" + tileName + "'");
+        }
+
+        this.dynamicTiles[tileName] = dynamicTile;
+        interval = dynamicTile.interval;
+        dynamicInfo = this.dynamicMap[interval];
+        if(!dynamicInfo) {
+            dynamicInfo = {
+                context: this,
+                tiles: [],
+                interval: interval
+            };
+            dynamicInfo.prototype = dynamicInfoPrototype;
+            this.dynamicMap[interval] = dynamicInfo;
+        }
+        dynamicInfo.tiles.push(tileName);
+    },
+    /** 获取动态磁贴 */
+    getDynamicTileByName: function(tileName) {
+        var dynamicTile;
+
+        dynamicTile = this.dynamicTiles[tileName + ""];
+        if(!dynamicTile) {
+            return null;
+        }
+        return dynamicTile;
+    }
+};
+
+// dynamicInfo原型
+var dynamicInfoPrototype = {
+    /** 注册动态更新器 */
+    register: function() {
+        var interval = this.interval,
+            that = this;
+        this.dynamicDelayHandler = setTimeout(function() {
+            that.dynamicDelayHandler = null;
+            that.update();
+        }, interval);
+    },
+    /** 取消注册 */
+    unregister: function() {
+        if(this.dynamicDelayHandler) {
+            clearTimeout(this.dynamicDelayHandler);
+        }
+    },
+    /** 开始更新 */
+    update: function() {
+        var i, len,
+            tile;
+        for(i = 0, len = this.tiles.length; i < len; i++) {
+            tile = this.context.dynamicTiles[this.tiles[i]];
+            if(ui.core.isFunction(tile.updateFn)) {
+                tile.updateFn.call(this, tile, i === len - 1);
+            }
+        }
     }
 };
 
