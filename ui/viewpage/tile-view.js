@@ -17,6 +17,87 @@ var tileMargin = 4,
     groupTitleHeight = 48;
 var defineProperty = ui.ctrls.CtrlBase.defineProperty,
     tileInfoProperties = ["name", "title", "icon", "link", "color"];
+var tileUpdater = {
+    // 翻转更新
+    rotate: {
+        render: function() {
+            this.tileInnerBack = $("<div class='tile-inner' style='display:none'>");
+            
+            this.updatePanel = $("<div class='update-panel' />");
+            this.updatePanel.css("height", this.height - titleHeight + "px");
+            this.tileInnerBack
+                    .append(this.updatePanel)
+                    .append("<div class='tile-title'><span class='tile-title-text'></span></div>");
+
+            this.smallIconImg = $("<img class='tile-small-icon' />");
+            this.smallIconImg.prop("src", this.iconSrc);
+            this.tileInnerBack.append(this.smallIconImg);
+            
+            this.tilePanel.append(this.tileInnerBack);
+
+            this._createAnimator();
+        },
+        _createAnimator: function() {
+            var setRotateFn,
+                perspective;
+            
+            perspective = this.width * 2;
+            setRotateFn = function(val) {
+                var cssObj = {},
+                    prefix = ["ms-", "moz-", "webkit-", "o-", ""],
+                    rotateValue;
+                rotateValue = "perspective(" + rotateValue + "px) rotateX(" + val + "deg)";
+                prefix.forEach(function(p) {
+                    cssObj[p + "transform"] = rotateValue;
+                });
+                return cssObj;
+            };
+            this.animator = ui.animator({
+                ease: ui.AnimationStyle.easeFrom,
+                begin: 0,
+                end: -90,
+                duration: 500,
+                onChange: function(val) {
+                    this.target.css(setRotateFn(val));
+                }
+            }).addTarget({
+                ease: function(pos) {
+                    var s = 3;
+                    return (pos = pos - 1) * pos * ((s + 1) * pos + s) + 1;
+                },
+                begin: 90,
+                end: 0,
+                delay: 500,
+                duration: 500,
+                onChange: function(val) {
+                    this.target.css(setRotateFn(val));
+                }
+            });
+            this.animator.onEnd = function() {
+                this[0].target.css("display", "none");
+            };
+        },
+        update: function() {
+
+        }
+    },
+    // 上升更新
+    moveup: {
+        render: function() {
+            // 动态信息面板
+            this.updatePanel = $("<div class='update-panel' />");
+            this.updatePanel.css("top", "100%");
+            this.contentPanel.append(this.updatePanel);
+
+            this.smallIconImg = $("<img class='tile-small-icon' />");
+            this.smallIconImg.prop("src", this.iconSrc);
+            this.tileInner.append(this.smallIconImg);
+        },
+        update: function() {
+
+        }
+    }
+};
 
 // 磁贴
 /*
@@ -61,7 +142,6 @@ Tile.prototype = {
         this.locationY = 0;
 
         this.tileInfo = tileInfo || {};
-
         tileInfoProperties.forEach(function(propertyName) {
             if(tileInfo.hasOwnProperty(propertyName)) {
                 defineProperty.call(this, propertyName, function() {
@@ -74,48 +154,53 @@ Tile.prototype = {
             ui.core.isFunction(this.tileInfo.updateFn) 
                 ? this.tileInfo.updateFn 
                 : null;
+        if(this.updateFn) {
+            this.isDynamic = true;
+            this.interval = 
+                ui.core.isNumber(this.tileInfo.interval)
+                    ? this.tileInfo.interval
+                    : 60;
+            if(this.interval <= 0) {
+                this.interval = 60;
+            }
+        }
         this._render();
     },
     _render: function() {
         this.tilePanel = $("<div class='ui-tile tile-" + this.type + "' />");
-        this.tilePanel.css("background-color", this.color);
+        
+        this.tileInner = $("<div class='tile-inner' />");
+        this.tileInner.css("background-color", this.color);
+        this.tilePanel.append(this.tilePanel);
         
         this.iconImg = $("<img class='tile-icon' />");
         this.iconImg.prop("src", this.icon);
         this.iconImg.css({
             "width": this.iconSize + "px",
             "height": this.iconSize + "px",
-            "left": (this.width - this.iconSize) / 2 + "px",
-            "top": (this.height - titleHeight / 2 - this.iconSize) / 2 + "px"
+            "left": (this.width - this.iconSize) / 2 + "px"
         });
 
         this.smallIconImg = null;
         if(this.type !== "small") {
             // 内容面板
+            this.contentHeight = this.height - titleHeight;
             this.contentPanel = $("<div class='tile-content' />");
+            this.iconImg.css("top", (this.contentHeight - this.iconSize) / 2 + "px");
             this.contentPanel.append(this.iconImg);
-
-            // 动态信息面板
-            this.updatePanel = $("<div class='update-panel' />");
-            this.contentPanel.append(this.updatePanel);
 
             // 磁贴标题
             this.titlePanel = $("<div class='tile-title' />");
             this.titlePanel.html("<span class='tile-title-text'>" + this.title + "</span>");
             
-            this.tilePanel
+            this.tileInner
                     .append(this.contentPanel)
                     .append(this.titlePanel);
-            if(this.updateFn) {
-                this.isDynamic = true;
-                if(!ui.core.isNumber(this.interval) || this.interval <= 0) {
-                    this.interval = 60;
-                }
-                this.smallIconImg = $("<img class='tile-small-icon' />");
-                this.smallIconImg.prop("src", this.iconSrc);
-                this.tilePanel.append(this.smallIconImg);
+            if(this.isDynamic) {
+                this.renderUpdatePanel();
             }
         } else {
+            this.iconImg.css("top", (this.height - this.iconSize) / 2 + "px");
             this.tilePanel.append(this.iconImg);
         }
 
@@ -125,6 +210,9 @@ Tile.prototype = {
             this.linkAnchor.prop("href", this.link);
             this.tilePanel.append(this.linkAnchor);
         }
+    },
+    _prepareUpdatePanel: function() {
+        
     },
     /** 更新磁贴内容区，推送文字 */
     updateContent: function(content) {
