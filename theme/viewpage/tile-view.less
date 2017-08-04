@@ -25,6 +25,7 @@
 
 .ui-tile {
     position: absolute;
+    overflow: visible;
     font-family: 'Segoe UI', 'Microsoft YaHei light', 'Microsoft YaHei';
 }
 
@@ -48,17 +49,25 @@
     height: 264px;
 }
 
+    .ui-tile .tile-inner {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+    }
+
     .ui-tile .tile-link {
         cursor: pointer;
         position: absolute;
         display: inline-block;
+        width: 100%;
+        height: 100%;
         z-index: 100;
-        background-color: #fff;
-        opacity: .0;
+        background-color: #000;
+        opacity: 0;
     }
 
         .ui-tile .tile-link:hover {
-            background-color: #000;
             opacity: .4;
         }
 
@@ -76,8 +85,15 @@
             position: absolute;
             overflow: hidden;
             width: 100%;
+            height: 100%;
             left: 0;
-            top: 100%;
+            top: 0;
+        }
+
+        .ui-tile .tile-content .update-inner {
+            margin: 10px;
+            padding: 0;
+            line-height: 16px;
         }
 
     .ui-tile .tile-title {
