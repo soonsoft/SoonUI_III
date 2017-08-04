@@ -219,7 +219,7 @@ ui.AnimationStyle = {
 };
 
 //动画执行器
-var Animator = function () {
+function Animator () {
     //动画持续时间
     this.duration = 500;
     //动画的帧，一秒执行多少次

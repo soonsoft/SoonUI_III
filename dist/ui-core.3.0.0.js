@@ -2467,7 +2467,7 @@ ui.AnimationStyle = {
 };
 
 //动画执行器
-var Animator = function () {
+function Animator () {
     //动画持续时间
     this.duration = 500;
     //动画的帧，一秒执行多少次
@@ -2511,53 +2511,57 @@ Animator.prototype.removeTarget = function (option) {
     this.splice(index, 1);
 };
 Animator.prototype.doAnimation = function () {
+    var fps,
+        i, len,
+        that;
+
     if (this.length === 0) {
         return;
     }
 
     this.isStarted = true;
-    var duration = parseInt(this.duration, 10) || 500,
-        fps = parseInt(this.fps, 10) || 60,
-        that = this,
-        i = 0,
-        len = this.length;
+    fps = parseInt(this.fps, 10) || 60;
+    that = this;
+    len = this.length;
     //开始执行的时间
     var startTime = new Date().getTime();
     this.stopHandle = null;
     (function () {
-        var option = null;
         that.stopHandle = requestAnimationFrame(function () {
-            //当前帧开始的时间
-            var newTime = new Date().getTime(),
-                //逝去时间
-                timestamp = newTime - startTime,
+            var newTime,
+                timestamp,
+                option,
+                duration,
                 delta;
+
+            //当前帧开始的时间
+            newTime = new Date().getTime();
+            //逝去时间
+            timestamp = newTime - startTime
+
             for (i = 0; i < len; i++) {
                 option = that[i];
-                if (option.disabled) {
+                duration = option.duration || that.duration;
+                if (option.disabled || timestamp < option.delay) {
                     continue;
                 }
                 try {
-                    delta = option.ease(timestamp / duration);
+                    if(duration + option.delay <= timestamp) {
+                        delta = 1;
+                        option.disabled = true;
+                    } else {
+                        delta = option.ease((timestamp - option.delay) / duration);
+                    }
                     option.current = Math.ceil(option.begin + delta * option.change);
                     option.onChange(option.current, option.target, that);
                 } catch(e) {
                     that.promise._reject(e);
                 }
             }
-            if (duration <= timestamp) {
-                for (i = 0; i < len; i++) {
-                    option = that[i];
-                    try {
-                        option.onChange(option.end, option.target, that);
-                    } catch(e) {
-                        that.promise._reject(e);
-                    }
-                }
-
+            if (that.duration <= timestamp) {
                 that.isStarted = false;
                 that.stopHandle = null;
-                if (ui.core.isFunction(that.onEnd)) {
+                if ($.isFunction(that.onEnd)) {
                     that.onEnd.call(that);
                 }
             } else {
@@ -2567,10 +2571,11 @@ Animator.prototype.doAnimation = function () {
     })();
 };
 Animator.prototype._prepare = function () {
-    var i = 0,
-        option = null,
+    var i, len,
+        option,
+        durationValue,
         disabledCount = 0;
-    for (; i < this.length; i++) {
+    for (i = 0, len = this.length; i < len; i++) {
         option = this[i];
         if (!option) {
             this.splice(i, 1);
@@ -2595,18 +2600,29 @@ Animator.prototype._prepare = function () {
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
         option.ease = option.ease || ui.AnimationStyle.easeFromTo;
+        //动画持续时间
+        option.duration = option.duration || 0;
+        //延迟时间
+        option.delay = option.delay || 0;
+
+        // 更新动画执行时间
+        durationValue = option.duration + option.delay;
+        if(durationValue > this.duration) {
+            this.duration = durationValue;
+        }
     }
     return this.length == disabledCount;
 };
 Animator.prototype.start = function (duration) {
-    var flag,
-        fn,
-        that = this;
+    var _resolve, _reject,
+        promise,
+        flag, fn,
+        that;
+
     this.onBegin = ui.core.isFunction(this.onBegin) ? this.onBegin : noop;
     this.onEnd = ui.core.isFunction(this.onEnd) ? this.onEnd : noop;
     
-    var _resolve, _reject;
-    var promise = new Promise(function(resolve, reject) {
+    promise = new Promise(function(resolve, reject) {
         _resolve = resolve;
         _reject = reject;
     });
@@ -2615,12 +2631,15 @@ Animator.prototype.start = function (duration) {
     this.promise._reject = _reject;
 
     if (!this.isStarted) {
-        if(ui.core.type(duration) === "number" && duration > 0) {
+        if(ui.core.isNumber(duration) && duration > 0) {
             this.duration = duration;
         }
+        this.duration = parseInt(this.duration, 10) || 500;
+
         flag = this._prepare();
         this.onBegin.call(this);
 
+        that = this;
         if (flag) {
             setTimeout(function() {
                 that.onEnd.call(that);

@@ -17,7 +17,10 @@ var tileMargin = 4,
     groupTitleHeight = 48;
 var defineProperty = ui.ctrls.CtrlBase.defineProperty,
     tileInfoProperties = ["name", "title", "icon", "link", "color"];
-var tileUpdater = {
+var tileUpdater,
+    dynamicInfoPrototype;
+
+tileUpdater = {
     // 翻转更新
     rotate: {
         render: function() {
@@ -39,7 +42,8 @@ var tileUpdater = {
         },
         _createAnimator: function() {
             var setRotateFn,
-                perspective;
+                perspective,
+                that;
             
             perspective = this.width * 2;
             setRotateFn = function(val) {
@@ -73,12 +77,42 @@ var tileUpdater = {
                     this.target.css(setRotateFn(val));
                 }
             });
+            that = this;
             this.animator.onEnd = function() {
-                this[0].target.css("display", "none");
+                that.tileInner.css("display", "none");
+                if(this.link) {
+                    this.link.css("display", "inline-block");
+                }
             };
         },
-        update: function() {
+        update: function(content) {
+            var option,
+                temp,
+                children;
 
+            children = this.tilePanel.children(".tile-inner");
+            temp = $(children[0]);
+            if(temp.css("display") === "none") {
+                this.tileInnerBack = temp;
+                this.tileInner = $(children[1]);
+            } else {
+                this.tileInner = $(children[1]);
+                this.tileInnerBack = temp;
+            }
+
+            this.animator.stop();
+            option = this.animator[0];
+            option.target = this.tileInner;
+            option = this.animator[1];
+            option.target = this.tileInnerBack;
+            if(content) {
+                this.tileInnerBack.html(content);
+            }
+            this.tileInnerBack.css("display", "block");
+            if(this.link) {
+                this.link.css("display", "none");
+            }
+            this.animator.start();
         }
     },
     // 上升更新
@@ -92,9 +126,28 @@ var tileUpdater = {
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.iconSrc);
             this.tileInner.append(this.smallIconImg);
-        },
-        update: function() {
 
+            this.animator = ui.animator({
+                target: this.contentPanel,
+                ease: ui.AnimationStyle.easeTo,
+                begin: 0,
+                end: this.height,
+                onChange: function(val) {
+                    this.target.scrollTop(val);
+                }
+            });
+        },
+        update: function(content) {
+            var option;
+
+            if(content) {
+                this.contentPanel.html(content);
+            }
+
+            this.animator.stop();
+            option = this.animator[0];
+            option.begin = option.target.scrollTop();
+            this.animator.start();
         }
     }
 };
@@ -109,6 +162,7 @@ var tileUpdater = {
         icon: string 磁贴图标,
         link: string 磁贴调整的URL，如果为null则点击磁贴不会发生跳转,
         interval: int 动态更新的时间间隔,
+        updateStyle: moveup|rotate
         updateFn: function 动态更新的方法 参数： tile，isLastTile
     }
  */
@@ -149,6 +203,12 @@ Tile.prototype = {
                 });
             }
         });
+
+        if(this.tileInfo.updateStyle === "moveup") {
+            this.updateStyle = tileUpdater.moveup;
+        } else {
+            this.updateStyle = tileUpdater.rotate;
+        }
 
         this.updateFn = 
             ui.core.isFunction(this.tileInfo.updateFn) 
@@ -197,7 +257,7 @@ Tile.prototype = {
                     .append(this.contentPanel)
                     .append(this.titlePanel);
             if(this.isDynamic) {
-                this.renderUpdatePanel();
+                this.updateStyle.render.call(this);
             }
         } else {
             this.iconImg.css("top", (this.height - this.iconSize) / 2 + "px");
@@ -211,17 +271,13 @@ Tile.prototype = {
             this.tilePanel.append(this.linkAnchor);
         }
     },
-    _prepareUpdatePanel: function() {
-        
-    },
-    /** 更新磁贴内容区，推送文字 */
-    updateContent: function(content) {
+    /** 更新磁贴 */
+    updateTile: function(content) {
         var builder,
             i, len;
-
         if(ui.core.isString(content)) {
             builder = ["<p class='update-inner'><span>", content, "</span></p>"];
-            this.updatePanel.html(builder.join(""));
+            builder = builder.join("");
         } else if(Array.isArray(content)) {
             builder = [];
             builder.push("<p class='update-inner'>");
@@ -232,17 +288,14 @@ Tile.prototype = {
                 }
             }
             builder.push("</p>");
-            this.updatePanel.html(builder.join(""));
+            builder = builder.join("");
         } else if(ui.core.isFunction(content)) {
-            content.call(this);
+            builder = content.call(this);
         } else {
             return;
         }
-        
-        // TODO animation
-    },
-    /** 更新整个磁贴 */
-    updateTile: function() {
+
+        this.updateStyle.update.call(this, builder);
     }
 };
 
@@ -592,7 +645,7 @@ TileContainer.prototype = {
 };
 
 // dynamicInfo原型
-var dynamicInfoPrototype = {
+dynamicInfoPrototype = {
     /** 注册动态更新器 */
     register: function() {
         var interval = this.interval,
@@ -620,4 +673,6 @@ var dynamicInfoPrototype = {
         }
     }
 };
+
+ui.TileContainer = TileContainer;
 
