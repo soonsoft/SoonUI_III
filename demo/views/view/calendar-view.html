@@ -1,6 +1,64 @@
 <partial id="title">日历</partial>
 <partial id="header">CALENDAR VIEW</partial>
 
+<partial id="style">
+    <style type="text/css">
+        .filter-tools-item-text {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .toolbar .toolbar-extend .extend-spliter {
+            margin-top: 8px;
+            height: 104px;
+        }
+
+        .toolbar .top-container {
+            width: 150px;
+            height: 96px;
+            line-height: 30px;
+        }
+
+            .toolbar .top-container .tool-button {
+                line-height: 20px;
+                vertical-align: top;
+                margin-top: 6px;
+            }
+
+        .toolbar .bottom-title {
+            width: 100%;
+            text-align: center;
+            height: 24px;
+            line-height: 24px;
+            font-size: 12px;
+        }
+
+        .schedule-editor {
+            position: absolute;
+            display: none;
+            width: 240px;
+            height: auto;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            display: none;
+        }
+
+            .schedule-editor .schedule-editor-container {
+                width: 215px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .schedule-editor .button-panel {
+                margin-top: 12px;
+                margin-bottom: 12px;
+                width: 100%;
+                text-align: right;
+            }
+    </style>
+</partial>
+
 <partial id="content">
     <div id="toolbar" class="toolbar clear">
         <ul class="tools">
@@ -106,64 +164,6 @@
             </div>
         </div>
     </div>
-</partial>
-
-<partial id="style">
-    <style type="text/css">
-        .filter-tools-item-text {
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        .toolbar .toolbar-extend .extend-spliter {
-            margin-top: 8px;
-            height: 104px;
-        }
-
-        .toolbar .top-container {
-            width: 150px;
-            height: 96px;
-            line-height: 30px;
-        }
-
-            .toolbar .top-container .tool-button {
-                line-height: 20px;
-                vertical-align: top;
-                margin-top: 6px;
-            }
-
-        .toolbar .bottom-title {
-            width: 100%;
-            text-align: center;
-            height: 24px;
-            line-height: 24px;
-            font-size: 12px;
-        }
-
-        .schedule-editor {
-            position: absolute;
-            display: none;
-            width: 240px;
-            height: auto;
-            border-width: 2px;
-            border-style: solid;
-            z-index: 9999;
-            display: none;
-        }
-
-            .schedule-editor .schedule-editor-container {
-                width: 215px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .schedule-editor .button-panel {
-                margin-top: 12px;
-                margin-bottom: 12px;
-                width: 100%;
-                text-align: right;
-            }
-    </style>
 </partial>
 
 <partial id="script">

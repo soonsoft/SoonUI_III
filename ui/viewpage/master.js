@@ -58,16 +58,20 @@ var master = {
             that = this;
             this.menu.showed(function(e) {
                 if(this.isExtrusion()) {
-                    that.contentBodyWidth -= this.menuWidth - this.menuNarrowWidth;
-                } else {
-                    that.contentBodyWidth -= this.menuWidth;
+                    if(this.isModern()) {
+                        that.contentBodyWidth -= this.menuWidth - this.menuNarrowWidth;
+                    } else {
+                        that.contentBodyWidth -= this.menuWidth;
+                    }
                 }
             });
             this.menu.hided(function(e) {
                 if(this.isExtrusion()) {
-                    that.contentBodyWidth += this.menuWidth - this.menuNarrowWidth;
-                } else {
-                    that.contentBodyWidth += this.menuWidth;
+                    if(this.isModern()) {
+                        that.contentBodyWidth += this.menuWidth - this.menuNarrowWidth;
+                    } else {
+                        that.contentBodyWidth += this.menuWidth;
+                    }
                 }
             });
         }
@@ -104,7 +108,7 @@ var master = {
         this.contentBodyHeight = bodyMinHeight;
         this.contentBodyWidth = clientWidth;
 
-        if(this.menu) {
+        if(this.menu && this.menu.isShow()) {
             this.menu.resize(this.contentBodyWidth, this.contentBodyHeight);
         }
     },

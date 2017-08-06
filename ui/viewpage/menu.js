@@ -521,6 +521,8 @@ ui.define("ui.ctrls.Menu", {
             extendMethod: "extrusion",
             // 菜单呼出按钮
             menuButton: null,
+            // 菜单默认是显示还是隐藏，默认不显示
+            defaultShow: false,
             // 是否启用动画效果
             animation: true
         };
@@ -929,8 +931,7 @@ ui.define("ui.ctrls.Menu", {
         return this.option.menuButton.hasClass(showClass);
     },
     defaultShow: function() {
-        // TODO
-        return false;
+        return !!this.option.defaultShow;
     },
     isExtrusion: function() {
         return this.option.extendMethod === "extrusion" 
