@@ -35,6 +35,7 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
+            this.smallIconImg.css("display", "block");
             this.tileInnerBack.append(this.smallIconImg);
             
             this.tilePanel.append(this.tileInnerBack);
@@ -82,43 +83,68 @@ tileUpdater = {
             });
             that = this;
             this.animator.onEnd = function() {
-                that.tileInner.css("display", "none");
-                if(this.link) {
-                    this.link.css("display", "inline-block");
-                }
+                this[0].target.css("display", "none");
             };
         },
         update: function(content) {
             var option,
-                temp,
-                children;
+                that;
 
-            children = this.tilePanel.children(".tile-inner");
-            temp = $(children[0]);
-            if(temp.css("display") === "none") {
-                this.tileInner = $(children[1]);
-                this.tileInnerBack = temp;
-            } else {
-                this.tileInner = temp;
-                this.tileInnerBack = $(children[1]);
-                this.smallIconImg.css("display", "block");
-            }
-
-            this.animator.stop();
-            option = this.animator[0];
-            option.target = this.tileInner;
-            option = this.animator[1];
-            option.target = this.tileInnerBack;
             if(content) {
                 this.updatePanel.html(content);
             }
+
+            if(this.animator.isStarted || this.tileInnerBack.css("display") === "block") {
+                return;
+            }
+
+            option = this.animator[0];
+            option.target = this.tileInner;
+            option.begin = 0;
+            option.end = -90;
+
+            option = this.animator[1];
+            option.target = this.tileInnerBack;
+            option.begin = 90;
+            option.end = 0;
+
             if(this.link) {
                 this.link.css("display", "none");
             }
-            this.animator.start();
+            that = this;
+            this.animator.start().done(function() {
+                if(that.link) {
+                    that.link.css("display", "block");
+                }
+            });
         },
         restore: function() {
+            var option,
+                that;
 
+            if(this.animator.isStarted || this.tileInner.css("display") === "block") {
+                return;
+            }
+
+            option = this.animator[0];
+            option.target = this.tileInnerBack;
+            option.begin = 0;
+            option.end = 90;
+
+            option = this.animator[1];
+            option.target = this.tileInner;
+            option.begin = -90;
+            option.end = 0;
+
+            if(this.link) {
+                this.link.css("display", "none");
+            }
+            that = this;
+            this.animator.start().done(function() {
+                if(that.link) {
+                    that.link.css("display", "block");
+                }
+            });
         }
     },
     // 上升更新
