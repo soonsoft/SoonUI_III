@@ -86,6 +86,22 @@ tileUpdater = {
                 this[0].target.css("display", "none");
             };
         },
+        _play: function() {
+            var that = this;
+            if(this.link) {
+                this.link.css("display", "none");
+            }
+            that = this;
+            this.animator.start().done(function() {
+                var temp;
+                temp = that.tileInnerBack;
+                that.tileInnerBack = that.tileInner;
+                that.tileInner = temp;
+                if(that.link) {
+                    that.link.css("display", "block");
+                }
+            });
+        },
         update: function(content) {
             var option,
                 that;
@@ -108,15 +124,7 @@ tileUpdater = {
             option.begin = 90;
             option.end = 0;
 
-            if(this.link) {
-                this.link.css("display", "none");
-            }
-            that = this;
-            this.animator.start().done(function() {
-                if(that.link) {
-                    that.link.css("display", "block");
-                }
-            });
+            this.updateStyle._play.call(this);
         },
         restore: function() {
             var option,
@@ -127,24 +135,16 @@ tileUpdater = {
             }
 
             option = this.animator[0];
-            option.target = this.tileInnerBack;
+            option.target = this.tileInner;
             option.begin = 0;
             option.end = 90;
 
             option = this.animator[1];
-            option.target = this.tileInner;
+            option.target = this.tileInnerBack;
             option.begin = -90;
             option.end = 0;
 
-            if(this.link) {
-                this.link.css("display", "none");
-            }
-            that = this;
-            this.animator.start().done(function() {
-                if(that.link) {
-                    that.link.css("display", "block");
-                }
-            });
+            this.updateStyle._play.call(this);
         }
     },
     // 上升更新
