@@ -109,7 +109,7 @@ tileUpdater = {
                 this.updatePanel.html(content);
             }
 
-            if(this.animator.isStarted || this.tileInnerBack.css("display") === "block") {
+            if(this.tileInnerBack.css("display") === "block") {
                 return;
             }
 
@@ -129,7 +129,7 @@ tileUpdater = {
             var option,
                 that;
 
-            if(this.animator.isStarted || this.tileInner.css("display") === "block") {
+            if(this.tileInner.css("display") === "block") {
                 return;
             }
 
@@ -230,6 +230,7 @@ Tile.prototype = {
 
         this.group = group;
         this.isDynamic = false;
+        this.isDynamicChanged = false;
 
         this.width = type.width;
         this.height = type.height;
@@ -341,10 +342,16 @@ Tile.prototype = {
             return;
         }
 
-        this.updateStyle.update.call(this, builder);
+        if(!this.animator.isStarted) {
+            this.updateStyle.update.call(this, builder);
+            this.isDynamicChanged = true;
+        }
     },
     restore: function() {
-        this.updateStyle.restore.call(this);
+        if(!this.animator.isStarted) {
+            this.updateStyle.restore.call(this);
+            this.isDynamicChanged = false;
+        }
     }
 };
 
