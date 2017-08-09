@@ -35,7 +35,6 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
-            this.smallIconImg.css("display", "block");
             this.tileInnerBack.append(this.smallIconImg);
             
             this.tilePanel.append(this.tileInnerBack);
@@ -157,18 +156,18 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
-            this.tileInner.append(this.smallIconImg);
+            this.updatePanel.append(this.smallIconImg);
 
             this.animator = ui.animator({
                 target: this.contentPanel,
                 ease: ui.AnimationStyle.easeFromTo,
+                duration: 800,
                 begin: 0,
                 end: this.height,
                 onChange: function(val) {
                     this.target.scrollTop(val);
                 }
             });
-            this.animator.duration = 600;
         },
         update: function(content) {
             var option;
@@ -176,7 +175,6 @@ tileUpdater = {
             if(content) {
                 this.updatePanel.html(content);
             }
-            this.smallIconImg.css("display", "block");
 
             this.animator.stop();
             option = this.animator[0];
@@ -293,9 +291,9 @@ Tile.prototype = {
         this.smallIconImg = null;
         if(this.type !== "small") {
             // 内容面板
-            this.contentHeight = this.height - titleHeight;
+            //this.contentHeight = this.height - titleHeight;
             this.contentPanel = $("<div class='tile-content' />");
-            this.contentPanel.css("height", this.contentHeight + "px");
+            //this.contentPanel.css("height", this.contentHeight + "px");
             this.contentPanel.append(this.iconImg);
 
             // 磁贴标题
