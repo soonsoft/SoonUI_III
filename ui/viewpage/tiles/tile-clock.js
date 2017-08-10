@@ -36,7 +36,7 @@ clockStyle = {
                 .html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            tile.update();
         }
     },
     wide: function(tile) {
@@ -54,7 +54,7 @@ clockStyle = {
                 .html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            tile.update();
         }
     },
     large: function(tile) {
@@ -64,5 +64,5 @@ clockStyle = {
 
 ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
-    //tile.register();
+    tile.register();
 };

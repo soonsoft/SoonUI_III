@@ -235,6 +235,7 @@ Tile.prototype = {
 
         this.group = group;
         this.isDynamic = false;
+        this.isActivated = false;
         this.isDynamicChanged = false;
 
         this.width = type.width;
@@ -268,6 +269,7 @@ Tile.prototype = {
                 : null;
         if(this.updateFn) {
             this.isDynamic = true;
+            this.isActivated = true;
             this.interval = 
                 ui.core.isNumber(this.tileInfo.interval)
                     ? this.tileInfo.interval
@@ -324,7 +326,7 @@ Tile.prototype = {
         }
     },
     /** 更新磁贴 */
-    updateTile: function(content) {
+    update: function(content) {
         var builder,
             i, len;
         if(ui.core.isString(content)) {
@@ -345,16 +347,22 @@ Tile.prototype = {
             builder = content.call(this);
         }
 
+        this.isActivated = false;
         if(!this.animator.isStarted) {
             this.updateStyle.update.call(this, builder);
             this.isDynamicChanged = true;
         }
     },
+    /** 恢复磁贴的初始样子 */
     restore: function() {
         if(!this.animator.isStarted) {
             this.updateStyle.restore.call(this);
             this.isDynamicChanged = false;
         }
+    },
+    /** 激活磁贴自动更新 */
+    activate: function() {
+        this.isActivated = true;
     }
 };
 
