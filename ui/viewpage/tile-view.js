@@ -108,8 +108,7 @@ tileUpdater = {
             if(content) {
                 this.updatePanel.html(content);
             }
-
-            if(this.tileInnerBack.css("display") === "block") {
+            if(this.isDynamicChanged) {
                 return;
             }
 
@@ -129,7 +128,7 @@ tileUpdater = {
             var option,
                 that;
 
-            if(this.tileInner.css("display") === "block") {
+            if(!this.isDynamicChanged) {
                 return;
             }
 
@@ -175,6 +174,9 @@ tileUpdater = {
             if(content) {
                 this.updatePanel.html(content);
             }
+            if(this.isDynamicChanged) {
+                return;
+            }
 
             this.animator.stop();
             option = this.animator[0];
@@ -184,6 +186,9 @@ tileUpdater = {
         restore: function() {
             var option;
 
+            if(!this.isDynamicChanged) {
+                return;
+            }
             this.animator.stop();
             option = this.animator[0];
             if(option.target.scrollTop() === 0) {
@@ -338,8 +343,6 @@ Tile.prototype = {
             builder = builder.join("");
         } else if(ui.core.isFunction(content)) {
             builder = content.call(this);
-        } else {
-            return;
         }
 
         if(!this.animator.isStarted) {
@@ -736,6 +739,9 @@ DynamicInfo.prototype = {
     /** 注册动态更新器 */
     register: function(interval) {
         var that = this;
+        if(this.dynamicDelayHandler) {
+            return;
+        }
         if(!ui.core.isNumber(interval) || interval <= 0) {
             interval = this.interval
         } else {
@@ -750,6 +756,7 @@ DynamicInfo.prototype = {
     unregister: function() {
         if(this.dynamicDelayHandler) {
             clearTimeout(this.dynamicDelayHandler);
+            this.dynamicDelayHandler = null;
         }
     },
     /** 开始更新 */

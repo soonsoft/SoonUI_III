@@ -1,7 +1,7 @@
 // 时钟动态磁贴
 var clockStyle;
 
-if(ui.tiles) {
+if(!ui.tiles) {
     ui.tiles = {};
 }
 
@@ -28,11 +28,10 @@ clockStyle = {
         now = getNow();
         builder = [];
 
-        builder.push("<span class='clock-text'>", now.hour, "</span>");
-        builder.push("<hr class='clock-spliter' />");
-        builder.push("<span class='clock-text'>", now.minute, "</span>");
+        builder.push("<span class='clock-hour'>", now.hour, "</span>");
+        builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        this.updatePanel
+        tile.updatePanel
                 .css("text-align", "center")
                 .html(builder.join(""));
 
@@ -46,11 +45,11 @@ clockStyle = {
         now = getNow();
         builder = [];
 
-        builder.push("<span class='clock-text'>", now.hour, "</span>");
-        builder.push("<span class='clock-spliter'>", now.spliter, "</span>");
-        builder.push("<span class='clock-text'>", now.minute, "</span>");
+        builder.push("<span class='clock-hour'>", now.hour, "</span>");
+        builder.push("<span class='clock-spliter'></span>");
+        builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        this.updatePanel
+        tile.updatePanel
                 .css({ "text-align": "center", "line-height": tile.height + "px" })
                 .html(builder.join(""));
 
@@ -59,25 +58,11 @@ clockStyle = {
         }
     },
     large: function(tile) {
-        var now,
-            builder;
-        now = getNow();
-        builder = [];
-
-        builder.push("<span class='clock-text'>", now.hour, "</span>");
-        builder.push("<span class='clock-spliter'>", now.spliter, "</span>");
-        builder.push("<span class='clock-text'>", now.minute, "</span>");
-
-        this.updatePanel
-                .css({ "text-align": "center", "line-height": tile.height + "px" })
-                .html(builder.join(""));
-
-        if(!tile.isDynamicChanged) {
-            tile.updateTile();
-        }
+        clockStyle.wide.call(this, arguments);
     }
 };
 
-ui.tiles.updateClock = function(tile) {
+ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
+    //tile.register();
 };

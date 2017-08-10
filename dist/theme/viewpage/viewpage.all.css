@@ -452,7 +452,7 @@
 .ui-tile {
   position: absolute;
   overflow: visible;
-  font-family: 'Segoe UI', 'Microsoft YaHei light', 'Microsoft YaHei';
+  font-family: 'Microsoft YaHei light', 'Microsoft YaHei';
 }
 .tile-small {
   width: 62px;
@@ -486,16 +486,15 @@
   background-color: #000;
   opacity: 0;
 }
-.ui-tile .tile-link:hover {
+.ui-tile .tile-link:active {
   opacity: .4;
 }
 .ui-tile .tile-content {
   position: absolute;
   left: 0;
   top: 0;
-  right: 0;
-  bottom: 24px;
   width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 .ui-tile .tile-inner .update-panel {
@@ -541,6 +540,62 @@
 .ui-tile .tile-small-icon-show {
   display: block;
 }
+
+/* tile-calendar */
+
+.tile-medium .clock-hour {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 50%;
+  top: 0;
+  left: 0;
+  font-size: 48px;
+  line-height: 1.3em;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+}
+.tile-medium .clock-minute {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 50%;
+  top: 50%;
+  left: 0;
+  font-size: 48px;
+  line-height: 1.2em;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  opacity: .7;
+}
+.tile-medium .clock-spliter {
+  width: 60%;
+  margin-left: 20%;
+  background-color: #fff;
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+}
+.tile-wide .clock-hour,
+.tile-large .clock-hour {
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+  font-size: 64px;
+}
+.tile-wide .clock-minute,
+.tile-large .clock-minute {
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-size: 64px;
+  opacity: .7;
+}
+.tile-wide .clock-spliter,
+.tile-large .clock-spliter {
+  font-size: 64px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
 
 .user-settings {
   position: absolute;

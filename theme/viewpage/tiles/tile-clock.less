@@ -7,15 +7,10 @@
     height: 50%;
     top: 0;
     left: 0;
-    font-size: 24px;
-}
-
-.tile-medium .clock-hour-text {
-    position: absolute;
-    display: inline-block;
-    left: 0;
-    top: 0;
-    font-size: 12px;
+    font-size: 48px;
+    line-height: 1.3em;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    font-weight: bold;
 }
 
 .tile-medium .clock-minute {
@@ -25,15 +20,10 @@
     height: 50%;
     top: 50%;
     left: 0;
-    font-size: 24px;
-}
-
-.tile-medium .clock-minute-text {
-    position: absolute;
-    display: inline-block;
-    left: 0;
-    top: 0;
-    font-size: 12px;
+    font-size: 48px;
+    line-height: 1.2em;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    opacity: .7;
 }
 
 .tile-medium .clock-spliter {
@@ -47,12 +37,23 @@
 }
 
 
-.tile-wide .clock-text,
-.tile-large .clock-text {
-    font-size: 48px;
+.tile-wide .clock-hour,
+.tile-large .clock-hour {
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    font-weight: bold;
+    font-size: 64px;
+}
+
+.tile-wide .clock-minute,
+.tile-large .clock-minute {
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    font-size: 64px;
+    opacity: .7;
 }
 
 .tile-wide .clock-spliter,
 .tile-large .clock-spliter {
-    font-size: 48px;
+    font-size: 64px;
+    margin-left: 10px;
+    margin-right: 10px;
 }

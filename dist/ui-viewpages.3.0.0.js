@@ -1479,43 +1479,67 @@ tileUpdater = {
             });
             that = this;
             this.animator.onEnd = function() {
-                that.tileInner.css("display", "none");
-                if(this.link) {
-                    this.link.css("display", "inline-block");
-                }
+                this[0].target.css("display", "none");
             };
         },
-        update: function(content) {
-            var option,
-                temp,
-                children;
-
-            children = this.tilePanel.children(".tile-inner");
-            temp = $(children[0]);
-            if(temp.css("display") === "none") {
-                this.tileInner = $(children[1]);
-                this.tileInnerBack = temp;
-            } else {
-                this.tileInner = temp;
-                this.tileInnerBack = $(children[1]);
-                this.smallIconImg.css("display", "block");
-            }
-
-            this.animator.stop();
-            option = this.animator[0];
-            option.target = this.tileInner;
-            option = this.animator[1];
-            option.target = this.tileInnerBack;
-            if(content) {
-                this.updatePanel.html(content);
-            }
+        _play: function() {
+            var that = this;
             if(this.link) {
                 this.link.css("display", "none");
             }
-            this.animator.start();
+            that = this;
+            this.animator.start().done(function() {
+                var temp;
+                temp = that.tileInnerBack;
+                that.tileInnerBack = that.tileInner;
+                that.tileInner = temp;
+                if(that.link) {
+                    that.link.css("display", "block");
+                }
+            });
+        },
+        update: function(content) {
+            var option,
+                that;
+
+            if(content) {
+                this.updatePanel.html(content);
+            }
+            if(this.isDynamicChanged) {
+                return;
+            }
+
+            option = this.animator[0];
+            option.target = this.tileInner;
+            option.begin = 0;
+            option.end = -90;
+
+            option = this.animator[1];
+            option.target = this.tileInnerBack;
+            option.begin = 90;
+            option.end = 0;
+
+            this.updateStyle._play.call(this);
         },
         restore: function() {
+            var option,
+                that;
 
+            if(!this.isDynamicChanged) {
+                return;
+            }
+
+            option = this.animator[0];
+            option.target = this.tileInner;
+            option.begin = 0;
+            option.end = 90;
+
+            option = this.animator[1];
+            option.target = this.tileInnerBack;
+            option.begin = -90;
+            option.end = 0;
+
+            this.updateStyle._play.call(this);
         }
     },
     // 上升更新
@@ -1528,18 +1552,18 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
-            this.tileInner.append(this.smallIconImg);
+            this.updatePanel.append(this.smallIconImg);
 
             this.animator = ui.animator({
                 target: this.contentPanel,
                 ease: ui.AnimationStyle.easeFromTo,
+                duration: 800,
                 begin: 0,
                 end: this.height,
                 onChange: function(val) {
                     this.target.scrollTop(val);
                 }
             });
-            this.animator.duration = 600;
         },
         update: function(content) {
             var option;
@@ -1547,7 +1571,9 @@ tileUpdater = {
             if(content) {
                 this.updatePanel.html(content);
             }
-            this.smallIconImg.css("display", "block");
+            if(this.isDynamicChanged) {
+                return;
+            }
 
             this.animator.stop();
             option = this.animator[0];
@@ -1557,6 +1583,9 @@ tileUpdater = {
         restore: function() {
             var option;
 
+            if(!this.isDynamicChanged) {
+                return;
+            }
             this.animator.stop();
             option = this.animator[0];
             if(option.target.scrollTop() === 0) {
@@ -1603,6 +1632,7 @@ Tile.prototype = {
 
         this.group = group;
         this.isDynamic = false;
+        this.isDynamicChanged = false;
 
         this.width = type.width;
         this.height = type.height;
@@ -1664,9 +1694,9 @@ Tile.prototype = {
         this.smallIconImg = null;
         if(this.type !== "small") {
             // 内容面板
-            this.contentHeight = this.height - titleHeight;
+            //this.contentHeight = this.height - titleHeight;
             this.contentPanel = $("<div class='tile-content' />");
-            this.contentPanel.css("height", this.contentHeight + "px");
+            //this.contentPanel.css("height", this.contentHeight + "px");
             this.contentPanel.append(this.iconImg);
 
             // 磁贴标题
@@ -1710,14 +1740,18 @@ Tile.prototype = {
             builder = builder.join("");
         } else if(ui.core.isFunction(content)) {
             builder = content.call(this);
-        } else {
-            return;
         }
 
-        this.updateStyle.update.call(this, builder);
+        if(!this.animator.isStarted) {
+            this.updateStyle.update.call(this, builder);
+            this.isDynamicChanged = true;
+        }
     },
     restore: function() {
-        this.updateStyle.restore.call(this);
+        if(!this.animator.isStarted) {
+            this.updateStyle.restore.call(this);
+            this.isDynamicChanged = false;
+        }
     }
 };
 
@@ -2102,6 +2136,9 @@ DynamicInfo.prototype = {
     /** 注册动态更新器 */
     register: function(interval) {
         var that = this;
+        if(this.dynamicDelayHandler) {
+            return;
+        }
         if(!ui.core.isNumber(interval) || interval <= 0) {
             interval = this.interval
         } else {
@@ -2116,6 +2153,7 @@ DynamicInfo.prototype = {
     unregister: function() {
         if(this.dynamicDelayHandler) {
             clearTimeout(this.dynamicDelayHandler);
+            this.dynamicDelayHandler = null;
         }
     },
     /** 开始更新 */
@@ -2133,6 +2171,109 @@ DynamicInfo.prototype = {
 
 ui.TileContainer = TileContainer;
 
+
+
+})(jQuery, ui);
+
+// Source: ui/viewpage/tiles/tile-calendar.js
+"use strict";
+
+(function($, ui) {
+// 日期动态磁贴
+
+
+})(jQuery, ui);
+
+// Source: ui/viewpage/tiles/tile-clock.js
+"use strict";
+
+(function($, ui) {
+// 时钟动态磁贴
+var clockStyle;
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+function twoNumberFormatter(number) {
+    return number < 10 ? "0" + number : "" + number;
+}
+
+function getNow() {
+    var date,
+        now;
+    date = new Date();
+    now = {
+        hour: twoNumberFormatter(date.getHours()),
+        minute: twoNumberFormatter(date.getMinutes()),
+        spliter: ":"
+    };
+    return now;
+}
+
+clockStyle = {
+    medium: function(tile) {
+        var now,
+            builder;
+        now = getNow();
+        builder = [];
+
+        builder.push("<span class='clock-hour'>", now.hour, "</span>");
+        builder.push("<span class='clock-minute'>", now.minute, "</span>");
+
+        tile.updatePanel
+                .css("text-align", "center")
+                .html(builder.join(""));
+
+        if(!tile.isDynamicChanged) {
+            tile.updateTile();
+        }
+    },
+    wide: function(tile) {
+        var now,
+            builder;
+        now = getNow();
+        builder = [];
+
+        builder.push("<span class='clock-hour'>", now.hour, "</span>");
+        builder.push("<span class='clock-spliter'></span>");
+        builder.push("<span class='clock-minute'>", now.minute, "</span>");
+
+        tile.updatePanel
+                .css({ "text-align": "center", "line-height": tile.height + "px" })
+                .html(builder.join(""));
+
+        if(!tile.isDynamicChanged) {
+            tile.updateTile();
+        }
+    },
+    large: function(tile) {
+        clockStyle.wide.call(this, arguments);
+    }
+};
+
+ui.tiles.clock = function(tile) {
+    clockStyle[tile.type].apply(this, arguments);
+    //this.register();
+};
+
+
+})(jQuery, ui);
+
+// Source: ui/viewpage/tiles/tile-picture.js
+"use strict";
+
+(function($, ui) {
+// 图片动态磁贴
+
+
+})(jQuery, ui);
+
+// Source: ui/viewpage/tiles/tile-weather.js
+"use strict";
+
+(function($, ui) {
+// 天气可交互磁贴
 
 
 })(jQuery, ui);
