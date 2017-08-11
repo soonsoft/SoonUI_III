@@ -746,7 +746,7 @@ TileContainer.prototype = {
         }
 
         this.dynamicTiles.set(tileName, dynamicTile);
-        tile.activate();
+        dynamicTile.activate();
     },
     /** 获取动态磁贴 */
     getDynamicTileByName: function(tileName) {

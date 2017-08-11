@@ -24453,9 +24453,8 @@ var tileMargin = 4,
     edgeDistance = 48,
     groupTitleHeight = 48;
 var defineProperty = ui.ctrls.CtrlBase.prototype.defineProperty,
-    tileInfoProperties = ["name", "title", "icon", "link", "color"];
-var tileUpdater,
-    dynamicInfoPrototype;
+    tileInfoProperties = ["name", "title", "icon", "link", "color"],
+    tileUpdater;
 
 tileUpdater = {
     // 翻转更新
@@ -24672,6 +24671,7 @@ Tile.prototype = {
 
         this.group = group;
         this.isDynamic = false;
+        this.isActivated = false;
         this.isDynamicChanged = false;
 
         this.width = type.width;
@@ -24734,9 +24734,7 @@ Tile.prototype = {
         this.smallIconImg = null;
         if(this.type !== "small") {
             // 内容面板
-            //this.contentHeight = this.height - titleHeight;
             this.contentPanel = $("<div class='tile-content' />");
-            //this.contentPanel.css("height", this.contentHeight + "px");
             this.contentPanel.append(this.iconImg);
 
             // 磁贴标题
@@ -24761,7 +24759,7 @@ Tile.prototype = {
         }
     },
     /** 更新磁贴 */
-    updateTile: function(content) {
+    update: function(content) {
         var builder,
             i, len;
         if(ui.core.isString(content)) {
@@ -24782,15 +24780,25 @@ Tile.prototype = {
             builder = content.call(this);
         }
 
+        this.isActivated = false;
         if(!this.animator.isStarted) {
             this.updateStyle.update.call(this, builder);
             this.isDynamicChanged = true;
         }
     },
+    /** 恢复磁贴的初始样子 */
     restore: function() {
         if(!this.animator.isStarted) {
             this.updateStyle.restore.call(this);
             this.isDynamicChanged = false;
+        }
+    },
+    /** 激活磁贴自动更新 */
+    activate: function(needRegister) {
+        this.isActivated = true;
+        this.activeTime = (new Date()).getTime() + (this.interval * 1000);
+        if(needRegister !== false) {
+            this.group.container.activateDynamicTile(this);
         }
     }
 };
@@ -24994,8 +25002,8 @@ function TileContainer(containerPanel) {
 TileContainer.prototype = {
     initialize: function(containerPanel) {
         this.groups = [];
-        this.dynamicMap = {};
-        this.dynamicTiles = {};
+        this.dynamicTiles = ui.KeyArray();
+        this.dynamicTiles.activeCount = 0;
 
         this.container = ui.getJQueryElement(containerPanel);
         if(!this.container) {
@@ -25006,6 +25014,36 @@ TileContainer.prototype = {
         // 添加底部留白占位符
         this.tileMargin = $("<div class='tile-margin' />");
         this.container.append(this.tileMargin);
+    },
+    // 注册动态磁贴更新器
+    _register: function(interval) {
+        var that;
+        if(this.dynamicTiles.activeCount <= 0 || this.dynamicDelayHandler) {
+            return;
+        }
+        if(!ui.core.isNumber(interval) || interval <= 0) {
+            interval = 1000;
+        }
+        that = this;
+        this.dynamicDelayHandler = setTimeout(function() {
+            var i, len,
+                tile, currentTime;
+            currentTime = (new Date()).getTime();
+            that.dynamicDelayHandler = null;
+            if(that.dynamicTiles.activeCount > 0) {
+                for(i = 0, len = that.dynamicTiles.length; i < len; i++) {
+                    tile = that.dynamicTiles[i];
+                    if(tile.isActivated && currentTime > tile.activeTime) {
+                        tile.isActivated = false;
+                        that.dynamicTiles.activeCount--;
+                        tile.updateFn.call(this, tile);
+                    }
+                }
+                if(that.dynamicTiles.activeCount > 0) {
+                    that._register();
+                }
+            }
+        }, interval);
     },
     _calculateGroupLayoutInfo: function(containerWidth) {
         var size,
@@ -25144,73 +25182,27 @@ TileContainer.prototype = {
             throw new TypeError("The dynamicTile is exist which name is '" + tileName + "'");
         }
 
-        this.dynamicTiles[tileName] = dynamicTile;
-        interval = dynamicTile.interval;
-        dynamicInfo = this.dynamicMap[interval];
-        if(!dynamicInfo) {
-            dynamicInfo = new DynamicInfo(this, interval);
-            dynamicInfo.register();
-            this.dynamicMap[interval] = dynamicInfo;
-        }
-        dynamicInfo.tiles.push(tileName);
+        this.dynamicTiles.set(tileName, dynamicTile);
+        dynamicTile.activate();
     },
     /** 获取动态磁贴 */
     getDynamicTileByName: function(tileName) {
         var dynamicTile;
 
-        dynamicTile = this.dynamicTiles[tileName + ""];
+        dynamicTile = this.dynamicTiles.get(tileName + "");
         if(!dynamicTile) {
             return null;
         }
         return dynamicTile;
-    }
-};
-
-// dynamicInfo
-function DynamicInfo(context, interval) {
-    this.context = context;
-    this.interval = interval;
-    this.tiles = [];
-}
-DynamicInfo.prototype = {
-    /** 注册动态更新器 */
-    register: function(interval) {
-        var that = this;
-        if(this.dynamicDelayHandler) {
-            return;
-        }
-        if(!ui.core.isNumber(interval) || interval <= 0) {
-            interval = this.interval
-        } else {
-            this.interval = interval;
-        }
-        this.dynamicDelayHandler = setTimeout(function() {
-            that.dynamicDelayHandler = null;
-            that.update();
-        }, interval * 1000);
     },
-    /** 取消注册 */
-    unregister: function() {
-        if(this.dynamicDelayHandler) {
-            clearTimeout(this.dynamicDelayHandler);
-            this.dynamicDelayHandler = null;
-        }
+    /** 再次激活动态磁贴 */
+    activateDynamicTile: function(tile) {
+        this.dynamicTiles.activeCount++;
+        this._register(); 
     },
-    /** 开始更新 */
-    update: function() {
-        var i, len,
-            tile;
-        for(i = 0, len = this.tiles.length; i < len; i++) {
-            tile = this.context.dynamicTiles[this.tiles[i]];
-            if(ui.core.isFunction(tile.updateFn)) {
-                tile.updateFn.call(this, tile, i === len - 1);
-            }
-        }
-    }
 };
 
 ui.TileContainer = TileContainer;
-
 
 
 })(jQuery, ui);
@@ -25220,6 +25212,61 @@ ui.TileContainer = TileContainer;
 
 (function($, ui) {
 // 日期动态磁贴
+var calendarStyle,
+    weekChars;
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+weekChars = "日一二三四五六";
+
+function twoNumberFormatter(number) {
+    return number < 10 ? "0" + number : "" + number;
+}
+
+function getNow() {
+    var date,
+        now;
+    date = new Date();
+    now = {
+        year: date.getFullYear(),
+        month: twoNumberFormatter(date.getMonth() + 1),
+        day: date.getDate().toString(),
+        week: "星期" + weekChars.charAt(date.getDay())
+    };
+    return now;
+}
+
+calendarStyle = {
+    medium: function(tile) {
+        var now,
+            builder;
+        now = getNow();
+        builder = [];
+
+        builder.push("<span class='day-text'>", now.day, "</span>");
+        builder.push("<span class='week-text'>", now.week, "</span>");
+        builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
+
+        tile.updatePanel.html(builder.join(""));
+
+        if(!tile.isDynamicChanged) {
+            tile.update();
+        }
+    },
+    wide: function(tile) {
+
+    },
+    large: function(tile) {
+
+    }
+};
+
+ui.tiles.calendar = function(tile) {
+    calendarStyle[tile.type].apply(this, arguments);
+    //tile.activate();
+};
 
 
 })(jQuery, ui);
@@ -25261,12 +25308,15 @@ clockStyle = {
         builder.push("<span class='clock-hour'>", now.hour, "</span>");
         builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        tile.updatePanel
-                .css("text-align", "center")
-                .html(builder.join(""));
+        tile.updatePanel.html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            tile.updatePanel
+                .css({ 
+                    "text-align": "center", 
+                    "height": tile.height + "px"
+                });
+            tile.update();
         }
     },
     wide: function(tile) {
@@ -25279,12 +25329,16 @@ clockStyle = {
         builder.push("<span class='clock-spliter'></span>");
         builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        tile.updatePanel
-                .css({ "text-align": "center", "line-height": tile.height + "px" })
-                .html(builder.join(""));
+        tile.updatePanel.html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            tile.updatePanel
+                .css({ 
+                    "text-align": "center", 
+                    "line-height": tile.height - 8 + "px",
+                    "height": tile.height + "px"
+                });
+            tile.update();
         }
     },
     large: function(tile) {
@@ -25294,7 +25348,7 @@ clockStyle = {
 
 ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
-    //this.register();
+    //tile.activate();
 };
 
 

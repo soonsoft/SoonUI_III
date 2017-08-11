@@ -31,11 +31,14 @@ clockStyle = {
         builder.push("<span class='clock-hour'>", now.hour, "</span>");
         builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        tile.updatePanel
-                .css("text-align", "center")
-                .html(builder.join(""));
+        tile.updatePanel.html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
+            tile.updatePanel
+                .css({ 
+                    "text-align": "center", 
+                    "height": tile.height + "px"
+                });
             tile.update();
         }
     },
@@ -49,11 +52,15 @@ clockStyle = {
         builder.push("<span class='clock-spliter'></span>");
         builder.push("<span class='clock-minute'>", now.minute, "</span>");
 
-        tile.updatePanel
-                .css({ "text-align": "center", "line-height": tile.height + "px" })
-                .html(builder.join(""));
+        tile.updatePanel.html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
+            tile.updatePanel
+                .css({ 
+                    "text-align": "center", 
+                    "line-height": tile.height - 8 + "px",
+                    "height": tile.height + "px"
+                });
             tile.update();
         }
     },
@@ -64,5 +71,5 @@ clockStyle = {
 
 ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
-    tile.register();
+    //tile.activate();
 };

@@ -32,16 +32,14 @@ calendarStyle = {
         now = getNow();
         builder = [];
 
-        builder.push("<span>", now.day, "</span>");
-        builder.push("<span>", now.week, "</span>");
-        builder.push("<span>", now.year, ".", now.month, "</span>");
+        builder.push("<span class='day-text'>", now.day, "</span>");
+        builder.push("<span class='week-text'>", now.week, "</span>");
+        builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
-        this.updatePanel.html(builder.join(""));
+        tile.updatePanel.html(builder.join(""));
 
         if(!tile.isDynamicChanged) {
-            this.updatePanel
-                .css("text-align", "center");
-            tile.updateTile();
+            tile.update();
         }
     },
     wide: function(tile) {
@@ -54,5 +52,5 @@ calendarStyle = {
 
 ui.tiles.calendar = function(tile) {
     calendarStyle[tile.type].apply(this, arguments);
-    tile.activate();
+    //tile.activate();
 };
