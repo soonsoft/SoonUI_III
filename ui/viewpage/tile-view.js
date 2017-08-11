@@ -16,9 +16,8 @@ var tileMargin = 4,
     edgeDistance = 48,
     groupTitleHeight = 48;
 var defineProperty = ui.ctrls.CtrlBase.prototype.defineProperty,
-    tileInfoProperties = ["name", "title", "icon", "link", "color"];
-var tileUpdater,
-    dynamicInfoPrototype;
+    tileInfoProperties = ["name", "title", "icon", "link", "color"],
+    tileUpdater;
 
 tileUpdater = {
     // 翻转更新
@@ -269,7 +268,6 @@ Tile.prototype = {
                 : null;
         if(this.updateFn) {
             this.isDynamic = true;
-            this.isActivated = true;
             this.interval = 
                 ui.core.isNumber(this.tileInfo.interval)
                     ? this.tileInfo.interval
@@ -299,9 +297,7 @@ Tile.prototype = {
         this.smallIconImg = null;
         if(this.type !== "small") {
             // 内容面板
-            //this.contentHeight = this.height - titleHeight;
             this.contentPanel = $("<div class='tile-content' />");
-            //this.contentPanel.css("height", this.contentHeight + "px");
             this.contentPanel.append(this.iconImg);
 
             // 磁贴标题
@@ -361,8 +357,12 @@ Tile.prototype = {
         }
     },
     /** 激活磁贴自动更新 */
-    activate: function() {
+    activate: function(needRegister) {
         this.isActivated = true;
+        this.activeTime = (new Date()).getTime() + (this.interval * 1000);
+        if(needRegister !== false) {
+            this.group.container.activateDynamicTile(this);
+        }
     }
 };
 
@@ -565,8 +565,8 @@ function TileContainer(containerPanel) {
 TileContainer.prototype = {
     initialize: function(containerPanel) {
         this.groups = [];
-        this.dynamicMap = {};
-        this.dynamicTiles = {};
+        this.dynamicTiles = ui.KeyArray();
+        this.dynamicTiles.activeCount = 0;
 
         this.container = ui.getJQueryElement(containerPanel);
         if(!this.container) {
@@ -577,6 +577,36 @@ TileContainer.prototype = {
         // 添加底部留白占位符
         this.tileMargin = $("<div class='tile-margin' />");
         this.container.append(this.tileMargin);
+    },
+    // 注册动态磁贴更新器
+    _register: function(interval) {
+        var that;
+        if(this.dynamicTiles.activeCount <= 0 || this.dynamicDelayHandler) {
+            return;
+        }
+        if(!ui.core.isNumber(interval) || interval <= 0) {
+            interval = 1000;
+        }
+        that = this;
+        this.dynamicDelayHandler = setTimeout(function() {
+            var i, len,
+                tile, currentTime;
+            currentTime = (new Date()).getTime();
+            that.dynamicDelayHandler = null;
+            if(that.dynamicTiles.activeCount > 0) {
+                for(i = 0, len = that.dynamicTiles.length; i < len; i++) {
+                    tile = that.dynamicTiles[i];
+                    if(tile.isActivated && currentTime > tile.activeTime) {
+                        tile.isActivated = false;
+                        that.dynamicTiles.activeCount--;
+                        tile.updateFn.call(this, tile);
+                    }
+                }
+                if(that.dynamicTiles.activeCount > 0) {
+                    that._register();
+                }
+            }
+        }, interval);
     },
     _calculateGroupLayoutInfo: function(containerWidth) {
         var size,
@@ -715,70 +745,24 @@ TileContainer.prototype = {
             throw new TypeError("The dynamicTile is exist which name is '" + tileName + "'");
         }
 
-        this.dynamicTiles[tileName] = dynamicTile;
-        interval = dynamicTile.interval;
-        dynamicInfo = this.dynamicMap[interval];
-        if(!dynamicInfo) {
-            dynamicInfo = new DynamicInfo(this, interval);
-            dynamicInfo.register();
-            this.dynamicMap[interval] = dynamicInfo;
-        }
-        dynamicInfo.tiles.push(tileName);
+        this.dynamicTiles.set(tileName, dynamicTile);
+        tile.activate();
     },
     /** 获取动态磁贴 */
     getDynamicTileByName: function(tileName) {
         var dynamicTile;
 
-        dynamicTile = this.dynamicTiles[tileName + ""];
+        dynamicTile = this.dynamicTiles.get(tileName + "");
         if(!dynamicTile) {
             return null;
         }
         return dynamicTile;
-    }
-};
-
-// dynamicInfo
-function DynamicInfo(context, interval) {
-    this.context = context;
-    this.interval = interval;
-    this.tiles = [];
-}
-DynamicInfo.prototype = {
-    /** 注册动态更新器 */
-    register: function(interval) {
-        var that = this;
-        if(this.dynamicDelayHandler) {
-            return;
-        }
-        if(!ui.core.isNumber(interval) || interval <= 0) {
-            interval = this.interval
-        } else {
-            this.interval = interval;
-        }
-        this.dynamicDelayHandler = setTimeout(function() {
-            that.dynamicDelayHandler = null;
-            that.update();
-        }, interval * 1000);
     },
-    /** 取消注册 */
-    unregister: function() {
-        if(this.dynamicDelayHandler) {
-            clearTimeout(this.dynamicDelayHandler);
-            this.dynamicDelayHandler = null;
-        }
+    /** 再次激活动态磁贴 */
+    activateDynamicTile: function(tile) {
+        this.dynamicTiles.activeCount++;
+        this._register(); 
     },
-    /** 开始更新 */
-    update: function() {
-        var i, len,
-            tile;
-        for(i = 0, len = this.tiles.length; i < len; i++) {
-            tile = this.context.dynamicTiles[this.tiles[i]];
-            if(ui.core.isFunction(tile.updateFn)) {
-                tile.updateFn.call(this, tile, i === len - 1);
-            }
-        }
-    }
 };
 
 ui.TileContainer = TileContainer;
-
