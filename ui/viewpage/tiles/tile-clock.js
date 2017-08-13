@@ -61,15 +61,19 @@ clockStyle = {
                     "line-height": tile.height - 8 + "px",
                     "height": tile.height + "px"
                 });
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
     large: function(tile) {
-        clockStyle.wide.call(this, arguments);
+        clockStyle.wide.apply(this, arguments);
     }
 };
 
 ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
-    //tile.activate();
+    tile.activate();
 };

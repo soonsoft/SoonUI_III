@@ -1551,7 +1551,6 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
-            this.updatePanel.append(this.smallIconImg);
 
             this.animator = ui.animator({
                 target: this.contentPanel,
@@ -1568,7 +1567,9 @@ tileUpdater = {
             var option;
 
             if(content) {
-                this.updatePanel.html(content);
+                this.updatePanel
+                        .html(content)
+                        .append(this.smallIconImg);
             }
             if(this.isDynamicChanged) {
                 return;
@@ -1996,7 +1997,7 @@ TileContainer.prototype = {
                     if(tile.isActivated && currentTime > tile.activeTime) {
                         tile.isActivated = false;
                         that.dynamicTiles.activeCount--;
-                        tile.updateFn.call(this, tile);
+                        tile.updateFn.call(that, tile);
                     }
                 }
                 if(that.dynamicTiles.activeCount > 0) {
@@ -2216,16 +2217,33 @@ calendarStyle = {
         }
     },
     wide: function(tile) {
+        var now,
+            builder;
+        now = getNow();
+        builder = [];
 
+        builder.push("<span class='day-text'>", now.day, "</span>");
+        builder.push("<span class='week-text'>", now.week, "</span>");
+        builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
+
+        tile.updatePanel.html(builder.join(""));
+
+        if(!tile.isDynamicChanged) {
+            tile.update();
+        }
     },
     large: function(tile) {
-
+        calendarStyle.wide.apply(this, arguments);
     }
 };
 
 ui.tiles.calendar = function(tile) {
+    var now;
     calendarStyle[tile.type].apply(this, arguments);
-    //tile.activate();
+    now = new Date();
+    now = now.getHours() * 60 * 60 + now.getMinutes() * 60 + now.getSeconds();
+    tile.interval = 86400 - now;
+    tile.activate();
 };
 
 
@@ -2298,17 +2316,21 @@ clockStyle = {
                     "line-height": tile.height - 8 + "px",
                     "height": tile.height + "px"
                 });
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
     large: function(tile) {
-        clockStyle.wide.call(this, arguments);
+        clockStyle.wide.apply(this, arguments);
     }
 };
 
 ui.tiles.clock = function(tile) {
     clockStyle[tile.type].apply(this, arguments);
-    //tile.activate();
+    tile.activate();
 };
 
 

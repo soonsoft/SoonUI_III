@@ -534,7 +534,7 @@
 }
 .ui-tile .tile-small-icon {
   position: absolute;
-  display: none;
+  display: block;
   width: 32px;
   height: 32px;
   right: 5px;
@@ -545,6 +545,7 @@
 }
 
 /* tile-calendar */
+/* 中 */
 .tile-medium .day-text,
 .tile-medium .week-text,
 .tile-medium .year-month-text {
@@ -557,9 +558,9 @@
   left: 0;
 }
 .tile-medium .day-text {
-  top: 30px;
-  height: 64px;
-  line-height: 64px;
+  top: 18px;
+  height: 48px;
+  line-height: 48px;
   font-size: 48px;
   font-family: 'Segoe UI', 'Microsoft YaHei';
   font-weight: bold;
@@ -569,6 +570,43 @@
 }
 .tile-medium .year-month-text {
   bottom: 20px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+/* 宽 */
+.tile-wide .day-text,
+.tile-wide .week-text,
+.tile-wide .year-month-text,
+.tile-large .day-text,
+.tile-large .week-text,
+.tile-large .year-month-text {
+  position: absolute;
+  display: inline-block;
+  width: auto;
+  height: 20px;
+  line-height: 20px;
+}
+.tile-wide .day-text,
+.tile-large .day-text {
+  right: 10px;
+  bottom: 34px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 48px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+}
+.tile-wide .week-text,
+.tile-large .week-text {
+  left: 10px;
+  top: 10px;
+  font-size: 16px;
+}
+.tile-wide .year-month-text,
+.tile-large .year-month-text {
+  left: 10px;
+  top: 30px;
+  font-size: 16px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
 .tile-medium .clock-hour {

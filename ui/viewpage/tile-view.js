@@ -154,7 +154,6 @@ tileUpdater = {
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
-            this.updatePanel.append(this.smallIconImg);
 
             this.animator = ui.animator({
                 target: this.contentPanel,
@@ -171,7 +170,9 @@ tileUpdater = {
             var option;
 
             if(content) {
-                this.updatePanel.html(content);
+                this.updatePanel
+                        .html(content)
+                        .append(this.smallIconImg);
             }
             if(this.isDynamicChanged) {
                 return;
@@ -599,7 +600,7 @@ TileContainer.prototype = {
                     if(tile.isActivated && currentTime > tile.activeTime) {
                         tile.isActivated = false;
                         that.dynamicTiles.activeCount--;
-                        tile.updateFn.call(this, tile);
+                        tile.updateFn.call(that, tile);
                     }
                 }
                 if(that.dynamicTiles.activeCount > 0) {

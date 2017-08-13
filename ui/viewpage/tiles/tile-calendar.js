@@ -43,14 +43,31 @@ calendarStyle = {
         }
     },
     wide: function(tile) {
+        var now,
+            builder;
+        now = getNow();
+        builder = [];
 
+        builder.push("<span class='day-text'>", now.day, "</span>");
+        builder.push("<span class='week-text'>", now.week, "</span>");
+        builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
+
+        tile.updatePanel.html(builder.join(""));
+
+        if(!tile.isDynamicChanged) {
+            tile.update();
+        }
     },
     large: function(tile) {
-
+        calendarStyle.wide.apply(this, arguments);
     }
 };
 
 ui.tiles.calendar = function(tile) {
+    var now;
     calendarStyle[tile.type].apply(this, arguments);
-    //tile.activate();
+    now = new Date();
+    now = now.getHours() * 60 * 60 + now.getMinutes() * 60 + now.getSeconds();
+    tile.interval = 86400 - now;
+    tile.activate();
 };
