@@ -38,7 +38,11 @@ calendarStyle = {
 
         tile.updatePanel.html(builder.join(""));
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
+            tile.update();
         }
     },
     wide: function(tile) {
@@ -53,7 +57,11 @@ calendarStyle = {
 
         tile.updatePanel.html(builder.join(""));
         if(!tile.isDynamicChanged) {
-            tile.updateTile();
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
+            tile.update();
         }
     },
     large: function(tile) {
