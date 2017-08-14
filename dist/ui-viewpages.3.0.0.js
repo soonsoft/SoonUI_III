@@ -1,7 +1,7 @@
 // Source: ui/viewpage/master.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     Master 模板页
  */
@@ -336,9 +336,9 @@ ui.master = master;
 })(jQuery, ui);
 
 // Source: ui/viewpage/menu.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     itemHeight = 30;
@@ -1285,9 +1285,9 @@ ui.define("ui.ctrls.Menu", {
 })(jQuery, ui);
 
 // Source: ui/viewpage/sidebar-manager.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -1392,9 +1392,9 @@ ui.SidebarManager = SidebarManager;
 })(jQuery, ui);
 
 // Source: ui/viewpage/tile-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 动态磁贴
 
 ///磁贴组
@@ -1424,7 +1424,6 @@ tileUpdater = {
             this.tileInnerBack.css("background-color", this.color);
             
             this.updatePanel = $("<div class='update-panel' />");
-            this.updatePanel.css("height", this.height - titleHeight + "px");
             this.tileInnerBack
                     .append(this.updatePanel)
                     .append("<div class='tile-title'><span class='tile-title-text'>" + this.title + "</span></div>");
@@ -1445,7 +1444,7 @@ tileUpdater = {
             perspective = this.width * 2;
             setRotateFn = function(val) {
                 var cssObj = {},
-                    prefix = ["ms-", "moz-", "webkit-", "o-", ""],
+                    prefix = ["-ms-", "-moz-", "-webkit-", "-o-", ""],
                     rotateValue;
                 rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
                 prefix.forEach(function(p) {
@@ -2169,9 +2168,9 @@ ui.TileContainer = TileContainer;
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-calendar.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -2211,8 +2210,11 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
         if(!tile.isDynamicChanged) {
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -2227,8 +2229,11 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
         if(!tile.isDynamicChanged) {
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -2250,9 +2255,9 @@ ui.tiles.calendar = function(tile) {
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-clock.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 时钟动态磁贴
 var clockStyle;
 
@@ -2294,6 +2299,10 @@ clockStyle = {
                     "text-align": "center", 
                     "height": tile.height + "px"
                 });
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -2337,27 +2346,200 @@ ui.tiles.clock = function(tile) {
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-picture.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 图片动态磁贴
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+ui.tiles.picture = function(tile, images) {
+    var i, len,
+        arr;
+    if(!Array.isArray(images)) {
+        return;
+    }
+    arr = [];
+    for(i = 0, len = images.length; i < len; i++) {
+        if(images[i]) {
+            arr.push(images[i]);
+        }
+    }
+    if(arr.length === 0) {
+        return;
+    }
+
+    tile.pictureContext = {
+        images: arr,
+        currentIndex: 0,
+        imageLoader: new ui.ImageLoader()
+    };
+    initDisplayArea(tile);
+    initAnimator(tile);
+    showPicture(tile, firstPictrue);
+};
+
+function initDisplayArea(tile) {
+    var context;
+    context = tile.pictureContext;
+
+    context.currentImagePanel = $("<div class='tile-picture-container' />");
+    context.currentImage = $("<img class='tile-picture' />");
+    context.currentImagePanel.append(context.currentImage);
+
+    context.nextImagePanel = $("<div class='tile-picture-container' />");
+    context.nextImagePanel.css("display", "none");
+    context.nextImage = $("<img class='tile-picture' />");
+    context.nextImagePanel.append(context.nextImage);
+
+    tile.updatePanel
+            .append(context.currentImagePanel)
+            .append(context.nextImagePanel);
+}
+
+function initAnimator(tile) {
+    var context = tile.pictureContext;
+    context.switchAnimator = ui.animator({
+        ease: ui.AnimationStyle.easeTo,
+        duration: 500,
+        begin: 0,
+        end: -tile.height,
+        onChange: function(val) {
+            this.target.css("top", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeTo,
+        duration: 500,
+        begin: tile.height,
+        end: 0,
+        onChange: function(val) {
+            this.target.css("top", val + "px");
+        }
+    });
+}
+
+function showPicture(tile, callback) {
+    var imageSrc,
+        context;
+
+    context = tile.pictureContext;
+    if(context.images.length === 0) {
+        return;
+    }
+    imageSrc = context.images[context.currentIndex];
+
+    context.imageLoader
+                .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
+                .then(
+                    function(loader) {
+                        context.currentImage.css({
+                            "width": loader.displayWidth + "px",
+                            "height": loader.displayHeight + "px",
+                            "top": loader.marginTop + "px",
+                            "left": loader.marginLeft + "px"
+                        });
+                        context.currentImage.prop("src", imageSrc);
+                        callback(tile);
+                    }, 
+                    function() {
+                        context.images.splice(index, 1);
+                        if(context.images.length > 0) {
+                            moveNext(tile);
+                            showPicture(tile, callback);
+                        }
+                    }
+                );
+}
+
+function firstPictrue(tile) {
+    var context = tile.pictureContext,
+        option;
+    tile.update();
+
+    setTimeout(function() {
+        context.currentImage.addClass("tile-picture-play");
+    }, 1000);
+    setTimeout(function() {
+        if(context.images.length > 1) {
+            moveNext(tile);
+            change(tile);
+            showPicture(tile, nextPicture);
+        }
+    }, 10000);
+}
+
+function nextPicture(tile) {
+    var context,
+        option;
+    context = tile.pictureContext;
+
+    option = context.switchAnimator[0];
+    option.target = context.nextImagePanel;
+    option = context.switchAnimator[1];
+    option.target = context.currentImagePanel;
+    option.target.css({
+        "top": tile.height + "px",
+        "display": "block"
+    });
+
+    context.switchAnimator.start().done(function() {
+        context.nextImagePanel.css("display", "none");
+        context.nextImage.removeClass("tile-picture-play");
+        setTimeout(function() {
+            context.currentImage.addClass("tile-picture-play");
+            setTimeout(function() {
+                if(context.images.length > 1) {
+                    moveNext(tile);
+                    change(tile);
+                    showPicture(tile, nextPicture);
+                }
+            }, 10000);
+        }, 500);
+    });
+}
+
+function change(tile) {
+    var temp,
+        context;
+    context = tile.pictureContext;
+    temp = context.currentImagePanel;
+    context.currentImagePanel = context.nextImagePanel;
+    context.nextImagePanel = temp;
+    temp = context.currentImage;
+    context.currentImage = context.nextImage;
+    context.nextImage = temp;
+}
+
+function moveNext(tile) {
+    var context,
+        index;
+
+    context = tile.pictureContext;
+    index = context.currentIndex + 1;
+    if(index >= context.images.length) {
+        index = 0;
+    }
+    context.currentIndex = index;
+}
 
 
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-weather.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 天气可交互磁贴
 
 
 })(jQuery, ui);
 
 // Source: ui/viewpage/toolbar.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {

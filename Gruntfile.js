@@ -379,8 +379,8 @@ module.exports = function(grunt) {
             }
             return [
                 "// Source: ", filepath, "\r\n",
-                "\"use strict\";\r\n",
                 wrapper[0], 
+                "\"use strict\";\r\n",
                 src, "\r\n", 
                 wrapper[1], "\r\n"
             ].join("");

@@ -55,9 +55,9 @@
 } );
 
 // Source: ui/core.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // core
 
 /*
@@ -226,9 +226,9 @@ core.isTouchAvailable = function() {
 })(jQuery, ui);
 
 // Source: ui/ecmascript-extends.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 // Array.prototype
@@ -443,9 +443,9 @@ if(typeof Function.prototype.bind !== "function") {
 })(jQuery, ui);
 
 // Source: ui/promise.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // promise
 
 //chrome36的原生Promise还多了一个defer()静态方法，允许不通过传参就能生成Promise实例，
@@ -677,9 +677,9 @@ window.Promise = nativePromise || uiPromise;
 })(jQuery, ui);
 
 // Source: ui/array-faker.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // Array Faker
 
 var arrayInstance = [];
@@ -754,9 +754,9 @@ ui.ArrayFaker = ArrayFaker;
 })(jQuery, ui);
 
 // Source: ui/keyarray.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
@@ -884,9 +884,9 @@ ui.KeyArray = KeyArray;
 })(jQuery, ui);
 
 // Source: ui/introsort.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
@@ -1080,9 +1080,9 @@ ui.Introsort = Introsort;
 })(jQuery, ui);
 
 // Source: ui/util.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // util
 
 /**
@@ -1403,9 +1403,9 @@ ui.mask = {
 })(jQuery, ui);
 
 // Source: ui/util-string.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // string util
 
 var textEmpty = "";
@@ -1785,9 +1785,9 @@ ui.str = {
 })(jQuery, ui);
 
 // Source: ui/util-object.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //object
 
 function _ignore(ignore) {
@@ -1865,9 +1865,9 @@ ui.obj = {
 })(jQuery, ui);
 
 // Source: ui/util-url.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //url
 
 var url_rquery = /\?/,
@@ -1979,9 +1979,9 @@ ui.url = {
 })(jQuery, ui);
 
 // Source: ui/util-structure-transform.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -2099,9 +2099,9 @@ ui.trans = {
 })(jQuery, ui);
 
 // Source: ui/util-random.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -2243,9 +2243,9 @@ ui.random = random;
 })(jQuery, ui);
 
 // Source: ui/animation.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     animation javascript 动画引擎
  */
@@ -2527,7 +2527,7 @@ Animator.prototype.doAnimation = function () {
     var startTime = new Date().getTime();
     this.stopHandle = null;
     (function () {
-        that.stopHandle = requestAnimationFrame(function () {
+        var fn = function () {
             var newTime,
                 timestamp,
                 option,
@@ -2565,9 +2565,10 @@ Animator.prototype.doAnimation = function () {
                     that.onEnd.call(that);
                 }
             } else {
-                that.stopHandle = requestAnimationFrame(arguments.callee);
+                that.stopHandle = requestAnimationFrame(fn);
             }
-        }, 1000 / fps);
+        };
+        that.stopHandle = requestAnimationFrame(fn, 1000 / fps);
     })();
 };
 Animator.prototype._prepare = function () {
@@ -2677,9 +2678,9 @@ ui.animator = function (target, option) {
 })(jQuery, ui);
 
 // Source: ui/custom-event.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // custom event
 function CustomEvent (target) {
     this._listeners = {};
@@ -2795,9 +2796,9 @@ ui.CustomEvent = CustomEvent;
 })(jQuery, ui);
 
 // Source: ui/json.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // json2
 
 // 判断浏览器是否原生支持JSON对象
@@ -3015,9 +3016,9 @@ JSON.parse = function (text, reviver) {
 })(jQuery, ui);
 
 // Source: ui/ajax.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // ajax
 var responsedJson = "X-Responded-JSON";
 function unauthorized(xhr, context) {
@@ -3286,9 +3287,9 @@ ui.ajax = {
 })(jQuery, ui);
 
 // Source: ui/cookie.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -3380,9 +3381,9 @@ ui.cookie = {
 })(jQuery, ui);
 
 // Source: ui/color.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // color
 
 // 各种颜色格式的正则表达式
@@ -3521,9 +3522,9 @@ ui.color = {
 })(jQuery, ui);
 
 // Source: ui/browser.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -3644,9 +3645,9 @@ if (ui.browser.ie) {
 })(jQuery, ui);
 
 // Source: ui/image-loader.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // image loader
 
 function ImageLoader() {
@@ -3775,9 +3776,9 @@ ui.ImageLoader = ImageLoader;
 })(jQuery, ui);
 
 // Source: ui/jquery-extends.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // jquery extends
 
 var rword = /[^, ]+/g,
@@ -4101,9 +4102,9 @@ $.fn.textinput = function(data, fn) {
 })(jQuery, ui);
 
 // Source: ui/define.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 function noop() {
 }
 function getNamespace(namespace) {
@@ -4387,9 +4388,9 @@ ui.define = function(name, base, prototype) {
 })(jQuery, ui);
 
 // Source: ui/draggable.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 var doc = $(document),
     body = $(document.body),
@@ -4648,9 +4649,9 @@ $.fn.undraggable = function() {
 })(jQuery, ui);
 
 // Source: ui/style-sheet.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 // 样式表操作
 function getRules() {
@@ -4817,9 +4818,9 @@ ui.StyleSheet = StyleSheet;
 })(jQuery, ui);
 
 // Source: ui/theme.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 function setHighlight(highlight) {
     var sheet,
@@ -4904,9 +4905,9 @@ ui.theme = {
 })(jQuery, ui);
 
 // Source: ui/page.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 // 事件优先级
 ui.eventPriority = {
@@ -4961,9 +4962,9 @@ $(window)
 })(jQuery, ui);
 
 // Source: ui/control/base/dropdown-base.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 var htmlClickHideHandler = [],
     hideCtrls = function (currentCtrl) {
         var handler, retain;
@@ -5239,9 +5240,9 @@ ui.define("ui.ctrls.DropDownBase", {
 })(jQuery, ui);
 
 // Source: ui/control/base/sidebar-base.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //侧滑面板基类
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
@@ -5442,9 +5443,9 @@ ui.define("ui.ctrls.SidebarBase", {
 })(jQuery, ui);
 
 // Source: ui/control/common/column-style.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // column style 默认提供的GridView和ReportView的格式化器
 var spanKey = "_RowspanContext",
     hoverViewKey = "_HoverView";
@@ -5957,9 +5958,9 @@ ui.ColumnStyle = {
 })(jQuery, ui);
 
 // Source: ui/control/common/pager.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
@@ -6177,9 +6178,9 @@ ui.ctrls.Pager = Pager;
 })(jQuery, ui);
 
 // Source: ui/control/box/dialog-box.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
@@ -6897,9 +6898,9 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 })(jQuery, ui);
 
 // Source: ui/control/box/loading-box.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 加载提示框
 var loadingBox,
     loadingClass = "c_dotsPlaying";
@@ -6981,9 +6982,9 @@ ui.loadingHide = function() {
 })(jQuery, ui);
 
 // Source: ui/control/box/message-box.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // MessageBox
 var MessageType = {
         message: 0,
@@ -7196,9 +7197,9 @@ ui.failedShow = function(text) {
 })(jQuery, ui);
 
 // Source: ui/control/box/option-box.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
@@ -7320,9 +7321,9 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 })(jQuery, ui);
 
 // Source: ui/control/select/chooser.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 /**
  * 选择器
@@ -7927,9 +7928,9 @@ $.fn.chooser = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/color-picker.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 /**
  * Farbtastic Color Picker 1.2
@@ -8340,9 +8341,9 @@ $.fn.colorPicker = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/date-chooser.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
@@ -9742,9 +9743,9 @@ $.fn.dateChooser = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-list.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 /**
  * 自定义下拉列表
@@ -10167,9 +10168,9 @@ $.fn.selectionList = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-tree.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /**
  * 树形下拉列表，可以完美的解决多级联动下拉列表的各种弊端
  * 支持单项选择和多项选择
@@ -10977,9 +10978,9 @@ $.fn.selectionTree = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/select/selection-tree4autocomplete.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 /**
  * 支持自动完成的下拉树
@@ -11261,9 +11262,9 @@ $.fn.autocompleteSelectionTree = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/calendar-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // CalendarView
 var timeTitleWidth = 80,
     hourHeight = 25,
@@ -14337,9 +14338,9 @@ ui.page.hlchanged(function(e, colorInfo) {
 })(jQuery, ui);
 
 // Source: ui/control/view/card-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // CardView
 
 var selectedClass = "ui-card-view-selection",
@@ -15000,9 +15001,9 @@ $.fn.cardView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/fold-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 折叠视图
 function onFoldTitleClick(e) {
     var elem,
@@ -15094,9 +15095,9 @@ $.fn.foldView = function() {
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view-group.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // GridViewGroup
 
 function defaultCreateGroupItem(groupKey) {
@@ -15256,9 +15257,9 @@ ui.ctrls.GridViewGroup = GridViewGroup;
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view-tree.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // GridViewTree
 
 var childrenField = "_children",
@@ -15663,9 +15664,9 @@ ui.ctrls.GridViewTree = GridViewTree;
 })(jQuery, ui);
 
 // Source: ui/control/view/grid-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // grid view
 
 var cellCheckbox = "grid-checkbox",
@@ -16919,9 +16920,9 @@ $.fn.gridView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/list-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //list view
 
 var indexAttr = "data-index";
@@ -17567,9 +17568,9 @@ $.fn.listView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/report-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // Report View
 
 var cellCheckbox = "grid-checkbox",
@@ -19309,9 +19310,9 @@ $.fn.reportView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/view/tab-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // TabView
 
 var selectedClass = "ui-tab-selection";
@@ -19834,9 +19835,9 @@ ui.ctrls.TabView.TabManager = TabManager;
 })(jQuery, ui);
 
 // Source: ui/control/view/tree-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 /**
  * 树形列表
@@ -19872,9 +19873,9 @@ $.fn.treeView = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/confirm-button.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /* 确认按钮 */
 
 function noop() {}
@@ -20083,9 +20084,9 @@ $.fn.confirmClick = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/extend-button.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /* 扩展按钮 */
 ui.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
@@ -20490,9 +20491,9 @@ $.fn.extendButton = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/filter-tool.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /* 内容过滤选择器 */
 var prefix = "filter_tool",
     filterCount = 0;
@@ -20717,9 +20718,9 @@ $.fn.filterTool = function (option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/hover-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /* 悬停视图 */
 var guid = 1;
 ui.define("ui.ctrls.HoverView", {
@@ -20966,9 +20967,9 @@ $.fn.addHoverView = function (view) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/slidebar.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // Slidebar
 
 function prepareMove(arg) {
@@ -21207,9 +21208,9 @@ $.fn.slidebar = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/switch-button.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /* 开关按钮 */
 ui.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
@@ -21437,9 +21438,9 @@ $.fn.switchButton = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/tools/uploader.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // uploader
 /**
  * HTML上传工具，提供ajax和iframe两种机制，自动根据当前浏览器特性进行切换
@@ -21770,9 +21771,9 @@ $.fn.uploader = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-preview.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //图片预览视图
 ui.define("ui.ctrls.ImagePreview", {
     _defineOption: function () {
@@ -22140,9 +22141,9 @@ $.fn.imagePreview = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-viewer.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //图片轮播视图
 ui.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
@@ -22465,9 +22466,9 @@ $.fn.imageViewer = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-watcher.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //图片局部放大查看器
 ui.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
@@ -22630,9 +22631,9 @@ $.fn.imageWatcher = function(option) {
 })(jQuery, ui);
 
 // Source: ui/control/images/image-zoomer.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 function getLargeImageSrc(img) {
     var src = img.attr("data-large-src");
     if(!src) {
@@ -23039,9 +23040,9 @@ $.fn.addImageZoomer = function (image) {
 
 
 // Source: ui/viewpage/master.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     Master 模板页
  */
@@ -23376,9 +23377,9 @@ ui.master = master;
 })(jQuery, ui);
 
 // Source: ui/viewpage/menu.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     itemHeight = 30;
@@ -24325,9 +24326,9 @@ ui.define("ui.ctrls.Menu", {
 })(jQuery, ui);
 
 // Source: ui/viewpage/sidebar-manager.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -24432,9 +24433,9 @@ ui.SidebarManager = SidebarManager;
 })(jQuery, ui);
 
 // Source: ui/viewpage/tile-view.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 动态磁贴
 
 ///磁贴组
@@ -24464,7 +24465,6 @@ tileUpdater = {
             this.tileInnerBack.css("background-color", this.color);
             
             this.updatePanel = $("<div class='update-panel' />");
-            this.updatePanel.css("height", this.height - titleHeight + "px");
             this.tileInnerBack
                     .append(this.updatePanel)
                     .append("<div class='tile-title'><span class='tile-title-text'>" + this.title + "</span></div>");
@@ -24485,7 +24485,7 @@ tileUpdater = {
             perspective = this.width * 2;
             setRotateFn = function(val) {
                 var cssObj = {},
-                    prefix = ["ms-", "moz-", "webkit-", "o-", ""],
+                    prefix = ["-ms-", "-moz-", "-webkit-", "-o-", ""],
                     rotateValue;
                 rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
                 prefix.forEach(function(p) {
@@ -25209,9 +25209,9 @@ ui.TileContainer = TileContainer;
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-calendar.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -25251,8 +25251,11 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
         if(!tile.isDynamicChanged) {
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -25267,8 +25270,11 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
         if(!tile.isDynamicChanged) {
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -25290,9 +25296,9 @@ ui.tiles.calendar = function(tile) {
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-clock.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 时钟动态磁贴
 var clockStyle;
 
@@ -25334,6 +25340,10 @@ clockStyle = {
                     "text-align": "center", 
                     "height": tile.height + "px"
                 });
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
@@ -25377,27 +25387,200 @@ ui.tiles.clock = function(tile) {
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-picture.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 图片动态磁贴
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+ui.tiles.picture = function(tile, images) {
+    var i, len,
+        arr;
+    if(!Array.isArray(images)) {
+        return;
+    }
+    arr = [];
+    for(i = 0, len = images.length; i < len; i++) {
+        if(images[i]) {
+            arr.push(images[i]);
+        }
+    }
+    if(arr.length === 0) {
+        return;
+    }
+
+    tile.pictureContext = {
+        images: arr,
+        currentIndex: 0,
+        imageLoader: new ui.ImageLoader()
+    };
+    initDisplayArea(tile);
+    initAnimator(tile);
+    showPicture(tile, firstPictrue);
+};
+
+function initDisplayArea(tile) {
+    var context;
+    context = tile.pictureContext;
+
+    context.currentImagePanel = $("<div class='tile-picture-container' />");
+    context.currentImage = $("<img class='tile-picture' />");
+    context.currentImagePanel.append(context.currentImage);
+
+    context.nextImagePanel = $("<div class='tile-picture-container' />");
+    context.nextImagePanel.css("display", "none");
+    context.nextImage = $("<img class='tile-picture' />");
+    context.nextImagePanel.append(context.nextImage);
+
+    tile.updatePanel
+            .append(context.currentImagePanel)
+            .append(context.nextImagePanel);
+}
+
+function initAnimator(tile) {
+    var context = tile.pictureContext;
+    context.switchAnimator = ui.animator({
+        ease: ui.AnimationStyle.easeTo,
+        duration: 500,
+        begin: 0,
+        end: -tile.height,
+        onChange: function(val) {
+            this.target.css("top", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeTo,
+        duration: 500,
+        begin: tile.height,
+        end: 0,
+        onChange: function(val) {
+            this.target.css("top", val + "px");
+        }
+    });
+}
+
+function showPicture(tile, callback) {
+    var imageSrc,
+        context;
+
+    context = tile.pictureContext;
+    if(context.images.length === 0) {
+        return;
+    }
+    imageSrc = context.images[context.currentIndex];
+
+    context.imageLoader
+                .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
+                .then(
+                    function(loader) {
+                        context.currentImage.css({
+                            "width": loader.displayWidth + "px",
+                            "height": loader.displayHeight + "px",
+                            "top": loader.marginTop + "px",
+                            "left": loader.marginLeft + "px"
+                        });
+                        context.currentImage.prop("src", imageSrc);
+                        callback(tile);
+                    }, 
+                    function() {
+                        context.images.splice(index, 1);
+                        if(context.images.length > 0) {
+                            moveNext(tile);
+                            showPicture(tile, callback);
+                        }
+                    }
+                );
+}
+
+function firstPictrue(tile) {
+    var context = tile.pictureContext,
+        option;
+    tile.update();
+
+    setTimeout(function() {
+        context.currentImage.addClass("tile-picture-play");
+    }, 1000);
+    setTimeout(function() {
+        if(context.images.length > 1) {
+            moveNext(tile);
+            change(tile);
+            showPicture(tile, nextPicture);
+        }
+    }, 10000);
+}
+
+function nextPicture(tile) {
+    var context,
+        option;
+    context = tile.pictureContext;
+
+    option = context.switchAnimator[0];
+    option.target = context.nextImagePanel;
+    option = context.switchAnimator[1];
+    option.target = context.currentImagePanel;
+    option.target.css({
+        "top": tile.height + "px",
+        "display": "block"
+    });
+
+    context.switchAnimator.start().done(function() {
+        context.nextImagePanel.css("display", "none");
+        context.nextImage.removeClass("tile-picture-play");
+        setTimeout(function() {
+            context.currentImage.addClass("tile-picture-play");
+            setTimeout(function() {
+                if(context.images.length > 1) {
+                    moveNext(tile);
+                    change(tile);
+                    showPicture(tile, nextPicture);
+                }
+            }, 10000);
+        }, 500);
+    });
+}
+
+function change(tile) {
+    var temp,
+        context;
+    context = tile.pictureContext;
+    temp = context.currentImagePanel;
+    context.currentImagePanel = context.nextImagePanel;
+    context.nextImagePanel = temp;
+    temp = context.currentImage;
+    context.currentImage = context.nextImage;
+    context.nextImage = temp;
+}
+
+function moveNext(tile) {
+    var context,
+        index;
+
+    context = tile.pictureContext;
+    index = context.currentIndex + 1;
+    if(index >= context.images.length) {
+        index = 0;
+    }
+    context.currentIndex = index;
+}
 
 
 })(jQuery, ui);
 
 // Source: ui/viewpage/tiles/tile-weather.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 天气可交互磁贴
 
 
 })(jQuery, ui);
 
 // Source: ui/viewpage/toolbar.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {

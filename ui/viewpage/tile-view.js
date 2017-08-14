@@ -27,7 +27,6 @@ tileUpdater = {
             this.tileInnerBack.css("background-color", this.color);
             
             this.updatePanel = $("<div class='update-panel' />");
-            this.updatePanel.css("height", this.height - titleHeight + "px");
             this.tileInnerBack
                     .append(this.updatePanel)
                     .append("<div class='tile-title'><span class='tile-title-text'>" + this.title + "</span></div>");
@@ -48,7 +47,7 @@ tileUpdater = {
             perspective = this.width * 2;
             setRotateFn = function(val) {
                 var cssObj = {},
-                    prefix = ["ms-", "moz-", "webkit-", "o-", ""],
+                    prefix = ["-ms-", "-moz-", "-webkit-", "-o-", ""],
                     rotateValue;
                 rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
                 prefix.forEach(function(p) {

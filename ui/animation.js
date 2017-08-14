@@ -279,7 +279,7 @@ Animator.prototype.doAnimation = function () {
     var startTime = new Date().getTime();
     this.stopHandle = null;
     (function () {
-        that.stopHandle = requestAnimationFrame(function () {
+        var fn = function () {
             var newTime,
                 timestamp,
                 option,
@@ -317,9 +317,10 @@ Animator.prototype.doAnimation = function () {
                     that.onEnd.call(that);
                 }
             } else {
-                that.stopHandle = requestAnimationFrame(arguments.callee);
+                that.stopHandle = requestAnimationFrame(fn);
             }
-        }, 1000 / fps);
+        };
+        that.stopHandle = requestAnimationFrame(fn, 1000 / fps);
     })();
 };
 Animator.prototype._prepare = function () {

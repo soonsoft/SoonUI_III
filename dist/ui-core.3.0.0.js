@@ -55,9 +55,9 @@
 } );
 
 // Source: ui/core.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // core
 
 /*
@@ -226,9 +226,9 @@ core.isTouchAvailable = function() {
 })(jQuery, ui);
 
 // Source: ui/ecmascript-extends.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 // Array.prototype
@@ -443,9 +443,9 @@ if(typeof Function.prototype.bind !== "function") {
 })(jQuery, ui);
 
 // Source: ui/promise.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // promise
 
 //chrome36的原生Promise还多了一个defer()静态方法，允许不通过传参就能生成Promise实例，
@@ -677,9 +677,9 @@ window.Promise = nativePromise || uiPromise;
 })(jQuery, ui);
 
 // Source: ui/array-faker.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // Array Faker
 
 var arrayInstance = [];
@@ -754,9 +754,9 @@ ui.ArrayFaker = ArrayFaker;
 })(jQuery, ui);
 
 // Source: ui/keyarray.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
@@ -884,9 +884,9 @@ ui.KeyArray = KeyArray;
 })(jQuery, ui);
 
 // Source: ui/introsort.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
@@ -1080,9 +1080,9 @@ ui.Introsort = Introsort;
 })(jQuery, ui);
 
 // Source: ui/util.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // util
 
 /**
@@ -1403,9 +1403,9 @@ ui.mask = {
 })(jQuery, ui);
 
 // Source: ui/util-string.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // string util
 
 var textEmpty = "";
@@ -1785,9 +1785,9 @@ ui.str = {
 })(jQuery, ui);
 
 // Source: ui/util-object.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //object
 
 function _ignore(ignore) {
@@ -1865,9 +1865,9 @@ ui.obj = {
 })(jQuery, ui);
 
 // Source: ui/util-url.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 //url
 
 var url_rquery = /\?/,
@@ -1979,9 +1979,9 @@ ui.url = {
 })(jQuery, ui);
 
 // Source: ui/util-structure-transform.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -2099,9 +2099,9 @@ ui.trans = {
 })(jQuery, ui);
 
 // Source: ui/util-random.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -2243,9 +2243,9 @@ ui.random = random;
 })(jQuery, ui);
 
 // Source: ui/animation.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 /*
     animation javascript 动画引擎
  */
@@ -2527,7 +2527,7 @@ Animator.prototype.doAnimation = function () {
     var startTime = new Date().getTime();
     this.stopHandle = null;
     (function () {
-        that.stopHandle = requestAnimationFrame(function () {
+        var fn = function () {
             var newTime,
                 timestamp,
                 option,
@@ -2565,9 +2565,10 @@ Animator.prototype.doAnimation = function () {
                     that.onEnd.call(that);
                 }
             } else {
-                that.stopHandle = requestAnimationFrame(arguments.callee);
+                that.stopHandle = requestAnimationFrame(fn);
             }
-        }, 1000 / fps);
+        };
+        that.stopHandle = requestAnimationFrame(fn, 1000 / fps);
     })();
 };
 Animator.prototype._prepare = function () {
@@ -2677,9 +2678,9 @@ ui.animator = function (target, option) {
 })(jQuery, ui);
 
 // Source: ui/custom-event.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // custom event
 function CustomEvent (target) {
     this._listeners = {};
@@ -2795,9 +2796,9 @@ ui.CustomEvent = CustomEvent;
 })(jQuery, ui);
 
 // Source: ui/json.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // json2
 
 // 判断浏览器是否原生支持JSON对象
@@ -3015,9 +3016,9 @@ JSON.parse = function (text, reviver) {
 })(jQuery, ui);
 
 // Source: ui/ajax.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // ajax
 var responsedJson = "X-Responded-JSON";
 function unauthorized(xhr, context) {
@@ -3286,9 +3287,9 @@ ui.ajax = {
 })(jQuery, ui);
 
 // Source: ui/cookie.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -3380,9 +3381,9 @@ ui.cookie = {
 })(jQuery, ui);
 
 // Source: ui/color.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // color
 
 // 各种颜色格式的正则表达式
@@ -3521,9 +3522,9 @@ ui.color = {
 })(jQuery, ui);
 
 // Source: ui/browser.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -3644,9 +3645,9 @@ if (ui.browser.ie) {
 })(jQuery, ui);
 
 // Source: ui/image-loader.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // image loader
 
 function ImageLoader() {
@@ -3775,9 +3776,9 @@ ui.ImageLoader = ImageLoader;
 })(jQuery, ui);
 
 // Source: ui/jquery-extends.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 // jquery extends
 
 var rword = /[^, ]+/g,
@@ -4101,9 +4102,9 @@ $.fn.textinput = function(data, fn) {
 })(jQuery, ui);
 
 // Source: ui/define.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 function noop() {
 }
 function getNamespace(namespace) {
@@ -4387,9 +4388,9 @@ ui.define = function(name, base, prototype) {
 })(jQuery, ui);
 
 // Source: ui/draggable.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 var doc = $(document),
     body = $(document.body),
@@ -4648,9 +4649,9 @@ $.fn.undraggable = function() {
 })(jQuery, ui);
 
 // Source: ui/style-sheet.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 // 样式表操作
 function getRules() {
@@ -4817,9 +4818,9 @@ ui.StyleSheet = StyleSheet;
 })(jQuery, ui);
 
 // Source: ui/theme.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 function setHighlight(highlight) {
     var sheet,
@@ -4904,9 +4905,9 @@ ui.theme = {
 })(jQuery, ui);
 
 // Source: ui/page.js
-"use strict";
 
 (function($, ui) {
+"use strict";
 
 // 事件优先级
 ui.eventPriority = {
