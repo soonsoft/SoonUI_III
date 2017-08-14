@@ -37,10 +37,7 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
-        if(!tile.isDynamicChanged) {
-            tile.update();
-        }
+        tile.update();
     },
     wide: function(tile) {
         var now,
@@ -53,10 +50,7 @@ calendarStyle = {
         builder.push("<span class='year-month-text'>", now.year, ".", now.month, "</span>");
 
         tile.updatePanel.html(builder.join(""));
-
-        if(!tile.isDynamicChanged) {
-            tile.update();
-        }
+        tile.update();
     },
     large: function(tile) {
         calendarStyle.wide.apply(this, arguments);
