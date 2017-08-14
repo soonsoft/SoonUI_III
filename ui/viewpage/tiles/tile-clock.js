@@ -39,6 +39,10 @@ clockStyle = {
                     "text-align": "center", 
                     "height": tile.height + "px"
                 });
+            if(tile.smallIconImg) {
+                tile.smallIconImg.remove();
+                tile.smallIconImg = null;
+            }
             tile.update();
         }
     },
