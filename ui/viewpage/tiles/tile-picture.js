@@ -27,7 +27,7 @@ ui.tiles.picture = function(tile, images) {
     };
     initDisplayArea(tile);
     initAnimator(tile);
-    showPicture(tile, firstPictrue);
+    showPicture(tile, tile.pictureContext.currentImage, firstPictrue);
 };
 
 function initDisplayArea(tile) {
@@ -69,7 +69,7 @@ function initAnimator(tile) {
     });
 }
 
-function showPicture(tile, callback) {
+function showPicture(tile, currentImg, callback) {
     var imageSrc,
         context;
 
@@ -83,20 +83,20 @@ function showPicture(tile, callback) {
                 .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
                 .then(
                     function(loader) {
-                        context.currentImage.css({
+                        currentImg.css({
                             "width": loader.displayWidth + "px",
                             "height": loader.displayHeight + "px",
                             "top": loader.marginTop + "px",
                             "left": loader.marginLeft + "px"
                         });
-                        context.currentImage.prop("src", imageSrc);
+                        currentImg.prop("src", imageSrc);
                         callback(tile);
                     }, 
                     function() {
                         context.images.splice(index, 1);
                         if(context.images.length > 0) {
                             moveNext(tile);
-                            showPicture(tile, callback);
+                            showPicture(tile, currentImg, callback);
                         }
                     }
                 );
@@ -113,16 +113,23 @@ function firstPictrue(tile) {
     setTimeout(function() {
         if(context.images.length > 1) {
             moveNext(tile);
-            change(tile);
-            showPicture(tile, nextPicture);
+            showPicture(tile, context.nextImage, nextPicture);
         }
     }, 10000);
 }
 
 function nextPicture(tile) {
-    var context,
+    var temp,
+        context,
         option;
     context = tile.pictureContext;
+
+    temp = context.currentImagePanel;
+    context.currentImagePanel = context.nextImagePanel;
+    context.nextImagePanel = temp;
+    temp = context.currentImage;
+    context.currentImage = context.nextImage;
+    context.nextImage = temp;
 
     option = context.switchAnimator[0];
     option.target = context.nextImagePanel;
@@ -141,24 +148,11 @@ function nextPicture(tile) {
             setTimeout(function() {
                 if(context.images.length > 1) {
                     moveNext(tile);
-                    change(tile);
-                    showPicture(tile, nextPicture);
+                    showPicture(tile, context.nextImage, nextPicture);
                 }
             }, 10000);
         }, 500);
     });
-}
-
-function change(tile) {
-    var temp,
-        context;
-    context = tile.pictureContext;
-    temp = context.currentImagePanel;
-    context.currentImagePanel = context.nextImagePanel;
-    context.nextImagePanel = temp;
-    temp = context.currentImage;
-    context.currentImage = context.nextImage;
-    context.nextImage = temp;
 }
 
 function moveNext(tile) {
