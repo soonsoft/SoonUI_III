@@ -23,6 +23,7 @@ ui.tiles.picture = function(tile, images) {
     tile.pictureContext = {
         images: arr,
         currentIndex: 0,
+        imageSizeCache: {},
         imageLoader: new ui.ImageLoader()
     };
     initDisplayArea(tile);
@@ -71,35 +72,45 @@ function initAnimator(tile) {
 
 function showPicture(tile, currentImg, callback) {
     var imageSrc,
-        context;
+        context,
+        setImageFn;
 
     context = tile.pictureContext;
     if(context.images.length === 0) {
         return;
     }
     imageSrc = context.images[context.currentIndex];
+    setImageFn = function(css) {
+        currentImg.css(css);
+        currentImg.prop("src", imageSrc);
+        callback(tile);
+    };
 
-    context.imageLoader
-                .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
-                .then(
-                    function(loader) {
-                        currentImg.css({
-                            "width": loader.displayWidth + "px",
-                            "height": loader.displayHeight + "px",
-                            "top": loader.marginTop + "px",
-                            "left": loader.marginLeft + "px"
-                        });
-                        currentImg.prop("src", imageSrc);
-                        callback(tile);
-                    }, 
-                    function() {
-                        context.images.splice(index, 1);
-                        if(context.images.length > 0) {
-                            moveNext(tile);
-                            showPicture(tile, currentImg, callback);
+    if(context.imageSizeCache.hasOwnProperty(imageSrc)) {
+        setImageFn(context.imageSizeCache[imageSrc]);
+    } else {
+        context.imageLoader
+                    .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
+                    .then(
+                        function(loader) {
+                            var css = {
+                                "width": loader.displayWidth + "px",
+                                "height": loader.displayHeight + "px",
+                                "top": loader.marginTop + "px",
+                                "left": loader.marginLeft + "px"
+                            };
+                            context.imageSizeCache[imageSrc] = css;
+                            setImageFn(css);
+                        }, 
+                        function() {
+                            context.images.splice(index, 1);
+                            if(context.images.length > 0) {
+                                moveNext(tile);
+                                showPicture(tile, currentImg, callback);
+                            }
                         }
-                    }
-                );
+                    );
+    }
 }
 
 function firstPictrue(tile) {
