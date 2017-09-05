@@ -222,6 +222,7 @@ function Tile(tileInfo, group) {
     }
 }
 Tile.prototype = {
+    constructor: Tile,
     initialize: function(tileInfo, group) {
         var type,
             that;
@@ -374,6 +375,7 @@ function TileGroup(tileInfos, container) {
     }
 }
 TileGroup.prototype = {
+    constructor: TileGroup,
     initialize: function(tileInfos, container) {
         var arr = [],
             that;
@@ -563,6 +565,7 @@ function TileContainer(containerPanel) {
     }
 }
 TileContainer.prototype = {
+    constructor: TileContainer,
     initialize: function(containerPanel) {
         this.groups = [];
         this.dynamicTiles = ui.KeyArray();
