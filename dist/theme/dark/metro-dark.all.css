@@ -1376,13 +1376,14 @@ input.dateChooser-clear {
 }
 .ui-table-head .grid-checkbox-all,
 .ui-table-body .grid-checkbox {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: inline-block;
   vertical-align: middle;
   color: #aaaaaa;
   cursor: pointer;
   text-align: center;
+  font-size: 16px;
 }
 .ui-table-head .grid-checkbox-all:active,
 .ui-table-body .grid-checkbox:active {

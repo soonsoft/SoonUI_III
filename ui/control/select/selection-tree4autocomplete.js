@@ -80,11 +80,11 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         }
 
         // 初始化事件处理函数
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onKeyupHandler = $.proxy(onKeyup, this);
-        this.onMouseoverHandler = $.proxy(onMouseover, this);
-        this.onClickHandler = $.proxy(onClick, this);
-        this.onTextinputHandler = $.proxy(onTextinput, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onKeyupHandler = onKeyup.bind(this);
+        this.onMouseoverHandler = onMouseover.bind(this);
+        this.onClickHandler = onClick.bind(this);
+        this.onTextinputHandler = onTextinput.bind(this);
 
         this._super();
     },

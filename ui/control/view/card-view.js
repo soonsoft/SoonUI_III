@@ -107,7 +107,7 @@ ui.define("ui.ctrls.CardView", {
 
         /// 事件处理程序
         // 项目选中处理程序
-        this.onBodyClickHandler = $.proxy(onBodyClick, this);
+        this.onBodyClickHandler = onBodyClick.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-card-view")) {

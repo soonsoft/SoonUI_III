@@ -396,29 +396,29 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         // 事件
         /* 年月选择面板相关事件 */
         // 年切换处理
-        this.onYearChangedHandler = $.proxy(onYearChanged, this);
+        this.onYearChangedHandler = onYearChanged.bind(this);
         // 年选中事件
-        this.onYearSelectedHandler = $.proxy(onYearSelected, this);
+        this.onYearSelectedHandler = onYearSelected.bind(this);
         // 月选中事件
-        this.onMonthSelectedHandler = $.proxy(onMonthSelected, this);
+        this.onMonthSelectedHandler = onMonthSelected.bind(this);
         // 选中年月应用事件
-        this.onApplyYearMonthHandler = $.proxy(onApplyYearMonth, this);
+        this.onApplyYearMonthHandler = onApplyYearMonth.bind(this);
         // 取消事件
-        this.onCancelYearMonthHandler = $.proxy(onCancelYearMonth, this);
+        this.onCancelYearMonthHandler = onCancelYearMonth.bind(this);
         /* 日历面板相关事件 */
         // 月切换处理
-        this.onMonthChangedHandler = $.proxy(onMonthChanged, this);
+        this.onMonthChangedHandler = onMonthChanged.bind(this);
         // 日历标题点击事件
-        this.onCalendarTitleClickHandler = $.proxy(onCalendarTitleClick, this);
+        this.onCalendarTitleClickHandler = onCalendarTitleClick.bind(this);
         // 日期项点击事件
-        this.onDayItemClickHandler = $.proxy(onDayItemClick, this);
+        this.onDayItemClickHandler = onDayItemClick.bind(this);
         // 今日日期点击事件
-        this.onTodayButtonClickHandler = $.proxy(onTodayButtonClick, this);
+        this.onTodayButtonClickHandler = onTodayButtonClick.bind(this);
         if(this.isDateTime()) {
             // 时间滚轮选择事件
-            this.onTimeMousewheelHandler = $.proxy(onTimeMousewheel, this);
+            this.onTimeMousewheelHandler = onTimeMousewheel.bind(this);
             // 时间输入事件
-            this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
+            this.onTimeTextinputHandler = onTimeTextinput.bind(this);
         }
     },
     _initDateRange: function() {
@@ -449,9 +449,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._panel = this._calendarPanel;
         this._selectTextClass = "date-text";
         this._clearClass = "ui-date-chooser-clear";
-        this._clear = $.proxy(function () {
+        this._clear = (function () {
             this.cancelSelection();
-        }, this);
+        }).bind(this);
 
         // 创建日历内容面板
         this._initCalendarPanel();
@@ -1320,8 +1320,8 @@ function setOptions(elem, option) {
     this.clearHandler = option.cancelHandler;
     // 修正事件处理函数
     if(elem.nodeName() === "INPUT") {
-        this.onMousemoveHandler = $.proxy(onMousemoveHandler, this);
-        this.onMouseupHandler = $.proxy(onMouseupHandler, this);
+        this.onMousemoveHandler = onMousemoveHandler.bind(this);
+        this.onMouseupHandler = onMouseupHandler.bind(this);
     } else {
         this.onMousemoveHandler = noop;
         this.onMouseupHandler = noop;

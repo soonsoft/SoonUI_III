@@ -277,7 +277,7 @@ modernStyle = {
                 return;
             }
             animator.onEnd = null;
-            submenuListShowFn = $.proxy(function () {
+            submenuListShowFn = (function () {
                 var that;
                 this.submenuList.css("display", "none");
                 this._setSubmenuList();
@@ -294,7 +294,7 @@ modernStyle = {
                     that.submenuListAnimator.start();
                 });
 
-            }, this);
+            }).bind(this);
             if (elem.css("display") === "none") {
                 option = animator[0];
                 option.begin = -(this.menuWidth - this.menuNarrowWidth) + this.menuNarrowWidth;
@@ -399,7 +399,7 @@ function onMenuItemNormalClick(e) {
         }
         elem = elem.parent();
     }
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var subElem;
         this._currentMenu = elem;
         this._currentMenu
@@ -412,8 +412,8 @@ function onMenuItemNormalClick(e) {
                 .addClass("background-highlight");
             this.subShow(subElem, this.hasAnimation);
         }
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -429,7 +429,7 @@ function onMenuItemNormalClick(e) {
         } else {
             this._currentMenu = null;
         }
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         subElem = this._getSubmenuElement();
@@ -466,7 +466,7 @@ function onMenuItemModernClick(e) {
         return;
     }
 
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var submenuPanel;
         this._currentMenu = elem;
         this._currentMenu
@@ -477,8 +477,8 @@ function onMenuItemModernClick(e) {
             .addClass(currentClass)
             .addClass("background-highlight");
         this.subShow(submenuPanel, this.hasAnimation);
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -489,7 +489,7 @@ function onMenuItemModernClick(e) {
             .removeClass("background-highlight");
         subElem.css("display", "none");
         this._currentMenu = null;
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         if (this._currentMenu[0] === elem[0]) {
@@ -573,9 +573,9 @@ ui.define("ui.ctrls.Menu", {
         }
 
         // 普通父菜单点击事件
-        this.onMenuItemNormalClickHandler = $.proxy(onMenuItemNormalClick, this);
+        this.onMenuItemNormalClickHandler = onMenuItemNormalClick.bind(this);
         // 现代父菜单点击事件
-        this.onMenuItemModernClickHandler = $.proxy(onMenuItemModernClick, this);
+        this.onMenuItemModernClickHandler = onMenuItemModernClick.bind(this);
         
         // 默认设置为普通展开模式
         this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;

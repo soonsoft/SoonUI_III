@@ -216,10 +216,10 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 this.expandLevel = 0;
             }
 
-            this.onTreeFoldClickHandler = $.proxy(onTreeFoldLazyClick, this);
+            this.onTreeFoldClickHandler = onTreeFoldLazyClick.bind(this);
             this.option.lazy = true;
         } else {
-            this.onTreeFoldClickHandler = $.proxy(onTreeFoldClick, this);
+            this.onTreeFoldClickHandler = onTreeFoldClick.bind(this);
             this.option.lazy = false;
         }
 
@@ -227,7 +227,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             this.option.itemFormatter = defaultItemFormatter;
         }
 
-        this.onTreeItemClickHandler = $.proxy(onTreeItemClick, this);
+        this.onTreeItemClickHandler = onTreeItemClick.bind(this);
     },
     _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");

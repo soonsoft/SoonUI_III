@@ -116,7 +116,7 @@ YearView.prototype = {
         }
 
         // 日期项点击事件
-        this.onYearItemClickHandler = $.proxy(onYearItemClick, this);
+        this.onYearItemClickHandler = onYearItemClick.bind(this);
 
         this.yearPanel = $("<div class='ui-calendar-year-view' />");
         this._initYear();
@@ -597,7 +597,7 @@ MonthView.prototype = {
         }
 
         // 事件
-        this.onMonthItemClickHandler = $.proxy(onMouseItemClick, this);
+        this.onMonthItemClickHandler = onMouseItemClick.bind(this);
 
         this._setCurrent();
         this.weekPanel = $("<div class='ui-calendar-month-week-view' />");
@@ -1110,7 +1110,7 @@ WeekView.prototype = {
             this._formatDayText = defaultFormatDateHeadText;
         }
         // 事件
-        this.onWeekHeadItemClickHandler = $.proxy(onWeekHeadItemClick, this);
+        this.onWeekHeadItemClickHandler = onWeekHeadItemClick.bind(this);
 
         this.weekDays = this.calendar.getWeek(this.calendar.currentDate);
         this._setCurrent();
@@ -1740,7 +1740,7 @@ DayView.prototype = {
         }
 
         // 事件
-        this.onDayHeadItemClickHandler = $.proxy(onDayHeadItemClick, this);
+        this.onDayHeadItemClickHandler = onDayHeadItemClick.bind(this);
 
         this._setCurrent();
 
@@ -2017,7 +2017,7 @@ Selector.prototype = {
         this._initAnimator();
     },
     _initEvents: function() {
-        this.mouseLeftButtonDownHandler = $.proxy(function (e) {
+        this.mouseLeftButtonDownHandler = (function (e) {
             if (e.which !== 1) {
                 return;
             }
@@ -2026,14 +2026,14 @@ Selector.prototype = {
             if(this.onMouseDown($(e.target), e.clientX, e.clientY)) {
                 this._isBeginSelect = true;
             }
-        }, this);
-        this.mouseMoveHandler = $.proxy(function (e) {
+        }).bind(this);
+        this.mouseMoveHandler = (function (e) {
             if (!this._isBeginSelect) {
                 return;
             }
             this.onMouseMove(e);
-        }, this);
-        this.mouseLeftButtonUpHandler = $.proxy(function (e) {
+        }).bind(this);
+        this.mouseLeftButtonUpHandler = (function (e) {
             if (e.which !== 1 || !this._isBeginSelect) {
                 return;
             }
@@ -2041,7 +2041,7 @@ Selector.prototype = {
             $(document).off("mousemove", this.mouseMoveHandler);
             $(document).off("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseUp(e);
-        }, this);
+        }).bind(this);
     },
     _initAnimator: function() {
         var that = this;

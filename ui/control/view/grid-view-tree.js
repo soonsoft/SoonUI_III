@@ -51,7 +51,7 @@ GridViewTree.prototype = {
         this.gridview = null;
         this.isTreeNode = isTreeNode;
         
-        this.onFoldButtonClickHandler = $.proxy(onFoldButtonClick, this);
+        this.onFoldButtonClickHandler = onFoldButtonClick.bind(this);
     },
     //修正父级元素的子元素索引
     _fixParentIndexes: function (rowData, rowIndex, count) {

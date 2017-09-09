@@ -56,7 +56,7 @@ GridViewGroup.prototype = {
     constructor: GridViewGroup,
     initialize: function() {
         this.gridview = null;
-        this.onGroupRowClickHandler = $.proxy(onGropRowClick, this);
+        this.onGroupRowClickHandler = onGropRowClick.bind(this);
     },
     _operateChildren: function (list, action) {
         var viewData,

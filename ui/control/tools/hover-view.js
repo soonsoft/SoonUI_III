@@ -1,5 +1,94 @@
 /* 悬停视图 */
 var guid = 1;
+// 鼠标移动处理事件
+function onDocumentMousemove (e) {
+    var x = e.clientX,
+        y = e.clientY;
+    if (this.animating) {
+        return;
+    }
+    var p = this.target.offset();
+    var tl = {
+        top: Math.floor(p.top),
+        left: Math.floor(p.left)
+    };
+    tl.bottom = tl.top + this.targetHeight;
+    tl.right = tl.left + this.targetWidth;
+
+    p = this.viewPanel.offset();
+    var pl = {
+        top: Math.floor(p.top),
+        left: Math.floor(p.left)
+    };
+    pl.bottom = pl.top + this.height;
+    pl.right = pl.left + this.width;
+
+    //差值
+    var xdv = -1,
+        ydv = -1,
+        l, r,
+        t = tl.top < pl.top ? tl.top : pl.top,
+        b = tl.bottom > pl.bottom ? tl.bottom : pl.bottom;
+    //判断view在左边还是右边
+    if (tl.left < pl.left) {
+        l = tl.left;
+        r = pl.right;
+    } else {
+        l = pl.left;
+        r = tl.right;
+    }
+
+    //判断鼠标是否在view和target之外
+    if (x < l) {
+        xdv = l - x;
+    } else if (x > r) {
+        xdv = x - r;
+    }
+    if (y < t) {
+        ydv = t - y;
+    } else if (y > b) {
+        ydv = y - b;
+    }
+
+    if (xdv == -1 && ydv == -1) {
+        xdv = 0;
+        if (x >= tl.left && x <= tl.right) {
+            if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
+                ydv = this.buffer;
+            }
+        } else if (x >= pl.left && x <= pl.right) {
+            if (y < pl.top) {
+                ydv = pl.top - y;
+            } else if (y > pl.bottom) {
+                ydv = y - pl.bottom;
+            }
+        }
+        if (ydv == -1) {
+            this.viewPanel.css({
+                "opacity": 1,
+                "filter": "Alpha(opacity=100)"
+            });
+            return;
+        }
+    }
+
+    if (xdv > this.buffer || ydv > this.buffer) {
+        this.hide();
+        return;
+    }
+
+    var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
+    if (opacity < 0.2) {
+        this.hide();
+        return;
+    }
+    this.viewPanel.css({
+        "opacity": opacity,
+        "filter": "Alpha(opacity=" + opacity * 100 + ")"
+    });
+}
+
+
 ui.define("ui.ctrls.HoverView", {
     buffer: 30,
     _defineOption: function () {
@@ -38,8 +127,8 @@ ui.define("ui.ctrls.HoverView", {
             this.option.height = 160;
         }
 
-        this.onDocumentMousemove = $.proxy(this.doDocumentMousemove, this);
-        this.onDocumentMousemove.guid = "hoverView" + (guid++);
+        this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
+        this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
     },
     empty: function () {
         this.viewPanel.empty();
@@ -49,105 +138,19 @@ ui.define("ui.ctrls.HoverView", {
         this.viewPanel.append(elem);
         return this;
     },
-    doDocumentMousemove: function (e) {
-        var x = e.clientX,
-            y = e.clientY;
-        if (this.animating) {
-            return;
-        }
-        var p = this.target.offset();
-        var tl = {
-            top: Math.floor(p.top),
-            left: Math.floor(p.left)
-        };
-        tl.bottom = tl.top + this.targetHeight;
-        tl.right = tl.left + this.targetWidth;
-
-        p = this.viewPanel.offset();
-        var pl = {
-            top: Math.floor(p.top),
-            left: Math.floor(p.left)
-        };
-        pl.bottom = pl.top + this.height;
-        pl.right = pl.left + this.width;
-
-        //差值
-        var xdv = -1,
-            ydv = -1,
-            l, r,
-            t = tl.top < pl.top ? tl.top : pl.top,
-            b = tl.bottom > pl.bottom ? tl.bottom : pl.bottom;
-        //判断view在左边还是右边
-        if (tl.left < pl.left) {
-            l = tl.left;
-            r = pl.right;
-        } else {
-            l = pl.left;
-            r = tl.right;
-        }
-
-        //判断鼠标是否在view和target之外
-        if (x < l) {
-            xdv = l - x;
-        } else if (x > r) {
-            xdv = x - r;
-        }
-        if (y < t) {
-            ydv = t - y;
-        } else if (y > b) {
-            ydv = y - b;
-        }
-
-        if (xdv == -1 && ydv == -1) {
-            xdv = 0;
-            if (x >= tl.left && x <= tl.right) {
-                if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
-                    ydv = this.buffer;
-                }
-            } else if (x >= pl.left && x <= pl.right) {
-                if (y < pl.top) {
-                    ydv = pl.top - y;
-                } else if (y > pl.bottom) {
-                    ydv = y - pl.bottom;
-                }
-            }
-            if (ydv == -1) {
-                this.viewPanel.css({
-                    "opacity": 1,
-                    "filter": "Alpha(opacity=100)"
-                });
-                return;
-            }
-        }
-
-        if (xdv > this.buffer || ydv > this.buffer) {
-            this.hide();
-            return;
-        }
-
-        var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
-        if (opacity < 0.2) {
-            this.hide();
-            return;
-        }
-        this.viewPanel.css({
-            "opacity": opacity,
-            "filter": "Alpha(opacity=" + opacity * 100 + ")"
-        });
-    },
     addDocMousemove: function () {
         if (this.hasDocMousemoveEvent) {
             return;
         }
         this.hasDocMousemoveEvent = true;
-        $(document).on("mousemove", this.onDocumentMousemove);
+        $(document).on("mousemove", this.onDocumentMousemoveHander);
     },
     removeDocMousemove: function () {
         if (!this.hasDocMousemoveEvent) {
             return;
         }
         this.hasDocMousemoveEvent = false;
-        $(document).off("mousemove", this.onDocumentMousemove);
+        $(document).off("mousemove", this.onDocumentMousemoveHander);
     },
     setLocation: function () {
         ui.setLeft(this.target, this.viewPanel);

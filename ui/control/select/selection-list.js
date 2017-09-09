@@ -127,7 +127,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }, this);
 
         //事件函数初始化
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");

@@ -132,7 +132,7 @@ function fromUpload() {
     div.append(this._form);
     $(document.body).append(div);
 
-    this._iframe.load($.proxy(function () {
+    this._iframe.load((function () {
         var contentWindow,
             fileInfo,
             errorMsg;
@@ -153,7 +153,7 @@ function fromUpload() {
         } else {
             this.fire("uploaded", getEventData.call(this, fileInfo));
         }
-    }, this));
+    }).bind(this));
     this.doUpload = function () {
         this._form.append(this._inputFile);
 
@@ -229,7 +229,7 @@ ui.define("ui.ctrls.Uploader", {
         this._inputFile = null;
 
         // 初始化事件处理函数
-        this.onInputFileChangeHandler = $.proxy(onInputFileChange, this);
+        this.onInputFileChangeHandler = onInputFileChange.bind(this);
 
         this._reset();
     },

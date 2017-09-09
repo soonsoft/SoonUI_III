@@ -618,7 +618,7 @@ modernStyle = {
                 return;
             }
             animator.onEnd = null;
-            submenuListShowFn = $.proxy(function () {
+            submenuListShowFn = (function () {
                 var that;
                 this.submenuList.css("display", "none");
                 this._setSubmenuList();
@@ -635,7 +635,7 @@ modernStyle = {
                     that.submenuListAnimator.start();
                 });
 
-            }, this);
+            }).bind(this);
             if (elem.css("display") === "none") {
                 option = animator[0];
                 option.begin = -(this.menuWidth - this.menuNarrowWidth) + this.menuNarrowWidth;
@@ -740,7 +740,7 @@ function onMenuItemNormalClick(e) {
         }
         elem = elem.parent();
     }
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var subElem;
         this._currentMenu = elem;
         this._currentMenu
@@ -753,8 +753,8 @@ function onMenuItemNormalClick(e) {
                 .addClass("background-highlight");
             this.subShow(subElem, this.hasAnimation);
         }
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -770,7 +770,7 @@ function onMenuItemNormalClick(e) {
         } else {
             this._currentMenu = null;
         }
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         subElem = this._getSubmenuElement();
@@ -807,7 +807,7 @@ function onMenuItemModernClick(e) {
         return;
     }
 
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var submenuPanel;
         this._currentMenu = elem;
         this._currentMenu
@@ -818,8 +818,8 @@ function onMenuItemModernClick(e) {
             .addClass(currentClass)
             .addClass("background-highlight");
         this.subShow(submenuPanel, this.hasAnimation);
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -830,7 +830,7 @@ function onMenuItemModernClick(e) {
             .removeClass("background-highlight");
         subElem.css("display", "none");
         this._currentMenu = null;
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         if (this._currentMenu[0] === elem[0]) {
@@ -914,9 +914,9 @@ ui.define("ui.ctrls.Menu", {
         }
 
         // 普通父菜单点击事件
-        this.onMenuItemNormalClickHandler = $.proxy(onMenuItemNormalClick, this);
+        this.onMenuItemNormalClickHandler = onMenuItemNormalClick.bind(this);
         // 现代父菜单点击事件
-        this.onMenuItemModernClickHandler = $.proxy(onMenuItemModernClick, this);
+        this.onMenuItemModernClickHandler = onMenuItemModernClick.bind(this);
         
         // 默认设置为普通展开模式
         this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
@@ -1619,6 +1619,7 @@ function Tile(tileInfo, group) {
     }
 }
 Tile.prototype = {
+    constructor: Tile,
     initialize: function(tileInfo, group) {
         var type,
             that;
@@ -1771,6 +1772,7 @@ function TileGroup(tileInfos, container) {
     }
 }
 TileGroup.prototype = {
+    constructor: TileGroup,
     initialize: function(tileInfos, container) {
         var arr = [],
             that;
@@ -1960,6 +1962,7 @@ function TileContainer(containerPanel) {
     }
 }
 TileContainer.prototype = {
+    constructor: TileContainer,
     initialize: function(containerPanel) {
         this.groups = [];
         this.dynamicTiles = ui.KeyArray();
@@ -2374,11 +2377,12 @@ ui.tiles.picture = function(tile, images) {
     tile.pictureContext = {
         images: arr,
         currentIndex: 0,
+        imageSizeCache: {},
         imageLoader: new ui.ImageLoader()
     };
     initDisplayArea(tile);
     initAnimator(tile);
-    showPicture(tile, firstPictrue);
+    showPicture(tile, tile.pictureContext.currentImage, firstPictrue);
 };
 
 function initDisplayArea(tile) {
@@ -2420,37 +2424,47 @@ function initAnimator(tile) {
     });
 }
 
-function showPicture(tile, callback) {
+function showPicture(tile, currentImg, callback) {
     var imageSrc,
-        context;
+        context,
+        setImageFn;
 
     context = tile.pictureContext;
     if(context.images.length === 0) {
         return;
     }
     imageSrc = context.images[context.currentIndex];
+    setImageFn = function(css) {
+        currentImg.css(css);
+        currentImg.prop("src", imageSrc);
+        callback(tile);
+    };
 
-    context.imageLoader
-                .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
-                .then(
-                    function(loader) {
-                        context.currentImage.css({
-                            "width": loader.displayWidth + "px",
-                            "height": loader.displayHeight + "px",
-                            "top": loader.marginTop + "px",
-                            "left": loader.marginLeft + "px"
-                        });
-                        context.currentImage.prop("src", imageSrc);
-                        callback(tile);
-                    }, 
-                    function() {
-                        context.images.splice(index, 1);
-                        if(context.images.length > 0) {
-                            moveNext(tile);
-                            showPicture(tile, callback);
+    if(context.imageSizeCache.hasOwnProperty(imageSrc)) {
+        setImageFn(context.imageSizeCache[imageSrc]);
+    } else {
+        context.imageLoader
+                    .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
+                    .then(
+                        function(loader) {
+                            var css = {
+                                "width": loader.displayWidth + "px",
+                                "height": loader.displayHeight + "px",
+                                "top": loader.marginTop + "px",
+                                "left": loader.marginLeft + "px"
+                            };
+                            context.imageSizeCache[imageSrc] = css;
+                            setImageFn(css);
+                        }, 
+                        function() {
+                            context.images.splice(index, 1);
+                            if(context.images.length > 0) {
+                                moveNext(tile);
+                                showPicture(tile, currentImg, callback);
+                            }
                         }
-                    }
-                );
+                    );
+    }
 }
 
 function firstPictrue(tile) {
@@ -2464,16 +2478,23 @@ function firstPictrue(tile) {
     setTimeout(function() {
         if(context.images.length > 1) {
             moveNext(tile);
-            change(tile);
-            showPicture(tile, nextPicture);
+            showPicture(tile, context.nextImage, nextPicture);
         }
     }, 10000);
 }
 
 function nextPicture(tile) {
-    var context,
+    var temp,
+        context,
         option;
     context = tile.pictureContext;
+
+    temp = context.currentImagePanel;
+    context.currentImagePanel = context.nextImagePanel;
+    context.nextImagePanel = temp;
+    temp = context.currentImage;
+    context.currentImage = context.nextImage;
+    context.nextImage = temp;
 
     option = context.switchAnimator[0];
     option.target = context.nextImagePanel;
@@ -2492,24 +2513,11 @@ function nextPicture(tile) {
             setTimeout(function() {
                 if(context.images.length > 1) {
                     moveNext(tile);
-                    change(tile);
-                    showPicture(tile, nextPicture);
+                    showPicture(tile, context.nextImage, nextPicture);
                 }
             }, 10000);
         }, 500);
     });
-}
-
-function change(tile) {
-    var temp,
-        context;
-    context = tile.pictureContext;
-    temp = context.currentImagePanel;
-    context.currentImagePanel = context.nextImagePanel;
-    context.nextImagePanel = temp;
-    temp = context.currentImage;
-    context.currentImage = context.nextImage;
-    context.nextImage = temp;
 }
 
 function moveNext(tile) {
@@ -2532,6 +2540,163 @@ function moveNext(tile) {
 (function($, ui) {
 "use strict";
 // 天气可交互磁贴
+/*
+    cityName: 城市名称
+    days: [
+        weatherDay: {
+            date: yyyy-MM-dd
+            type: 天气类型
+            temperature: 当前气温
+            lowTemperature: 低温
+            highTemperature: 高温
+            description: 天气描述
+            windDirection: 风向
+        }
+    ]
+ */
+var weatherStyle;
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+function findToday(days) {
+    var i, len,
+        weatherDay,
+        today;
+    if(Array.isArray(days)) {
+        today = new Date();
+        for(i = 0, len = days.length; i < len; i++) {
+            weatherDay = days[i];
+            weatherDay.date = ui.str.jsonToDate(weatherDay.date);
+            if(!weatherDay.date) {
+                continue;
+            }
+            if(weatherDay.date.getFullYear() === today.getFullYear()
+                && weatherDay.date.getMonth() === today.getMonth()
+                && weatherDay.date.getDate() === today.getDate()) {
+                return weatherDay;
+            }
+        }
+    }
+    return null;
+}
+function createBuilder(weatherData) {
+    return {
+        htmlBuilder: [],
+        weatherData: weatherData,
+        weatherToday: findToday(weatherData.days),
+        graph: graph,
+        info: info,
+        days: days,
+        build: build
+    };
+}
+function graph() {
+    var builder = this.htmlBuilder;
+    builder.push("<div class='weather-graph'>");
+    _callChildBuilders.apply(this, arguments);
+    builder.push("</div>");
+    return this;
+}
+function info() {
+    var builder = this.htmlBuilder;
+    builder.push("<div class='weather-info'>");
+    _callChildBuilders.apply(this, arguments);
+    builder.push("</div>");
+    return this;
+}
+function days() {
+    var builder = this.htmlBuilder,
+        weatherData = this.weatherData,
+        weatherDay,
+        i, len;
+    if(Array.isArray(weatherData.days)) {
+        htmlBuilder.push("<ul>");
+        for(i = 0, len = weatherData.days.length; i < len; i++) {
+            weatherDay = weatherData.days[i];
+            htmlBuilder.push("<li>");
+            htmlBuilder.push("<div class='weather-item'>");
+            this.graph();
+            this.info();
+            htmlBuilder.push("</div>");
+            htmlBuilder.push("<div class='weather-text'>");
+            htmlBuilder.push("<span>", ui.str.textFormat(), "</span>");
+            htmlBuilder.push("</div>");
+            htmlBuilder.push("</li>");
+        }
+        htmlBuilder.push("</ul>");
+    }
+
+    return this;
+}
+function build() {
+    return this.htmlBuilder.join("");
+}
+function _callChildBuilders() {
+    var i, len,
+        weatherDay;
+    weatherDay = this.weatherToday;
+    for(i = 0, len = arguments.length; i < len; i++) {
+        if(ui.core.isFunction(arguments[i])) {
+            arguments[i].call(this, weatherDay);
+        }
+    }
+}
+function city(weatherDay) {
+    var builder = this.htmlBuilder,
+        weatherData = this.weatherData;
+    builder.push("<h6 class='weather-city'>", weatherData.city, "</h6>");
+}
+function temperature(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h3 class='weather-temperature'>");
+    if(weatherDay.temperature) {
+        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
+    }
+    builder.push("<span class='weather-low-high'>", weatherDay.lowTemperature, "℃ / ", weatherData.highTemperature, "℃", "</span>");
+    builder.push("</h3>");
+}
+function description(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h6 class='weather-description'>", weatherDay.description, "</h6>");
+}
+function windDirection(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h6 class='weather-wind'>", weatherDay.windDirection, "</h6>");
+}
+
+weatherStyle = {
+    medium: function(tile, weatherData) {
+        var html = createBuilder(weatherData)
+            .graph()
+            .info(
+                temperature,
+                description
+            )
+            .build();
+    },
+    wide: function(tile, weatherData) {
+        var html = createBuilder(weatherData)
+            .graph()
+            .info(
+                city,
+                temperature,
+                description,
+                windDirection
+            )
+            .build();
+    },
+    large: function(tile) {
+        var html = createBuilder(weatherData)
+            .days()
+            .build();
+    }
+};
+
+ui.tiles.weather = function(tile, weatherData) {
+
+};
 
 
 })(jQuery, ui);

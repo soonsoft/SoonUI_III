@@ -5012,7 +5012,7 @@ ui.define("ui.ctrls.DropDownBase", {
     hideTimeValue: 200,
     _create: function() {
         this.setLayoutPanel(this.option.layoutPanel);
-        this.onMousemoveHandler = $.proxy(function(e) {
+        this.onMousemoveHandler = (function(e) {
             var eWidth = this.element.width(),
                 offsetX = e.offsetX;
             if(!offsetX) {
@@ -5025,8 +5025,8 @@ ui.define("ui.ctrls.DropDownBase", {
                 this.element.css("cursor", "auto");
                 this._clearable = false;
             }
-        }, this);
-        this.onMouseupHandler = $.proxy(function(e) {
+        }).bind(this);
+        this.onMouseupHandler = (function(e) {
             if(!this._clearable) {
                 return;
             }
@@ -5040,7 +5040,7 @@ ui.define("ui.ctrls.DropDownBase", {
                     this._clear();
                 }
             }
-        }, this);
+        }).bind(this);
     },
     _render: function() {
         if(!this.element) {
@@ -7615,9 +7615,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onItemClickHandler = $.proxy(onItemClick, this);
-        this.onMousewheelHandler = $.proxy(onMousewheel, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onItemClickHandler = onItemClick.bind(this);
+        this.onMousewheelHandler = onMousewheel.bind(this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -8742,29 +8742,29 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         // 事件
         /* 年月选择面板相关事件 */
         // 年切换处理
-        this.onYearChangedHandler = $.proxy(onYearChanged, this);
+        this.onYearChangedHandler = onYearChanged.bind(this);
         // 年选中事件
-        this.onYearSelectedHandler = $.proxy(onYearSelected, this);
+        this.onYearSelectedHandler = onYearSelected.bind(this);
         // 月选中事件
-        this.onMonthSelectedHandler = $.proxy(onMonthSelected, this);
+        this.onMonthSelectedHandler = onMonthSelected.bind(this);
         // 选中年月应用事件
-        this.onApplyYearMonthHandler = $.proxy(onApplyYearMonth, this);
+        this.onApplyYearMonthHandler = onApplyYearMonth.bind(this);
         // 取消事件
-        this.onCancelYearMonthHandler = $.proxy(onCancelYearMonth, this);
+        this.onCancelYearMonthHandler = onCancelYearMonth.bind(this);
         /* 日历面板相关事件 */
         // 月切换处理
-        this.onMonthChangedHandler = $.proxy(onMonthChanged, this);
+        this.onMonthChangedHandler = onMonthChanged.bind(this);
         // 日历标题点击事件
-        this.onCalendarTitleClickHandler = $.proxy(onCalendarTitleClick, this);
+        this.onCalendarTitleClickHandler = onCalendarTitleClick.bind(this);
         // 日期项点击事件
-        this.onDayItemClickHandler = $.proxy(onDayItemClick, this);
+        this.onDayItemClickHandler = onDayItemClick.bind(this);
         // 今日日期点击事件
-        this.onTodayButtonClickHandler = $.proxy(onTodayButtonClick, this);
+        this.onTodayButtonClickHandler = onTodayButtonClick.bind(this);
         if(this.isDateTime()) {
             // 时间滚轮选择事件
-            this.onTimeMousewheelHandler = $.proxy(onTimeMousewheel, this);
+            this.onTimeMousewheelHandler = onTimeMousewheel.bind(this);
             // 时间输入事件
-            this.onTimeTextinputHandler = $.proxy(onTimeTextinput, this);
+            this.onTimeTextinputHandler = onTimeTextinput.bind(this);
         }
     },
     _initDateRange: function() {
@@ -8795,9 +8795,9 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._panel = this._calendarPanel;
         this._selectTextClass = "date-text";
         this._clearClass = "ui-date-chooser-clear";
-        this._clear = $.proxy(function () {
+        this._clear = (function () {
             this.cancelSelection();
-        }, this);
+        }).bind(this);
 
         // 创建日历内容面板
         this._initCalendarPanel();
@@ -9666,8 +9666,8 @@ function setOptions(elem, option) {
     this.clearHandler = option.cancelHandler;
     // 修正事件处理函数
     if(elem.nodeName() === "INPUT") {
-        this.onMousemoveHandler = $.proxy(onMousemoveHandler, this);
-        this.onMouseupHandler = $.proxy(onMouseupHandler, this);
+        this.onMousemoveHandler = onMousemoveHandler.bind(this);
+        this.onMouseupHandler = onMouseupHandler.bind(this);
     } else {
         this.onMousemoveHandler = noop;
         this.onMouseupHandler = noop;
@@ -9875,7 +9875,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }, this);
 
         //事件函数初始化
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
@@ -10389,10 +10389,10 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 this.expandLevel = 0;
             }
 
-            this.onTreeFoldClickHandler = $.proxy(onTreeFoldLazyClick, this);
+            this.onTreeFoldClickHandler = onTreeFoldLazyClick.bind(this);
             this.option.lazy = true;
         } else {
-            this.onTreeFoldClickHandler = $.proxy(onTreeFoldClick, this);
+            this.onTreeFoldClickHandler = onTreeFoldClick.bind(this);
             this.option.lazy = false;
         }
 
@@ -10400,7 +10400,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             this.option.itemFormatter = defaultItemFormatter;
         }
 
-        this.onTreeItemClickHandler = $.proxy(onTreeItemClick, this);
+        this.onTreeItemClickHandler = onTreeItemClick.bind(this);
     },
     _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
@@ -11063,11 +11063,11 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         }
 
         // 初始化事件处理函数
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onKeyupHandler = $.proxy(onKeyup, this);
-        this.onMouseoverHandler = $.proxy(onMouseover, this);
-        this.onClickHandler = $.proxy(onClick, this);
-        this.onTextinputHandler = $.proxy(onTextinput, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onKeyupHandler = onKeyup.bind(this);
+        this.onMouseoverHandler = onMouseover.bind(this);
+        this.onClickHandler = onClick.bind(this);
+        this.onTextinputHandler = onTextinput.bind(this);
 
         this._super();
     },
@@ -11383,7 +11383,7 @@ YearView.prototype = {
         }
 
         // 日期项点击事件
-        this.onYearItemClickHandler = $.proxy(onYearItemClick, this);
+        this.onYearItemClickHandler = onYearItemClick.bind(this);
 
         this.yearPanel = $("<div class='ui-calendar-year-view' />");
         this._initYear();
@@ -11864,7 +11864,7 @@ MonthView.prototype = {
         }
 
         // 事件
-        this.onMonthItemClickHandler = $.proxy(onMouseItemClick, this);
+        this.onMonthItemClickHandler = onMouseItemClick.bind(this);
 
         this._setCurrent();
         this.weekPanel = $("<div class='ui-calendar-month-week-view' />");
@@ -12377,7 +12377,7 @@ WeekView.prototype = {
             this._formatDayText = defaultFormatDateHeadText;
         }
         // 事件
-        this.onWeekHeadItemClickHandler = $.proxy(onWeekHeadItemClick, this);
+        this.onWeekHeadItemClickHandler = onWeekHeadItemClick.bind(this);
 
         this.weekDays = this.calendar.getWeek(this.calendar.currentDate);
         this._setCurrent();
@@ -13007,7 +13007,7 @@ DayView.prototype = {
         }
 
         // 事件
-        this.onDayHeadItemClickHandler = $.proxy(onDayHeadItemClick, this);
+        this.onDayHeadItemClickHandler = onDayHeadItemClick.bind(this);
 
         this._setCurrent();
 
@@ -13284,7 +13284,7 @@ Selector.prototype = {
         this._initAnimator();
     },
     _initEvents: function() {
-        this.mouseLeftButtonDownHandler = $.proxy(function (e) {
+        this.mouseLeftButtonDownHandler = (function (e) {
             if (e.which !== 1) {
                 return;
             }
@@ -13293,14 +13293,14 @@ Selector.prototype = {
             if(this.onMouseDown($(e.target), e.clientX, e.clientY)) {
                 this._isBeginSelect = true;
             }
-        }, this);
-        this.mouseMoveHandler = $.proxy(function (e) {
+        }).bind(this);
+        this.mouseMoveHandler = (function (e) {
             if (!this._isBeginSelect) {
                 return;
             }
             this.onMouseMove(e);
-        }, this);
-        this.mouseLeftButtonUpHandler = $.proxy(function (e) {
+        }).bind(this);
+        this.mouseLeftButtonUpHandler = (function (e) {
             if (e.which !== 1 || !this._isBeginSelect) {
                 return;
             }
@@ -13308,7 +13308,7 @@ Selector.prototype = {
             $(document).off("mousemove", this.mouseMoveHandler);
             $(document).off("mouseup", this.mouseLeftButtonUpHandler);
             this.onMouseUp(e);
-        }, this);
+        }).bind(this);
     },
     _initAnimator: function() {
         var that = this;
@@ -14450,7 +14450,7 @@ ui.define("ui.ctrls.CardView", {
 
         /// 事件处理程序
         // 项目选中处理程序
-        this.onBodyClickHandler = $.proxy(onBodyClick, this);
+        this.onBodyClickHandler = onBodyClick.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-card-view")) {
@@ -15045,7 +15045,7 @@ FoldView.prototype = {
     constructor: FoldView,
     initialize: function(element) {
         this.element = element;
-        this.onFoldTitleClickHandler = $.proxy(onFoldTitleClick, this);
+        this.onFoldTitleClickHandler = onFoldTitleClick.bind(this);
     },
     _render: function() {
         var dtList,
@@ -15156,7 +15156,7 @@ GridViewGroup.prototype = {
     constructor: GridViewGroup,
     initialize: function() {
         this.gridview = null;
-        this.onGroupRowClickHandler = $.proxy(onGropRowClick, this);
+        this.onGroupRowClickHandler = onGropRowClick.bind(this);
     },
     _operateChildren: function (list, action) {
         var viewData,
@@ -15313,7 +15313,7 @@ GridViewTree.prototype = {
         this.gridview = null;
         this.isTreeNode = isTreeNode;
         
-        this.onFoldButtonClickHandler = $.proxy(onFoldButtonClick, this);
+        this.onFoldButtonClickHandler = onFoldButtonClick.bind(this);
     },
     //修正父级元素的子元素索引
     _fixParentIndexes: function (rowData, rowIndex, count) {
@@ -15861,7 +15861,7 @@ function onSort(e) {
         resetSortColumnState.call(this, elem.parent());
     }
 
-    fn = $.proxy(sorting, this);
+    fn = sorting.bind(this);
     isSelf = this._lastSortColumn == column;
     this._lastSortColumn = column;
 
@@ -16103,13 +16103,13 @@ ui.define("ui.ctrls.GridView", {
 
         // event handlers
         // 排序按钮点击事件
-        this.onSortHandler = $.proxy(onSort, this);
+        this.onSortHandler = onSort.bind(this);
         // 行或者单元格点击事件
-        this.onTableBodyClickHandler = $.proxy(onTableBodyClick, this);
+        this.onTableBodyClickHandler = onTableBodyClick.bind(this);
         // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
+        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
         // 横向滚动条同步事件
-        this.onScrollingXHandler = $.proxy(onScrollingX, this);
+        this.onScrollingXHandler = onScrollingX.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-grid-view")) {
@@ -16509,7 +16509,7 @@ ui.define("ui.ctrls.GridView", {
             colGroup.append(this._createCol(c));
             th = this._createCell("th", c);
             th.addClass("ui-table-head-cell");
-            if ($.isFunction(c.text)) {
+            if (ui.core.isFunction(c.text)) {
                 th.append(c.text.call(this, c, th));
             } else {
                 if(c.text) {
@@ -17004,7 +17004,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
-        this.onListItemClickHandler = $.proxy(onListItemClick, this);
+        this.onListItemClickHandler = onListItemClick.bind(this);
     },
     _render: function() {
         this.element.addClass("ui-list-view");
@@ -17806,7 +17806,7 @@ function onSort(e) {
         resetSortColumnState.call(this, elem.parent());
     }
 
-    fn = $.proxy(sorting, this);
+    fn = sorting.bind(this);
     isSelf = this._lastSortColumn == column;
     this._lastSortColumn = column;
 
@@ -18115,15 +18115,15 @@ ui.define("ui.ctrls.ReportView", {
 
         // 事件初始化
         // 排序按钮点击事件
-        this.onSortHandler = $.proxy(onSort, this);
+        this.onSortHandler = onSort.bind(this);
         // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
+        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
         // 滚动条同步事件
-        this.onScrollingHandler = $.proxy(onScrolling, this);
+        this.onScrollingHandler = onScrolling.bind(this);
         // 固定行点击事件
-        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick, this);
+        this.onTableFixedBodyClickHandler = onTableFixedBodyClick.bind(this);
         // 数据行点击事件
-        this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
+        this.onTableDataBodyClickHandler = onTableDataBodyClick.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-report-view")) {
@@ -19930,7 +19930,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+        this.onButtonClickHandler = onButtonClick.bind(this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);
@@ -20531,7 +20531,7 @@ ui.define("ui.ctrls.FilterTool", {
         this.parent = this.element;
         this.radioName = prefix + "_" + (filterCount++);
 
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {
@@ -20723,6 +20723,95 @@ $.fn.filterTool = function (option) {
 "use strict";
 /* 悬停视图 */
 var guid = 1;
+// 鼠标移动处理事件
+function onDocumentMousemove (e) {
+    var x = e.clientX,
+        y = e.clientY;
+    if (this.animating) {
+        return;
+    }
+    var p = this.target.offset();
+    var tl = {
+        top: Math.floor(p.top),
+        left: Math.floor(p.left)
+    };
+    tl.bottom = tl.top + this.targetHeight;
+    tl.right = tl.left + this.targetWidth;
+
+    p = this.viewPanel.offset();
+    var pl = {
+        top: Math.floor(p.top),
+        left: Math.floor(p.left)
+    };
+    pl.bottom = pl.top + this.height;
+    pl.right = pl.left + this.width;
+
+    //差值
+    var xdv = -1,
+        ydv = -1,
+        l, r,
+        t = tl.top < pl.top ? tl.top : pl.top,
+        b = tl.bottom > pl.bottom ? tl.bottom : pl.bottom;
+    //判断view在左边还是右边
+    if (tl.left < pl.left) {
+        l = tl.left;
+        r = pl.right;
+    } else {
+        l = pl.left;
+        r = tl.right;
+    }
+
+    //判断鼠标是否在view和target之外
+    if (x < l) {
+        xdv = l - x;
+    } else if (x > r) {
+        xdv = x - r;
+    }
+    if (y < t) {
+        ydv = t - y;
+    } else if (y > b) {
+        ydv = y - b;
+    }
+
+    if (xdv == -1 && ydv == -1) {
+        xdv = 0;
+        if (x >= tl.left && x <= tl.right) {
+            if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
+                ydv = this.buffer;
+            }
+        } else if (x >= pl.left && x <= pl.right) {
+            if (y < pl.top) {
+                ydv = pl.top - y;
+            } else if (y > pl.bottom) {
+                ydv = y - pl.bottom;
+            }
+        }
+        if (ydv == -1) {
+            this.viewPanel.css({
+                "opacity": 1,
+                "filter": "Alpha(opacity=100)"
+            });
+            return;
+        }
+    }
+
+    if (xdv > this.buffer || ydv > this.buffer) {
+        this.hide();
+        return;
+    }
+
+    var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
+    if (opacity < 0.2) {
+        this.hide();
+        return;
+    }
+    this.viewPanel.css({
+        "opacity": opacity,
+        "filter": "Alpha(opacity=" + opacity * 100 + ")"
+    });
+}
+
+
 ui.define("ui.ctrls.HoverView", {
     buffer: 30,
     _defineOption: function () {
@@ -20761,8 +20850,8 @@ ui.define("ui.ctrls.HoverView", {
             this.option.height = 160;
         }
 
-        this.onDocumentMousemove = $.proxy(this.doDocumentMousemove, this);
-        this.onDocumentMousemove.guid = "hoverView" + (guid++);
+        this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
+        this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
     },
     empty: function () {
         this.viewPanel.empty();
@@ -20772,105 +20861,19 @@ ui.define("ui.ctrls.HoverView", {
         this.viewPanel.append(elem);
         return this;
     },
-    doDocumentMousemove: function (e) {
-        var x = e.clientX,
-            y = e.clientY;
-        if (this.animating) {
-            return;
-        }
-        var p = this.target.offset();
-        var tl = {
-            top: Math.floor(p.top),
-            left: Math.floor(p.left)
-        };
-        tl.bottom = tl.top + this.targetHeight;
-        tl.right = tl.left + this.targetWidth;
-
-        p = this.viewPanel.offset();
-        var pl = {
-            top: Math.floor(p.top),
-            left: Math.floor(p.left)
-        };
-        pl.bottom = pl.top + this.height;
-        pl.right = pl.left + this.width;
-
-        //差值
-        var xdv = -1,
-            ydv = -1,
-            l, r,
-            t = tl.top < pl.top ? tl.top : pl.top,
-            b = tl.bottom > pl.bottom ? tl.bottom : pl.bottom;
-        //判断view在左边还是右边
-        if (tl.left < pl.left) {
-            l = tl.left;
-            r = pl.right;
-        } else {
-            l = pl.left;
-            r = tl.right;
-        }
-
-        //判断鼠标是否在view和target之外
-        if (x < l) {
-            xdv = l - x;
-        } else if (x > r) {
-            xdv = x - r;
-        }
-        if (y < t) {
-            ydv = t - y;
-        } else if (y > b) {
-            ydv = y - b;
-        }
-
-        if (xdv == -1 && ydv == -1) {
-            xdv = 0;
-            if (x >= tl.left && x <= tl.right) {
-                if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
-                    ydv = this.buffer;
-                }
-            } else if (x >= pl.left && x <= pl.right) {
-                if (y < pl.top) {
-                    ydv = pl.top - y;
-                } else if (y > pl.bottom) {
-                    ydv = y - pl.bottom;
-                }
-            }
-            if (ydv == -1) {
-                this.viewPanel.css({
-                    "opacity": 1,
-                    "filter": "Alpha(opacity=100)"
-                });
-                return;
-            }
-        }
-
-        if (xdv > this.buffer || ydv > this.buffer) {
-            this.hide();
-            return;
-        }
-
-        var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
-        if (opacity < 0.2) {
-            this.hide();
-            return;
-        }
-        this.viewPanel.css({
-            "opacity": opacity,
-            "filter": "Alpha(opacity=" + opacity * 100 + ")"
-        });
-    },
     addDocMousemove: function () {
         if (this.hasDocMousemoveEvent) {
             return;
         }
         this.hasDocMousemoveEvent = true;
-        $(document).on("mousemove", this.onDocumentMousemove);
+        $(document).on("mousemove", this.onDocumentMousemoveHander);
     },
     removeDocMousemove: function () {
         if (!this.hasDocMousemoveEvent) {
             return;
         }
         this.hasDocMousemoveEvent = false;
-        $(document).off("mousemove", this.onDocumentMousemove);
+        $(document).off("mousemove", this.onDocumentMousemoveHander);
     },
     setLocation: function () {
         ui.setLeft(this.target, this.viewPanel);
@@ -21575,7 +21578,7 @@ function fromUpload() {
     div.append(this._form);
     $(document.body).append(div);
 
-    this._iframe.load($.proxy(function () {
+    this._iframe.load((function () {
         var contentWindow,
             fileInfo,
             errorMsg;
@@ -21596,7 +21599,7 @@ function fromUpload() {
         } else {
             this.fire("uploaded", getEventData.call(this, fileInfo));
         }
-    }, this));
+    }).bind(this));
     this.doUpload = function () {
         this._form.append(this._inputFile);
 
@@ -21672,7 +21675,7 @@ ui.define("ui.ctrls.Uploader", {
         this._inputFile = null;
 
         // 初始化事件处理函数
-        this.onInputFileChangeHandler = $.proxy(onInputFileChange, this);
+        this.onInputFileChangeHandler = onInputFileChange.bind(this);
 
         this._reset();
     },
@@ -21813,12 +21816,12 @@ ui.define("ui.ctrls.ImagePreview", {
             .append(this.chooserQueue)
             .append(this.chooserNext);
         
-        this.chooserPrev.click($.proxy(function(e) {
+        this.chooserPrev.click((function(e) {
             this.beforeItems();
-        }, this));
-        this.chooserNext.click($.proxy(function(e) {
+        }).bind(this));
+        this.chooserNext.click((function(e) {
             this.afterItems();
-        }, this));
+        }).bind(this));
         
         this.chooserAnimator = ui.animator({
             target: this.chooserQueue,
@@ -21902,7 +21905,7 @@ ui.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click($.proxy(this._onClickHandler, this));
+        this.chooserQueue.click(this._onClickHandler.bind(this));
         
         this.setImages(this.option.images);
     },
@@ -22255,12 +22258,12 @@ ui.define("ui.ctrls.ImageViewer", {
         if(this.option.hasSwitchButtom === true) {
             this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='fa fa-angle-left'></i></a>");
             this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='fa fa-angle-right'></i></a>");
-            this.prevBtn.click($.proxy(function(e) {
+            this.prevBtn.click((function(e) {
                 this.prev();
-            }, this));
-            this.nextBtn.click($.proxy(function(e) {
+            }).bind(this));
+            this.nextBtn.click((function(e) {
                 this.next();
-            }, this));
+            }).bind(this));
             this.element
                 .append(this.prevBtn)
                 .append(this.nextBtn);
@@ -23659,7 +23662,7 @@ modernStyle = {
                 return;
             }
             animator.onEnd = null;
-            submenuListShowFn = $.proxy(function () {
+            submenuListShowFn = (function () {
                 var that;
                 this.submenuList.css("display", "none");
                 this._setSubmenuList();
@@ -23676,7 +23679,7 @@ modernStyle = {
                     that.submenuListAnimator.start();
                 });
 
-            }, this);
+            }).bind(this);
             if (elem.css("display") === "none") {
                 option = animator[0];
                 option.begin = -(this.menuWidth - this.menuNarrowWidth) + this.menuNarrowWidth;
@@ -23781,7 +23784,7 @@ function onMenuItemNormalClick(e) {
         }
         elem = elem.parent();
     }
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var subElem;
         this._currentMenu = elem;
         this._currentMenu
@@ -23794,8 +23797,8 @@ function onMenuItemNormalClick(e) {
                 .addClass("background-highlight");
             this.subShow(subElem, this.hasAnimation);
         }
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -23811,7 +23814,7 @@ function onMenuItemNormalClick(e) {
         } else {
             this._currentMenu = null;
         }
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         subElem = this._getSubmenuElement();
@@ -23848,7 +23851,7 @@ function onMenuItemModernClick(e) {
         return;
     }
 
-    openFn = $.proxy(function () {
+    openFn = (function () {
         var submenuPanel;
         this._currentMenu = elem;
         this._currentMenu
@@ -23859,8 +23862,8 @@ function onMenuItemModernClick(e) {
             .addClass(currentClass)
             .addClass("background-highlight");
         this.subShow(submenuPanel, this.hasAnimation);
-    }, this);
-    closeFn = $.proxy(function () {
+    }).bind(this);
+    closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
@@ -23871,7 +23874,7 @@ function onMenuItemModernClick(e) {
             .removeClass("background-highlight");
         subElem.css("display", "none");
         this._currentMenu = null;
-    }, this);
+    }).bind(this);
 
     if (this._currentMenu) {
         if (this._currentMenu[0] === elem[0]) {
@@ -23955,9 +23958,9 @@ ui.define("ui.ctrls.Menu", {
         }
 
         // 普通父菜单点击事件
-        this.onMenuItemNormalClickHandler = $.proxy(onMenuItemNormalClick, this);
+        this.onMenuItemNormalClickHandler = onMenuItemNormalClick.bind(this);
         // 现代父菜单点击事件
-        this.onMenuItemModernClickHandler = $.proxy(onMenuItemModernClick, this);
+        this.onMenuItemModernClickHandler = onMenuItemModernClick.bind(this);
         
         // 默认设置为普通展开模式
         this.onMenuItemClickHandler = this.onMenuItemNormalClickHandler;
@@ -24660,6 +24663,7 @@ function Tile(tileInfo, group) {
     }
 }
 Tile.prototype = {
+    constructor: Tile,
     initialize: function(tileInfo, group) {
         var type,
             that;
@@ -24812,6 +24816,7 @@ function TileGroup(tileInfos, container) {
     }
 }
 TileGroup.prototype = {
+    constructor: TileGroup,
     initialize: function(tileInfos, container) {
         var arr = [],
             that;
@@ -25001,6 +25006,7 @@ function TileContainer(containerPanel) {
     }
 }
 TileContainer.prototype = {
+    constructor: TileContainer,
     initialize: function(containerPanel) {
         this.groups = [];
         this.dynamicTiles = ui.KeyArray();
@@ -25415,11 +25421,12 @@ ui.tiles.picture = function(tile, images) {
     tile.pictureContext = {
         images: arr,
         currentIndex: 0,
+        imageSizeCache: {},
         imageLoader: new ui.ImageLoader()
     };
     initDisplayArea(tile);
     initAnimator(tile);
-    showPicture(tile, firstPictrue);
+    showPicture(tile, tile.pictureContext.currentImage, firstPictrue);
 };
 
 function initDisplayArea(tile) {
@@ -25461,37 +25468,47 @@ function initAnimator(tile) {
     });
 }
 
-function showPicture(tile, callback) {
+function showPicture(tile, currentImg, callback) {
     var imageSrc,
-        context;
+        context,
+        setImageFn;
 
     context = tile.pictureContext;
     if(context.images.length === 0) {
         return;
     }
     imageSrc = context.images[context.currentIndex];
+    setImageFn = function(css) {
+        currentImg.css(css);
+        currentImg.prop("src", imageSrc);
+        callback(tile);
+    };
 
-    context.imageLoader
-                .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
-                .then(
-                    function(loader) {
-                        context.currentImage.css({
-                            "width": loader.displayWidth + "px",
-                            "height": loader.displayHeight + "px",
-                            "top": loader.marginTop + "px",
-                            "left": loader.marginLeft + "px"
-                        });
-                        context.currentImage.prop("src", imageSrc);
-                        callback(tile);
-                    }, 
-                    function() {
-                        context.images.splice(index, 1);
-                        if(context.images.length > 0) {
-                            moveNext(tile);
-                            showPicture(tile, callback);
+    if(context.imageSizeCache.hasOwnProperty(imageSrc)) {
+        setImageFn(context.imageSizeCache[imageSrc]);
+    } else {
+        context.imageLoader
+                    .load(imageSrc, tile.width, tile.height, ui.ImageLoader.centerCrop)
+                    .then(
+                        function(loader) {
+                            var css = {
+                                "width": loader.displayWidth + "px",
+                                "height": loader.displayHeight + "px",
+                                "top": loader.marginTop + "px",
+                                "left": loader.marginLeft + "px"
+                            };
+                            context.imageSizeCache[imageSrc] = css;
+                            setImageFn(css);
+                        }, 
+                        function() {
+                            context.images.splice(index, 1);
+                            if(context.images.length > 0) {
+                                moveNext(tile);
+                                showPicture(tile, currentImg, callback);
+                            }
                         }
-                    }
-                );
+                    );
+    }
 }
 
 function firstPictrue(tile) {
@@ -25505,16 +25522,23 @@ function firstPictrue(tile) {
     setTimeout(function() {
         if(context.images.length > 1) {
             moveNext(tile);
-            change(tile);
-            showPicture(tile, nextPicture);
+            showPicture(tile, context.nextImage, nextPicture);
         }
     }, 10000);
 }
 
 function nextPicture(tile) {
-    var context,
+    var temp,
+        context,
         option;
     context = tile.pictureContext;
+
+    temp = context.currentImagePanel;
+    context.currentImagePanel = context.nextImagePanel;
+    context.nextImagePanel = temp;
+    temp = context.currentImage;
+    context.currentImage = context.nextImage;
+    context.nextImage = temp;
 
     option = context.switchAnimator[0];
     option.target = context.nextImagePanel;
@@ -25533,24 +25557,11 @@ function nextPicture(tile) {
             setTimeout(function() {
                 if(context.images.length > 1) {
                     moveNext(tile);
-                    change(tile);
-                    showPicture(tile, nextPicture);
+                    showPicture(tile, context.nextImage, nextPicture);
                 }
             }, 10000);
         }, 500);
     });
-}
-
-function change(tile) {
-    var temp,
-        context;
-    context = tile.pictureContext;
-    temp = context.currentImagePanel;
-    context.currentImagePanel = context.nextImagePanel;
-    context.nextImagePanel = temp;
-    temp = context.currentImage;
-    context.currentImage = context.nextImage;
-    context.nextImage = temp;
 }
 
 function moveNext(tile) {
@@ -25573,6 +25584,163 @@ function moveNext(tile) {
 (function($, ui) {
 "use strict";
 // 天气可交互磁贴
+/*
+    cityName: 城市名称
+    days: [
+        weatherDay: {
+            date: yyyy-MM-dd
+            type: 天气类型
+            temperature: 当前气温
+            lowTemperature: 低温
+            highTemperature: 高温
+            description: 天气描述
+            windDirection: 风向
+        }
+    ]
+ */
+var weatherStyle;
+
+if(!ui.tiles) {
+    ui.tiles = {};
+}
+
+function findToday(days) {
+    var i, len,
+        weatherDay,
+        today;
+    if(Array.isArray(days)) {
+        today = new Date();
+        for(i = 0, len = days.length; i < len; i++) {
+            weatherDay = days[i];
+            weatherDay.date = ui.str.jsonToDate(weatherDay.date);
+            if(!weatherDay.date) {
+                continue;
+            }
+            if(weatherDay.date.getFullYear() === today.getFullYear()
+                && weatherDay.date.getMonth() === today.getMonth()
+                && weatherDay.date.getDate() === today.getDate()) {
+                return weatherDay;
+            }
+        }
+    }
+    return null;
+}
+function createBuilder(weatherData) {
+    return {
+        htmlBuilder: [],
+        weatherData: weatherData,
+        weatherToday: findToday(weatherData.days),
+        graph: graph,
+        info: info,
+        days: days,
+        build: build
+    };
+}
+function graph() {
+    var builder = this.htmlBuilder;
+    builder.push("<div class='weather-graph'>");
+    _callChildBuilders.apply(this, arguments);
+    builder.push("</div>");
+    return this;
+}
+function info() {
+    var builder = this.htmlBuilder;
+    builder.push("<div class='weather-info'>");
+    _callChildBuilders.apply(this, arguments);
+    builder.push("</div>");
+    return this;
+}
+function days() {
+    var builder = this.htmlBuilder,
+        weatherData = this.weatherData,
+        weatherDay,
+        i, len;
+    if(Array.isArray(weatherData.days)) {
+        htmlBuilder.push("<ul>");
+        for(i = 0, len = weatherData.days.length; i < len; i++) {
+            weatherDay = weatherData.days[i];
+            htmlBuilder.push("<li>");
+            htmlBuilder.push("<div class='weather-item'>");
+            this.graph();
+            this.info();
+            htmlBuilder.push("</div>");
+            htmlBuilder.push("<div class='weather-text'>");
+            htmlBuilder.push("<span>", ui.str.textFormat(), "</span>");
+            htmlBuilder.push("</div>");
+            htmlBuilder.push("</li>");
+        }
+        htmlBuilder.push("</ul>");
+    }
+
+    return this;
+}
+function build() {
+    return this.htmlBuilder.join("");
+}
+function _callChildBuilders() {
+    var i, len,
+        weatherDay;
+    weatherDay = this.weatherToday;
+    for(i = 0, len = arguments.length; i < len; i++) {
+        if(ui.core.isFunction(arguments[i])) {
+            arguments[i].call(this, weatherDay);
+        }
+    }
+}
+function city(weatherDay) {
+    var builder = this.htmlBuilder,
+        weatherData = this.weatherData;
+    builder.push("<h6 class='weather-city'>", weatherData.city, "</h6>");
+}
+function temperature(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h3 class='weather-temperature'>");
+    if(weatherDay.temperature) {
+        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
+    }
+    builder.push("<span class='weather-low-high'>", weatherDay.lowTemperature, "℃ / ", weatherData.highTemperature, "℃", "</span>");
+    builder.push("</h3>");
+}
+function description(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h6 class='weather-description'>", weatherDay.description, "</h6>");
+}
+function windDirection(weatherDay) {
+    var builder = this.htmlBuilder;
+    builder.push("<h6 class='weather-wind'>", weatherDay.windDirection, "</h6>");
+}
+
+weatherStyle = {
+    medium: function(tile, weatherData) {
+        var html = createBuilder(weatherData)
+            .graph()
+            .info(
+                temperature,
+                description
+            )
+            .build();
+    },
+    wide: function(tile, weatherData) {
+        var html = createBuilder(weatherData)
+            .graph()
+            .info(
+                city,
+                temperature,
+                description,
+                windDirection
+            )
+            .build();
+    },
+    large: function(tile) {
+        var html = createBuilder(weatherData)
+            .days()
+            .build();
+    }
+};
+
+ui.tiles.weather = function(tile, weatherData) {
+
+};
 
 
 })(jQuery, ui);

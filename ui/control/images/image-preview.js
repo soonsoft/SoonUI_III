@@ -37,12 +37,12 @@ ui.define("ui.ctrls.ImagePreview", {
             .append(this.chooserQueue)
             .append(this.chooserNext);
         
-        this.chooserPrev.click($.proxy(function(e) {
+        this.chooserPrev.click((function(e) {
             this.beforeItems();
-        }, this));
-        this.chooserNext.click($.proxy(function(e) {
+        }).bind(this));
+        this.chooserNext.click((function(e) {
             this.afterItems();
-        }, this));
+        }).bind(this));
         
         this.chooserAnimator = ui.animator({
             target: this.chooserQueue,
@@ -126,7 +126,7 @@ ui.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click($.proxy(this._onClickHandler, this));
+        this.chooserQueue.click(this._onClickHandler.bind(this));
         
         this.setImages(this.option.images);
     },

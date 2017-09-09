@@ -45,7 +45,7 @@ ui.define("ui.ctrls.DropDownBase", {
     hideTimeValue: 200,
     _create: function() {
         this.setLayoutPanel(this.option.layoutPanel);
-        this.onMousemoveHandler = $.proxy(function(e) {
+        this.onMousemoveHandler = (function(e) {
             var eWidth = this.element.width(),
                 offsetX = e.offsetX;
             if(!offsetX) {
@@ -58,8 +58,8 @@ ui.define("ui.ctrls.DropDownBase", {
                 this.element.css("cursor", "auto");
                 this._clearable = false;
             }
-        }, this);
-        this.onMouseupHandler = $.proxy(function(e) {
+        }).bind(this);
+        this.onMouseupHandler = (function(e) {
             if(!this._clearable) {
                 return;
             }
@@ -73,7 +73,7 @@ ui.define("ui.ctrls.DropDownBase", {
                     this._clear();
                 }
             }
-        }, this);
+        }).bind(this);
     },
     _render: function() {
         if(!this.element) {

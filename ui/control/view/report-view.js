@@ -233,7 +233,7 @@ function onSort(e) {
         resetSortColumnState.call(this, elem.parent());
     }
 
-    fn = $.proxy(sorting, this);
+    fn = sorting.bind(this);
     isSelf = this._lastSortColumn == column;
     this._lastSortColumn = column;
 
@@ -542,15 +542,15 @@ ui.define("ui.ctrls.ReportView", {
 
         // 事件初始化
         // 排序按钮点击事件
-        this.onSortHandler = $.proxy(onSort, this);
+        this.onSortHandler = onSort.bind(this);
         // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
+        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
         // 滚动条同步事件
-        this.onScrollingHandler = $.proxy(onScrolling, this);
+        this.onScrollingHandler = onScrolling.bind(this);
         // 固定行点击事件
-        this.onTableFixedBodyClickHandler = $.proxy(onTableFixedBodyClick, this);
+        this.onTableFixedBodyClickHandler = onTableFixedBodyClick.bind(this);
         // 数据行点击事件
-        this.onTableDataBodyClickHandler = $.proxy(onTableDataBodyClick, this);
+        this.onTableDataBodyClickHandler = onTableDataBodyClick.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-report-view")) {

@@ -192,7 +192,7 @@ function onSort(e) {
         resetSortColumnState.call(this, elem.parent());
     }
 
-    fn = $.proxy(sorting, this);
+    fn = sorting.bind(this);
     isSelf = this._lastSortColumn == column;
     this._lastSortColumn = column;
 
@@ -434,13 +434,13 @@ ui.define("ui.ctrls.GridView", {
 
         // event handlers
         // 排序按钮点击事件
-        this.onSortHandler = $.proxy(onSort, this);
+        this.onSortHandler = onSort.bind(this);
         // 行或者单元格点击事件
-        this.onTableBodyClickHandler = $.proxy(onTableBodyClick, this);
+        this.onTableBodyClickHandler = onTableBodyClick.bind(this);
         // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = $.proxy(onCheckboxAllClick, this);
+        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
         // 横向滚动条同步事件
-        this.onScrollingXHandler = $.proxy(onScrollingX, this);
+        this.onScrollingXHandler = onScrollingX.bind(this);
     },
     _render: function() {
         if(!this.element.hasClass("ui-grid-view")) {
@@ -840,7 +840,7 @@ ui.define("ui.ctrls.GridView", {
             colGroup.append(this._createCol(c));
             th = this._createCell("th", c);
             th.addClass("ui-table-head-cell");
-            if ($.isFunction(c.text)) {
+            if (ui.core.isFunction(c.text)) {
                 th.append(c.text.call(this, c, th));
             } else {
                 if(c.text) {

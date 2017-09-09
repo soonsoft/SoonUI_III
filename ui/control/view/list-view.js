@@ -79,7 +79,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this.option.hasRemoveButton = !!this.option.hasRemoveButton;
-        this.onListItemClickHandler = $.proxy(onListItemClick, this);
+        this.onListItemClickHandler = onListItemClick.bind(this);
     },
     _render: function() {
         this.element.addClass("ui-list-view");
