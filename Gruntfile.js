@@ -540,7 +540,7 @@ module.exports = function(grunt) {
     // 在命令行上输入"grunt test"，test task就会被执行。
     grunt.registerTask("test", ["jshint", "qunit"]);
     // 在命令行上输入"grunt"，就会执行default task
-    grunt.registerTask("default", ["clean", "less:production", "concat"]);
+    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat"]);
     // 在命令行上输入"grunt release，就会执行"
-    grunt.registerTask("release", ["clean", "less:devlopment", "concat", "uglify"]);
+    grunt.registerTask("release", ["clean", "prestyle", "less:devlopment", "concat", "uglify"]);
 };

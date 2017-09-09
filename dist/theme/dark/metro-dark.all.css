@@ -1352,6 +1352,13 @@ input.dateChooser-clear {
 .ui-table-body .cell-selected .cell-progress-text span {
   color: #fff;
 }
+/* switch样式 */
+.ui-table-body .row-selected .ui-switch-button .switch-inner {
+  border-color: #fff !important;
+}
+.ui-table-body .row-selected .ui-switch-button .switch-thumb {
+  background-color: #fff !important;
+}
 /* GridTree 专有样式 */
 .ui-table-body .fold {
   width: 14px;
@@ -2273,17 +2280,24 @@ div.c_flyingDots div.c_loadingFallback {
   width: 52px;
   font-size: 12px;
 }
-.ui-table-body .row-selected .cell-progress-bar,
-.ui-table-body .cell-selected .cell-progress-bar {
+.ui-report-body .row-selected .cell-progress-bar,
+.ui-report-body .cell-selected .cell-progress-bar {
   background-color: #aaaaaa;
 }
-.ui-table-body .row-selected .cell-progress-value,
-.ui-table-body .cell-selected .cell-progress-value {
+.ui-report-body .row-selected .cell-progress-value,
+.ui-report-body .cell-selected .cell-progress-value {
   background-color: #fff !important;
 }
-.ui-table-body .row-selected .cell-progress-text span,
-.ui-table-body .cell-selected .cell-progress-text span {
+.ui-report-body .row-selected .cell-progress-text span,
+.ui-report-body .cell-selected .cell-progress-text span {
   color: #fff;
+}
+/* switch样式 */
+.ui-report-body .row-selected .ui-switch-button .switch-inner {
+  border-color: #fff !important;
+}
+.ui-report-body .row-selected .ui-switch-button .switch-thumb {
+  background-color: #fff !important;
 }
 /* 底栏 */
 .ui-report-foot {
