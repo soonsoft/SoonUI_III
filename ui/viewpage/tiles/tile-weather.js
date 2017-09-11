@@ -71,22 +71,21 @@ function days() {
         weatherDay,
         i, len;
     if(Array.isArray(weatherData.days)) {
-        htmlBuilder.push("<ul>");
+        htmlBuilder.push("<ul class='weather-days'>");
         for(i = 0, len = weatherData.days.length; i < len; i++) {
             weatherDay = weatherData.days[i];
-            htmlBuilder.push("<li>");
+            htmlBuilder.push("<li class='weather-day'>");
             htmlBuilder.push("<div class='weather-item'>");
             this.graph();
             this.info();
             htmlBuilder.push("</div>");
-            htmlBuilder.push("<div class='weather-text'>");
-            htmlBuilder.push("<span>", ui.str.textFormat(), "</span>");
+            htmlBuilder.push("<div class='weather-handle'>");
+            htmlBuilder.push("<span class='weather-text'>", ui.str.textFormat(), "</span>");
             htmlBuilder.push("</div>");
             htmlBuilder.push("</li>");
         }
         htmlBuilder.push("</ul>");
     }
-
     return this;
 }
 function build() {
@@ -125,18 +124,102 @@ function windDirection(weatherDay) {
     builder.push("<h6 class='weather-wind'>", weatherDay.windDirection, "</h6>");
 }
 
+function activeMutualTile(tile) {
+    var animator,
+        context,
+        days;
+    context = tile.weatherContext;
+    context.changeDayAnimator = ui.animator({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("height", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", (val / 100) + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("height", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", (val / 100) + "px");
+        }
+    });
+
+    days = tile.updatePanel.children(".weather-days");
+    context.current = $(days.children());
+    days.click(onWeatherHandleClick.bind(tile));
+}
+function onWeatherHandleClick(e) {
+    var context,
+        elem,
+        item,
+        option;
+    elem = $(e.target);
+    while(!elem.hasClass("weather-handle")) {
+        if(elem.nodeName() === "LI") {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    context = this.weatherContext;
+    context.changeDayAnimator.stop();
+    
+    item = context.current.children(".weather-item");
+    item.removeClass("active-dynamic");
+    item.children(".weather-info").css("display", "none");
+    option = context.changeDayAnimator[0];
+    option.target = context.current;
+    option.begin = parseFloat(option.target.css("height")) || 150;
+    option.end = 22;
+
+    option = context.changeDayAnimator[1];
+    option.target = context.current;
+    option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
+    option.end = 0;
+
+    option = context.changeDayAnimator[2];
+    option.target = elem.parent();
+    option.begin = parseFloat(option.target.css("height")) || 22;
+    option.end = 150;
+
+    option = context.changeDayAnimator[3];
+    option.target = elem.parent();
+    option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
+    option.end = 100;
+
+    context.current = option.target;
+    item = context.current.children(".weather-item");
+    item.children(".weather-info").css("display", "block");
+    context.changeDayAnimator.start().done(function() {
+        var op = this[0];
+        op.target.children(".weather-item").css("display", "none");
+        item.addClass("active-dynamic");
+    });
+}
+
 weatherStyle = {
     medium: function(tile, weatherData) {
-        var html = createBuilder(weatherData)
+        var html;
+        html = createBuilder(weatherData)
             .graph()
             .info(
                 temperature,
                 description
             )
             .build();
+
+        tile.updatePanel.html(html);
     },
     wide: function(tile, weatherData) {
-        var html = createBuilder(weatherData)
+        var html;
+        html = createBuilder(weatherData)
             .graph()
             .info(
                 city,
@@ -145,14 +228,23 @@ weatherStyle = {
                 windDirection
             )
             .build();
+
+        tile.updatePanel.html(html);
     },
-    large: function(tile) {
-        var html = createBuilder(weatherData)
+    large: function(tile, weatherData) {
+        var html;
+        html = createBuilder(weatherData)
             .days()
             .build();
+
+        tile.updatePanel.html(html);
+        setTimeout(function() {
+            activeMutualTile(title);
+        }, 1000);
+        tile.update();
     }
 };
 
 ui.tiles.weather = function(tile, weatherData) {
-
+    tile.weatherContext = {};
 };
