@@ -1531,6 +1531,9 @@ ui.str = {
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
+        if(!str) {
+            return textEmpty;
+        }
         return str.replace(textFormatReg, function (match, name) {
             var index;
             if (match.charAt(0) == '\\') {
@@ -25591,8 +25594,8 @@ function moveNext(tile) {
             date: yyyy-MM-dd
             type: 天气类型
             temperature: 当前气温
-            lowTemperature: 低温
-            highTemperature: 高温
+            low: 低温
+            high: 高温
             description: 天气描述
             windDirection: 风向
         }
@@ -25656,22 +25659,26 @@ function days() {
         weatherDay,
         i, len;
     if(Array.isArray(weatherData.days)) {
-        htmlBuilder.push("<ul>");
+        builder.push("<ul class='weather-days'>");
         for(i = 0, len = weatherData.days.length; i < len; i++) {
             weatherDay = weatherData.days[i];
-            htmlBuilder.push("<li>");
-            htmlBuilder.push("<div class='weather-item'>");
+            builder.push("<li class='weather-day'", i === 0 ? " style='height:150px'" : "", ">");
+            builder.push("<div class='weather-item'>");
             this.graph();
             this.info();
-            htmlBuilder.push("</div>");
-            htmlBuilder.push("<div class='weather-text'>");
-            htmlBuilder.push("<span>", ui.str.textFormat(), "</span>");
-            htmlBuilder.push("</div>");
-            htmlBuilder.push("</li>");
+            builder.push("</div>");
+            builder.push("<div class='weather-handle'>");
+            builder.push("<span class='weather-text'>", 
+                ui.str.textFormat("{0}  {1}, {2}", 
+                    ui.str.dateFormat(weatherDay.date, "MM/dd, wk"), 
+                    "晴",
+                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
+                "</span>");
+            builder.push("</div>");
+            builder.push("</li>");
         }
-        htmlBuilder.push("</ul>");
+        builder.push("</ul>");
     }
-
     return this;
 }
 function build() {
@@ -25698,7 +25705,7 @@ function temperature(weatherDay) {
     if(weatherDay.temperature) {
         builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
     }
-    builder.push("<span class='weather-low-high'>", weatherDay.lowTemperature, "℃ / ", weatherData.highTemperature, "℃", "</span>");
+    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherData.high, "℃", "</span>");
     builder.push("</h3>");
 }
 function description(weatherDay) {
@@ -25710,18 +25717,105 @@ function windDirection(weatherDay) {
     builder.push("<h6 class='weather-wind'>", weatherDay.windDirection, "</h6>");
 }
 
+function activeMutualTile(tile) {
+    var animator,
+        context,
+        days;
+    context = tile.weatherContext;
+    context.changeDayAnimator = ui.animator({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("height", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", (val / 100) + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("height", val + "px");
+        }
+    }).addTarget({
+        ease: ui.AnimationStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", (val / 100) + "px");
+        }
+    });
+
+    days = context.parent.children(".weather-days");
+    context.current = $(days.children()[0]);
+    days.click(onWeatherHandleClick.bind(tile));
+}
+function onWeatherHandleClick(e) {
+    var context,
+        elem,
+        item,
+        option;
+    elem = $(e.target);
+    while(!elem.hasClass("weather-handle")) {
+        if(elem.nodeName() === "LI") {
+            return;
+        }
+        elem = elem.parent();
+    }
+
+    context = this.weatherContext;
+    if(elem.parent()[0] === context.current[0]) {
+        return;
+    }
+    context.changeDayAnimator.stop();
+    
+    item = context.current.children(".weather-item");
+    item.removeClass("active-dynamic");
+    item.children(".weather-info").css("display", "none");
+    option = context.changeDayAnimator[0];
+    option.target = context.current;
+    option.begin = parseFloat(option.target.css("height")) || 150;
+    option.end = 22;
+
+    option = context.changeDayAnimator[1];
+    option.target = context.current;
+    option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
+    option.end = 0;
+
+    option = context.changeDayAnimator[2];
+    option.target = elem.parent();
+    option.begin = parseFloat(option.target.css("height")) || 22;
+    option.end = 150;
+
+    option = context.changeDayAnimator[3];
+    option.target = elem.parent();
+    option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
+    option.end = 100;
+
+    context.current = option.target;
+    item = context.current.children(".weather-item");
+    item.children(".weather-info").css("display", "block");
+    context.changeDayAnimator.start().done(function() {
+        var op = this[0];
+        op.target.children(".weather-item").css("display", "none");
+        item.addClass("active-dynamic");
+    });
+}
+
 weatherStyle = {
     medium: function(tile, weatherData) {
-        var html = createBuilder(weatherData)
+        var html;
+        html = createBuilder(weatherData)
             .graph()
             .info(
                 temperature,
                 description
             )
             .build();
+
+        tile.weatherContext.parent.html(html);
     },
     wide: function(tile, weatherData) {
-        var html = createBuilder(weatherData)
+        var html;
+        html = createBuilder(weatherData)
             .graph()
             .info(
                 city,
@@ -25730,16 +25824,35 @@ weatherStyle = {
                 windDirection
             )
             .build();
+
+        tile.weatherContext.parent.html(html);
     },
-    large: function(tile) {
-        var html = createBuilder(weatherData)
+    large: function(tile, weatherData) {
+        var html;
+        html = createBuilder(weatherData)
             .days()
             .build();
+
+        tile.weatherContext.parent.html(html);
+        setTimeout(function() {
+            activeMutualTile(tile);
+        }, 1000);
+        tile.update();
     }
 };
 
 ui.tiles.weather = function(tile, weatherData) {
-
+    tile.weatherContext = {
+        weatherData: weatherData
+    };
+    if(tile.tileInfo.updateStyle === "moveup") {
+        tile.weatherContext.parent = tile.updatePanel;
+        tile.smallIconImg.remove();
+        tile.titlePanel.remove();
+    } else {
+        tile.weatherContext.parent = tile.tileInnerBack;
+    }
+    weatherStyle[tile.type].apply(this, arguments);
 };
 
 

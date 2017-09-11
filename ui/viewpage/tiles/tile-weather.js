@@ -6,8 +6,8 @@
             date: yyyy-MM-dd
             type: 天气类型
             temperature: 当前气温
-            lowTemperature: 低温
-            highTemperature: 高温
+            low: 低温
+            high: 高温
             description: 天气描述
             windDirection: 风向
         }
@@ -71,20 +71,25 @@ function days() {
         weatherDay,
         i, len;
     if(Array.isArray(weatherData.days)) {
-        htmlBuilder.push("<ul class='weather-days'>");
+        builder.push("<ul class='weather-days'>");
         for(i = 0, len = weatherData.days.length; i < len; i++) {
             weatherDay = weatherData.days[i];
-            htmlBuilder.push("<li class='weather-day'>");
-            htmlBuilder.push("<div class='weather-item'>");
+            builder.push("<li class='weather-day'", i === 0 ? " style='height:150px'" : "", ">");
+            builder.push("<div class='weather-item'>");
             this.graph();
             this.info();
-            htmlBuilder.push("</div>");
-            htmlBuilder.push("<div class='weather-handle'>");
-            htmlBuilder.push("<span class='weather-text'>", ui.str.textFormat(), "</span>");
-            htmlBuilder.push("</div>");
-            htmlBuilder.push("</li>");
+            builder.push("</div>");
+            builder.push("<div class='weather-handle'>");
+            builder.push("<span class='weather-text'>", 
+                ui.str.textFormat("{0}  {1}, {2}", 
+                    ui.str.dateFormat(weatherDay.date, "MM/dd, wk"), 
+                    "晴",
+                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
+                "</span>");
+            builder.push("</div>");
+            builder.push("</li>");
         }
-        htmlBuilder.push("</ul>");
+        builder.push("</ul>");
     }
     return this;
 }
@@ -112,7 +117,7 @@ function temperature(weatherDay) {
     if(weatherDay.temperature) {
         builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
     }
-    builder.push("<span class='weather-low-high'>", weatherDay.lowTemperature, "℃ / ", weatherData.highTemperature, "℃", "</span>");
+    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherData.high, "℃", "</span>");
     builder.push("</h3>");
 }
 function description(weatherDay) {
@@ -151,8 +156,8 @@ function activeMutualTile(tile) {
         }
     });
 
-    days = tile.updatePanel.children(".weather-days");
-    context.current = $(days.children());
+    days = context.parent.children(".weather-days");
+    context.current = $(days.children()[0]);
     days.click(onWeatherHandleClick.bind(tile));
 }
 function onWeatherHandleClick(e) {
@@ -169,6 +174,9 @@ function onWeatherHandleClick(e) {
     }
 
     context = this.weatherContext;
+    if(elem.parent()[0] === context.current[0]) {
+        return;
+    }
     context.changeDayAnimator.stop();
     
     item = context.current.children(".weather-item");
@@ -215,7 +223,7 @@ weatherStyle = {
             )
             .build();
 
-        tile.updatePanel.html(html);
+        tile.weatherContext.parent.html(html);
     },
     wide: function(tile, weatherData) {
         var html;
@@ -229,7 +237,7 @@ weatherStyle = {
             )
             .build();
 
-        tile.updatePanel.html(html);
+        tile.weatherContext.parent.html(html);
     },
     large: function(tile, weatherData) {
         var html;
@@ -237,14 +245,24 @@ weatherStyle = {
             .days()
             .build();
 
-        tile.updatePanel.html(html);
+        tile.weatherContext.parent.html(html);
         setTimeout(function() {
-            activeMutualTile(title);
+            activeMutualTile(tile);
         }, 1000);
         tile.update();
     }
 };
 
 ui.tiles.weather = function(tile, weatherData) {
-    tile.weatherContext = {};
+    tile.weatherContext = {
+        weatherData: weatherData
+    };
+    if(tile.tileInfo.updateStyle === "moveup") {
+        tile.weatherContext.parent = tile.updatePanel;
+        tile.smallIconImg.remove();
+        tile.titlePanel.remove();
+    } else {
+        tile.weatherContext.parent = tile.tileInnerBack;
+    }
+    weatherStyle[tile.type].apply(this, arguments);
 };

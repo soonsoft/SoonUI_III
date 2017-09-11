@@ -55,7 +55,8 @@
 
 .tile-large .weather-day {
     height: 22px;
-
+    position: relative;
+    overflow: hidden;
 }
 
 .tile-large .weather-item {
@@ -63,6 +64,10 @@
     height: 128px;
     overflow: hidden;
     opacity: 1;
+    background-color: #5CA9D5;
+    position: absolute;
+    left: 0;
+    bottom: 22px;
 }
 
 .tile-large .weather-handle {
@@ -71,6 +76,9 @@
     line-height: 22px;
     overflow: hidden;
     cursor: pointer;
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }
 
 .tile-large .weather-text {

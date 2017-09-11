@@ -123,6 +123,9 @@ ui.str = {
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
+        if(!str) {
+            return textEmpty;
+        }
         return str.replace(textFormatReg, function (match, name) {
             var index;
             if (match.charAt(0) == '\\') {
