@@ -2553,6 +2553,8 @@ function moveNext(tile) {
             windDirection: 风向
         }
     ]
+
+    晴朗 | 多云 | 阴天 | 雨天 | 雾霾 | 雨雪 | 雪天
  */
 var weatherStyle;
 
@@ -2563,6 +2565,7 @@ if(!ui.tiles) {
 function findToday(days) {
     var i, len,
         weatherDay,
+        result = null,
         today;
     if(Array.isArray(days)) {
         today = new Date();
@@ -2575,12 +2578,35 @@ function findToday(days) {
             if(weatherDay.date.getFullYear() === today.getFullYear()
                 && weatherDay.date.getMonth() === today.getMonth()
                 && weatherDay.date.getDate() === today.getDate()) {
-                return weatherDay;
+                result = weatherDay;
             }
         }
     }
-    return null;
+    return result;
 }
+function getDateText(date) {
+    var month = date.getMonth() + 1,
+        day = date.getDate();
+    return (month < 10 ? "0" + month : month) + "/" + (day < 10 ? "0" + day : day);
+}
+function getWeekday(date) {
+    var today = new Date(),
+        dayCount;
+    dayCount = (date.getTime() / 1000 / 60 / 60 / 24) - (today.getTime() / 1000 / 60 / 60 / 24);
+    if(dayCount < 0) {
+        return "昨天";
+    } else if(dayCount < 1) {
+        return "今天";
+    } else if(dayCount < 2) {
+        return "明天";
+    } else {
+        return "周" + "日一二三四五六".charAt(date.getDay());
+    }
+}
+function getWeatherText(type) {
+    return "晴朗";
+}
+
 function createBuilder(weatherData) {
     return {
         htmlBuilder: [],
@@ -2616,15 +2642,16 @@ function days() {
         for(i = 0, len = weatherData.days.length; i < len; i++) {
             weatherDay = weatherData.days[i];
             builder.push("<li class='weather-day'", i === 0 ? " style='height:150px'" : "", ">");
-            builder.push("<div class='weather-item'>");
+            builder.push("<div class='weather-item'", i === 0 ? " style='opacity:1'" : "", ">");
             this.graph();
             this.info();
             builder.push("</div>");
             builder.push("<div class='weather-handle'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}  {1}, {2}", 
-                    ui.str.dateFormat(weatherDay.date, "MM/dd, wk"), 
-                    "晴",
+                ui.str.textFormat("{0}&nbsp;({1})&nbsp;&nbsp;{2}&nbsp;{3}",
+                    getDateText(weatherDay.date),
+                    getWeekday(weatherDay.date), 
+                    getWeatherText(weatherData.type), 
                     ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
                 "</span>");
             builder.push("</div>");
@@ -2679,23 +2706,16 @@ function activeMutualTile(tile) {
         ease: ui.AnimationStyle.easeFromTo,
         onChange: function(val) {
             this.target.css("height", val + "px");
+            this.original.css("height", this.end - (val - this.begin) + "px");
         }
     }).addTarget({
-        ease: ui.AnimationStyle.easeFromTo,
+        ease: ui.AnimationStyle.easeTo,
         onChange: function(val) {
-            this.target.css("opacity", (val / 100) + "px");
-        }
-    }).addTarget({
-        ease: ui.AnimationStyle.easeFromTo,
-        onChange: function(val) {
-            this.target.css("height", val + "px");
-        }
-    }).addTarget({
-        ease: ui.AnimationStyle.easeFromTo,
-        onChange: function(val) {
-            this.target.css("opacity", (val / 100) + "px");
+            this.target.css("opacity", val / 100);
+            this.original.css("opacity", (this.end - val) / 100);
         }
     });
+    context.changeDayAnimator.duration = 500;
 
     days = context.parent.children(".weather-days");
     context.current = $(days.children()[0]);
@@ -2705,10 +2725,14 @@ function onWeatherHandleClick(e) {
     var context,
         elem,
         item,
+        nodeName,
+        original,
+        target,
         option;
     elem = $(e.target);
     while(!elem.hasClass("weather-handle")) {
-        if(elem.nodeName() === "LI") {
+        nodeName = elem.nodeName();
+        if(nodeName === "LI" || nodeName === "UL") {
             return;
         }
         elem = elem.parent();
@@ -2718,37 +2742,32 @@ function onWeatherHandleClick(e) {
     if(elem.parent()[0] === context.current[0]) {
         return;
     }
-    context.changeDayAnimator.stop();
+    if(context.changeDayAnimator.isStarted) {
+        return;
+    }
     
-    item = context.current.children(".weather-item");
+    original = context.current;
+    item = original.children(".weather-item");
     item.removeClass("active-dynamic");
-    item.children(".weather-info").css("display", "none");
+
+    target = elem.parent();
+    context.current = target;
+
     option = context.changeDayAnimator[0];
-    option.target = context.current;
-    option.begin = parseFloat(option.target.css("height")) || 150;
-    option.end = 22;
-
-    option = context.changeDayAnimator[1];
-    option.target = context.current;
-    option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
-    option.end = 0;
-
-    option = context.changeDayAnimator[2];
-    option.target = elem.parent();
-    option.begin = parseFloat(option.target.css("height")) || 22;
+    option.original = original;
+    option.target = target;
+    option.begin = 22;
     option.end = 150;
 
-    option = context.changeDayAnimator[3];
-    option.target = elem.parent();
-    option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
+    option = context.changeDayAnimator[1];
+    option.original = item;
+    option.target = target.children(".weather-item");
+    option.begin = 0;
     option.end = 100;
 
-    context.current = option.target;
     item = context.current.children(".weather-item");
-    item.children(".weather-info").css("display", "block");
     context.changeDayAnimator.start().done(function() {
         var op = this[0];
-        op.target.children(".weather-item").css("display", "none");
         item.addClass("active-dynamic");
     });
 }
