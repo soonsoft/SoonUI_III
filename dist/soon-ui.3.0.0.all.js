@@ -25639,8 +25639,10 @@ function getDateText(date) {
 function getWeekday(date) {
     var today = new Date(),
         dayCount;
-    dayCount = (date.getTime() / 1000 / 60 / 60 / 24) - (today.getTime() / 1000 / 60 / 60 / 24);
-    if(dayCount < 0) {
+    dayCount = parseInt((date.getTime() / 1000 / 60 / 60 / 24) - (today.getTime() / 1000 / 60 / 60 / 24), 10);
+    if(dayCount < -1) {
+        return "周" + "日一二三四五六".charAt(date.getDay());
+    } else if(dayCount < 0) {
         return "昨天";
     } else if(dayCount < 1) {
         return "今天";
