@@ -12,6 +12,8 @@
             windDirection: 风向
         }
     ]
+
+    晴朗 | 多云 | 阴天 | 雨天 | 雾霾 | 雨雪 | 雪天
  */
 var weatherStyle;
 
@@ -40,6 +42,31 @@ function findToday(days) {
     }
     return null;
 }
+function getDateText(date) {
+    var month = date.getMonth() + 1,
+        day = date.getDate();
+    return month < 10 ? "0" + month : month
+            + " / "
+            + day < 10 ? "0" + day : day;
+}
+function getWeekday(date) {
+    var today = new Date(),
+        dayCount;
+    dayCount = (date.getTime() / 1000 / 60 / 60 / 24) - (today.getTime() / 1000 / 60 / 60 / 24);
+    if(dayCount < 0) {
+        return "昨天";
+    } else if(dayCount < 1) {
+        return "今天";
+    } else if(dayCount < 2) {
+        return "明天";
+    } else {
+        return "周" + "日一二三四五六".charAt(date.getDay());
+    }
+}
+function getWeatherText(type) {
+    return "晴朗";
+}
+
 function createBuilder(weatherData) {
     return {
         htmlBuilder: [],
@@ -81,9 +108,10 @@ function days() {
             builder.push("</div>");
             builder.push("<div class='weather-handle'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}  {1}, {2}", 
-                    ui.str.dateFormat(weatherDay.date, "MM/dd, wk"), 
-                    "晴",
+                ui.str.textFormat("{0} {1} {2}, {3}",
+                    getDateText(weatherDay.date),
+                    getWeekday(weatherDay.date), 
+                    getWeatherText(weatherData.type), 
                     ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
                 "</span>");
             builder.push("</div>");
