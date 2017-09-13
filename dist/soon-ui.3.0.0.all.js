@@ -25638,10 +25638,18 @@ function getDateText(date) {
 }
 function getWeekday(date) {
     var today = new Date(),
-        dayCount;
+        dayCount,
+        weekDayFn;
+    today = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
     dayCount = parseInt((date.getTime() / 1000 / 60 / 60 / 24) - (today.getTime() / 1000 / 60 / 60 / 24), 10);
+    
+    weekDayFn = function(week) {
+        return "周" + "日一二三四五六".charAt(week);
+    };
+    console.log("dayCount: " + dayCount);
     if(dayCount < -1) {
-        return "周" + "日一二三四五六".charAt(date.getDay());
+        return weekDayFn(date.getDay());
     } else if(dayCount < 0) {
         return "昨天";
     } else if(dayCount < 1) {
@@ -25649,7 +25657,7 @@ function getWeekday(date) {
     } else if(dayCount < 2) {
         return "明天";
     } else {
-        return "周" + "日一二三四五六".charAt(date.getDay());
+        return weekDayFn(date.getDay());
     }
 }
 function getWeatherText(type) {

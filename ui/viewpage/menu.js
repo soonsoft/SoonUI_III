@@ -1,5 +1,6 @@
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
+    lightClass = "head-color",
     itemHeight = 30;
 
 var normalStyle,
@@ -216,14 +217,14 @@ modernStyle = {
             //展开选中菜单的子菜单
             this.submenuPanel
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this.submenuPanel.css("display", "none");
             this.submenuList.html("");
             subElem = this._getSubmenuElement(false);
             if (subElem) {
                 subElem
                     .addClass(currentClass)
-                    .addClass("background-highlight");
+                    .addClass(lightClass);
                 // 调用普通模式的展开逻辑
                 normalStyle.subShow.call(this, subElem, false);
             }
@@ -246,13 +247,13 @@ modernStyle = {
                 normalStyle.subHide.call(this, subElem, false, function () {
                     subElem
                         .removeClass(currentClass)
-                        .removeClass("background-highlight");
+                        .removeClass(lightClass);
                     subElem.css("display", "none");
                 });
             }
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this._currentMenu = null;
         }
         this._updateStatusToSrc(true);
@@ -404,12 +405,12 @@ function onMenuItemNormalClick(e) {
         this._currentMenu = elem;
         this._currentMenu
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
         subElem = this._getSubmenuElement();
         if (subElem) {
             subElem
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
             this.subShow(subElem, this.hasAnimation);
         }
     }).bind(this);
@@ -417,11 +418,11 @@ function onMenuItemNormalClick(e) {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
-                .removeClass("background-highlight");
+                .removeClass(lightClass);
         subElem = this._getSubmenuElement();
         subElem
             .removeClass(currentClass)
-            .removeClass("background-highlight");
+            .removeClass(lightClass);
         subElem.css("display", "none");
         if (this._currentMenu[0] !== elem[0]) {
             this._currentMenu = null;
@@ -439,7 +440,7 @@ function onMenuItemNormalClick(e) {
         } else {
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
         }
     }
     openFn();
@@ -471,22 +472,22 @@ function onMenuItemModernClick(e) {
         this._currentMenu = elem;
         this._currentMenu
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
         submenuPanel = this._getSubmenuElement();
         submenuPanel
             .addClass(currentClass)
-            .addClass("background-highlight");
+            .addClass(lightClass);
         this.subShow(submenuPanel, this.hasAnimation);
     }).bind(this);
     closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
-                .removeClass("background-highlight");
+                .removeClass(lightClass);
         subElem = this._getSubmenuElement();
         subElem
             .removeClass(currentClass)
-            .removeClass("background-highlight");
+            .removeClass(lightClass);
         subElem.css("display", "none");
         this._currentMenu = null;
     }).bind(this);
@@ -497,7 +498,7 @@ function onMenuItemModernClick(e) {
         } else {
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this._currentMenu = null;
             openFn();
         }
