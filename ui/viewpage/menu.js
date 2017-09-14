@@ -880,9 +880,9 @@ ui.define("ui.ctrls.Menu", {
         for (i = 0, len = menus.length; i < len; i++) {
             menu = menus[i];
             if (ui.str.isEmpty(parentCode)) {
-                currClass = menu.resourceCode === resourceCode ? " current-menu background-highlight selection-menu" : "";
+                currClass = menu.resourceCode === resourceCode ? (" current-menu " + lightClass + " selection-menu") : "";
             } else {
-                currClass = menu.resourceCode === parentCode ? " current-menu background-highlight" : "";
+                currClass = menu.resourceCode === parentCode ? (" current-menu " + lightClass) : "";
             }
             htmlBuilder.push("<dt class='menu-item", currClass, "'>");
             htmlBuilder.push("<b class='menu-item-background'><b class='menu-item-color'></b></b>");
