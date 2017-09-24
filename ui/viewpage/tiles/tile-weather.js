@@ -113,15 +113,16 @@ function days() {
             builder.push("<li class='weather-day'", i === 0 ? " style='height:150px'" : "", ">");
             builder.push("<div class='weather-item'", i === 0 ? " style='opacity:1'" : "", ">");
             this.graph();
-            this.info();
+            this.weatherToday = weatherDay;
+            this.info(city, temperature, description, windDirection);
             builder.push("</div>");
-            builder.push("<div class='weather-handle'>");
+            builder.push("<div class='weather-handle", i === 0 ? " weather-current-handle" : "", "'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}&nbsp;({1})&nbsp;&nbsp;{2}&nbsp;{3}",
+                ui.str.textFormat("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
                     getDateText(weatherDay.date),
                     getWeekday(weatherDay.date), 
-                    getWeatherText(weatherData.type), 
-                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
+                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
+                    getWeatherText(weatherData.type)),
                 "</span>");
             builder.push("</div>");
             builder.push("</li>");
@@ -152,9 +153,9 @@ function temperature(weatherDay) {
     var builder = this.htmlBuilder;
     builder.push("<h3 class='weather-temperature'>");
     if(weatherDay.temperature) {
-        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
+        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "<span style='font-size:22px;'>℃</span>", "</span>");
     }
-    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherData.high, "℃", "</span>");
+    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherDay.high, "℃", "</span>");
     builder.push("</h3>");
 }
 function description(weatherDay) {
@@ -218,8 +219,12 @@ function onWeatherHandleClick(e) {
     original = context.current;
     item = original.children(".weather-item");
     item.removeClass("active-dynamic");
+    original.children(".weather-handle")
+        .removeClass("weather-current-handle");
 
     target = elem.parent();
+    target.children(".weather-handle")
+        .addClass("weather-current-handle");
     context.current = target;
 
     option = context.changeDayAnimator[0];
@@ -253,6 +258,7 @@ weatherStyle = {
             .build();
 
         tile.weatherContext.parent.html(html);
+        tile.update();
     },
     wide: function(tile, weatherData) {
         var html;
@@ -267,6 +273,7 @@ weatherStyle = {
             .build();
 
         tile.weatherContext.parent.html(html);
+        tile.update();
     },
     large: function(tile, weatherData) {
         var html;

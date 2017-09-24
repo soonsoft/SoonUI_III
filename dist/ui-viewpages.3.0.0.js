@@ -341,6 +341,7 @@ ui.master = master;
 "use strict";
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
+    lightClass = "head-color",
     itemHeight = 30;
 
 var normalStyle,
@@ -557,14 +558,14 @@ modernStyle = {
             //展开选中菜单的子菜单
             this.submenuPanel
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this.submenuPanel.css("display", "none");
             this.submenuList.html("");
             subElem = this._getSubmenuElement(false);
             if (subElem) {
                 subElem
                     .addClass(currentClass)
-                    .addClass("background-highlight");
+                    .addClass(lightClass);
                 // 调用普通模式的展开逻辑
                 normalStyle.subShow.call(this, subElem, false);
             }
@@ -587,13 +588,13 @@ modernStyle = {
                 normalStyle.subHide.call(this, subElem, false, function () {
                     subElem
                         .removeClass(currentClass)
-                        .removeClass("background-highlight");
+                        .removeClass(lightClass);
                     subElem.css("display", "none");
                 });
             }
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this._currentMenu = null;
         }
         this._updateStatusToSrc(true);
@@ -745,12 +746,12 @@ function onMenuItemNormalClick(e) {
         this._currentMenu = elem;
         this._currentMenu
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
         subElem = this._getSubmenuElement();
         if (subElem) {
             subElem
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
             this.subShow(subElem, this.hasAnimation);
         }
     }).bind(this);
@@ -758,11 +759,11 @@ function onMenuItemNormalClick(e) {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
-                .removeClass("background-highlight");
+                .removeClass(lightClass);
         subElem = this._getSubmenuElement();
         subElem
             .removeClass(currentClass)
-            .removeClass("background-highlight");
+            .removeClass(lightClass);
         subElem.css("display", "none");
         if (this._currentMenu[0] !== elem[0]) {
             this._currentMenu = null;
@@ -780,7 +781,7 @@ function onMenuItemNormalClick(e) {
         } else {
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
         }
     }
     openFn();
@@ -812,22 +813,22 @@ function onMenuItemModernClick(e) {
         this._currentMenu = elem;
         this._currentMenu
                 .addClass(currentClass)
-                .addClass("background-highlight");
+                .addClass(lightClass);
         submenuPanel = this._getSubmenuElement();
         submenuPanel
             .addClass(currentClass)
-            .addClass("background-highlight");
+            .addClass(lightClass);
         this.subShow(submenuPanel, this.hasAnimation);
     }).bind(this);
     closeFn = (function () {
         var subElem;
         this._currentMenu
                 .removeClass(currentClass)
-                .removeClass("background-highlight");
+                .removeClass(lightClass);
         subElem = this._getSubmenuElement();
         subElem
             .removeClass(currentClass)
-            .removeClass("background-highlight");
+            .removeClass(lightClass);
         subElem.css("display", "none");
         this._currentMenu = null;
     }).bind(this);
@@ -838,7 +839,7 @@ function onMenuItemModernClick(e) {
         } else {
             this._currentMenu
                     .removeClass(currentClass)
-                    .removeClass("background-highlight");
+                    .removeClass(lightClass);
             this._currentMenu = null;
             openFn();
         }
@@ -1220,9 +1221,9 @@ ui.define("ui.ctrls.Menu", {
         for (i = 0, len = menus.length; i < len; i++) {
             menu = menus[i];
             if (ui.str.isEmpty(parentCode)) {
-                currClass = menu.resourceCode === resourceCode ? " current-menu background-highlight selection-menu" : "";
+                currClass = menu.resourceCode === resourceCode ? (" current-menu " + lightClass + " selection-menu") : "";
             } else {
-                currClass = menu.resourceCode === parentCode ? " current-menu background-highlight" : "";
+                currClass = menu.resourceCode === parentCode ? (" current-menu " + lightClass) : "";
             }
             htmlBuilder.push("<dt class='menu-item", currClass, "'>");
             htmlBuilder.push("<b class='menu-item-background'><b class='menu-item-color'></b></b>");
@@ -2654,15 +2655,16 @@ function days() {
             builder.push("<li class='weather-day'", i === 0 ? " style='height:150px'" : "", ">");
             builder.push("<div class='weather-item'", i === 0 ? " style='opacity:1'" : "", ">");
             this.graph();
-            this.info();
+            this.weatherToday = weatherDay;
+            this.info(city, temperature, description, windDirection);
             builder.push("</div>");
-            builder.push("<div class='weather-handle'>");
+            builder.push("<div class='weather-handle", i === 0 ? " weather-current-handle" : "", "'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}&nbsp;({1})&nbsp;&nbsp;{2}&nbsp;{3}",
+                ui.str.textFormat("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
                     getDateText(weatherDay.date),
                     getWeekday(weatherDay.date), 
-                    getWeatherText(weatherData.type), 
-                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high)),
+                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
+                    getWeatherText(weatherData.type)),
                 "</span>");
             builder.push("</div>");
             builder.push("</li>");
@@ -2693,9 +2695,9 @@ function temperature(weatherDay) {
     var builder = this.htmlBuilder;
     builder.push("<h3 class='weather-temperature'>");
     if(weatherDay.temperature) {
-        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "℃", "</span>");
+        builder.push("<span class='weather-curr-temp'>", weatherDay.temperature, "<span style='font-size:22px;'>℃</span>", "</span>");
     }
-    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherData.high, "℃", "</span>");
+    builder.push("<span class='weather-low-high'>", weatherDay.low, "℃ / ", weatherDay.high, "℃", "</span>");
     builder.push("</h3>");
 }
 function description(weatherDay) {
@@ -2759,8 +2761,12 @@ function onWeatherHandleClick(e) {
     original = context.current;
     item = original.children(".weather-item");
     item.removeClass("active-dynamic");
+    original.children(".weather-handle")
+        .removeClass("weather-current-handle");
 
     target = elem.parent();
+    target.children(".weather-handle")
+        .addClass("weather-current-handle");
     context.current = target;
 
     option = context.changeDayAnimator[0];
@@ -2794,6 +2800,7 @@ weatherStyle = {
             .build();
 
         tile.weatherContext.parent.html(html);
+        tile.update();
     },
     wide: function(tile, weatherData) {
         var html;
@@ -2808,6 +2815,7 @@ weatherStyle = {
             .build();
 
         tile.weatherContext.parent.html(html);
+        tile.update();
     },
     large: function(tile, weatherData) {
         var html;

@@ -305,7 +305,6 @@
   height: 48px;
   font-size: 15px;
   position: relative;
-  background-color: transparent;
 }
 .ui-menu-panel .menu-item .menu-item-container {
   position: absolute;
@@ -342,7 +341,6 @@
   display: none;
   height: 0;
   overflow: hidden;
-  background-color: transparent;
   position: relative;
 }
 .ui-menu-panel .submenu-panel .submenu-list {
@@ -703,9 +701,9 @@
 .ui-tile .weather-info {
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: 5px;
   width: 100%;
-  height: 100%;
+  height: auto;
   color: #fff;
 }
 .ui-tile .weather-city {
@@ -722,6 +720,9 @@
   display: inline-block;
   font-size: 24px;
   vertical-align: baseline;
+  margin-right: 10px;
+  font-family: "Segoe UI", "Microsoft YaHei";
+  font-weight: bold;
 }
 .ui-tile .weather-low-high {
   display: inline-block;
@@ -763,6 +764,9 @@
   left: 0;
   bottom: 0;
   font-size: 12px;
+}
+.tile-large .weather-current-handle {
+  background-color: rgba(0, 0, 0, 0.4);
 }
 .tile-large .weather-text {
   margin-left: 5px;
