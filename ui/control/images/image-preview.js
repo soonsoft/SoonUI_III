@@ -133,17 +133,18 @@ ui.define("ui.ctrls.ImagePreview", {
     _initImages: function(images) {
         var width, 
             height,
-            marginValue = 0;
-        var i = 0, 
-            len = images.length,
+            marginValue,
+            i, len,
             image,
             item, img,
             css;
+
         height = this.smallImageSize - 4;
         width = height;
+        marginValue = 0;
 
         this.imageSource = images;
-        for(; i < len; i++) {
+        for(i = 0, len = images.length; i < len; i++) {
             image = images[i];
             css = this._getImageDisplay(width, height, image.width, image.height);
             item = $("<div class='small-img' />");
@@ -182,11 +183,12 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     _getImageDisplay: function(displayWidth, displayHeight, imgWidth, imgHeight) {
         var width,
-            height;
-        var css = {
-            top: "0px",
-            left: "0px"
-        };
+            height,
+            css = {
+                top: "0px",
+                left: "0px"
+            };
+
         if (displayWidth > displayHeight) {
             height = displayHeight;
             width = Math.floor(imgWidth * (height / imgHeight));
@@ -214,14 +216,15 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     _onClickHandler: function(e) {
         var elem = $(e.target),
-            nodeName = elem.nodeName();
+            nodeName = elem.nodeName(),
+            index;
         if(elem.hasClass("chooser-queue")) {
             return;
         }
         if(nodeName === "IMG") {
             elem = elem.parent();
         }
-        var index = parseInt(elem.attr("data-index"), 10);
+        index = parseInt(elem.attr("data-index"), 10);
         if(this.fire("changing", index) === false) {
             return;
         }
@@ -257,13 +260,15 @@ ui.define("ui.ctrls.ImagePreview", {
         }
     },
     setImages: function(images) {
+        var that;
+
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
         
         this.option.images = images;
-        var that = this;
+        that = this;
         if(!this.imageViewer) {
             this.imageViewer = this.viewer.imageViewer(this.option);
             this.imageViewer.ready(function(e, images) {
@@ -308,8 +313,8 @@ ui.define("ui.ctrls.ImagePreview", {
         var scrollValue = this._caculateScrollValue(function(queueSize, currentValue) {
             var fullSize = this.smallImageSize + this.option.imageMargin,
                 count = Math.floor(queueSize / fullSize),
-                beforeCount = Math.floor(count / 2);
-            var scrollCount = index - beforeCount;
+                beforeCount = Math.floor(count / 2),
+                scrollCount = index - beforeCount;
             if(scrollCount < 0) {
                 return 0;
             } else if(scrollCount + count > this.items.length - 1) {
@@ -321,11 +326,12 @@ ui.define("ui.ctrls.ImagePreview", {
         this._setScrollValue(scrollValue);
     },
     _setScrollValue: function(scrollValue) {
+        var option;
         if(isNaN(scrollValue.to)) {
             return;
         }
         this.chooserAnimator.stop();
-        var option = this.chooserAnimator[0];
+        option = this.chooserAnimator[0];
         if(Math.abs(scrollValue.from - scrollValue.to) < this.smallImageSize) {
             option.onChange.call(option, scrollValue.to);
         } else {

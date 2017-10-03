@@ -8,12 +8,12 @@ function getLargeImageSrc(img) {
 
 function loadImageSize(src) {
     var promise = new Promise(function(resolve, reject) {
-        var reimg = new Image();
-        var size = {
-            src: src,
-            width: -1,
-            height: -1
-        };
+        var reimg = new Image(),
+            size = {
+                src: src,
+                width: -1,
+                height: -1
+            };
         reimg.onload = function () {
             reimg.onload = null;
             size.width = reimg.width;
@@ -54,13 +54,15 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.targetTop = null;
         this.targetLeft = null;
 
-        if($.isFunction(this.option.getLargeImageSrc)) {
+        if(ui.core.isFunction(this.option.getLargeImageSrc)) {
             this._getLargeImageSrc = this.option.getLargeImageSrc;
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
     },
     _render: function () {
+        var that;
+
         this.imagePanel = $("<div class='show-image-panel' />");
         this.currentView = $("<div class='image-view-panel' style='display:none;' />");
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
@@ -68,7 +70,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='close-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        var that = this;
+        that = this;
         this.closeButton.click(function () {
             that.hide();
         });
@@ -77,14 +79,14 @@ ui.define("ui.ctrls.ImageZoomer", {
             .append(this.currentView)
             .append(this.nextView)
             .append(this.closeButton);
-        if($.isFunction(this.option.onNext)) {
+        if(ui.core.isFunction(this.option.onNext)) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
             this.nextButton.click(function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
-        if($.isFunction(this.option.onPrev)) {
+        if(ui.core.isFunction(this.option.onPrev)) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
             this.prevButton.click(function(e) {
                 that._doPrevView();
@@ -128,14 +130,14 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     _updateButtonState: function() {
-        if($.isFunction(this.option.hasNext)) {
+        if(ui.core.isFunction(this.option.hasNext)) {
             if(this.option.hasNext.call(this)) {
                 this.nextButton.removeClass("disabled-button");
             } else {
                 this.nextButton.addClass("disabled-button");
             }
         }
-        if($.isFunction(this.option.hasPrev)) {
+        if(ui.core.isFunction(this.option.hasPrev)) {
             if(this.option.hasPrev.call(this)) {
                 this.prevButton.removeClass("disabled-button");
             } else {
@@ -144,12 +146,18 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     show: function (target) {
+        var content,
+            img,
+            left,
+            top,
+            that;
+
         this.target = target;
-        var content = this._setImageSize();
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
         img.css({
             "width": this.target.width() + "px",
@@ -159,16 +167,16 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
         this.imagePanel.css({
             "display": "block",
-            "width": content.parentW + "px",
-            "height": content.parentH + "px",
-            "left": content.parentLoc.left + "px",
-            "top": content.parentLoc.top + "px"
+            "width": content.parentWidth + "px",
+            "height": content.parentHeight + "px",
+            "left": content.parentLocation.left + "px",
+            "top": content.parentLocation.top + "px"
         });
         this.currentView.css("display", "block");
-        var left = (content.parentW - this.width) / 2;
-        var top = (content.parentH - this.height) / 2;
+        left = (content.parentWidth - this.width) / 2;
+        top = (content.parentHeight - this.height) / 2;
         
-        var that = this;
+        that = this;
         ui.mask.open({
             opacity: 0.8
         });
@@ -198,10 +206,11 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
     },
     _doNextView: function() {
+        var nextImg;
         if(this.changeViewAnimator.isStarted) {
             return;
         }
-        var nextImg = this.option.onNext.call(this);
+        nextImg = this.option.onNext.call(this);
         if(!nextImg) {
             return;
         }
@@ -247,27 +256,34 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     _changeView: function(changeValue) {
-        var temp = this.currentView;
+        var temp,
+            largeSrc,
+            content,
+            img,
+            option,
+            that;
+
+        temp = this.currentView;
         this.currentView = this.nextView;
         this.nextView = temp;
-        var largeSrc = this._getLargeImageSrc(this.target);
+        largeSrc = this._getLargeImageSrc(this.target);
 
-        var content = this._setImageSize();
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.prop("src", largeSrc);
         img.css({
-            "left": (content.parentW - this.width) / 2 + "px",
-            "top": (content.parentH - this.height) / 2 + "px",
+            "left": (content.parentWidth - this.width) / 2 + "px",
+            "top": (content.parentHeight - this.height) / 2 + "px",
             "width": this.width + "px",
             "height": this.height + "px"
         });
         this.currentView.css("display", "block");
         this.currentView.css("left", (-changeValue) + "px");
         
-        var option = this.changeViewAnimator[0];
+        option = this.changeViewAnimator[0];
         option.target = this.nextView;
         option.begin = 0;
         option.end = changeValue;
@@ -277,25 +293,30 @@ ui.define("ui.ctrls.ImageZoomer", {
         option.begin = -changeValue;
         option.end = 0;
         
-        var that = this;
+        that = this;
         this.changeViewAnimator.start().done(function() {
             that.nextView.css("display", "none");
         });
         
     },
     resizeZoomImage: function () {
-        var content = this._setImageSize();
+        var content,
+            left,
+            top,
+            img;
+
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var left = (content.parentW - this.width) / 2;
-        var top = (content.parentH - this.height) / 2;
+        left = (content.parentWidth - this.width) / 2;
+        top = (content.parentHeight - this.height) / 2;
         
         this.imagePanel.css({
-            "width": content.parentW + "px",
-            "height": content.parentH + "px",
+            "width": content.parentWidth + "px",
+            "height": content.parentHeight + "px",
         });
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.css({
             "left": left + "px",
             "top": top + "px",
@@ -304,70 +325,86 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
     },
     _getActualSize: function (img) {
-        var largeSize = img.data("LargeSize");
-        var mem, w, h;
+        var largeSize,
+            mem, 
+            width, 
+            height;
+
+        largeSize = img.data("LargeSize");
         if(!largeSize) {
             //保存原来的尺寸  
-            mem = { w: img.width(), h: img.height() };
+            mem = { width: img.width(), height: img.height() };
             //重写
             img.css({
                 "width": "auto",
                 "height": "auto"
             });
             //取得现在的尺寸 
-            w = img.width();
-            h = img.height();
+            width = img.width();
+            height = img.height();
             //还原
             img.css({
-                "width": mem.w + "px",
-                "height": mem.h + "px"
+                "width": mem.width + "px",
+                "height": mem.height + "px"
             });
-            largeSize = { width: w, height: h };
+            largeSize = { 
+                width: width, 
+                height: height 
+            };
         }
         
         return largeSize;
     },
     _setImageSize: function () {
+        var img,
+            size,
+            parentHeight,
+            parentWidth,
+            imageWidth,
+            imageHeight,
+            location,
+            parentLocation;
+
         if (!this.currentView) {
             return;
         }
         if (!this.target) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.stop();
         
-        var size = this._getActualSize(this.target);
+        size = this._getActualSize(this.target);
 
-        var parentH = this.parentContent.height();
-        var parentW = this.parentContent.width();
-        var imageW = size.width;
-        var imageH = size.height;
-        if (imageW / parentW < imageH / parentH) {
-            if(imageH >= parentH) {
-                this.height = parentH;
+        parentHeight = this.parentContent.height();
+        parentWidth = this.parentContent.width();
+        imageWidth = size.width;
+        imageHeight = size.height;
+        if (imageWidth / parentWidth < imageHeight / parentHeight) {
+            if(imageHeight >= parentHeight) {
+                this.height = parentHeight;
             } else {
-                this.height = imageH;
+                this.height = imageHeight;
             }
-            this.width = Math.floor(imageW * (this.height / imageH));
+            this.width = Math.floor(imageWidth * (this.height / imageHeight));
         } else {
-            if(imageW >= parentW) {
-                this.width = parentW;
+            if(imageWidth >= parentWidth) {
+                this.width = parentWidth;
             } else {
-                this.width = imageH;
+                this.width = imageHeight;
             }
-            this.height = Math.floor(imageH * (this.width / imageW));
+            this.height = Math.floor(imageHeight * (this.width / imageWidth));
         }
-        var loc = this.target.offset();
-        var parentLoc = this.parentContent.offset();
-        this.targetTop = loc.top - parentLoc.top;
-        this.targetLeft = loc.left - parentLoc.left;
-        var content = {
-            parentW: parentW,
-            parentH: parentH,
-            parentLoc: parentLoc
+        location = this.target.offset();
+        parentLocation = this.parentContent.offset();
+
+        this.targetTop = location.top - parentLocation.top;
+        this.targetLeft = location.left - parentLocation.left;
+        return {
+            parentWidth: parentWidth,
+            parentHeight: parentHeight,
+            parentLocation: parentLocation
         };
-        return content;
     }
 });
 
@@ -377,8 +414,8 @@ $.fn.addImageZoomer = function (image) {
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
-            var target = $(e.target);
-            var largeSize = target.data("LargeSize");
+            var target = $(e.target),
+                largeSize = target.data("LargeSize");
             if(largeSize) {
                 image.show(target);
             } else {

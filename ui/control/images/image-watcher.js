@@ -118,11 +118,11 @@ ui.define("ui.ctrls.ImageWatcher", {
         this.leftRatio = (left - marginLeft) / this.imageOffsetWidth;
     },
     _setZoomView: function() {
+        var top, left;
         if(this.focusView.css("display") === "none") {
             this.zoomView.css("display", "none");
             return;
         }
-        var top, left;
         if(this.option.position === "top") {
             left = 0;
             top = -(this.zoomHeight + this.viewMargin);
