@@ -184,6 +184,7 @@ if(typeof Array.prototype.lastIndexOf !== "function") {
 // String.prototype
 // trim
 // http://www.cnblogs.com/rubylouvre/archive/2009/09/18/1568794.html
+// 各种空格字符的穷举\n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000
 if(typeof String.prototype.trim !== "function") {
     String.protocol.trim = function() {
         var str = this,
