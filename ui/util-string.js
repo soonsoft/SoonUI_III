@@ -10,7 +10,7 @@ var defaultWeekFormatFn = function(week) {
 };
 // base64
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-var _utf8_encode = function (string) {
+function _utf8_encode(string) {
     var utftext = textEmpty,
         c;
     string = string.replace(/\r\n/g, "\n");
@@ -30,11 +30,11 @@ var _utf8_encode = function (string) {
         }
     }
     return utftext;
-};
-var _utf8_decode = function (utftext) {
+}
+function _utf8_decode (utftext) {
     var string = textEmpty;
-    var i = 0;
-    var c = 0, 
+    var i = 0,
+        c = 0, 
         c3 = 0, 
         c2 = 0;
     while (i < utftext.length) {
@@ -56,7 +56,7 @@ var _utf8_decode = function (utftext) {
         }
     }
     return string;
-};
+}
 
 ui.str = {
     /** 空字符串 */
