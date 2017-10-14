@@ -414,9 +414,19 @@ if(typeof Array.prototype.lastIndexOf !== "function") {
 
 // String.prototype
 // trim
+// http://www.cnblogs.com/rubylouvre/archive/2009/09/18/1568794.html
+// 各种空格字符的穷举\n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000
 if(typeof String.prototype.trim !== "function") {
     String.protocol.trim = function() {
-        return ui.str.trim(this);
+        var str = this,
+            ws = /\s/,
+            i;
+            
+        str = str.replace(/^\s\s*/, '');
+        i = str.length - 1;
+
+        while (ws.test(str.charAt(i--)));
+        return str.slice(0, i + 1);
     };
 }
 
@@ -1418,7 +1428,7 @@ var defaultWeekFormatFn = function(week) {
 };
 // base64
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-var _utf8_encode = function (string) {
+function _utf8_encode(string) {
     var utftext = textEmpty,
         c;
     string = string.replace(/\r\n/g, "\n");
@@ -1438,11 +1448,11 @@ var _utf8_encode = function (string) {
         }
     }
     return utftext;
-};
-var _utf8_decode = function (utftext) {
+}
+function _utf8_decode (utftext) {
     var string = textEmpty;
-    var i = 0;
-    var c = 0, 
+    var i = 0,
+        c = 0, 
         c3 = 0, 
         c2 = 0;
     while (i < utftext.length) {
@@ -1464,62 +1474,59 @@ var _utf8_decode = function (utftext) {
         }
     }
     return string;
-};
+}
 
 ui.str = {
     /** 空字符串 */
     empty: textEmpty,
     /** 字符串遍历，通过[ ]和[,]分割 */
     each: ui.core.each,
-    /** 去空格 */
-    trim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串，支持自定义修剪的字符，默认是空格，性能并不是最优，所以如果只是想trim的话推荐使用String.prototype.trim */
+    trim: function (str, trimChar) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(^" + c + "*)|(" + c + "*$)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(^" + trimChar + "*)|(" + trimChar + "*$)", "g"), textEmpty);
     },
-    /** 去掉左边空格 */
-    lTrim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串左边的字符 */
+    trimLeft: function (str, textEmpty) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(^" + c + "*)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(^" + trimChar + "*)", "g"), textEmpty);
     },
-    /** 去掉右边空格 */
-    rTrim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串右边的字符 */
+    trimRight: function (str) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(" + c + "*$)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(" + trimChar + "*$)", "g"), textEmpty);
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
         return str === undefined || str === null
-            || (ui.core.isString(str) && str.length === 0);
+            || (typeof str === "string" && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
     isBlank: function(str) {
-        var i;
+        var i, len;
         if(str === undefined || str === null) {
             return true;
         }
         if(ui.core.isString(str)) {
-            for(i = 0; i < str.length; i++) {
+            for(i = 0, len = str.length; i < len; i++) {
                 if(str.charCodeAt(i) != 32) {
                     return false;
                 }
@@ -1527,7 +1534,7 @@ ui.str = {
             return true;
         }
     },
-    //格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello
+    /** 格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello */
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
@@ -1549,10 +1556,10 @@ ui.str = {
             return '';
         });
     },
-    //格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期;
+    /** 格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期 */
     dateFormat: function (date, format, weekFormat) {
         if (!date) {
-            return ui.str.empty;
+            return textEmpty;
         } else if (typeof date === "string") {
             format = date;
             date = new Date();
@@ -1594,8 +1601,8 @@ ui.str = {
             hour = 0,
             minute = 0,
             second = 0,
-            ms = 0;
-        var result = /y+/i.exec(format);
+            ms = 0,
+            result = /y+/i.exec(format);
         if (result !== null) {
             year = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
         }
@@ -1651,6 +1658,7 @@ ui.str = {
         }
         return date;
     },
+    /** base64编码 */
     base64Encode: function (input) {
         var output = "";
         var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
@@ -1679,6 +1687,7 @@ ui.str = {
         }
         return output;
     },
+    /** base64解码 */
     base64Decode: function (input) {
         var output = "";
         var chr1, chr2, chr3;
@@ -1709,67 +1718,80 @@ ui.str = {
         output = _utf8_decode(output);
         return output;
     },
+    /** html编码 */
     htmlEncode: function(str) {
         if (this.isEmpty(str)) {
-            return this.empty;
+            return textEmpty;
         }
         return $("<span />").append(document.createTextNode(str)).html();
     },
+    /** html解码 */
     htmlDecode: function(str) {
         if (this.isEmpty(str)) {
-            return this.empty;
+            return textEmpty;
         }
         return $("<span />").html(str).text();
     },
+    /** 格式化小数位数 */
     numberScaleFormat: function (num, zeroCount) {
+        var integerText,
+            scaleText,
+            index,
+            i, len;
         if (isNaN(num))
             return null;
         if (isNaN(zeroCount))
             zeroCount = 2;
         num = ui.fixedNumber(num, zeroCount);
-        var integerText = num + ui.str.empty;
-        var scaleText;
-        var index = integerText.indexOf(".");
+        integerText = num + textEmpty;
+        index = integerText.indexOf(".");
         if (index < 0) {
-            scaleText = ui.str.empty;
+            scaleText = textEmpty;
         } else {
             scaleText = integerText.substring(index + 1);
             integerText = integerText.substring(0, index);
         }
-        var len = zeroCount - scaleText.length;
-        var i;
-        for (i = 0; i < len; i++) {
+
+        for (i = 0, len = zeroCount - scaleText.length; i < len; i++) {
             scaleText += "0";
         }
         return integerText + "." + scaleText;
     },
+    /** 格式化整数位数 */
     integerFormat: function (num, count) {
+        var numText, i, len;
         num = parseInt(num, 10);
-        if (isNaN(num))
+        if (isNaN(num)) {
             return NaN;
-        if (isNaN(count))
+        }
+        if (isNaN(count)) {
             count = 8;
-        var numText = num + ui.str.empty;
-        var len = count - numText.length;
-        var i;
-        for (i = 0; i < len; i++) {
+        }
+        numText = num + textEmpty;
+        for (i = 0, len = count - numText.length; i < len; i++) {
             numText = "0" + numText;
         }
         return numText;
     },
+    /** 货币格式化，每千位插入一个逗号 */
     moneyFormat: function (value, symbol) {
+        var content,
+            arr,
+            index,
+            result,
+            i;
         if (!symbol) {
             symbol = "￥";
         }
-        var content = ui.str.numberScaleFormat(value, 2);
+        content = ui.str.numberScaleFormat(value, 2);
         if (!content) {
             return content;
         }
-        var arr = content.split(".");
+        arr = content.split(".");
         content = arr[0];
-        var index = 0;
-        var result = [];
-        for (var i = content.length - 1; i >= 0; i--) {
+        index = 0;
+        result = [];
+        for (i = content.length - 1; i >= 0; i--) {
             if (index == 3) {
                 index = 0;
                 result.push(",");
@@ -1780,7 +1802,7 @@ ui.str = {
         result.push(symbol);
         result.reverse();
         result.push(".", arr[1]);
-        return result.join(ui.str.empty);
+        return result.join(textEmpty);
     }
 };
 
@@ -21915,17 +21937,18 @@ ui.define("ui.ctrls.ImagePreview", {
     _initImages: function(images) {
         var width, 
             height,
-            marginValue = 0;
-        var i = 0, 
-            len = images.length,
+            marginValue,
+            i, len,
             image,
             item, img,
             css;
+
         height = this.smallImageSize - 4;
         width = height;
+        marginValue = 0;
 
         this.imageSource = images;
-        for(; i < len; i++) {
+        for(i = 0, len = images.length; i < len; i++) {
             image = images[i];
             css = this._getImageDisplay(width, height, image.width, image.height);
             item = $("<div class='small-img' />");
@@ -21964,11 +21987,12 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     _getImageDisplay: function(displayWidth, displayHeight, imgWidth, imgHeight) {
         var width,
-            height;
-        var css = {
-            top: "0px",
-            left: "0px"
-        };
+            height,
+            css = {
+                top: "0px",
+                left: "0px"
+            };
+
         if (displayWidth > displayHeight) {
             height = displayHeight;
             width = Math.floor(imgWidth * (height / imgHeight));
@@ -21996,14 +22020,15 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     _onClickHandler: function(e) {
         var elem = $(e.target),
-            nodeName = elem.nodeName();
+            nodeName = elem.nodeName(),
+            index;
         if(elem.hasClass("chooser-queue")) {
             return;
         }
         if(nodeName === "IMG") {
             elem = elem.parent();
         }
-        var index = parseInt(elem.attr("data-index"), 10);
+        index = parseInt(elem.attr("data-index"), 10);
         if(this.fire("changing", index) === false) {
             return;
         }
@@ -22039,13 +22064,15 @@ ui.define("ui.ctrls.ImagePreview", {
         }
     },
     setImages: function(images) {
+        var that;
+
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
         
         this.option.images = images;
-        var that = this;
+        that = this;
         if(!this.imageViewer) {
             this.imageViewer = this.viewer.imageViewer(this.option);
             this.imageViewer.ready(function(e, images) {
@@ -22090,8 +22117,8 @@ ui.define("ui.ctrls.ImagePreview", {
         var scrollValue = this._caculateScrollValue(function(queueSize, currentValue) {
             var fullSize = this.smallImageSize + this.option.imageMargin,
                 count = Math.floor(queueSize / fullSize),
-                beforeCount = Math.floor(count / 2);
-            var scrollCount = index - beforeCount;
+                beforeCount = Math.floor(count / 2),
+                scrollCount = index - beforeCount;
             if(scrollCount < 0) {
                 return 0;
             } else if(scrollCount + count > this.items.length - 1) {
@@ -22103,11 +22130,12 @@ ui.define("ui.ctrls.ImagePreview", {
         this._setScrollValue(scrollValue);
     },
     _setScrollValue: function(scrollValue) {
+        var option;
         if(isNaN(scrollValue.to)) {
             return;
         }
         this.chooserAnimator.stop();
-        var option = this.chooserAnimator[0];
+        option = this.chooserAnimator[0];
         if(Math.abs(scrollValue.from - scrollValue.to) < this.smallImageSize) {
             option.onChange.call(option, scrollValue.to);
         } else {
@@ -22595,11 +22623,11 @@ ui.define("ui.ctrls.ImageWatcher", {
         this.leftRatio = (left - marginLeft) / this.imageOffsetWidth;
     },
     _setZoomView: function() {
+        var top, left;
         if(this.focusView.css("display") === "none") {
             this.zoomView.css("display", "none");
             return;
         }
-        var top, left;
         if(this.option.position === "top") {
             left = 0;
             top = -(this.zoomHeight + this.viewMargin);
@@ -22650,12 +22678,12 @@ function getLargeImageSrc(img) {
 
 function loadImageSize(src) {
     var promise = new Promise(function(resolve, reject) {
-        var reimg = new Image();
-        var size = {
-            src: src,
-            width: -1,
-            height: -1
-        };
+        var reimg = new Image(),
+            size = {
+                src: src,
+                width: -1,
+                height: -1
+            };
         reimg.onload = function () {
             reimg.onload = null;
             size.width = reimg.width;
@@ -22696,13 +22724,15 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.targetTop = null;
         this.targetLeft = null;
 
-        if($.isFunction(this.option.getLargeImageSrc)) {
+        if(ui.core.isFunction(this.option.getLargeImageSrc)) {
             this._getLargeImageSrc = this.option.getLargeImageSrc;
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
     },
     _render: function () {
+        var that;
+
         this.imagePanel = $("<div class='show-image-panel' />");
         this.currentView = $("<div class='image-view-panel' style='display:none;' />");
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
@@ -22710,7 +22740,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='close-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        var that = this;
+        that = this;
         this.closeButton.click(function () {
             that.hide();
         });
@@ -22719,14 +22749,14 @@ ui.define("ui.ctrls.ImageZoomer", {
             .append(this.currentView)
             .append(this.nextView)
             .append(this.closeButton);
-        if($.isFunction(this.option.onNext)) {
+        if(ui.core.isFunction(this.option.onNext)) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
             this.nextButton.click(function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
-        if($.isFunction(this.option.onPrev)) {
+        if(ui.core.isFunction(this.option.onPrev)) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
             this.prevButton.click(function(e) {
                 that._doPrevView();
@@ -22770,14 +22800,14 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     _updateButtonState: function() {
-        if($.isFunction(this.option.hasNext)) {
+        if(ui.core.isFunction(this.option.hasNext)) {
             if(this.option.hasNext.call(this)) {
                 this.nextButton.removeClass("disabled-button");
             } else {
                 this.nextButton.addClass("disabled-button");
             }
         }
-        if($.isFunction(this.option.hasPrev)) {
+        if(ui.core.isFunction(this.option.hasPrev)) {
             if(this.option.hasPrev.call(this)) {
                 this.prevButton.removeClass("disabled-button");
             } else {
@@ -22786,12 +22816,18 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     show: function (target) {
+        var content,
+            img,
+            left,
+            top,
+            that;
+
         this.target = target;
-        var content = this._setImageSize();
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
         img.css({
             "width": this.target.width() + "px",
@@ -22801,16 +22837,16 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
         this.imagePanel.css({
             "display": "block",
-            "width": content.parentW + "px",
-            "height": content.parentH + "px",
-            "left": content.parentLoc.left + "px",
-            "top": content.parentLoc.top + "px"
+            "width": content.parentWidth + "px",
+            "height": content.parentHeight + "px",
+            "left": content.parentLocation.left + "px",
+            "top": content.parentLocation.top + "px"
         });
         this.currentView.css("display", "block");
-        var left = (content.parentW - this.width) / 2;
-        var top = (content.parentH - this.height) / 2;
+        left = (content.parentWidth - this.width) / 2;
+        top = (content.parentHeight - this.height) / 2;
         
-        var that = this;
+        that = this;
         ui.mask.open({
             opacity: 0.8
         });
@@ -22840,10 +22876,11 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
     },
     _doNextView: function() {
+        var nextImg;
         if(this.changeViewAnimator.isStarted) {
             return;
         }
-        var nextImg = this.option.onNext.call(this);
+        nextImg = this.option.onNext.call(this);
         if(!nextImg) {
             return;
         }
@@ -22889,27 +22926,34 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     _changeView: function(changeValue) {
-        var temp = this.currentView;
+        var temp,
+            largeSrc,
+            content,
+            img,
+            option,
+            that;
+
+        temp = this.currentView;
         this.currentView = this.nextView;
         this.nextView = temp;
-        var largeSrc = this._getLargeImageSrc(this.target);
+        largeSrc = this._getLargeImageSrc(this.target);
 
-        var content = this._setImageSize();
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.prop("src", largeSrc);
         img.css({
-            "left": (content.parentW - this.width) / 2 + "px",
-            "top": (content.parentH - this.height) / 2 + "px",
+            "left": (content.parentWidth - this.width) / 2 + "px",
+            "top": (content.parentHeight - this.height) / 2 + "px",
             "width": this.width + "px",
             "height": this.height + "px"
         });
         this.currentView.css("display", "block");
         this.currentView.css("left", (-changeValue) + "px");
         
-        var option = this.changeViewAnimator[0];
+        option = this.changeViewAnimator[0];
         option.target = this.nextView;
         option.begin = 0;
         option.end = changeValue;
@@ -22919,25 +22963,30 @@ ui.define("ui.ctrls.ImageZoomer", {
         option.begin = -changeValue;
         option.end = 0;
         
-        var that = this;
+        that = this;
         this.changeViewAnimator.start().done(function() {
             that.nextView.css("display", "none");
         });
         
     },
     resizeZoomImage: function () {
-        var content = this._setImageSize();
+        var content,
+            left,
+            top,
+            img;
+
+        content = this._setImageSize();
         if (!content) {
             return;
         }
-        var left = (content.parentW - this.width) / 2;
-        var top = (content.parentH - this.height) / 2;
+        left = (content.parentWidth - this.width) / 2;
+        top = (content.parentHeight - this.height) / 2;
         
         this.imagePanel.css({
-            "width": content.parentW + "px",
-            "height": content.parentH + "px",
+            "width": content.parentWidth + "px",
+            "height": content.parentHeight + "px",
         });
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.css({
             "left": left + "px",
             "top": top + "px",
@@ -22946,70 +22995,86 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
     },
     _getActualSize: function (img) {
-        var largeSize = img.data("LargeSize");
-        var mem, w, h;
+        var largeSize,
+            mem, 
+            width, 
+            height;
+
+        largeSize = img.data("LargeSize");
         if(!largeSize) {
             //保存原来的尺寸  
-            mem = { w: img.width(), h: img.height() };
+            mem = { width: img.width(), height: img.height() };
             //重写
             img.css({
                 "width": "auto",
                 "height": "auto"
             });
             //取得现在的尺寸 
-            w = img.width();
-            h = img.height();
+            width = img.width();
+            height = img.height();
             //还原
             img.css({
-                "width": mem.w + "px",
-                "height": mem.h + "px"
+                "width": mem.width + "px",
+                "height": mem.height + "px"
             });
-            largeSize = { width: w, height: h };
+            largeSize = { 
+                width: width, 
+                height: height 
+            };
         }
         
         return largeSize;
     },
     _setImageSize: function () {
+        var img,
+            size,
+            parentHeight,
+            parentWidth,
+            imageWidth,
+            imageHeight,
+            location,
+            parentLocation;
+
         if (!this.currentView) {
             return;
         }
         if (!this.target) {
             return;
         }
-        var img = this.currentView.children("img");
+        img = this.currentView.children("img");
         img.stop();
         
-        var size = this._getActualSize(this.target);
+        size = this._getActualSize(this.target);
 
-        var parentH = this.parentContent.height();
-        var parentW = this.parentContent.width();
-        var imageW = size.width;
-        var imageH = size.height;
-        if (imageW / parentW < imageH / parentH) {
-            if(imageH >= parentH) {
-                this.height = parentH;
+        parentHeight = this.parentContent.height();
+        parentWidth = this.parentContent.width();
+        imageWidth = size.width;
+        imageHeight = size.height;
+        if (imageWidth / parentWidth < imageHeight / parentHeight) {
+            if(imageHeight >= parentHeight) {
+                this.height = parentHeight;
             } else {
-                this.height = imageH;
+                this.height = imageHeight;
             }
-            this.width = Math.floor(imageW * (this.height / imageH));
+            this.width = Math.floor(imageWidth * (this.height / imageHeight));
         } else {
-            if(imageW >= parentW) {
-                this.width = parentW;
+            if(imageWidth >= parentWidth) {
+                this.width = parentWidth;
             } else {
-                this.width = imageH;
+                this.width = imageHeight;
             }
-            this.height = Math.floor(imageH * (this.width / imageW));
+            this.height = Math.floor(imageHeight * (this.width / imageWidth));
         }
-        var loc = this.target.offset();
-        var parentLoc = this.parentContent.offset();
-        this.targetTop = loc.top - parentLoc.top;
-        this.targetLeft = loc.left - parentLoc.left;
-        var content = {
-            parentW: parentW,
-            parentH: parentH,
-            parentLoc: parentLoc
+        location = this.target.offset();
+        parentLocation = this.parentContent.offset();
+
+        this.targetTop = location.top - parentLocation.top;
+        this.targetLeft = location.left - parentLocation.left;
+        return {
+            parentWidth: parentWidth,
+            parentHeight: parentHeight,
+            parentLocation: parentLocation
         };
-        return content;
     }
 });
 
@@ -23019,8 +23084,8 @@ $.fn.addImageZoomer = function (image) {
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
-            var target = $(e.target);
-            var largeSize = target.data("LargeSize");
+            var target = $(e.target),
+                largeSize = target.data("LargeSize");
             if(largeSize) {
                 image.show(target);
             } else {
