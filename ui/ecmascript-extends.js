@@ -183,9 +183,18 @@ if(typeof Array.prototype.lastIndexOf !== "function") {
 
 // String.prototype
 // trim
+// http://www.cnblogs.com/rubylouvre/archive/2009/09/18/1568794.html
 if(typeof String.prototype.trim !== "function") {
     String.protocol.trim = function() {
-        return ui.str.trim(this);
+        var str = this,
+            ws = /\s/,
+            i;
+            
+        str = str.replace(/^\s\s*/, '');
+        i = str.length - 1;
+
+        while (ws.test(str.charAt(i--)));
+        return str.slice(0, i + 1);
     };
 }
 

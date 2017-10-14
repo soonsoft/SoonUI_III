@@ -63,55 +63,52 @@ ui.str = {
     empty: textEmpty,
     /** 字符串遍历，通过[ ]和[,]分割 */
     each: ui.core.each,
-    /** 去空格 */
-    trim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串，支持自定义修剪的字符，默认是空格，性能并不是最优，所以如果只是想trim的话推荐使用String.prototype.trim */
+    trim: function (str, trimChar) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(^" + c + "*)|(" + c + "*$)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(^" + trimChar + "*)|(" + trimChar + "*$)", "g"), textEmpty);
     },
-    /** 去掉左边空格 */
-    lTrim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串左边的字符 */
+    trimLeft: function (str, textEmpty) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(^" + c + "*)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(^" + trimChar + "*)", "g"), textEmpty);
     },
-    /** 去掉右边空格 */
-    rTrim: function (str) {
-        if (!ui.core.isString(str)) {
+    /** 修剪字符串右边的字符 */
+    trimRight: function (str) {
+        if (typeof str !== "string") {
             return str;
         }
-        var c = arguments[1];
-        if (!c) {
-            c = "\\s";
+        if (!trimChar) {
+            trimChar = "\\s";
         }
-        var r = new RegExp("(" + c + "*$)", "g");
-        return str.replace(r, this.empty);
+        return str.replace(
+            new RegExp("(" + trimChar + "*$)", "g"), textEmpty);
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
         return str === undefined || str === null
-            || (ui.core.isString(str) && str.length === 0);
+            || (typeof str === "string" && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
     isBlank: function(str) {
-        var i;
+        var i, len;
         if(str === undefined || str === null) {
             return true;
         }
         if(ui.core.isString(str)) {
-            for(i = 0; i < str.length; i++) {
+            for(i = 0, len = str.length; i < len; i++) {
                 if(str.charCodeAt(i) != 32) {
                     return false;
                 }
@@ -119,7 +116,7 @@ ui.str = {
             return true;
         }
     },
-    //格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello
+    /** 格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello */
     textFormat: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
@@ -141,10 +138,10 @@ ui.str = {
             return '';
         });
     },
-    //格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期;
+    /** 格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期 */
     dateFormat: function (date, format, weekFormat) {
         if (!date) {
-            return ui.str.empty;
+            return textEmpty;
         } else if (typeof date === "string") {
             format = date;
             date = new Date();
@@ -186,8 +183,8 @@ ui.str = {
             hour = 0,
             minute = 0,
             second = 0,
-            ms = 0;
-        var result = /y+/i.exec(format);
+            ms = 0,
+            result = /y+/i.exec(format);
         if (result !== null) {
             year = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
         }
@@ -243,6 +240,7 @@ ui.str = {
         }
         return date;
     },
+    /** base64编码 */
     base64Encode: function (input) {
         var output = "";
         var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
@@ -271,6 +269,7 @@ ui.str = {
         }
         return output;
     },
+    /** base64解码 */
     base64Decode: function (input) {
         var output = "";
         var chr1, chr2, chr3;
@@ -301,67 +300,80 @@ ui.str = {
         output = _utf8_decode(output);
         return output;
     },
+    /** html编码 */
     htmlEncode: function(str) {
         if (this.isEmpty(str)) {
-            return this.empty;
+            return textEmpty;
         }
         return $("<span />").append(document.createTextNode(str)).html();
     },
+    /** html解码 */
     htmlDecode: function(str) {
         if (this.isEmpty(str)) {
-            return this.empty;
+            return textEmpty;
         }
         return $("<span />").html(str).text();
     },
+    /** 格式化小数位数 */
     numberScaleFormat: function (num, zeroCount) {
+        var integerText,
+            scaleText,
+            index,
+            i, len;
         if (isNaN(num))
             return null;
         if (isNaN(zeroCount))
             zeroCount = 2;
         num = ui.fixedNumber(num, zeroCount);
-        var integerText = num + ui.str.empty;
-        var scaleText;
-        var index = integerText.indexOf(".");
+        integerText = num + textEmpty;
+        index = integerText.indexOf(".");
         if (index < 0) {
-            scaleText = ui.str.empty;
+            scaleText = textEmpty;
         } else {
             scaleText = integerText.substring(index + 1);
             integerText = integerText.substring(0, index);
         }
-        var len = zeroCount - scaleText.length;
-        var i;
-        for (i = 0; i < len; i++) {
+
+        for (i = 0, len = zeroCount - scaleText.length; i < len; i++) {
             scaleText += "0";
         }
         return integerText + "." + scaleText;
     },
+    /** 格式化整数位数 */
     integerFormat: function (num, count) {
+        var numText, i, len;
         num = parseInt(num, 10);
-        if (isNaN(num))
+        if (isNaN(num)) {
             return NaN;
-        if (isNaN(count))
+        }
+        if (isNaN(count)) {
             count = 8;
-        var numText = num + ui.str.empty;
-        var len = count - numText.length;
-        var i;
-        for (i = 0; i < len; i++) {
+        }
+        numText = num + textEmpty;
+        for (i = 0, len = count - numText.length; i < len; i++) {
             numText = "0" + numText;
         }
         return numText;
     },
+    /** 货币格式化，每千位插入一个逗号 */
     moneyFormat: function (value, symbol) {
+        var content,
+            arr,
+            index,
+            result,
+            i;
         if (!symbol) {
             symbol = "￥";
         }
-        var content = ui.str.numberScaleFormat(value, 2);
+        content = ui.str.numberScaleFormat(value, 2);
         if (!content) {
             return content;
         }
-        var arr = content.split(".");
+        arr = content.split(".");
         content = arr[0];
-        var index = 0;
-        var result = [];
-        for (var i = content.length - 1; i >= 0; i--) {
+        index = 0;
+        result = [];
+        for (i = content.length - 1; i >= 0; i--) {
             if (index == 3) {
                 index = 0;
                 result.push(",");
@@ -372,6 +384,6 @@ ui.str = {
         result.push(symbol);
         result.reverse();
         result.push(".", arr[1]);
-        return result.join(ui.str.empty);
+        return result.join(textEmpty);
     }
 };
