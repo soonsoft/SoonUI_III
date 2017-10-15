@@ -215,7 +215,7 @@ CtrlBase.prototype = {
             throw new TypeError("参数propertyName只能是String类型并且不能为空");
         }
 
-        if(typeof Relect !== "undefined" && ui.core.isFunction(Reflect.defineProperty)) {
+        if(typeof Reflect !== "undefined" && ui.core.isFunction(Reflect.defineProperty)) {
             definePropertyFn = Reflect.defineProperty;
         } else if(ui.core.isFunction(Object.defineProperty)) {
             definePropertyFn = Object.defineProperty;

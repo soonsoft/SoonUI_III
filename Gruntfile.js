@@ -402,21 +402,21 @@ module.exports = function(grunt) {
                 src: frameFiles,
                 dest: frameDestFile
             },
-            control: {
+            controls: {
                 options: {
                     process: option
                 },
                 src: controlFiles,
                 dest: controlDestFile
             },
-            effect: {
+            effects: {
                 options: {
                     process: option
                 },
                 src: effectFiles,
                 dest: effectDestFile
             },
-            view: {
+            viewpages: {
                 options: {
                     process: option
                 },
@@ -440,14 +440,20 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 // 此处定义的banner注释将插入到输出文件的顶部
-                banner: "/*! <%= pkg.name %> <%= grunt.template.today('yyyy-dd-mm') %> */\n"
+                banner: "/*! <%= pkg.name %> <%= grunt.template.today('yyyy-mm-dd') %> */\n"
             },
             dist: {
                 files: {
-                    // ui.core.min.js 文件压缩
-                    "dist/ui.core.<%= pkg.version %>.min.js": ["<%= concat.frame.dest %>"]
-                    // ui.ctrls.min.js 文件压缩
-                    //"dist/<%= pkg.name %>.<%= pkg.version %>.min.js": ["<%= concat.dist.dest %>"]
+                    // ui.core.min.js
+                    "dist/ui.core.<%= pkg.version %>.min.js": ["<%= concat.frame.dest %>"],
+                    // ui.controls.min.js
+                    "dist/ui.controls.<%= pkg.version %>.min.js": ["<%= concat.controls.dest %>"],
+                    // ui.effect.min.js
+                    "dist/ui.effect.<%= pkg.version %>.min.js": ["<%= concat.effects.dest %>"],
+                    // ui.viewpages.min.js
+                    "dist/ui.viewpages.<%= pkg.version %>.min.js": ["<%= concat.viewpages.dest %>"],
+                    // SOON.UI.all.min.js
+                    "dist/<%= pkg.name %>.<%= pkg.version %>.all.min.js": ["<%= concat.dist.dest %>"]
                 }
             }
         },
