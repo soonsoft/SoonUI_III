@@ -59,7 +59,6 @@ function getWeekday(date) {
     weekDayFn = function(week) {
         return "周" + "日一二三四五六".charAt(week);
     };
-    console.log("dayCount: " + dayCount);
     if(dayCount < -1) {
         return weekDayFn(date.getDay());
     } else if(dayCount < 0) {

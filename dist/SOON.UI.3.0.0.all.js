@@ -4944,6 +4944,9 @@ ui.eventPriority = {
     elementResize: 2
 };
 var page = ui.page = {
+    // resize事件延迟时间
+    _resizeDelay: 300,
+    _resizeTimeoutHandler: null,
     events: [
         "themechanged",
         "hlchanged", 
@@ -4970,9 +4973,17 @@ $(document)
 $(window)
     //注册全局resize事件
     .on("resize", function (e) {
-        page.fire("resize", 
-            document.documentElement.clientWidth, 
-            document.documentElement.clientHeight);
+        if(page._resizeTimeoutHandler) {
+            clearTimeout(page._resizeTimeoutHandler);
+            console.log("clear");
+        }
+        page._resizeTimeoutHandler = setTimeout(function() {
+            page._resizeTimeoutHandler = null;
+            console.log("resize");
+            page.fire("resize", 
+                document.documentElement.clientWidth, 
+                document.documentElement.clientHeight);
+        }, page._resizeDelay);
     })
     //注册全局hashchange事件
     .on("hashchange", function(e) {
@@ -25713,7 +25724,6 @@ function getWeekday(date) {
     weekDayFn = function(week) {
         return "周" + "日一二三四五六".charAt(week);
     };
-    console.log("dayCount: " + dayCount);
     if(dayCount < -1) {
         return weekDayFn(date.getDay());
     } else if(dayCount < 0) {
