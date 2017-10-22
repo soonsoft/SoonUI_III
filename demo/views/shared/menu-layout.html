@@ -38,8 +38,9 @@
     <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
     <script type="text/javascript" src="../../lib/data/highlights.js"></script>
     <script type="text/javascript">
-        ui.master.noMenu = false;
-        ui.master.init();
+        ui.master.init(function() {
+            this.config("menu");
+        });
     </script>
     @{script}
 </body>
