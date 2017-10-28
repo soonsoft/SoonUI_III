@@ -1,0 +1,65 @@
+@{layout:demo/views/shared/menu-layout.html}
+
+<partial id="title">树形视图</partial>
+<partial id="header">TREE VIEW</partial>
+
+<partial id="content">
+    <div class="toolbar"></div>
+    <div id="cardView"></div>
+</partial>
+
+<partial id="style"></partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createTreeView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            $("#treeView").css("height", height - 80 + "px");
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        loadCardViewData();
+                    }
+                }
+            };
+
+            function createTreeView() {
+                this.treeView = $("#treeView").treeView({
+                    valueField: "id",
+                    textField: "name",
+                    parentField: "parent",
+                    defaultExpandLevel: 2,
+                    nodeSelectable: true,
+                    multiple: true,
+                    viewData: [
+                        { id: "1", name: "第一层" },
+                        { id: "1.1", name: "第一一层", parent: "1" },
+                        { id: "1.2", name: "第一二层", parent: "1" },
+                        { id: "2", name: "第二层" },
+                        { id: "2.1", name: "第二一层", parent: "2" },
+                        { id: "2.2", name: "第二二层", parent: "2" },
+                        { id: "2.1.1", name: "第二一一层", parent: "2.1" },
+                        { id: "2.1.2", name: "第二一二层", parent: "2.1" },
+                        { id: "2.2.1", name: "第二二一层", parent: "2.2" },
+                        { id: "2.2.2", name: "第二二二层", parent: "2.2" },
+                        { id: "3", name: "第三层" }
+                    ]
+                });
+            }
+        })();
+    </script>
+</partial>
