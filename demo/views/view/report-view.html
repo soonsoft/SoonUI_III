@@ -39,37 +39,37 @@
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({
-                dataGroupColumns: [
-                    { text: "", len: 40, align: "right", formatter: ui.ColumnStyle.cfn.rowNumber },
-                    { column: "Text1", text: "列名", len: 100 },
-                    { column: "Text2", text: "列名列名列名列名列名", len: 80 },
-                    { column: "Text3", text: "列名", len: 100 },
-                    { column: "Text4", text: "列名", len: 200 },
-                    { column: "Text5", text: "列名", len: 100 },
-                    { column: "Text6", text: "列名", len: 120 },
-                    { text: ui.ColumnStyle.cnfn.empty, formatter: ui.ColumnStyle.cfn.empty }
-                ],
-                fitColumns: true,
-                pager: {
-                    pageIndex: 1,
-                    pageSize: 100
-                }
-            });
-            this.reportView.selecting(function(e, eventData) {
-                //return false;
-            });
-            this.reportView.selected(function(e, eventData) {
+                    dataGroupColumns: [
+                        { text: "", len: 40, align: "right", formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { column: "Text1", text: "列名", len: 100 },
+                        { column: "Text2", text: "列名列名列名列名列名", len: 80 },
+                        { column: "Text3", text: "列名", len: 100 },
+                        { column: "Text4", text: "列名", len: 200 },
+                        { column: "Text5", text: "列名", len: 100 },
+                        { column: "Text6", text: "列名", len: 120 },
+                        { text: ui.ColumnStyle.cnfn.empty, formatter: ui.ColumnStyle.cfn.empty }
+                    ],
+                    fitColumns: true,
+                    pager: {
+                        pageIndex: 1,
+                        pageSize: 100
+                    }
+                });
+                this.reportView.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.reportView.selected(function(e, eventData) {
 
-            });
-            this.reportView.deselected(function(e, eventData) {
+                });
+                this.reportView.deselected(function(e, eventData) {
 
-            });
-            this.reportView.pagechanging(function(e, pageIndex, pageSize) {
-                loadSimpleData(pageIndex);
-            });
-            this.reportView.cancel(function(e) {
+                });
+                this.reportView.pagechanging(function(e, pageIndex, pageSize) {
+                    loadSimpleData(pageIndex);
+                });
+                this.reportView.cancel(function(e) {
 
-            });
+                });
             }
 
             function loadReportViewData() {
