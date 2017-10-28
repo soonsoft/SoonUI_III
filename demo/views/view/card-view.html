@@ -1,0 +1,76 @@
+@{layout:demo/views/shared/menu-layout.html}
+
+<partial id="title">卡片视图</partial>
+<partial id="header">CARD VIEW</partial>
+
+<partial id="content">
+    <div class="toolbar"></div>
+    <div id="cardView"></div>
+</partial>
+
+<partial id="style"></partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createCardView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.cardView.setSize(height - 40);
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        loadCardViewData();
+                    }
+                }
+            };
+
+            function createCardView() {
+                this.cardView = $("#cardView").cardView({
+                    itemWidth: 160,
+                    itemHeight: 160,
+                    renderItem: renderItem,
+                    selection: {
+                        multiple: true
+                    }
+                });
+                this.cardView.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.cardView.selected(function(e, eventData) {
+
+                });
+                this.cardView.deselected(function(e, eventData) {
+
+                });
+                this.cardView.pagechanging(function(e, pageIndex, pageSize) {
+
+                });
+                this.cardView.cancel(function(e) {
+
+                });
+            }
+
+            function loadCardViewData(pageIndex) {
+                if(ui.core.type(pageIndex) !== "number") {
+                    pageIndex = pageLogic.cardView.pageIndex = 1;
+                }
+                var pageSize = pageLogic.cardView.pageSize;
+                var data = new Array(ui.random.getNum(20, 50));
+                pageLogic.cardView.fill(data, 100);
+            }
+        })();
+    </script>
+</partial>
