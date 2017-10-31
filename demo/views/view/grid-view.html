@@ -11,11 +11,13 @@
 <partial id="style"></partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
             window.pageLogic = {
                 init: {
                     before: function() {
+                        ui.master.menu.setMenuList(menus);
                         createGridView.call(this);
                     },
                     layout: function() {

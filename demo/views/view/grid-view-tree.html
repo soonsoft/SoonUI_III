@@ -73,7 +73,7 @@
 
             function loadGridTreeData() {
                 var dataList = [];
-                fillData(dataList);
+                getListData(dataList);
                 var treeList = pageLogic.gridview.tree.listTree(dataList, "ParentID", "DeptID");
                 pageLogic.gridview.createGridBody(treeList);
             }

@@ -1426,6 +1426,7 @@ var defaultWeekFormatFn = function(week) {
     var name = "日一二三四五六";
     return "周" + name.charAt(week);
 };
+var htmlEncodeSpan;
 // base64
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 function _utf8_encode(string) {
@@ -1723,14 +1724,20 @@ ui.str = {
         if (this.isEmpty(str)) {
             return textEmpty;
         }
-        return $("<span />").append(document.createTextNode(str)).html();
+        if(!htmlEncodeSpan) {
+            htmlEncodeSpan = $("<span />");
+        }
+        return htmlEncodeSpan.append(document.createTextNode(str)).html();
     },
     /** html解码 */
     htmlDecode: function(str) {
         if (this.isEmpty(str)) {
             return textEmpty;
         }
-        return $("<span />").html(str).text();
+        if(!htmlEncodeSpan) {
+            htmlEncodeSpan = $("<span />");
+        }
+        return htmlEncodeSpan.html(str).text();
     },
     /** 格式化小数位数 */
     numberScaleFormat: function (num, zeroCount) {

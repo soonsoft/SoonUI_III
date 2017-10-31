@@ -68,7 +68,7 @@ GridViewTree.prototype = {
         }
         rowIndex = children[0] - 1;
         if (rowIndex >= 0) {
-            arguments.callee.call(this, parent, rowIndex, count);
+            this._fixParentIndexes(parent, rowIndex, count);
         }
     },
     //修正所有的子元素索引
@@ -115,7 +115,7 @@ GridViewTree.prototype = {
     _operateChildren: function (list, action) {
         var viewData,
             rowIndex,
-            row, item,
+            rows, item,
             result,
             i, len;
 
@@ -133,7 +133,7 @@ GridViewTree.prototype = {
                 continue;
             }
             if (item[childrenField]) {
-                arguments.callee.call(this, item[childrenField], action);
+                this._operateChildren(item[childrenField], action);
             }
         }
     },
@@ -166,7 +166,7 @@ GridViewTree.prototype = {
             listTree.push(item);
             tree[i] = listTree.length - 1;
             if (item[childrenField].length > 0) {
-                arguments.callee.call(this, item[childrenField], listTree, item, level + 1);
+                this._sortListTree(item[childrenField], listTree, item, level + 1);
             } else {
                 delete item[childrenField];
             }
