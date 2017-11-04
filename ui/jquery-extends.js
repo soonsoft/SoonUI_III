@@ -18,7 +18,7 @@ ieVersion = IE();
 $.fn.nodeName = function () {
     var nodeName = this.prop("nodeName");
     if(this.length === 0 || !nodeName) {
-        throw new TypeError("nodeName is '" + nodeName + "'");
+        return null;
     }
     return nodeName;
 };

@@ -1683,8 +1683,8 @@ ui.str = {
                 enc4 = 64;
             }
             output = output +
-                this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
-                this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+                _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
+                _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
         }
         return output;
     },
@@ -3831,7 +3831,7 @@ ieVersion = IE();
 $.fn.nodeName = function () {
     var nodeName = this.prop("nodeName");
     if(this.length === 0 || !nodeName) {
-        throw new TypeError("nodeName is '" + nodeName + "'");
+        return null;
     }
     return nodeName;
 };
@@ -24240,6 +24240,7 @@ ui.define("ui.ctrls.Menu", {
     },
 
     _updateMenuSelectedStatus: function() {
+        var nextdd;
         this._currentMenu = this.option.menuPanel.find("dt." + currentClass);
         if (this._currentMenu.length === 0) {
             this._currentMenu = null;

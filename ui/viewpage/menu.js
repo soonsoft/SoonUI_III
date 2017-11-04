@@ -705,6 +705,7 @@ ui.define("ui.ctrls.Menu", {
     },
 
     _updateMenuSelectedStatus: function() {
+        var nextdd;
         this._currentMenu = this.option.menuPanel.find("dt." + currentClass);
         if (this._currentMenu.length === 0) {
             this._currentMenu = null;

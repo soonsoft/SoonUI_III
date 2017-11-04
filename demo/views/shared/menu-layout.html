@@ -41,6 +41,11 @@
         ui.master.init(function() {
             this.config("menu");
         });
+        ui.master.ready(function() {
+            if(pageLogic && menus) {
+                ui.master.menu.setMenuList(menus);
+            }
+        });
     </script>
     @{script}
 </body>

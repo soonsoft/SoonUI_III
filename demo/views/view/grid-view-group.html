@@ -8,9 +8,44 @@
     <div id="gridview"></div>
 </partial>
 
-<partial id="style"></partial>
+<partial id="style">
+    <style type="text/css">
+        .album-panel {
+            width: 100%;
+            height: 60px;
+            overflow: hidden;
+            text-align: left;
+            position: relative;
+        }
+
+        .album-image-panel {
+            width: 48px;
+            height: 48px;
+            margin-top: 6px;
+            margin-left: 6px;
+            margin-right: 6px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .album-name {
+            font-size: 18px;
+            line-height: 60px;
+        }
+
+        .album-year {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            font-size: 14px;
+            line-height: 60px;
+        }
+    </style>
+</partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
+    <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
     <script type="text/javascript">
         (function() {
             window.pageLogic = {
@@ -40,17 +75,17 @@
             function createGridGroup() {
                 var gridGroup = new ui.ctrls.GridViewGroup();
                 gridGroup.groupItemFormatter = function(group, colunm, index, td) {
-                    var div = $("<div style='width:100%;height:60px;overflow:hidden;text-align:left;position:relative;' />");
+                    var div = $("<div class='album-panel' />");
                     
-                    var imgPanel = $("<div style='width:48px;height:48px;margin-top:6px;margin-left:6px;margin-right:6px;display:inline-block;vertical-align:top;'/>");
+                    var imgPanel = $("<div class='album-image-panel'/>");
                     div.append(imgPanel);
                     var img = $("<img />");
                     img.setImage(group.cover, 48, 48);
                     imgPanel.append(img);
                     
-                    div.append("<span style='font-size:18px;line-height:60px;'>" + group.name + "</span>");
+                    div.append("<span class='album-name'>" + group.name + "</span>");
                     
-                    div.append("<span style='position:absolute;top:0px;right:10px;font-size:14px;line-height:60px;'>" + group.year + "</span>");
+                    div.append("<span class='album-year'>" + group.year + "</span>");
                     
                     return div;
                 };
@@ -89,7 +124,7 @@
                     return {
                         name: this.album,
                         year: this.year,
-                        cover: "../lib/data/jay-album-cover/" + this.album + ".jpg",
+                        cover: "../../lib/data/jay-album-cover/" + this.album + ".jpg",
                         genre: "pop"
                     };
                 });
