@@ -1154,13 +1154,16 @@ input.dateChooser-clear {
   border-width: 1px;
   border-style: solid;
   border-color: transparent;
+  border-radius: 50%;
   display: inline-block;
+  text-align: center;
   vertical-align: top;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   margin-top: 6px;
-  margin-right: 5px;
-  line-height: 14px;
+  margin-right: 6px;
+  line-height: 16px;
+  overflow: hidden;
 }
 
 /*

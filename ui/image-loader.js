@@ -7,6 +7,8 @@ function ImageLoader() {
         return new ImageLoader();
     }
 }
+
+/** 自适应居中显示 */
 ImageLoader.fitCenter = function() {
     this.displayWidth = this.originalWidth;
     this.displayHeight = this.originalHeight;
@@ -44,6 +46,7 @@ ImageLoader.fitCenter = function() {
         }
     }
 };
+/** 充满中心显示 */
 ImageLoader.centerCrop = function() {
     this.displayWidth = this.originalWidth;
     this.displayHeight = this.originalHeight;
