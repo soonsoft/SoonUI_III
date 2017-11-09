@@ -1,8 +1,10 @@
 //object
 
 function _ignore(ignore) {
-    var ignoreType = ui.core.type(ignore);
-    var prefix;
+    var ignoreType,
+        prefix;
+    
+    ignoreType = ui.core.type(ignore);
     if(ignoreType !== "function") {
         if(ignoreType === "string") {
             prefix = ignore;
@@ -19,11 +21,14 @@ function _ignore(ignore) {
 }
 
 ui.obj = {
-    //浅克隆
+    /** 浅克隆 */
     clone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            key;
+
         ignore = _ignore(ignore);
+        type = ui.core.type(source);
         
         if(type === "object") {
             result = {};
@@ -32,7 +37,8 @@ ui.obj = {
         } else {
             return source;
         }
-        for (var key in source) {
+        
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -40,10 +46,14 @@ ui.obj = {
         }
         return result;
     },
-    //深克隆对象
+    /** 深克隆对象 */
     deepClone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            cope,
+            key;
+
+        type = ui.core.type(source);
         if(type === "object") {
             result = {};
         } else if(type === "array") {
@@ -53,8 +63,7 @@ ui.obj = {
         }
         
         ignore = _ignore(ignore);
-        var copy = null;
-        for (var key in source) {
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -63,7 +72,7 @@ ui.obj = {
                 continue;
             type = ui.core.type(copy);
             if (type === "object" || type === "array") {
-                result[key] = arguments.callee.call(this, copy, ignore);
+                result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;
             }
