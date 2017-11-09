@@ -78,7 +78,7 @@ ui.trans = {
             i, len, key, 
             groupKey, item, result;
 
-        if (!$.isArray(list) || list.length === 0) {
+        if (!Array.isArray(list) || list.length === 0) {
             return null;
         }
         
