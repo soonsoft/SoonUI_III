@@ -1823,8 +1823,10 @@ ui.str = {
 //object
 
 function _ignore(ignore) {
-    var ignoreType = ui.core.type(ignore);
-    var prefix;
+    var ignoreType,
+        prefix;
+    
+    ignoreType = ui.core.type(ignore);
     if(ignoreType !== "function") {
         if(ignoreType === "string") {
             prefix = ignore;
@@ -1841,11 +1843,14 @@ function _ignore(ignore) {
 }
 
 ui.obj = {
-    //浅克隆
+    /** 浅克隆 */
     clone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            key;
+
         ignore = _ignore(ignore);
+        type = ui.core.type(source);
         
         if(type === "object") {
             result = {};
@@ -1854,7 +1859,8 @@ ui.obj = {
         } else {
             return source;
         }
-        for (var key in source) {
+        
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -1862,10 +1868,14 @@ ui.obj = {
         }
         return result;
     },
-    //深克隆对象
+    /** 深克隆对象 */
     deepClone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            cope,
+            key;
+
+        type = ui.core.type(source);
         if(type === "object") {
             result = {};
         } else if(type === "array") {
@@ -1875,8 +1885,7 @@ ui.obj = {
         }
         
         ignore = _ignore(ignore);
-        var copy = null;
-        for (var key in source) {
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -1885,7 +1894,7 @@ ui.obj = {
                 continue;
             type = ui.core.type(copy);
             if (type === "object" || type === "array") {
-                result[key] = arguments.callee.call(this, copy, ignore);
+                result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;
             }
@@ -1893,6 +1902,7 @@ ui.obj = {
         return result;
     }
 };
+
 
 })(jQuery, ui);
 
@@ -2034,12 +2044,15 @@ function getFieldMethod(field, fieldName) {
 ui.trans = {
     // Array结构转Tree结构
     listToTree: function (list, parentField, valueField, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-        var tempList = {}, temp, root,
+        var tempList = {}, 
+            temp, root,
             item, i, len, id, pid,
             flagField = flagFieldKey,
             key;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
@@ -2086,18 +2099,19 @@ ui.trans = {
         return root[childrenField];
     },
     // Array结构转分组结构(两级树结构)
-    listToGroup: function(list, groupField, createGroupItemFn, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-
+    listToGroup: function(list, groupField, createGroupItemFn, itemsField) {
         var temp = {},
             i, len, key, 
             groupKey, item, result;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
+        itemsField = ui.core.isString(itemsField) 
+                    ? itemsField 
                     : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
@@ -2109,12 +2123,12 @@ ui.trans = {
             if(!temp.hasOwnProperty(key)) {
                 temp[key] = {};
                 temp[key][groupKey] = key;
-                temp[key][childrenField] = [];
+                temp[key][itemsField] = [];
                 if(ui.core.isFunction(createGroupItemFn)) {
-                    createGroupItemFn.call(this, item, key);
+                    createGroupItemFn.call(this, temp[key], item, key);
                 }
             }
-            temp[key][childrenField].push(item);
+            temp[key][itemsField].push(item);
         }
 
         result = [];

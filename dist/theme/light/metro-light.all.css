@@ -395,7 +395,20 @@
   left: 0;
   overflow: auto;
 }
-.ui-card-view-body .body-panel {
+.ui-card-view-body .item-head {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+}
+.ui-card-view-body .item-head-title {
+  font-size: 16px;
+}
+.ui-card-view-body .item-body {
   position: relative;
   padding: 0;
   margin: 0;

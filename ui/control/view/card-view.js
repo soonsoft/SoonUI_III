@@ -1,7 +1,7 @@
 // CardView
 
 var selectedClass = "ui-card-view-selection",
-    itemTitleHeight = 40,
+    itemTitleHeight = 30,
     marginValueLimit = 4,
     frameBorderWidth = 4;
 
@@ -11,8 +11,9 @@ function prepareGroup(option) {
     if(type === "string") {
         this.option.group = {
             groupField: option,
-            itemsField: "items",
-            groupListHandler: defaultGroupListHandler
+            itemsField: "_items",
+            groupListHandler: defaultGroupListHandler,
+            headFormatter: defaultGroupHeadFormatter
         }
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
@@ -22,7 +23,10 @@ function prepareGroup(option) {
             throw new TypeError("the groupField can not be null or empty.");
         }
         if(!option.itemsField) {
-            option.itemsField = "items";
+            option.itemsField = "_items";
+        }
+        if(!ui.core.isFunction(option.headFormatter)) {
+            option.headFormatter = defaultGroupHeadFormatter;
         }
     } else {
         this.option.group = false;
@@ -32,6 +36,13 @@ function prepareGroup(option) {
 function defaultGroupListHandler(viewData, groupField, itemsField) {
     var groupList = ui.trans.listToGroup(viewData, groupField, null, itemsField);
     return groupList;
+}
+
+function defaultGroupHeadFormatter(item, margin) {
+    return ui.str.textFormat(
+        "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
+        margin, 
+        item[this.option.group.groupField]);
 }
 
 function preparePager(option) {
@@ -81,7 +92,7 @@ ui.define("ui.ctrls.CardView", {
             viewData: null,
             // 没有数据时显示的提示信息
             promptText: "没有数据",
-            // 分组信息 string: 数据按该字段名分组，object: { groupField: string, itemsField: string, groupListHandler: function }
+            // 分组信息 string: 数据按该字段名分组，object: { groupField: string, itemsField: string, groupListHandler: function, headFormatter: function }
             group: false,
             // 高度
             width: false,
@@ -228,6 +239,7 @@ ui.define("ui.ctrls.CardView", {
         var marginInfo,
             arr,
             isGroup,
+            groupOption,
             that,
             head, body,
             elements,
@@ -240,7 +252,8 @@ ui.define("ui.ctrls.CardView", {
         isGroup = this.isGroup();
         if(isGroup) {
             if(!this._groupData) {
-                this._groupData = this.option.groupListHandler.call(this, arr, this.option.groupField, this.option.itemsField);
+                groupOption = this.option.group;
+                this._groupData = groupOption.groupListHandler.call(this, arr, groupOption.groupField, groupOption.itemsField);
             }
             arr = this._groupData;
         }
@@ -258,24 +271,25 @@ ui.define("ui.ctrls.CardView", {
                 body = that._itemBodyList[index];
                 if(!body) {
                     head = $("<div class='item-head' />");
+                    head.append(that.option.group.headFormatter.call(that, item, marginInfo.margin));
                     body = $("<div class='item-body' />");
                     body.attr("data-index", index);
-                    head.append(
-                        ui.str.textFormat(
-                            "<span style='margin-left:{0}px;margin-right:{0}px'>{1}</span>", 
-                            marginInfo.margin, 
-                            item[that.option.groupField]));
+                    if(elements.length === 0) {
+                        head.css("margin-top", marginInfo.margin + "px");
+                    }
                     elements.push(head, body);
+                    that._itemBodyList.push(body);
                 }
-                that._fillItemBody(arr[index][that.option.itemsField], body, isFunction, fn);
+                that._fillItemBody(arr[index][that.option.group.itemsField], body, marginInfo, isFunction, fn);
             });
         } else {
-            body = this._itemBodyList[index];
+            body = this._itemBodyList[0];
             if(!body) {
                 body = $("<div class='item-body' />");
                 elements.push(body);
+                this._itemBodyList.push(body);
             }
-            this._fillItemBody(arr, body, isFunction, fn);
+            this._fillItemBody(arr, body, marginInfo, isFunction, fn);
         }
         delete this._viewDataIndex;
 
@@ -285,7 +299,7 @@ ui.define("ui.ctrls.CardView", {
             });
         }
     },
-    _fillItemBody: function(arr, itemBody, isFunction, fn) {
+    _fillItemBody: function(arr, itemBody, marginInfo, isFunction, fn) {
         var rows, 
             i, j,
             groupIndex, index,
@@ -329,8 +343,9 @@ ui.define("ui.ctrls.CardView", {
         isGroup = this.isGroup();
         checkOverflow = function(list, res) {
             // scroll height 避免同名
-            var sh, isGroup, 
-                i, len;
+            var sh, 
+                i, 
+                len;
             if(res.count === 0) {
                 return res;
             }
@@ -339,7 +354,7 @@ ui.define("ui.ctrls.CardView", {
                 sh = res.margin;
                 for(i = 0, len = list.length; i < len; i++) {
                     sh += itemTitleHeight;
-                    sh += Math.floor((list[i][this.option.itemsField].length + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
+                    sh += Math.floor((list[i][this.option.group.itemsField].length + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
                 }
             } else {
                 sh = Math.floor((list.length + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
@@ -417,8 +432,9 @@ ui.define("ui.ctrls.CardView", {
         if(!this._itemBodyList.length === 0)
             return;
         
-        this._rasterizeItems(false, function(itemPanel, item, index, top, left) {
-            $(item).css({
+        this._rasterizeItems(false, function(itemBody, item, index, top, left) {
+            var elem = itemBody[0].childNodes[index];
+            $(elem).css({
                 "top": top + "px",
                 "left": left + "px"
             });
@@ -562,12 +578,12 @@ ui.define("ui.ctrls.CardView", {
     },
 
     /// API
-    /** */
+    /** 数据填充 */
     fill: function(viewData, rowCount) {
         var isRebind;
 
         isRebind = false;
-        if(this._itemPanelList.length > 0) {
+        if(this._itemBodyList.length > 0) {
             isRebind = true;
             this.viewBody.scrollTop(0);
             this.clear(false);
@@ -585,14 +601,14 @@ ui.define("ui.ctrls.CardView", {
             this._hideDataPrompt();
         }
 
-        this._rasterizeItems(true, function(itemPanel, itemData, index, top, left) {
+        this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
             var elem = this._createItem(itemData, index);
             elem.css({
                 "top": top + "px",
                 "left": left + "px"
             });
             this._renderItem(elem, itemData, index);
-            itemPanel.append(elem);
+            itemBody.append(elem);
         });
 
         //update page numbers
@@ -670,12 +686,12 @@ ui.define("ui.ctrls.CardView", {
 
             this.option.viewData.splice(index, 1);
             if(this.isGroup()) {
-                if(this._groupData[group.groupIndex][this.option.itemsField].length === 1) {
+                if(this._groupData[group.groupIndex][this.option.group.itemsField].length === 1) {
                     this._groupData.splice(group.groupIndex, 1);
                     this._itemBodyList.splice(group.groupIndex, 1);
                     this._removeGroup(elem.parent());
                 } else {
-                    this._groupData[group.groupIndex][this.option.itemsField].splice(group.index, 1);
+                    this._groupData[group.groupIndex][this.option.group.itemsField].splice(group.index, 1);
                     elem.remove();
                 }
             } else {
@@ -815,7 +831,7 @@ ui.define("ui.ctrls.CardView", {
                 height -= this.pagerHeight;
             }
             this.viewBody.css("height", height + "px");
-            //needRecompose = true;
+            needRecompose = true;
         }
         if(ui.core.isNumber(width)) {
             width -= this.borderWidth;

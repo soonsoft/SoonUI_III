@@ -1823,8 +1823,10 @@ ui.str = {
 //object
 
 function _ignore(ignore) {
-    var ignoreType = ui.core.type(ignore);
-    var prefix;
+    var ignoreType,
+        prefix;
+    
+    ignoreType = ui.core.type(ignore);
     if(ignoreType !== "function") {
         if(ignoreType === "string") {
             prefix = ignore;
@@ -1841,11 +1843,14 @@ function _ignore(ignore) {
 }
 
 ui.obj = {
-    //浅克隆
+    /** 浅克隆 */
     clone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            key;
+
         ignore = _ignore(ignore);
+        type = ui.core.type(source);
         
         if(type === "object") {
             result = {};
@@ -1854,7 +1859,8 @@ ui.obj = {
         } else {
             return source;
         }
-        for (var key in source) {
+        
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -1862,10 +1868,14 @@ ui.obj = {
         }
         return result;
     },
-    //深克隆对象
+    /** 深克隆对象 */
     deepClone: function (source, ignore) {
         var result,
-            type = ui.core.type(source);
+            type,
+            cope,
+            key;
+
+        type = ui.core.type(source);
         if(type === "object") {
             result = {};
         } else if(type === "array") {
@@ -1875,8 +1885,7 @@ ui.obj = {
         }
         
         ignore = _ignore(ignore);
-        var copy = null;
-        for (var key in source) {
+        for (key in source) {
             if(ignore.call(key)) {
                 continue;
             }
@@ -1885,7 +1894,7 @@ ui.obj = {
                 continue;
             type = ui.core.type(copy);
             if (type === "object" || type === "array") {
-                result[key] = arguments.callee.call(this, copy, ignore);
+                result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;
             }
@@ -1893,6 +1902,7 @@ ui.obj = {
         return result;
     }
 };
+
 
 })(jQuery, ui);
 
@@ -2034,12 +2044,15 @@ function getFieldMethod(field, fieldName) {
 ui.trans = {
     // Array结构转Tree结构
     listToTree: function (list, parentField, valueField, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-        var tempList = {}, temp, root,
+        var tempList = {}, 
+            temp, root,
             item, i, len, id, pid,
             flagField = flagFieldKey,
             key;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
@@ -2086,18 +2099,19 @@ ui.trans = {
         return root[childrenField];
     },
     // Array结构转分组结构(两级树结构)
-    listToGroup: function(list, groupField, createGroupItemFn, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-
+    listToGroup: function(list, groupField, createGroupItemFn, itemsField) {
         var temp = {},
             i, len, key, 
             groupKey, item, result;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
+        itemsField = ui.core.isString(itemsField) 
+                    ? itemsField 
                     : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
@@ -2109,12 +2123,12 @@ ui.trans = {
             if(!temp.hasOwnProperty(key)) {
                 temp[key] = {};
                 temp[key][groupKey] = key;
-                temp[key][childrenField] = [];
+                temp[key][itemsField] = [];
                 if(ui.core.isFunction(createGroupItemFn)) {
-                    createGroupItemFn.call(this, item, key);
+                    createGroupItemFn.call(this, temp[key], item, key);
                 }
             }
-            temp[key][childrenField].push(item);
+            temp[key][itemsField].push(item);
         }
 
         result = [];
@@ -14390,7 +14404,49 @@ ui.page.hlchanged(function(e, colorInfo) {
 // CardView
 
 var selectedClass = "ui-card-view-selection",
+    itemTitleHeight = 30,
+    marginValueLimit = 4,
     frameBorderWidth = 4;
+
+function prepareGroup(option) {
+    var type;
+    type = ui.core.type(option);
+    if(type === "string") {
+        this.option.group = {
+            groupField: option,
+            itemsField: "_items",
+            groupListHandler: defaultGroupListHandler,
+            headFormatter: defaultGroupHeadFormatter
+        }
+    } else if(type === "object") {
+        if(!ui.core.isFunction(option.groupListHandler)) {
+            option.groupListHandler = defaultGroupListHandler;
+        }
+        if(!option.groupField) {
+            throw new TypeError("the groupField can not be null or empty.");
+        }
+        if(!option.itemsField) {
+            option.itemsField = "_items";
+        }
+        if(!ui.core.isFunction(option.headFormatter)) {
+            option.headFormatter = defaultGroupHeadFormatter;
+        }
+    } else {
+        this.option.group = false;
+    }
+}
+
+function defaultGroupListHandler(viewData, groupField, itemsField) {
+    var groupList = ui.trans.listToGroup(viewData, groupField, null, itemsField);
+    return groupList;
+}
+
+function defaultGroupHeadFormatter(item, margin) {
+    return ui.str.textFormat(
+        "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
+        margin, 
+        item[this.option.group.groupField]);
+}
 
 function preparePager(option) {
     if(option.showPageInfo === true) {
@@ -14439,6 +14495,8 @@ ui.define("ui.ctrls.CardView", {
             viewData: null,
             // 没有数据时显示的提示信息
             promptText: "没有数据",
+            // 分组信息 string: 数据按该字段名分组，object: { groupField: string, itemsField: string, groupListHandler: function, headFormatter: function }
+            group: false,
             // 高度
             width: false,
             // 宽度
@@ -14476,12 +14534,17 @@ ui.define("ui.ctrls.CardView", {
         return events;
     },
     _create: function() {
+        this._itemBodyList = [];
         this._selectList = [];
         this._hasPrompt = !!this.option.promptText;
         this._columnCount = 0;
 
         this.viewBody = null;
         this.pagerHeight = 30;
+
+        if(this.option.group) {
+            prepareGroup.call(this, this.option.group);
+        }
 
         if(this.option.pager) {
             preparePager.call(this, this.option.pager);
@@ -14508,6 +14571,9 @@ ui.define("ui.ctrls.CardView", {
         this.viewBody = $("<div class='ui-card-view-body' />");
         this._initDataPrompt();
         this.element.append(this.viewBody);
+        if(this.option.selection) {
+            this.viewBody.click(this.onBodyClickHandler);
+        }
         this._initPagerPanel();
 
         this.setSize(this.option.width, this.option.height);
@@ -14572,55 +14638,138 @@ ui.define("ui.ctrls.CardView", {
             }, this);
         }
     },
-    _rasterizeItems: function(arr, fn) {
+    _rasterizeItems: function(isCreate, fn) {
         var marginInfo,
-            i, j,
-            index,
-            top, left,
-            isFunction,
-            rows;
+            arr,
+            isGroup,
+            groupOption,
+            that,
+            head, body,
+            elements,
+            isFunction;
 
+        arr = this.getViewData();
         if(arr.length === 0) {
             return;
         }
-        marginInfo = this._getMargin(arr.length);
+        isGroup = this.isGroup();
+        if(isGroup) {
+            if(!this._groupData) {
+                groupOption = this.option.group;
+                this._groupData = groupOption.groupListHandler.call(this, arr, groupOption.groupField, groupOption.itemsField);
+            }
+            arr = this._groupData;
+        }
+        marginInfo = this._getMargin(arr);
         this._columnCount = marginInfo.count;
         if(marginInfo.count === 0) return;
         
         isFunction = ui.core.isFunction(fn);
+        elements = [];
+        that = this;
+        
+        this._viewDataIndex = -1;
+        if(isGroup) {
+            arr.forEach(function(item, index) {
+                body = that._itemBodyList[index];
+                if(!body) {
+                    head = $("<div class='item-head' />");
+                    head.append(that.option.group.headFormatter.call(that, item, marginInfo.margin));
+                    body = $("<div class='item-body' />");
+                    body.attr("data-index", index);
+                    if(elements.length === 0) {
+                        head.css("margin-top", marginInfo.margin + "px");
+                    }
+                    elements.push(head, body);
+                    that._itemBodyList.push(body);
+                }
+                that._fillItemBody(arr[index][that.option.group.itemsField], body, marginInfo, isFunction, fn);
+            });
+        } else {
+            body = this._itemBodyList[0];
+            if(!body) {
+                body = $("<div class='item-body' />");
+                elements.push(body);
+                this._itemBodyList.push(body);
+            }
+            this._fillItemBody(arr, body, marginInfo, isFunction, fn);
+        }
+        delete this._viewDataIndex;
+
+        if(elements.length > 0) {
+            elements.forEach(function(elem) {
+                that.viewBody.append(elem);
+            });
+        }
+    },
+    _fillItemBody: function(arr, itemBody, marginInfo, isFunction, fn) {
+        var rows, 
+            i, j,
+            groupIndex, index,
+            top, left,
+            item;
+
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
-        this.bodyPanel.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
+        groupIndex = parseInt(itemBody.attr("data-index"), 10);
+        itemBody.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
         for(i = 0; i < rows; i++) {
             for(j = 0; j < marginInfo.count; j++) {
                 index = (i * marginInfo.count) + j;
                 if(index >= arr.length) {
                     return;
                 }
+                this._viewDataIndex++;
                 top = (i + 1) * marginInfo.margin + (i * this.option.itemHeight);
                 left = (j + 1) * marginInfo.margin + (j * this.option.itemWidth);
+                item = arr[index];
+                item._group = {
+                    groupIndex: groupIndex,
+                    index: index
+                };
                 if(isFunction) {
-                    fn.call(this, arr[index], index, top, left);
+                    fn.call(this, itemBody, item, index, top, left);
                 }
             }
         }
     },
-    _getMargin: function(length, scrollHeight) {
-        var currentWidth = this.viewBody.width(),
-            currentHeight = this.viewBody.height(),
+    _getMargin: function(groupList, scrollHeight) {
+        var currentWidth,
+            currentHeight,
             result,
             restWidth,
             flag,
-            checkOverflow = function(len, res) {
-                if(res.count === 0) {
-                    return res;
+            isGroup,
+            checkOverflow;
+
+        currentWidth = this.viewBody.width();
+        currentHeight = this.viewBody.height();
+        isGroup = this.isGroup();
+        checkOverflow = function(list, res) {
+            // scroll height 避免同名
+            var sh, 
+                i, 
+                len;
+            if(res.count === 0) {
+                return res;
+            }
+
+            if(isGroup) {
+                sh = res.margin;
+                for(i = 0, len = list.length; i < len; i++) {
+                    sh += itemTitleHeight;
+                    sh += Math.floor((list[i][this.option.group.itemsField].length + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
                 }
-                var sh = Math.floor((len + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
-                if(sh > currentHeight) {
-                    return this._getMargin(len, sh);
-                } else {
-                    return res;
-                }
-            };
+            } else {
+                sh = Math.floor((list.length + res.count - 1) / res.count) * (res.margin + this.option.itemHeight) + res.margin;
+            }
+
+            if(sh > currentHeight) {
+                return this._getMargin(len, sh);
+            } else {
+                return res;
+            }
+        };
+
         if(scrollHeight) {
             flag = true;
             if(scrollHeight > currentHeight) {
@@ -14633,16 +14782,16 @@ ui.define("ui.ctrls.CardView", {
         };
         restWidth = currentWidth - result.count * this.option.itemWidth;
         result.margin = Math.floor(restWidth / (result.count + 1));
-        if(result.margin >= 3) {
-            return flag ? result : checkOverflow.call(this, length, result);
+        if(result.margin >= marginValueLimit) {
+            return flag ? result : checkOverflow.call(this, groupList, result);
         }
-        result.margin = 3;
+        result.margin = marginValueLimit;
 
         result.count = Math.floor((currentWidth - ((result.count + 1) * result.margin)) / this.option.itemWidth);
         restWidth = currentWidth - result.count * this.option.itemWidth;
         result.margin = Math.floor(restWidth / (result.count + 1));
 
-        return flag ? result : checkOverflow.call(this, length, result);
+        return flag ? result : checkOverflow.call(this, groupList, result);
     },
     _createItem: function(itemData, index) {
         var div = $("<div class='view-item' />");
@@ -14650,7 +14799,8 @@ ui.define("ui.ctrls.CardView", {
             "width": this.option.itemWidth + "px",
             "height": this.option.itemHeight + "px"
         });
-        div.attr("data-index", index);
+        div.attr("data-index", index)
+            .attr("data-view-index", this._viewDataIndex);
         return div;
     },
     _renderItem: function(itemElement, itemData, index) {
@@ -14682,29 +14832,38 @@ ui.define("ui.ctrls.CardView", {
         this.pager.renderPageList(rowCount);
     },
     _recomposeItems: function() {
-        var arr;
-        if(!this.bodyPanel)
+        if(!this._itemBodyList.length === 0)
             return;
         
-        arr = this.bodyPanel.children();
-        this._rasterizeItems(arr, function(item, index, top, left) {
-            $(item).css({
+        this._rasterizeItems(false, function(itemBody, item, index, top, left) {
+            var elem = itemBody[0].childNodes[index];
+            $(elem).css({
                 "top": top + "px",
                 "left": left + "px"
             });
         });
     },
     _getSelectionData: function(elem) {
-        var index,
+        var groupIndex,
+            itemIndex,
+            index,
             data,
             viewData;
 
-        index = parseInt(elem.attr("data-index"), 10);
+        index = parseInt(elem.attr("data-view-index"), 10);
         viewData = this.getViewData();
         data = {
             itemIndex: index,
             itemData: viewData[index]
         };
+        if(this.isGroup()) {
+            groupIndex = parseInt(elem.parent().attr("data-index"), 10);
+            itemIndex = parseInt(elem.attr("data-index"), 10);
+            data.group = {
+                groupIndex: groupIndex,
+                index: itemIndex
+            };
+        }
         return data;
     },
     _selectItem: function(elem) {
@@ -14751,24 +14910,57 @@ ui.define("ui.ctrls.CardView", {
         }
     },
     _getItemElement: function(index) {
-        if(!this.bodyPanel) {
+        var group,
+            viewData,
+            itemBody,
+            items,
+            item;
+
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return null;
         }
-        var items = this.bodyPanel.children();
-        var item = items[index];
+        item = viewData[index];
+        group = item._group;
+
+        itemBody = this._itemBodyList[group.groupIndex];
+        if(!itemBody) {
+            return null;
+        }
+
+        items = itemBody.children();
+        item = items[group.index];
         if(item) {
             return $(item);
         }
         return null;
     },
-    _updateIndexes: function(start) {
+    _updateIndexes: function(groupIndex, itemIndex, viewDataStartIndex) {
+        var itemBody,
+            i, j, len;
         if(start < 0) {
             start = 0;
         }
-        children = this.bodyPanel.children();
-        for(var i = start, len = children.length; i < len; i++) {
-            $(children[i]).attr("data-index", i);
+        for(i = groupIndex; i < this._itemBodyList.length; i++) {
+            itemBody = this._itemBodyList[i];
+            itemBody.attr("data-index", i);
+            children = itemBody.children();
+            for(j = itemIndex; j < children.length; j++) {
+                $(children[i])
+                    .attr("data-index", j)
+                    .attr("data-view-index", viewDataStartIndex);
+                viewDataStartIndex++;
+            }
+            indexIndex = 0;
         }
+    },
+    _removeGroup: function(itemBody) {
+        var itemHead;
+        itemHead = itemBody.prev();
+        if(itemHead.length > 0 && itemHead.hasClass("item-head")) {
+            itemHead.remove();
+        }
+        itemBody.remove();
     },
     _promptIsShow: function() {
         return this._hasPrompt 
@@ -14789,20 +14981,15 @@ ui.define("ui.ctrls.CardView", {
     },
 
     /// API
-    /** */
+    /** 数据填充 */
     fill: function(viewData, rowCount) {
         var isRebind;
 
         isRebind = false;
-        if(!this.bodyPanel) {
-            this.bodyPanel = $("<div class='body-panel'/>");
-            if(this.option.selection)
-                this.bodyPanel.click(this.onBodyClickHandler);
-            this.viewBody.append(this.bodyPanel);
-        } else {
+        if(this._itemBodyList.length > 0) {
+            isRebind = true;
             this.viewBody.scrollTop(0);
             this.clear(false);
-            isRebind = true;
         }
 
         if(!Array.isArray(viewData)) {
@@ -14817,14 +15004,14 @@ ui.define("ui.ctrls.CardView", {
             this._hideDataPrompt();
         }
 
-        this._rasterizeItems(viewData, function(itemData, index, top, left) {
+        this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
             var elem = this._createItem(itemData, index);
             elem.css({
                 "top": top + "px",
                 "left": left + "px"
             });
             this._renderItem(elem, itemData, index);
-            this.bodyPanel.append(elem);
+            itemBody.append(elem);
         });
 
         //update page numbers
@@ -14884,21 +15071,36 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 根据索引移除项目 */
     removeAt: function(index) {
-        var elem;
+        var elem,
+            viewData,
+            group;
 
         if(!ui.core.isNumber(index) || index < 0 || index >= this.count()) {
             return;
         }
+        viewData = this.getViewData();
 
         elem = this._getItemElement(index);
         if(elem) {
             if(this._current && this._current[0] === elem[0]) {
                 this._current = null;
             }
-            item.remove();
-            this._updateIndexes(index);
+            group = viewData[index]._group;
 
             this.option.viewData.splice(index, 1);
+            if(this.isGroup()) {
+                if(this._groupData[group.groupIndex][this.option.group.itemsField].length === 1) {
+                    this._groupData.splice(group.groupIndex, 1);
+                    this._itemBodyList.splice(group.groupIndex, 1);
+                    this._removeGroup(elem.parent());
+                } else {
+                    this._groupData[group.groupIndex][this.option.group.itemsField].splice(group.index, 1);
+                    elem.remove();
+                }
+            } else {
+                elem.remove();
+            }
+            this._updateIndexes(group.groupIndex, group.index, index);
             this._recomposeItems();
         }
     },
@@ -14962,7 +15164,7 @@ ui.define("ui.ctrls.CardView", {
             this._getItemElement(index).before(elem);
             viewData.splice(index, 0, itemData);
             
-            this._updateIndexes();
+            this._updateIndexes(0, 0, 0);
             this._recomposeItems();
         } else {
             this.addItem(itemData);
@@ -14992,10 +15194,22 @@ ui.define("ui.ctrls.CardView", {
     isMultiple: function() {
         return this.option.selection.multiple === true;
     },
+    /** 是否是分组形式 */
+    isGroup: function() {
+        return !!this.option.group;
+    },
     /** 清空表格数据 */
     clear: function() {
-        if (this.bodyPanel) {
-            this.bodyPanel.html("");
+        var that;
+        if (this._itemBodyList.length > 0) {
+            that = this;
+            this._itemBodyList.forEach(function(item) {
+                that._removeGroup(item);
+            });
+            if(this.isGroup()) {
+                this._groupData = null;
+            }
+            this._itemBodyList = [];
             this.option.viewData = [];
             this._selectList = [];
             this._current = null;

@@ -1,4 +1,5 @@
-<partial id="title">卡片视图</partial>
+@{layout:demo/views/shared/menu-layout.html}
+<partial id="title">视图</partial>
 <partial id="header">CARD VIEW</partial>
 
 <partial id="content">
@@ -18,6 +19,7 @@
 </partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/card-view-menus.js"></script>
     <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
     <script type="text/javascript">
         (function() {
@@ -77,9 +79,11 @@
                     this.option.itemHeight,
                     ui.ImageLoader.centerCrop
                 ).then(
-                    function() {}, 
                     function() {
-                        ui.messageShow("失败");
+                        
+                    }, 
+                    function() {
+                        ui.messageShow("专辑图片加载失败");
                     }
                 );
                 return img;
