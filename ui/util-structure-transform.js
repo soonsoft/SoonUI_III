@@ -18,12 +18,15 @@ function getFieldMethod(field, fieldName) {
 ui.trans = {
     // Array结构转Tree结构
     listToTree: function (list, parentField, valueField, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-        var tempList = {}, temp, root,
+        var tempList = {}, 
+            temp, root,
             item, i, len, id, pid,
             flagField = flagFieldKey,
             key;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
@@ -70,18 +73,19 @@ ui.trans = {
         return root[childrenField];
     },
     // Array结构转分组结构(两级树结构)
-    listToGroup: function(list, groupField, createGroupItemFn, childrenField) {
-        if (!$.isArray(list) || list.length === 0)
-            return null;
-
+    listToGroup: function(list, groupField, createGroupItemFn, itemsField) {
         var temp = {},
             i, len, key, 
             groupKey, item, result;
+
+        if (!$.isArray(list) || list.length === 0) {
+            return null;
+        }
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
+        itemsField = ui.core.isString(itemsField) 
+                    ? itemsField 
                     : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
@@ -93,12 +97,12 @@ ui.trans = {
             if(!temp.hasOwnProperty(key)) {
                 temp[key] = {};
                 temp[key][groupKey] = key;
-                temp[key][childrenField] = [];
+                temp[key][itemsField] = [];
                 if(ui.core.isFunction(createGroupItemFn)) {
                     createGroupItemFn.call(this, item, key);
                 }
             }
-            temp[key][childrenField].push(item);
+            temp[key][itemsField].push(item);
         }
 
         result = [];
