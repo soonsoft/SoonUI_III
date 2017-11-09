@@ -99,7 +99,7 @@ ui.trans = {
                 temp[key][groupKey] = key;
                 temp[key][itemsField] = [];
                 if(ui.core.isFunction(createGroupItemFn)) {
-                    createGroupItemFn.call(this, item, key);
+                    createGroupItemFn.call(this, temp[key], item, key);
                 }
             }
             temp[key][itemsField].push(item);
