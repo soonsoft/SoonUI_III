@@ -134,7 +134,7 @@ ui.define("ui.ctrls.CardView", {
         this._itemBodyList = [];
         this._selectList = [];
         this._hasPrompt = !!this.option.promptText;
-        this._columnCount = 0;
+        this._currentMarginInfo = null;
 
         this.viewBody = null;
         this.pagerHeight = 30;
@@ -258,56 +258,56 @@ ui.define("ui.ctrls.CardView", {
             arr = this._groupData;
         }
         marginInfo = this._getMargin(arr);
-        this._columnCount = marginInfo.count;
+        this._currentMarginInfo = marginInfo;
         if(marginInfo.count === 0) return;
         
         isFunction = ui.core.isFunction(fn);
         elements = [];
         that = this;
-        
+
         this._viewDataIndex = -1;
         if(isGroup) {
-            arr.forEach(function(item, index) {
-                body = that._itemBodyList[index];
-                if(!body) {
-                    head = $("<div class='item-head' />");
-                    head.append(that.option.group.headFormatter.call(that, item, marginInfo.margin));
-                    body = $("<div class='item-body' />");
-                    body.attr("data-index", index);
-                    if(elements.length === 0) {
-                        head.css("margin-top", marginInfo.margin + "px");
-                    }
-                    elements.push(head, body);
-                    that._itemBodyList.push(body);
-                }
-                that._fillItemBody(arr[index][that.option.group.itemsField], body, marginInfo, isFunction, fn);
+            arr.forEach(function(item, groupIndex) {
+                body = that._getItemBody(groupIndex, isGroup, elements, marginInfo.margin);
+                that._fillItemBody(arr[groupIndex][that.option.group.itemsField], groupIndex, body, marginInfo, isFunction, fn);
             });
         } else {
-            body = this._itemBodyList[0];
-            if(!body) {
-                body = $("<div class='item-body' />");
-                elements.push(body);
-                this._itemBodyList.push(body);
-            }
-            this._fillItemBody(arr, body, marginInfo, isFunction, fn);
+            body = this._getItemBody(0, isGroup, elements, marginInfo.margin);
+            this._fillItemBody(arr, 0, body, marginInfo, isFunction, fn);
         }
         delete this._viewDataIndex;
 
         if(elements.length > 0) {
-            elements.forEach(function(elem) {
-                that.viewBody.append(elem);
-            });
+            that.viewBody.append(elements);
         }
     },
-    _fillItemBody: function(arr, itemBody, marginInfo, isFunction, fn) {
+    _getItemBody: function(groupIndex, isGroup, elements, margin) {
+        var itemBody,
+            itemHead;
+        itemBody = this._itemBodyList[groupIndex];
+        if(!itemBody) {
+            if(isGroup) {
+                itemHead = $("<div class='item-head' />");
+                itemHead.append(this.option.group.headFormatter.call(this, item, margin));
+                if(elements.length === 0) {
+                    itemHead.css("margin-top", margin + "px");
+                }
+                elements.push(itemHead);
+            }
+            itemBody = $("<div class='item-body' />");
+            elements.push(itemBody);
+            this._itemBodyList.push(itemBody);
+        }
+        return itemBody;
+    },
+    _fillItemBody: function(arr, groupIndex, itemBody, marginInfo, isFunction, fn) {
         var rows, 
             i, j,
-            groupIndex, index,
+            index,
             top, left,
             item;
 
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
-        groupIndex = parseInt(itemBody.attr("data-index"), 10);
         itemBody.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
         for(i = 0; i < rows; i++) {
             for(j = 0; j < marginInfo.count; j++) {
@@ -320,11 +320,11 @@ ui.define("ui.ctrls.CardView", {
                 left = (j + 1) * marginInfo.margin + (j * this.option.itemWidth);
                 item = arr[index];
                 item._group = {
-                    groupIndex: groupIndex,
-                    index: index
+                    index: groupIndex,
+                    itemIndex: index
                 };
                 if(isFunction) {
-                    fn.call(this, itemBody, item, index, top, left);
+                    fn.call(this, itemBody, item, this._viewDataIndex, top, left);
                 }
             }
         }
@@ -396,8 +396,7 @@ ui.define("ui.ctrls.CardView", {
             "width": this.option.itemWidth + "px",
             "height": this.option.itemHeight + "px"
         });
-        div.attr("data-index", index)
-            .attr("data-view-index", this._viewDataIndex);
+        div.attr("data-index", index);
         return div;
     },
     _renderItem: function(itemElement, itemData, index) {
@@ -429,11 +428,21 @@ ui.define("ui.ctrls.CardView", {
         this.pager.renderPageList(rowCount);
     },
     _recomposeItems: function() {
+        var i, len,
+            childrenList;
         if(!this._itemBodyList.length === 0)
             return;
         
+        childrenList = [];
+        for(i = 0, len = this._itemBodyList.length; i < len; i++) {
+            childrenList.push(this._itemBodyList[i].children());
+        }
         this._rasterizeItems(false, function(itemBody, item, index, top, left) {
-            var elem = itemBody[0].childNodes[index];
+            var elem,
+                group;
+
+            group = item._group;
+            elem = childrenList[group.index][group.itemIndex];
             $(elem).css({
                 "top": top + "px",
                 "left": left + "px"
@@ -447,18 +456,16 @@ ui.define("ui.ctrls.CardView", {
             data,
             viewData;
 
-        index = parseInt(elem.attr("data-view-index"), 10);
+        index = parseInt(elem.attr("data-index"), 10);
         viewData = this.getViewData();
         data = {
             itemIndex: index,
             itemData: viewData[index]
         };
         if(this.isGroup()) {
-            groupIndex = parseInt(elem.parent().attr("data-index"), 10);
-            itemIndex = parseInt(elem.attr("data-index"), 10);
             data.group = {
-                groupIndex: groupIndex,
-                index: itemIndex
+                index: data.itemData._group.index,
+                itemIndex: data.itemData._group.itemIndex
             };
         }
         return data;
@@ -534,18 +541,20 @@ ui.define("ui.ctrls.CardView", {
     },
     _updateIndexes: function(groupIndex, itemIndex, viewDataStartIndex) {
         var itemBody,
-            i, j, len;
-        if(start < 0) {
-            start = 0;
-        }
+            viewData,
+            item,
+            i, j;
+        viewData = this.getViewData();
         for(i = groupIndex; i < this._itemBodyList.length; i++) {
             itemBody = this._itemBodyList[i];
-            itemBody.attr("data-index", i);
             children = itemBody.children();
             for(j = itemIndex; j < children.length; j++) {
-                $(children[i])
-                    .attr("data-index", j)
-                    .attr("data-view-index", viewDataStartIndex);
+                $(children[i]).attr("data-index", viewDataStartIndex);
+                item = viewData[viewDataStartIndex];
+                item._group = {
+                    index: i,
+                    itemIndex: j
+                };
                 viewDataStartIndex++;
             }
             indexIndex = 0;
@@ -719,7 +728,14 @@ ui.define("ui.ctrls.CardView", {
     /** 添加项目 */
     addItem: function(itemData) {
         var viewData,
-            elem;
+            elem,
+            groupIndex,
+            groupKey,
+            itemBody,
+            newGroup,
+            newGroupElements,
+            i, len;
+
         if(!itemData) {
             return;
         }
@@ -734,15 +750,48 @@ ui.define("ui.ctrls.CardView", {
             return;
         }
 
-        elem = this._createItem(itemData, viewData.length);
+        if(this.isGroup()) {
+            groupKey = itemData[this.option.group.groupField] + "";
+            groupIndex = -1;
+            for(i = 0, len = this._groupData.length; i < len; i++) {
+                if(this._groupData[i][this.option.group.groupField] === groupKey) {
+                    groupIndex = i;
+                    break;
+                }
+            }
+        } else {
+            groupIndex = 0;
+        }
+
+        newGroup = {};
+        if(groupIndex = -1) {
+            // 新分组
+            newGroup.index = this._groupData.length;
+            newGroup.itemIndex = 0;
+            newGroupElements = [];
+            itemBody = this._getItemBody(groupIndex, true, newGroupElements, this._currentMarginInfo.margin);
+            this.viewBody.append(newGroupElements);
+        } else {
+            // 老分组追加
+            itemBody = this._itemBodyList[groupIndex];
+            newGroup.index = groupIndex;
+            newGroup.itemIndex = this._groupData[groupIndex][this.option.group.groupField].length;
+        }
+
+        itemData._group = newGroup;
+        elem = this._createItem(itemData, itemData.length);
         this._renderItem(elem, itemData, viewData.length);
-        this.bodyPanel.append(elem);
+
         viewData.push(itemData);
+        itemBody.append(elem);
+
         this._recomposeItems();
     },
     /** 插入项目 */
     insertItem: function(index, itemData) {
         var elem,
+            newGroup,
+            oldItem,
             viewData;
         if(!itemData) {
             return;
@@ -756,12 +805,27 @@ ui.define("ui.ctrls.CardView", {
             index = 0;
         }
         if(index >= 0 && index < viewData.length) {
+            newGroup = {};
+            if(this.isGroup()) {
+                oldItem = viewData[index];
+                if(oldItem[this.option.group.groupField] !== itemData[this.option.group.groupField]) {
+                    throw new Error("the data not belong to the destination group.");
+                }
+                newGroup.index = oldItem._group.index;
+                newGroup.itemIndex = oldItem._group.itemIndex;
+            } else {
+                newGroup.index = 0;
+                newGroup.itemIndex = index;
+            }
+
+            itemData._group = newGroup;
             elem = this._createItem(itemData, index);
             this._renderItem(elem, itemData, index);
+
             this._getItemElement(index).before(elem);
             viewData.splice(index, 0, itemData);
             
-            this._updateIndexes(0, 0, 0);
+            this._updateIndexes(newGroup.index, newGroup.itemIndex, index);
             this._recomposeItems();
         } else {
             this.addItem(itemData);
@@ -775,7 +839,11 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
-        return this._columnCount;
+        return this._currentMarginInfo ? this._currentMarginInfo.count ? 0;
+    },
+    /** 获取当前尺寸下每个元素的边距 */
+    getItemMargin: function() {
+        return this._currentMarginInfo ? this._currentMarginInfo.margin ? 0;
     },
     /** 获取项目数 */
     count: function() {
