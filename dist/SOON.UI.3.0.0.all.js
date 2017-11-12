@@ -4999,11 +4999,9 @@ $(window)
     .on("resize", function (e) {
         if(page._resizeTimeoutHandler) {
             clearTimeout(page._resizeTimeoutHandler);
-            console.log("clear");
         }
         page._resizeTimeoutHandler = setTimeout(function() {
             page._resizeTimeoutHandler = null;
-            console.log("resize");
             page.fire("resize", 
                 document.documentElement.clientWidth, 
                 document.documentElement.clientHeight);
@@ -14408,6 +14406,7 @@ var selectedClass = "ui-card-view-selection",
     marginValueLimit = 4,
     frameBorderWidth = 4;
 
+function noop() {}
 function prepareGroup(option) {
     var type;
     type = ui.core.type(option);
@@ -14416,7 +14415,8 @@ function prepareGroup(option) {
             groupField: option,
             itemsField: "_items",
             groupListHandler: defaultGroupListHandler,
-            headFormatter: defaultGroupHeadFormatter
+            headFormatter: defaultGroupHeadFormatter,
+            headRearrangeHandler: defaultHeadRearrangeHandler
         }
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
@@ -14431,6 +14431,9 @@ function prepareGroup(option) {
         if(!ui.core.isFunction(option.headFormatter)) {
             option.headFormatter = defaultGroupHeadFormatter;
         }
+        if(!ui.core.isFunction(option.headRearrangeHandler)) {
+            option.headRearrangeHandler = noop;
+        }
     } else {
         this.option.group = false;
     }
@@ -14441,11 +14444,22 @@ function defaultGroupListHandler(viewData, groupField, itemsField) {
     return groupList;
 }
 
-function defaultGroupHeadFormatter(item, margin) {
+function defaultGroupHeadFormatter(groupItem, margin) {
     return ui.str.textFormat(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
-        item[this.option.group.groupField]);
+        groupItem[this.option.group.groupField]);
+}
+
+function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
+    var span = itemHead.children(".item-head-title");
+    span.css({
+        "margin-left": margin + "px",
+        "margin-right": margin + "px"
+    });
+    if(groupIndex === 0) {
+        itemHead.css("margin-top", margin + "px");
+    }
 }
 
 function preparePager(option) {
@@ -14495,7 +14509,17 @@ ui.define("ui.ctrls.CardView", {
             viewData: null,
             // 没有数据时显示的提示信息
             promptText: "没有数据",
-            // 分组信息 string: 数据按该字段名分组，object: { groupField: string, itemsField: string, groupListHandler: function, headFormatter: function }
+            // 分组信息 
+            /*
+                string: 数据按该字段名分组,
+                object: { 
+                    groupField: string, 
+                    itemsField: string, 
+                    groupListHandler: function, 
+                    headFormatter: function, 
+                    headRearrangeHandler: function 
+                }
+            */
             group: false,
             // 高度
             width: false,
@@ -14537,7 +14561,7 @@ ui.define("ui.ctrls.CardView", {
         this._itemBodyList = [];
         this._selectList = [];
         this._hasPrompt = !!this.option.promptText;
-        this._columnCount = 0;
+        this._currentMarginInfo = null;
 
         this.viewBody = null;
         this.pagerHeight = 30;
@@ -14661,56 +14685,61 @@ ui.define("ui.ctrls.CardView", {
             arr = this._groupData;
         }
         marginInfo = this._getMargin(arr);
-        this._columnCount = marginInfo.count;
+        this._currentMarginInfo = marginInfo;
         if(marginInfo.count === 0) return;
         
         isFunction = ui.core.isFunction(fn);
         elements = [];
         that = this;
-        
+
         this._viewDataIndex = -1;
         if(isGroup) {
-            arr.forEach(function(item, index) {
-                body = that._itemBodyList[index];
-                if(!body) {
-                    head = $("<div class='item-head' />");
-                    head.append(that.option.group.headFormatter.call(that, item, marginInfo.margin));
-                    body = $("<div class='item-body' />");
-                    body.attr("data-index", index);
-                    if(elements.length === 0) {
-                        head.css("margin-top", marginInfo.margin + "px");
-                    }
-                    elements.push(head, body);
-                    that._itemBodyList.push(body);
-                }
-                that._fillItemBody(arr[index][that.option.group.itemsField], body, marginInfo, isFunction, fn);
+            arr.forEach(function(item, groupIndex) {
+                body = that._getItemBody(groupIndex, isGroup, elements, marginInfo.margin);
+                that._fillItemBody(item[that.option.group.itemsField], groupIndex, body, marginInfo, isFunction, fn);
             });
         } else {
-            body = this._itemBodyList[0];
-            if(!body) {
-                body = $("<div class='item-body' />");
-                elements.push(body);
-                this._itemBodyList.push(body);
-            }
-            this._fillItemBody(arr, body, marginInfo, isFunction, fn);
+            body = this._getItemBody(0, isGroup, elements, marginInfo.margin);
+            this._fillItemBody(arr, 0, body, marginInfo, isFunction, fn);
         }
         delete this._viewDataIndex;
 
         if(elements.length > 0) {
-            elements.forEach(function(elem) {
-                that.viewBody.append(elem);
-            });
+            that.viewBody.append(elements);
         }
     },
-    _fillItemBody: function(arr, itemBody, marginInfo, isFunction, fn) {
+    _getItemBody: function(groupIndex, isGroup, elements, margin) {
+        var itemBody,
+            itemHead;
+        itemBody = this._itemBodyList[groupIndex];
+        if(!itemBody) {
+            if(isGroup) {
+                itemHead = $("<div class='item-head' />");
+                itemHead.append(this.option.group.headFormatter.call(this, this._groupData[groupIndex], margin));
+                if(elements.length === 0) {
+                    itemHead.css("margin-top", margin + "px");
+                }
+                elements.push(itemHead);
+            }
+            itemBody = $("<div class='item-body' />");
+            elements.push(itemBody);
+            this._itemBodyList.push(itemBody);
+        } else {
+            if(isGroup) {
+                itemHead = itemBody.prev();
+                this.option.group.headRearrangeHandler.call(this, itemHead, groupIndex, this._groupData[groupIndex], margin);
+            }
+        }
+        return itemBody;
+    },
+    _fillItemBody: function(arr, groupIndex, itemBody, marginInfo, isFunction, fn) {
         var rows, 
             i, j,
-            groupIndex, index,
+            index,
             top, left,
             item;
 
         rows = Math.floor((arr.length + marginInfo.count - 1) / marginInfo.count);
-        groupIndex = parseInt(itemBody.attr("data-index"), 10);
         itemBody.css("height", (rows * (this.option.itemHeight + marginInfo.margin) + marginInfo.margin) + "px");
         for(i = 0; i < rows; i++) {
             for(j = 0; j < marginInfo.count; j++) {
@@ -14723,11 +14752,11 @@ ui.define("ui.ctrls.CardView", {
                 left = (j + 1) * marginInfo.margin + (j * this.option.itemWidth);
                 item = arr[index];
                 item._group = {
-                    groupIndex: groupIndex,
-                    index: index
+                    index: groupIndex,
+                    itemIndex: index
                 };
                 if(isFunction) {
-                    fn.call(this, itemBody, item, index, top, left);
+                    fn.call(this, itemBody, item, this._viewDataIndex, top, left);
                 }
             }
         }
@@ -14799,8 +14828,7 @@ ui.define("ui.ctrls.CardView", {
             "width": this.option.itemWidth + "px",
             "height": this.option.itemHeight + "px"
         });
-        div.attr("data-index", index)
-            .attr("data-view-index", this._viewDataIndex);
+        div.attr("data-index", index);
         return div;
     },
     _renderItem: function(itemElement, itemData, index) {
@@ -14831,12 +14859,22 @@ ui.define("ui.ctrls.CardView", {
         this.pager.pageSize = this.pageSize;
         this.pager.renderPageList(rowCount);
     },
-    _recomposeItems: function() {
+    _rearrangeItems: function() {
+        var i, len,
+            childrenList;
         if(!this._itemBodyList.length === 0)
             return;
         
+        childrenList = [];
+        for(i = 0, len = this._itemBodyList.length; i < len; i++) {
+            childrenList.push(this._itemBodyList[i].children());
+        }
         this._rasterizeItems(false, function(itemBody, item, index, top, left) {
-            var elem = itemBody[0].childNodes[index];
+            var elem,
+                group;
+
+            group = item._group;
+            elem = childrenList[group.index][group.itemIndex];
             $(elem).css({
                 "top": top + "px",
                 "left": left + "px"
@@ -14850,18 +14888,16 @@ ui.define("ui.ctrls.CardView", {
             data,
             viewData;
 
-        index = parseInt(elem.attr("data-view-index"), 10);
+        index = parseInt(elem.attr("data-index"), 10);
         viewData = this.getViewData();
         data = {
             itemIndex: index,
             itemData: viewData[index]
         };
         if(this.isGroup()) {
-            groupIndex = parseInt(elem.parent().attr("data-index"), 10);
-            itemIndex = parseInt(elem.attr("data-index"), 10);
             data.group = {
-                groupIndex: groupIndex,
-                index: itemIndex
+                index: data.itemData._group.index,
+                itemIndex: data.itemData._group.itemIndex
             };
         }
         return data;
@@ -14923,13 +14959,13 @@ ui.define("ui.ctrls.CardView", {
         item = viewData[index];
         group = item._group;
 
-        itemBody = this._itemBodyList[group.groupIndex];
+        itemBody = this._itemBodyList[group.index];
         if(!itemBody) {
             return null;
         }
 
         items = itemBody.children();
-        item = items[group.index];
+        item = items[group.itemIndex];
         if(item) {
             return $(item);
         }
@@ -14937,21 +14973,24 @@ ui.define("ui.ctrls.CardView", {
     },
     _updateIndexes: function(groupIndex, itemIndex, viewDataStartIndex) {
         var itemBody,
-            i, j, len;
-        if(start < 0) {
-            start = 0;
-        }
+            viewData,
+            children,
+            item,
+            i, j;
+        viewData = this.getViewData();
         for(i = groupIndex; i < this._itemBodyList.length; i++) {
             itemBody = this._itemBodyList[i];
-            itemBody.attr("data-index", i);
             children = itemBody.children();
             for(j = itemIndex; j < children.length; j++) {
-                $(children[i])
-                    .attr("data-index", j)
-                    .attr("data-view-index", viewDataStartIndex);
+                $(children[j]).attr("data-index", viewDataStartIndex);
+                item = viewData[viewDataStartIndex];
+                item._group = {
+                    index: i,
+                    itemIndex: j
+                };
                 viewDataStartIndex++;
             }
-            indexIndex = 0;
+            itemIndex = 0;
         }
     },
     _removeGroup: function(itemBody) {
@@ -15070,38 +15109,72 @@ ui.define("ui.ctrls.CardView", {
         this.fire("cancel");
     },
     /** 根据索引移除项目 */
-    removeAt: function(index) {
+    removeAt: function() {
         var elem,
             viewData,
+            index,
+            indexes,
+            i, len, j,
             group;
 
-        if(!ui.core.isNumber(index) || index < 0 || index >= this.count()) {
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return;
         }
-        viewData = this.getViewData();
-
-        elem = this._getItemElement(index);
-        if(elem) {
-            if(this._current && this._current[0] === elem[0]) {
-                this._current = null;
+        len = arguments.length;
+        if(len === 0) {
+            return;
+        }
+        indexes = [];
+        for(i = 0; i < len; i++) {
+            index = arguments[i];
+            if(ui.core.isNumber(index) && index >= 0 && index < viewData.length) {
+                indexes.push(index);
             }
-            group = viewData[index]._group;
-
-            this.option.viewData.splice(index, 1);
-            if(this.isGroup()) {
-                if(this._groupData[group.groupIndex][this.option.group.itemsField].length === 1) {
-                    this._groupData.splice(group.groupIndex, 1);
-                    this._itemBodyList.splice(group.groupIndex, 1);
-                    this._removeGroup(elem.parent());
+        }
+        len = indexes.length;
+        if(len > 0) {
+            indexes.sort(function(a, b) {
+                return b - a;
+            });
+            for(i = 0; i < len; i++) {
+                index = indexes[i];
+                elem = this._getItemElement(index);
+                if(!elem) {
+                    continue;
+                }
+                group = viewData[index]._group;
+                this.option.viewData.splice(index, 1);
+                if(this.isGroup()) {
+                    if(this._groupData[group.index][this.option.group.itemsField].length === 1) {
+                        this._groupData.splice(group.index, 1);
+                        this._itemBodyList.splice(group.index, 1);
+                        this._removeGroup(elem.parent());
+                    } else {
+                        this._groupData[group.index][this.option.group.itemsField].splice(group.index, 1);
+                        elem.remove();
+                    }
                 } else {
-                    this._groupData[group.groupIndex][this.option.group.itemsField].splice(group.index, 1);
                     elem.remove();
                 }
-            } else {
-                elem.remove();
+
+                if(this.isSelectable()) {
+                    if(this.isMultiple()) {
+                        for(j = 0; j < this._selectList.length; j++) {
+                            if(this._selectList[j] === elem[0]) {
+                                this._selectList.splice(j, 1);
+                                break;
+                            }
+                        }
+                    } else {
+                        if(this._current && this._current[0] === elem[0]) {
+                            this._current = null;
+                        }
+                    }
+                }
             }
-            this._updateIndexes(group.groupIndex, group.index, index);
-            this._recomposeItems();
+            this._updateIndexes(group.index, group.itemIndex, index);
+            this._rearrangeItems();
         }
     },
     /** 根据索引更新项目 */
@@ -15122,7 +15195,15 @@ ui.define("ui.ctrls.CardView", {
     /** 添加项目 */
     addItem: function(itemData) {
         var viewData,
-            elem;
+            elem,
+            groupIndex,
+            groupKey,
+            itemBody,
+            newGroupItem,
+            newGroup,
+            newGroupElements,
+            i, len;
+
         if(!itemData) {
             return;
         }
@@ -15137,15 +15218,54 @@ ui.define("ui.ctrls.CardView", {
             return;
         }
 
-        elem = this._createItem(itemData, viewData.length);
+        if(this.isGroup()) {
+            groupKey = itemData[this.option.group.groupField] + "";
+            groupIndex = -1;
+            for(i = 0, len = this._groupData.length; i < len; i++) {
+                if(this._groupData[i][this.option.group.groupField] === groupKey) {
+                    groupIndex = i;
+                    break;
+                }
+            }
+        } else {
+            groupIndex = 0;
+        }
+
+        newGroup = {};
+        if(groupIndex = -1) {
+            // 新分组
+            newGroup.index = this._groupData.length;
+            newGroup.itemIndex = 0;
+
+            newGroupItem = {};
+            newGroupItem[this.option.group.groupField] = groupKey;
+            newGroupItem[this.option.group.itemsField] = [itemData];
+            this._groupData.push(newGroupItem);
+
+            newGroupElements = [];
+            itemBody = this._getItemBody(newGroup.index, true, newGroupElements, this._currentMarginInfo.margin);
+            this.viewBody.append(newGroupElements);
+        } else {
+            // 老分组追加
+            itemBody = this._itemBodyList[groupIndex];
+            newGroup.index = groupIndex;
+            newGroup.itemIndex = this._groupData[groupIndex][this.option.group.groupField].length;
+        }
+
+        itemData._group = newGroup;
+        elem = this._createItem(itemData, itemData.length);
         this._renderItem(elem, itemData, viewData.length);
-        this.bodyPanel.append(elem);
+
         viewData.push(itemData);
-        this._recomposeItems();
+        itemBody.append(elem);
+
+        this._rearrangeItems();
     },
     /** 插入项目 */
     insertItem: function(index, itemData) {
         var elem,
+            newGroup,
+            oldItem,
             viewData;
         if(!itemData) {
             return;
@@ -15159,13 +15279,28 @@ ui.define("ui.ctrls.CardView", {
             index = 0;
         }
         if(index >= 0 && index < viewData.length) {
+            newGroup = {};
+            if(this.isGroup()) {
+                oldItem = viewData[index];
+                if(oldItem[this.option.group.groupField] !== itemData[this.option.group.groupField]) {
+                    throw new Error("the data not belong to the destination group.");
+                }
+                newGroup.index = oldItem._group.index;
+                newGroup.itemIndex = oldItem._group.itemIndex;
+            } else {
+                newGroup.index = 0;
+                newGroup.itemIndex = index;
+            }
+
+            itemData._group = newGroup;
             elem = this._createItem(itemData, index);
             this._renderItem(elem, itemData, index);
+
             this._getItemElement(index).before(elem);
             viewData.splice(index, 0, itemData);
             
-            this._updateIndexes(0, 0, 0);
-            this._recomposeItems();
+            this._updateIndexes(newGroup.index, newGroup.itemIndex, index);
+            this._rearrangeItems();
         } else {
             this.addItem(itemData);
         }
@@ -15178,7 +15313,11 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
-        return this._columnCount;
+        return this._currentMarginInfo ? this._currentMarginInfo.count : 0;
+    },
+    /** 获取当前尺寸下每个元素的边距 */
+    getItemMargin: function() {
+        return this._currentMarginInfo ? this._currentMarginInfo.margin : 0;
     },
     /** 获取项目数 */
     count: function() {
@@ -15242,7 +15381,7 @@ ui.define("ui.ctrls.CardView", {
             needRecompose = true;
         }
         if(needRecompose) {
-            this._recomposeItems();
+            this._rearrangeItems();
         }
         if(this._promptIsShow()) {
             this._setPromptLocation();
@@ -16583,8 +16722,6 @@ ui.define("ui.ctrls.GridView", {
         if (colIndex == -1) return;
         if (!ui.core.isNumber(startRowIndex)) {
             startRowIndex = 0;
-        } else {
-            startRowIndex += 1;
         }
         rows = this.tableBody[0].rows;
         column = this.option.columns[colIndex];
@@ -16937,29 +17074,89 @@ ui.define("ui.ctrls.GridView", {
         this.fire("cancel");
     },
     /** 移除行 */
-    removeRowAt: function(rowIndex) {
-        var viewData,
-            row;
+    removeRowAt: function() {
+        var rowIndex,
+            indexes,
+            viewData,
+            row,
+            i, len,
+            isMultiple,
+            type,
+            removeSelectItemFn;
 
         viewData = this.option.viewData;
         if(!viewData) {
             return;
         }
-        if(rowIndex < 0 || rowIndex > viewData.length) {
+        len = arguments.length;
+        if(len === 0) {
             return;
         }
-
-        row = $(this.tableBody[0].rows[rowIndex]);
-        if(row.length === 0) {
-            return;
+        indexes = [];
+        for(i = 0; i < len; i++) {
+            rowIndex = arguments[i];
+            if(ui.core.isNumber(rowIndex) && rowIndex >= 0 && rowIndex < viewData.length) {
+                indexes.push(rowIndex);
+            }
         }
-        if(this._current && this._current[0] === row[0]) {
-            this._current = null;
+        len = indexes.length;
+        if(len > 0) {
+            indexes.sort(function(a, b) {
+                return b - a;
+            });
+            type = this.option.selection.type;
+            isMultiple = this.isMultiple();
+            if(type === "row") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, selectItem;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            selectItem = this._selectList[i];
+                            if(idx === selectItem.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current && this._current[0].rowIndex === idx) {
+                            this._current = null;
+                        }
+                    }
+                };
+            } else if(type === "cell") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, row;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            row = this._selectList[i];
+                            row = row.parentNode;
+                            if(idx === row.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current) {
+                            row = this._current.parent();
+                            if(row[0].rowIndex === idx) {
+                                this._current = null;
+                            }
+                        }
+                    }
+                };
+            }
+            for(i = 0; i < len; i++) {
+                rowIndex = indexes[i];
+                row = $(this.tableBody[0].rows[rowIndex]);
+                row.remove();
+                viewData.splice(rowIndex, 1);
+                if(removeSelectItemFn) {
+                    removeSelectItemFn.call(this, rowIndex);
+                }
+            }
+            this._updateScrollState();
+            this._refreshRowNumber(rowIndex);
         }
-        row.remove();
-        viewData.splice(rowIndex, 1);
-        this._updateScrollState();
-        this._refreshRowNumber();
     },
     /** 更新行 */
     updateRow: function(rowIndex, rowData) {
@@ -17086,10 +17283,10 @@ ui.define("ui.ctrls.GridView", {
         destRow = $(rows[destIndex]);
         if(destIndex > rowIndex) {
             destRow.after($(rows[sourceIndex]));
-            this._refreshRowNumber(sourceIndex - 1, destIndex);
+            this._refreshRowNumber(sourceIndex, destIndex);
         } else {
             destRow.before($(rows[sourceIndex]));
-            this._refreshRowNumber(destIndex - 1, sourceIndex);
+            this._refreshRowNumber(destIndex, sourceIndex);
         }
         tempData = viewData[sourceIndex];
         viewData.splice(sourceIndex, 1);
@@ -18958,8 +19155,6 @@ ui.define("ui.ctrls.ReportView", {
         if (!columnInfo) return;
         if (!ui.core.isNumber(startRowIndex)) {
             startRowIndex = 0;
-        } else {
-            startRowIndex += 1;
         }
         rows = columnInfo.bodyTable[0].rows;
         column = columnInfo.columns[columnInfo.columnIndex];
@@ -19290,32 +19485,92 @@ ui.define("ui.ctrls.ReportView", {
         this.fire("cancel");
     },
     /** 移除行 */
-    removeRowAt: function(rowIndex) {
-        var viewData,
-            row;
+    removeRowAt: function() {
+        var rowIndex,
+            indexes,
+            viewData,
+            row,
+            i, len,
+            isMultiple,
+            type,
+            removeSelectItemFn;
 
         viewData = this.option.viewData;
         if(!viewData) {
             return;
         }
-        if(rowIndex < 0 || rowIndex > viewData.length) {
+        len = arguments.length;
+        if(len === 0) {
             return;
         }
-
-        row = $(this.tableBody[0].rows[rowIndex]);
-        if(row.length === 0) {
-            return;
+        indexes = [];
+        for(i = 0; i < len; i++) {
+            rowIndex = arguments[i];
+            if(ui.core.isNumber(rowIndex) && rowIndex >= 0 && rowIndex < viewData.length) {
+                indexes.push(rowIndex);
+            }
         }
-        if(this._current && this._current[0] === row[0]) {
-            this._current = null;
+        len = indexes.length;
+        if(len > 0) {
+            indexes.sort(function(a, b) {
+                return b - a;
+            });
+            type = this.option.selection.type;
+            isMultiple = this.isMultiple();
+            if(type === "row") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, selectItem;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            selectItem = this._selectList[i];
+                            if(idx === selectItem.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current && this._current[0].rowIndex === idx) {
+                            this._current = null;
+                        }
+                    }
+                };
+            } else if(type === "cell") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, row;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            row = this._selectList[i];
+                            row = row.parentNode;
+                            if(idx === row.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current) {
+                            row = this._current.parent();
+                            if(row[0].rowIndex === idx) {
+                                this._current = null;
+                            }
+                        }
+                    }
+                };
+            }
+            for(i = 0; i < len; i++) {
+                rowIndex = indexes[i];
+                row = $(this.tableDataBody[0].rows[rowIndex]);
+                row.remove();
+                if(this.tableFixedBody) {
+                    $(this.tableFixedBody[0].rows[rowIndex]).remove();
+                }
+                viewData.splice(rowIndex, 1);
+                if(removeSelectItemFn) {
+                    removeSelectItemFn.call(this, rowIndex);
+                }
+            }
+            this._updateScrollState();
+            this._refreshRowNumber(rowIndex);
         }
-        if(this.tableFixedBody) {
-            $(this.tableFixedBody[0].rows[rowIndex]).remove();
-        }
-        row.remove();
-        viewData.splice(rowIndex, 1);
-        this._updateScrollState();
-        this._refreshRowNumber();
     },
     /** 更新行 */
     updateRow: function(rowIndex, rowData) {
@@ -19474,7 +19729,7 @@ ui.define("ui.ctrls.ReportView", {
                 destRow = $(rows[destIndex]);
                 destRow.after($(rows[sourceIndex]));
             }
-            this._refreshRowNumber(sourceIndex - 1, destIndex);
+            this._refreshRowNumber(sourceIndex, destIndex);
         } else {
             if(this.tableFixedBody) {
                 rows = this.tableFixedBody[0].tBodies[0].rows;
@@ -19486,7 +19741,7 @@ ui.define("ui.ctrls.ReportView", {
                 destRow = $(rows[destIndex]);
                 destRow.before($(rows[sourceIndex]));
             }
-            this._refreshRowNumber(destIndex - 1, sourceIndex);
+            this._refreshRowNumber(destIndex, sourceIndex);
         }
         tempData = viewData[sourceIndex];
         viewData.splice(sourceIndex, 1);

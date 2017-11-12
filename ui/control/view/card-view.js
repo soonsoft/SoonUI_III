@@ -5,6 +5,7 @@ var selectedClass = "ui-card-view-selection",
     marginValueLimit = 4,
     frameBorderWidth = 4;
 
+function noop() {}
 function prepareGroup(option) {
     var type;
     type = ui.core.type(option);
@@ -13,7 +14,8 @@ function prepareGroup(option) {
             groupField: option,
             itemsField: "_items",
             groupListHandler: defaultGroupListHandler,
-            headFormatter: defaultGroupHeadFormatter
+            headFormatter: defaultGroupHeadFormatter,
+            headRearrangeHandler: defaultHeadRearrangeHandler
         }
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
@@ -28,6 +30,9 @@ function prepareGroup(option) {
         if(!ui.core.isFunction(option.headFormatter)) {
             option.headFormatter = defaultGroupHeadFormatter;
         }
+        if(!ui.core.isFunction(option.headRearrangeHandler)) {
+            option.headRearrangeHandler = noop;
+        }
     } else {
         this.option.group = false;
     }
@@ -38,11 +43,22 @@ function defaultGroupListHandler(viewData, groupField, itemsField) {
     return groupList;
 }
 
-function defaultGroupHeadFormatter(item, margin) {
+function defaultGroupHeadFormatter(groupItem, margin) {
     return ui.str.textFormat(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
-        item[this.option.group.groupField]);
+        groupItem[this.option.group.groupField]);
+}
+
+function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
+    var span = itemHead.children(".item-head-title");
+    span.css({
+        "margin-left": margin + "px",
+        "margin-right": margin + "px"
+    });
+    if(groupIndex === 0) {
+        itemHead.css("margin-top", margin + "px");
+    }
 }
 
 function preparePager(option) {
@@ -92,7 +108,17 @@ ui.define("ui.ctrls.CardView", {
             viewData: null,
             // 没有数据时显示的提示信息
             promptText: "没有数据",
-            // 分组信息 string: 数据按该字段名分组，object: { groupField: string, itemsField: string, groupListHandler: function, headFormatter: function }
+            // 分组信息 
+            /*
+                string: 数据按该字段名分组,
+                object: { 
+                    groupField: string, 
+                    itemsField: string, 
+                    groupListHandler: function, 
+                    headFormatter: function, 
+                    headRearrangeHandler: function 
+                }
+            */
             group: false,
             // 高度
             width: false,
@@ -269,7 +295,7 @@ ui.define("ui.ctrls.CardView", {
         if(isGroup) {
             arr.forEach(function(item, groupIndex) {
                 body = that._getItemBody(groupIndex, isGroup, elements, marginInfo.margin);
-                that._fillItemBody(arr[groupIndex][that.option.group.itemsField], groupIndex, body, marginInfo, isFunction, fn);
+                that._fillItemBody(item[that.option.group.itemsField], groupIndex, body, marginInfo, isFunction, fn);
             });
         } else {
             body = this._getItemBody(0, isGroup, elements, marginInfo.margin);
@@ -288,7 +314,7 @@ ui.define("ui.ctrls.CardView", {
         if(!itemBody) {
             if(isGroup) {
                 itemHead = $("<div class='item-head' />");
-                itemHead.append(this.option.group.headFormatter.call(this, item, margin));
+                itemHead.append(this.option.group.headFormatter.call(this, this._groupData[groupIndex], margin));
                 if(elements.length === 0) {
                     itemHead.css("margin-top", margin + "px");
                 }
@@ -297,6 +323,11 @@ ui.define("ui.ctrls.CardView", {
             itemBody = $("<div class='item-body' />");
             elements.push(itemBody);
             this._itemBodyList.push(itemBody);
+        } else {
+            if(isGroup) {
+                itemHead = itemBody.prev();
+                this.option.group.headRearrangeHandler.call(this, itemHead, groupIndex, this._groupData[groupIndex], margin);
+            }
         }
         return itemBody;
     },
@@ -427,7 +458,7 @@ ui.define("ui.ctrls.CardView", {
         this.pager.pageSize = this.pageSize;
         this.pager.renderPageList(rowCount);
     },
-    _recomposeItems: function() {
+    _rearrangeItems: function() {
         var i, len,
             childrenList;
         if(!this._itemBodyList.length === 0)
@@ -527,13 +558,13 @@ ui.define("ui.ctrls.CardView", {
         item = viewData[index];
         group = item._group;
 
-        itemBody = this._itemBodyList[group.groupIndex];
+        itemBody = this._itemBodyList[group.index];
         if(!itemBody) {
             return null;
         }
 
         items = itemBody.children();
-        item = items[group.index];
+        item = items[group.itemIndex];
         if(item) {
             return $(item);
         }
@@ -542,6 +573,7 @@ ui.define("ui.ctrls.CardView", {
     _updateIndexes: function(groupIndex, itemIndex, viewDataStartIndex) {
         var itemBody,
             viewData,
+            children,
             item,
             i, j;
         viewData = this.getViewData();
@@ -549,7 +581,7 @@ ui.define("ui.ctrls.CardView", {
             itemBody = this._itemBodyList[i];
             children = itemBody.children();
             for(j = itemIndex; j < children.length; j++) {
-                $(children[i]).attr("data-index", viewDataStartIndex);
+                $(children[j]).attr("data-index", viewDataStartIndex);
                 item = viewData[viewDataStartIndex];
                 item._group = {
                     index: i,
@@ -557,7 +589,7 @@ ui.define("ui.ctrls.CardView", {
                 };
                 viewDataStartIndex++;
             }
-            indexIndex = 0;
+            itemIndex = 0;
         }
     },
     _removeGroup: function(itemBody) {
@@ -676,38 +708,72 @@ ui.define("ui.ctrls.CardView", {
         this.fire("cancel");
     },
     /** 根据索引移除项目 */
-    removeAt: function(index) {
+    removeAt: function() {
         var elem,
             viewData,
+            index,
+            indexes,
+            i, len, j,
             group;
 
-        if(!ui.core.isNumber(index) || index < 0 || index >= this.count()) {
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return;
         }
-        viewData = this.getViewData();
-
-        elem = this._getItemElement(index);
-        if(elem) {
-            if(this._current && this._current[0] === elem[0]) {
-                this._current = null;
+        len = arguments.length;
+        if(len === 0) {
+            return;
+        }
+        indexes = [];
+        for(i = 0; i < len; i++) {
+            index = arguments[i];
+            if(ui.core.isNumber(index) && index >= 0 && index < viewData.length) {
+                indexes.push(index);
             }
-            group = viewData[index]._group;
-
-            this.option.viewData.splice(index, 1);
-            if(this.isGroup()) {
-                if(this._groupData[group.groupIndex][this.option.group.itemsField].length === 1) {
-                    this._groupData.splice(group.groupIndex, 1);
-                    this._itemBodyList.splice(group.groupIndex, 1);
-                    this._removeGroup(elem.parent());
+        }
+        len = indexes.length;
+        if(len > 0) {
+            indexes.sort(function(a, b) {
+                return b - a;
+            });
+            for(i = 0; i < len; i++) {
+                index = indexes[i];
+                elem = this._getItemElement(index);
+                if(!elem) {
+                    continue;
+                }
+                group = viewData[index]._group;
+                this.option.viewData.splice(index, 1);
+                if(this.isGroup()) {
+                    if(this._groupData[group.index][this.option.group.itemsField].length === 1) {
+                        this._groupData.splice(group.index, 1);
+                        this._itemBodyList.splice(group.index, 1);
+                        this._removeGroup(elem.parent());
+                    } else {
+                        this._groupData[group.index][this.option.group.itemsField].splice(group.index, 1);
+                        elem.remove();
+                    }
                 } else {
-                    this._groupData[group.groupIndex][this.option.group.itemsField].splice(group.index, 1);
                     elem.remove();
                 }
-            } else {
-                elem.remove();
+
+                if(this.isSelectable()) {
+                    if(this.isMultiple()) {
+                        for(j = 0; j < this._selectList.length; j++) {
+                            if(this._selectList[j] === elem[0]) {
+                                this._selectList.splice(j, 1);
+                                break;
+                            }
+                        }
+                    } else {
+                        if(this._current && this._current[0] === elem[0]) {
+                            this._current = null;
+                        }
+                    }
+                }
             }
-            this._updateIndexes(group.groupIndex, group.index, index);
-            this._recomposeItems();
+            this._updateIndexes(group.index, group.itemIndex, index);
+            this._rearrangeItems();
         }
     },
     /** 根据索引更新项目 */
@@ -732,6 +798,7 @@ ui.define("ui.ctrls.CardView", {
             groupIndex,
             groupKey,
             itemBody,
+            newGroupItem,
             newGroup,
             newGroupElements,
             i, len;
@@ -768,8 +835,14 @@ ui.define("ui.ctrls.CardView", {
             // 新分组
             newGroup.index = this._groupData.length;
             newGroup.itemIndex = 0;
+
+            newGroupItem = {};
+            newGroupItem[this.option.group.groupField] = groupKey;
+            newGroupItem[this.option.group.itemsField] = [itemData];
+            this._groupData.push(newGroupItem);
+
             newGroupElements = [];
-            itemBody = this._getItemBody(groupIndex, true, newGroupElements, this._currentMarginInfo.margin);
+            itemBody = this._getItemBody(newGroup.index, true, newGroupElements, this._currentMarginInfo.margin);
             this.viewBody.append(newGroupElements);
         } else {
             // 老分组追加
@@ -785,7 +858,7 @@ ui.define("ui.ctrls.CardView", {
         viewData.push(itemData);
         itemBody.append(elem);
 
-        this._recomposeItems();
+        this._rearrangeItems();
     },
     /** 插入项目 */
     insertItem: function(index, itemData) {
@@ -826,7 +899,7 @@ ui.define("ui.ctrls.CardView", {
             viewData.splice(index, 0, itemData);
             
             this._updateIndexes(newGroup.index, newGroup.itemIndex, index);
-            this._recomposeItems();
+            this._rearrangeItems();
         } else {
             this.addItem(itemData);
         }
@@ -839,11 +912,11 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
-        return this._currentMarginInfo ? this._currentMarginInfo.count ? 0;
+        return this._currentMarginInfo ? this._currentMarginInfo.count : 0;
     },
     /** 获取当前尺寸下每个元素的边距 */
     getItemMargin: function() {
-        return this._currentMarginInfo ? this._currentMarginInfo.margin ? 0;
+        return this._currentMarginInfo ? this._currentMarginInfo.margin : 0;
     },
     /** 获取项目数 */
     count: function() {
@@ -907,7 +980,7 @@ ui.define("ui.ctrls.CardView", {
             needRecompose = true;
         }
         if(needRecompose) {
-            this._recomposeItems();
+            this._rearrangeItems();
         }
         if(this._promptIsShow()) {
             this._setPromptLocation();

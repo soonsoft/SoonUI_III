@@ -40,11 +40,9 @@ $(window)
     .on("resize", function (e) {
         if(page._resizeTimeoutHandler) {
             clearTimeout(page._resizeTimeoutHandler);
-            console.log("clear");
         }
         page._resizeTimeoutHandler = setTimeout(function() {
             page._resizeTimeoutHandler = null;
-            console.log("resize");
             page.fire("resize", 
                 document.documentElement.clientWidth, 
                 document.documentElement.clientHeight);

@@ -406,7 +406,7 @@
   line-height: 30px;
 }
 .ui-card-view-body .item-head-title {
-  font-size: 16px;
+  font-size: 18px;
 }
 .ui-card-view-body .item-body {
   position: relative;
@@ -420,7 +420,6 @@
 .ui-card-view-body .view-item {
   position: absolute;
   overflow: hidden;
-  background-color: #3c3f41;
 }
 .ui-card-view-body .view-item .frame-panel {
   position: absolute;

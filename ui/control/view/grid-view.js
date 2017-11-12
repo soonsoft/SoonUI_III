@@ -652,8 +652,6 @@ ui.define("ui.ctrls.GridView", {
         if (colIndex == -1) return;
         if (!ui.core.isNumber(startRowIndex)) {
             startRowIndex = 0;
-        } else {
-            startRowIndex += 1;
         }
         rows = this.tableBody[0].rows;
         column = this.option.columns[colIndex];
@@ -1006,29 +1004,89 @@ ui.define("ui.ctrls.GridView", {
         this.fire("cancel");
     },
     /** 移除行 */
-    removeRowAt: function(rowIndex) {
-        var viewData,
-            row;
+    removeRowAt: function() {
+        var rowIndex,
+            indexes,
+            viewData,
+            row,
+            i, len,
+            isMultiple,
+            type,
+            removeSelectItemFn;
 
         viewData = this.option.viewData;
         if(!viewData) {
             return;
         }
-        if(rowIndex < 0 || rowIndex > viewData.length) {
+        len = arguments.length;
+        if(len === 0) {
             return;
         }
-
-        row = $(this.tableBody[0].rows[rowIndex]);
-        if(row.length === 0) {
-            return;
+        indexes = [];
+        for(i = 0; i < len; i++) {
+            rowIndex = arguments[i];
+            if(ui.core.isNumber(rowIndex) && rowIndex >= 0 && rowIndex < viewData.length) {
+                indexes.push(rowIndex);
+            }
         }
-        if(this._current && this._current[0] === row[0]) {
-            this._current = null;
+        len = indexes.length;
+        if(len > 0) {
+            indexes.sort(function(a, b) {
+                return b - a;
+            });
+            type = this.option.selection.type;
+            isMultiple = this.isMultiple();
+            if(type === "row") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, selectItem;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            selectItem = this._selectList[i];
+                            if(idx === selectItem.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current && this._current[0].rowIndex === idx) {
+                            this._current = null;
+                        }
+                    }
+                };
+            } else if(type === "cell") {
+                removeSelectItemFn = function(idx) {
+                    var i, len, row;
+                    if(isMultiple) {
+                        for(i = 0, len = this._selectList.length; i < len; i++) {
+                            row = this._selectList[i];
+                            row = row.parentNode;
+                            if(idx === row.rowIndex) {
+                                this._selectList.splice(i, 1);
+                                return;
+                            }
+                        }
+                    } else {
+                        if(this._current) {
+                            row = this._current.parent();
+                            if(row[0].rowIndex === idx) {
+                                this._current = null;
+                            }
+                        }
+                    }
+                };
+            }
+            for(i = 0; i < len; i++) {
+                rowIndex = indexes[i];
+                row = $(this.tableBody[0].rows[rowIndex]);
+                row.remove();
+                viewData.splice(rowIndex, 1);
+                if(removeSelectItemFn) {
+                    removeSelectItemFn.call(this, rowIndex);
+                }
+            }
+            this._updateScrollState();
+            this._refreshRowNumber(rowIndex);
         }
-        row.remove();
-        viewData.splice(rowIndex, 1);
-        this._updateScrollState();
-        this._refreshRowNumber();
     },
     /** 更新行 */
     updateRow: function(rowIndex, rowData) {
@@ -1155,10 +1213,10 @@ ui.define("ui.ctrls.GridView", {
         destRow = $(rows[destIndex]);
         if(destIndex > rowIndex) {
             destRow.after($(rows[sourceIndex]));
-            this._refreshRowNumber(sourceIndex - 1, destIndex);
+            this._refreshRowNumber(sourceIndex, destIndex);
         } else {
             destRow.before($(rows[sourceIndex]));
-            this._refreshRowNumber(destIndex - 1, sourceIndex);
+            this._refreshRowNumber(destIndex, sourceIndex);
         }
         tempData = viewData[sourceIndex];
         viewData.splice(sourceIndex, 1);
