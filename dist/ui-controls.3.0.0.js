@@ -10211,7 +10211,7 @@ ui.define("ui.ctrls.CardView", {
         }
 
         newGroup = {};
-        if(groupIndex = -1) {
+        if(groupIndex === -1) {
             // 新分组
             newGroup.index = this._groupData.length;
             newGroup.itemIndex = 0;
@@ -10228,11 +10228,12 @@ ui.define("ui.ctrls.CardView", {
             // 老分组追加
             itemBody = this._itemBodyList[groupIndex];
             newGroup.index = groupIndex;
-            newGroup.itemIndex = this._groupData[groupIndex][this.option.group.groupField].length;
+            newGroup.itemIndex = this._groupData[groupIndex][this.option.group.itemsField].length;
+            this._groupData[groupIndex][this.option.group.itemsField].push(itemData);
         }
 
         itemData._group = newGroup;
-        elem = this._createItem(itemData, itemData.length);
+        elem = this._createItem(itemData, viewData.length);
         this._renderItem(elem, itemData, viewData.length);
 
         viewData.push(itemData);
@@ -10266,6 +10267,7 @@ ui.define("ui.ctrls.CardView", {
                 }
                 newGroup.index = oldItem._group.index;
                 newGroup.itemIndex = oldItem._group.itemIndex;
+                this._groupData[newGroup.index][this.option.group.itemsField].splice(newGroup.itemIndex, 0, itemData);
             } else {
                 newGroup.index = 0;
                 newGroup.itemIndex = index;
