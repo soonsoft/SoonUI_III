@@ -3,7 +3,21 @@
 <partial id="header">CARD VIEW</partial>
 
 <partial id="content">
-    <div class="toolbar"></div>
+    <div id="toolbar" class="toolbar clear">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="addItem" class="tool-action-button" href="javascript:void(0)" title="添加">
+                    <i class="fa fa-plus-circle"></i>
+                </a>
+                <a id="insertItem" class="tool-action-button" href="javascript:void(0)" title="插入">
+                        <i class="fa fa-object-group"></i>
+                    </a>
+                <a id="deleteItem" class="tool-action-button" href="javascript:void(0)" title="删除">
+                    <i class="fa fa-remove"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
     <div id="cardView"></div>
 </partial>
 
@@ -21,11 +35,14 @@
 <partial id="script">
     <script type="text/javascript" src="../../lib/menu/card-view-menus.js"></script>
     <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
+    <script type="text/javascript" src="../../lib/data/albums.js"></script>
     <script type="text/javascript">
         (function() {
+            var removeItems = [];
             window.pageLogic = {
                 init: {
                     before: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
                         createCardView.call(this);
                     },
                     layout: function() {
@@ -39,7 +56,36 @@
 
                     },
                     events: function() {
-
+                        $("#addItem").click(function(e) {
+                            if(removeItems.length === 0) {
+                                ui.messageShow("没有被移除的项目，请先移除一个项目");
+                                return;
+                            }
+                            while(removeItems.length > 0) {
+                                pageLogic.cardView.addItem(removeItems.shift());
+                            }
+                        });
+                        $("#insertItem").click(function(e) {
+                            var item = albums[ui.random.getNum(0, albums.length)];
+                            pageLogic.cardView.insertItem(
+                                ui.random.getNum(0, pageLogic.cardView.count()), 
+                                {
+                                    picture: "../../lib/data/album-cover/" + item.album + ".jpg"
+                                });
+                        });
+                        $("#deleteItem").click(function(e) {
+                            var selectList = pageLogic.cardView.getSelection();
+                            if(selectList.length === 0) {
+                                ui.messageShow("您还没有选择要删除的内容");
+                                return;
+                            }
+                            var indexes = [];
+                            selectList.forEach(function(item) {
+                                removeItems.push(item.itemData);
+                                indexes.push(item.itemIndex);
+                            });
+                            pageLogic.cardView.removeAt.apply(pageLogic.cardView, indexes);
+                        });
                     },
                     load: function() {
                         loadCardViewData();

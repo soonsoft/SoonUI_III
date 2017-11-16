@@ -817,6 +817,7 @@ ui.define("ui.ctrls.CardView", {
             return;
         }
 
+        newGroup = {};
         if(this.isGroup()) {
             groupKey = itemData[this.option.group.groupField] + "";
             groupIndex = -1;
@@ -826,30 +827,31 @@ ui.define("ui.ctrls.CardView", {
                     break;
                 }
             }
+
+            if(groupIndex === -1) {
+                // 新分组
+                newGroup.index = this._groupData.length;
+                newGroup.itemIndex = 0;
+    
+                newGroupItem = {};
+                newGroupItem[this.option.group.groupField] = groupKey;
+                newGroupItem[this.option.group.itemsField] = [itemData];
+                this._groupData.push(newGroupItem);
+    
+                newGroupElements = [];
+                itemBody = this._getItemBody(newGroup.index, true, newGroupElements, this._currentMarginInfo.margin);
+                this.viewBody.append(newGroupElements);
+            } else {
+                // 老分组追加
+                itemBody = this._itemBodyList[groupIndex];
+                newGroup.index = groupIndex;
+                newGroup.itemIndex = this._groupData[groupIndex][this.option.group.itemsField].length;
+                this._groupData[groupIndex][this.option.group.itemsField].push(itemData);
+            }
         } else {
-            groupIndex = 0;
-        }
-
-        newGroup = {};
-        if(groupIndex === -1) {
-            // 新分组
-            newGroup.index = this._groupData.length;
-            newGroup.itemIndex = 0;
-
-            newGroupItem = {};
-            newGroupItem[this.option.group.groupField] = groupKey;
-            newGroupItem[this.option.group.itemsField] = [itemData];
-            this._groupData.push(newGroupItem);
-
-            newGroupElements = [];
-            itemBody = this._getItemBody(newGroup.index, true, newGroupElements, this._currentMarginInfo.margin);
-            this.viewBody.append(newGroupElements);
-        } else {
-            // 老分组追加
-            itemBody = this._itemBodyList[groupIndex];
-            newGroup.index = groupIndex;
-            newGroup.itemIndex = this._groupData[groupIndex][this.option.group.itemsField].length;
-            this._groupData[groupIndex][this.option.group.itemsField].push(itemData);
+            newGroup.index = 0;
+            newGroup.itemIndex = viewData.length;
+            itemBody = this._itemBodyList[newGroup.index];
         }
 
         itemData._group = newGroup;
