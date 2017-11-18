@@ -684,10 +684,12 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _createCtrlPanel: function() {
         var ctrlPanel,
             now,
+            valid,
             temp;
+
         ctrlPanel = $("<div class='date-chooser-operate-panel' />");
-        
         now = new Date();
+
         if(this.isDateTime()) {
             temp = twoNumberFormatter(now.getHours());
             this.hourText = $("<input type='text' class='hour date-chooser-time-input font-highlight-hover' />");
@@ -713,11 +715,17 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
             ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
         } else {
+            valid = this.startDay ? this.startDay.lt(now.getFullYear(), now.getMonth(), now.getDate()) : true;
+            valid = valid && (this.endDay ? this.endDay.gt(now.getFullYear(), now.getMonth(), now.getDate()) : true);
+
             temp = this._createButton(
                 this.onTodayButtonClickHandler,
                 now.getDate()
             );
             temp.attr("title", this.formatDateValue(now));
+            if(!valid) {
+                temp.prop("disabled", true);
+            }
             this._todayButton = temp;
             ctrlPanel.append(temp);
         }
