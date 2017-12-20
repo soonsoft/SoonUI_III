@@ -11,6 +11,7 @@
 <partial id="style"></partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/report-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
             window.pageLogic = {
@@ -65,15 +66,15 @@
 
                 });
                 this.reportView.pagechanging(function(e, pageIndex, pageSize) {
-                    loadSimpleData(pageIndex);
+                    loadReportViewData(pageIndex);
                 });
                 this.reportView.cancel(function(e) {
 
                 });
             }
 
-            function loadReportViewData() {
-                if(ui.core.type(pageIndex) !== "number") {
+            function loadReportViewData(pageIndex) {
+                if(ui.core.isNumber(pageIndex)) {
                     pageIndex = pageLogic.reportView.pageIndex = 1;
                 }
                 var pageSize = pageLogic.reportView.pageSize;

@@ -11,6 +11,8 @@
 <partial id="style"></partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/report-view-menus.js"></script>
+    <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
     <script type="text/javascript">
         (function() {
             window.pageLogic = {
@@ -49,7 +51,7 @@
                         { column: "year", text: "发表时间", len: 100 },
                         { column: "otherInfo", text: "其它信息", len: 120 },
                         { column: "otherInfo", text: "其它信息", len: 130 },
-                        { column: "coverSrc", text: "专辑封面路径", len: 140 },
+                        { column: "coverSrc", text: "专辑封面路径", len: 360 },
                         { text: ui.ColumnStyle.cnfn.empty, formatter: ui.ColumnStyle.cfn.empty }
                     ],
                     pager: {
@@ -70,15 +72,15 @@
 
                 });
                 this.reportView.pagechanging(function(e, pageIndex, pageSize) {
-                    loadData(pageIndex);
+                    loadReportViewData(pageIndex);
                 });
                 this.reportView.cancel(function(e) {
 
                 });
             }
 
-            function loadReportViewData() {
-                if(ui.core.type(pageIndex) !== "number") {
+            function loadReportViewData(pageIndex) {
+                if(ui.core.isNumber(pageIndex)) {
                     pageIndex = pageLogic.reportView.pageIndex = 1;
                 }
                 var pageSize = pageLogic.reportView.pageSize;
@@ -86,7 +88,7 @@
                 var item;
                 for(var i = 0; i < jaySongs.length; i++) {
                     item = jaySongs[i];
-                    item.coverSrc = "../lib/data/jay-album-cover/" + item.album + ".jpg";
+                    item.coverSrc = "../../lib/data/album-cover/" + item.album + ".jpg";
                     item.otherInfo = "其它信息";
                     item.star = ui.random.getNum(1, 6);
                 }

@@ -189,7 +189,7 @@ function userSettings() {
                     "<li class='operate-list-li theme-panel-hover'>",
                     "<span class='operate-text'>", item.text, "</span>",
                     "<a class='operate-list-anchor' href='", item.url, "'></a>",
-                    "</ul>"
+                    "</li>"
                 );
             }
         });
