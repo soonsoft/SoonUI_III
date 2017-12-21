@@ -4,7 +4,6 @@ function onFoldTitleClick(e) {
         nodeName,
         dd, icon;
     
-    e.stopPropagation();
     elem = $(e.target);
     while((nodeName = elem.nodeName()) !== "DT" 
         || !elem.hasClass("ui-fold-view-title")) {
