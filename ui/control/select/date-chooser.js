@@ -931,6 +931,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         var rows, td,
             disabledArray, year,
             firstEnabledMonth,
+            startMonth, endMonth,
             index, i, j;
 
         year = parseInt(this._currentYear.attr("data-year"), 10);

@@ -4245,9 +4245,10 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 td.attr("data-index", index);
 
                 if(d.isDisabled()) {
-                    td.addClass("disabled-day");
+                    td.addClass("disabled-day").html("");
+                    continue;
                 } else {
-                    td.html("<span>" + d.day + "</span>");
+                    td.removeClass("disabled-day").html("<span>" + d.day + "</span>");
                 }
 
                 // 判断是否是选中的日期
@@ -4310,8 +4311,10 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._updateMonthsStatus(month);
     },
     _updateMonthsStatus: function(month) {
-        var rows, td, value,
+        var rows, td,
             disabledArray, year,
+            firstEnabledMonth,
+            startMonth, endMonth,
             index, i, j;
 
         year = parseInt(this._currentYear.attr("data-year"), 10);
@@ -4319,11 +4322,19 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         if(this.startDay || this.endDay) {
             startMonth = -1;
             endMonth = -1;
-            if(this.startDay && this.startDay.year === year) {
-                startMonth = this.startDay.month;
+            if(this.startDay) {
+                if(this.startDay.year === year) {
+                    startMonth = this.startDay.month;
+                } else if(this.startDay.year < year) {
+                    startMonth = 0;
+                }
             }
-            if(this.endDay && this.endDay.year === year) {
-                endMonth = this.endDay.month;
+            if(this.endDay && this.endDay.year >= year) {
+                if(this.endDay.year === year) {
+                    endMonth = this.endDay.month;
+                } else if(this.endDay.year > year) {
+                    endMonth = 11;
+                }
             }
             for(i = 0; i < disabledArray.length; i++) {
                 if(i < startMonth || i > endMonth) {
@@ -4338,6 +4349,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             this._currentMonth = null;
         }
         rows = this._monthsTable[0].rows;
+        firstEnabledMonth = null;
         for(i = 0; i < 3; i++) {
             for(j = 0; j < 4; j++) {
                 index = (i * 4) + j;
@@ -4345,15 +4357,20 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 if(disabledArray[index] === false) {
                     td.addClass("disabled-month");
                 } else {
+                    if(!firstEnabledMonth) {
+                        firstEnabledMonth = td;
+                    }
                     td.removeClass("disabled-month");
                 }
-                value = parseInt(td.attr("data-month"), 10);
-                if(value === month) {
+                if(index === month && disabledArray[index] !== false) {
                     this._currentMonth = td;
-                    td.addClass(monthSelectedClass)
-                        .addClass("background-highlight");
+                    td.addClass(monthSelectedClass).addClass("background-highlight");
                 }
             }
+        }
+        if(!this._currentMonth) {
+            this._currentMonth = firstEnabledMonth;
+            firstEnabledMonth.addClass(monthSelectedClass).addClass("background-highlight");
         }
     },
     _checkPrev: function(year, month, prevBtn) {
@@ -4703,6 +4720,8 @@ function onMouseupHandler(e) {
 function setOptions(elem, option) {
     // 修正配置信息
     this.option = option;
+    // 更新可选择范围
+    this._initDateRange();
     this.setLayoutPanel(option.layoutPanel);
     this.element = elem;
     // 修正事件引用
@@ -10400,7 +10419,6 @@ function onFoldTitleClick(e) {
         nodeName,
         dd, icon;
     
-    e.stopPropagation();
     elem = $(e.target);
     while((nodeName = elem.nodeName()) !== "DT" 
         || !elem.hasClass("ui-fold-view-title")) {

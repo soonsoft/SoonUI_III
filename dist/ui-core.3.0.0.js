@@ -4087,6 +4087,7 @@ if(ieVersion) {
 $.fn.textinput = function(data, fn) {
     var eventData,
         composing,
+        eventMock,
         nodeName;
 
     if(this.length === 0) {
