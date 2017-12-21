@@ -1320,6 +1320,8 @@ function onMouseupHandler(e) {
 function setOptions(elem, option) {
     // 修正配置信息
     this.option = option;
+    // 更新可选择范围
+    this._initDateRange();
     this.setLayoutPanel(option.layoutPanel);
     this.element = elem;
     // 修正事件引用
