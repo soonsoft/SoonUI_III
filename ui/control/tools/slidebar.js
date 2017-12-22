@@ -43,17 +43,18 @@ function moveVertical(changeVal, extend, lengthValue) {
     var percent,
         location;
 
-    location = parseFloat(this.thumb.css("top"));
+    location = parseFloat(this.thumb.css("top")) || 0;
     location += changeVal;
     percent = calculatePercent.call(this, location + extend, 0, lengthValue);
-    
+
     if(this.percent !== percent) {
-        this.percent = percent;
+        this.percent = 100 - percent;
+        console.log(this.percent);
         this.valuebar.css({
-            "top": 100 - this.percent + "%",
+            "top": percent + "%",
             "height": this.percent + "%"
         });
-        this.thumb.css("top", (lengthValue * (this.percent / 100) - extend) + "px");
+        this.thumb.css("top", (lengthValue * (percent / 100) - extend) + "px");
 
         this.fire("changed", percent);
     }
@@ -144,7 +145,7 @@ ui.define("ui.ctrls.Slidebar", {
                 "top": "100%",
                 "height": "0"
             });
-            this.thumb.css("top", this.track().height() - (size / 2) + "px");
+            this.thumb.css("top", this.track.height() - (size / 2) + "px");
             this.element.css("width", size + "px");
         }
     },
