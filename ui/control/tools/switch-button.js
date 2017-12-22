@@ -1,4 +1,110 @@
 /* 开关按钮 */
+
+var normalStyle,
+    lollipopStyle,
+    marshmallowStyle;
+
+normalStyle = {
+    open: function() {
+        var option;
+
+        this.animator.stop();
+        this.switchBox.addClass("switch-open");
+        this.inner
+            .addClass("border-highlight")
+            .addClass("background-highlight");
+        
+        option = this.animator[0];
+        option.beginColor = this.option.thumbColor;
+        option.endColor = "#FFFFFF";
+        option.begin = 0;
+        option.end = 100;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = this.width - this.thumbSize - 3;
+        this.animator.start();
+    },
+    close: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.removeClass("switch-open");
+        this.inner
+            .removeClass("border-highlight")
+            .removeClass("background-highlight");
+        
+        option = this.animator[0];
+        option.beginColor = "#FFFFFF";
+        option.endColor = this.option.thumbColor;
+        option.begin = 0;
+        option.end = 100;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = 3;
+        
+        this.animator.start();
+    },
+    thumbSize: 18
+};
+
+lollipopStyle = {
+    init: function() {
+        this.switchBox.addClass("switch-lollipop");
+    },
+    open: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.addClass("switch-open");
+        this.inner.addClass("background-highlight");
+        this.thumb
+            .addClass("border-highlight")
+            .addClass("background-highlight");
+        
+        option = this.animator[0];
+        option.begin = 0;
+        option.end = 0;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = this.option.width - this.thumbSize;
+
+        this.animator.start();
+    },
+    close: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.removeClass("switch-open");
+        this.inner.removeClass("background-highlight");
+        this.thumb
+            .removeClass("border-highlight")
+            .removeClass("background-highlight");
+        
+        option = this.animator[0];
+        option.begin = 0;
+        option.end = 0;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = 0;
+        
+        this.animator.start();
+    },
+    thumbSize: 24
+};
+
+marshmallowStyle = {
+    init: function() {
+        this.switchBox.addClass("switch-marshmallow");
+    },
+    open: lollipopStyle.open,
+    close: lollipopStyle.close,
+    thumbSize: 24
+};
+
 ui.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
@@ -13,25 +119,33 @@ ui.define("ui.ctrls.SwitchButton", {
         return ["changed"];
     },
     _create: function() {
-        var that;
+        var that,
+            style;
         
         this.switchBox = $("<label class='ui-switch-button' />");
         this.inner = $("<div class='switch-inner' />");
         this.thumb = $("<div class='switch-thumb' />");
         
-        if(this.option.style === "lollipop") {
-            this.switchBox.addClass("switch-lollipop");
-            this._open = this._lollipopOpen;
-            this._close = this._lollipopClose;
-            this.thumbSize = 24;
-        } else if(this.option.style === "marshmallow") {
-            this.switchBox.addClass("switch-marshmallow");
-            this._open = this._lollipopOpen;
-            this._close = this._lollipopClose;
-            this.thumbSize = 20;
+        if(ui.core.isString(this.option.style)) {
+            if(this.option.style === "lollipop") {
+                style = lollipopStyle;
+            } else if(this.option.style === "marshmallow") {
+                style = marshmallowStyle;
+            } else {
+                style = normalStyle;
+            }
+        } else if(ui.core.isObject(this.option.style)) {
+            style = this.option.style;
         } else {
-            this.thumbSize = 18;
+            style = normalStyle;
         }
+
+        if(ui.core.isFunction(style.init)) {
+            style.init.call(this);
+        }
+        this._open = style.open;
+        this._close = style.close;
+        this.thumbSize = style.thumbSize;
 
         this._createAnimator();
         
@@ -40,7 +154,7 @@ ui.define("ui.ctrls.SwitchButton", {
         this.switchBox
             .append(this.inner)
             .append(this.thumb);
-        
+
         if(this.option.thumbColor) {
             this.thumb.css("background-color", this.option.thumbColor);
         } else {
@@ -94,83 +208,6 @@ ui.define("ui.ctrls.SwitchButton", {
             this._close();
         }
         this.fire("changed");
-    },
-    _open: function() {
-        this.animator.stop();
-        this.switchBox.addClass("switch-open");
-        this.inner
-            .addClass("border-highlight")
-            .addClass("background-highlight");
-        var option = this.animator[0];
-        option.beginColor = this.option.thumbColor;
-        option.endColor = "#FFFFFF";
-        option.begin = 0;
-        option.end = 100;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumbSize - 3;
-        this.animator.start();
-    },
-    _close: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.removeClass("switch-open");
-        this.inner
-            .removeClass("border-highlight")
-            .removeClass("background-highlight");
-        
-        option = this.animator[0];
-        option.beginColor = "#FFFFFF";
-        option.endColor = this.option.thumbColor;
-        option.begin = 0;
-        option.end = 100;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = 3;
-        
-        this.animator.start();     
-    },
-    _lollipopOpen: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.addClass("switch-open");
-        this.inner.addClass("background-highlight");
-        this.thumb
-            .addClass("border-highlight")
-            .addClass("background-highlight");
-        
-        option = this.animator[0];
-        option.begin = 0;
-        option.end = 0;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = this.option.width - this.thumbSize;
-        this.animator.start();
-    },
-    _lollipopClose: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.removeClass("switch-open");
-        this.inner.removeClass("background-highlight");
-        this.thumb
-            .removeClass("border-highlight")
-            .removeClass("background-highlight");
-        
-        option = this.animator[0];
-        option.begin = 0;
-        option.end = 0;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = 0;
-        
-        this.animator.start();
     },
     _isOpen: function() {
         return this.switchBox.hasClass("switch-open");  
