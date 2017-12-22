@@ -24,30 +24,36 @@ function moving(arg) {
     }
 }
 function moveHorizontal(changeVal, extend, lengthValue) {
-    var percent;
-    location = parseFloat(this.thumb.css("left"));
+    var percent,
+        location;
+
+    location = parseFloat(this.thumb.css("left")) || 0;
     location += changeVal;
     percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+    
     if(this.percent !== percent) {
         this.percent = percent;
         this.valuebar.css("width", this.percent + "%");
-        this.thumb.css("left", location + "px");
+        this.thumb.css("left", (lengthValue * (this.percent / 100) - extend) + "px");
 
         this.fire("changed", percent);
     }
 }
 function moveVertical(changeVal, extend, lengthValue) {
-    var percent;
+    var percent,
+        location;
+
     location = parseFloat(this.thumb.css("top"));
     location += changeVal;
     percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+    
     if(this.percent !== percent) {
         this.percent = percent;
         this.valuebar.css({
             "top": 100 - this.percent + "%",
             "height": this.percent + "%"
         });
-        this.thumb.css("top", location + "px");
+        this.thumb.css("top", (lengthValue * (this.percent / 100) - extend) + "px");
 
         this.fire("changed", percent);
     }
@@ -55,11 +61,11 @@ function moveVertical(changeVal, extend, lengthValue) {
 function calculatePercent(location, min, max) {
     var percent;
     if(location > max) {
-        this.percent = 100;
+        percent = 100;
     } else if(location < min) {
-        this.percent = 0;
+        percent = 0;
     } else {
-        percent = ui.fixedNumber(location / max, 2);
+        percent = ui.fixedNumber((location / max) * 100, 2);
     }
     return percent;
 }
@@ -101,10 +107,8 @@ ui.define("ui.ctrls.Slidebar", {
         this.valuebar = $("<div class='ui-slidebar-value' />");
         this.thumb = $("<b class='ui-slidebar-thumb' />");
 
-        this.track
-                .append(this.valuebar)
-                .append(this.thumb);
-        this.element.append(this.track);
+        this.track.append(this.valuebar);
+        this.element.append(this.track).append(this.thumb);
 
         this._initScale();
         this._initMouseDragger();
@@ -148,6 +152,7 @@ ui.define("ui.ctrls.Slidebar", {
         var option = {
             target: this.thumb,
             handle: this.thumb,
+            context: this,
             onBeginDrag: function(arg) {
                 var option = arg.option,
                     context = option.context;
@@ -173,8 +178,12 @@ ui.define("ui.ctrls.Slidebar", {
         this.option.readonly = !!value;
         if(this.option.readonly) {
             this.mouseDragger.off();
+            this.valuebar.removeClass("background-highlight");
+            this.thumb.removeClass("background-highlight");
         } else {
             this.mouseDragger.on();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
         }
     },
     /** 获取禁用状态 */
@@ -186,12 +195,12 @@ ui.define("ui.ctrls.Slidebar", {
         this.option.disabled = !!value;
         if(this.option.disabled) {
             this.mouseDragger.off();
-            this.valuebar.addClass("background-highlight");
-            this.thumb.addClass("background-highlight");
-        } else {
-            this.mouseDragger.on();
             this.valuebar.removeClass("background-highlight");
             this.thumb.removeClass("background-highlight");
+        } else {
+            this.mouseDragger.on();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
         }
     },
     /** 获取值 */
