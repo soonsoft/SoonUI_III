@@ -34,13 +34,14 @@ ui.define("ui.ctrls.ConfirmButton", {
             backTime: 3000,
             checkHandler: false,
             handler: false,
-            color: null,
-            backgroundColor: null
+            /** 确认按钮文字颜色 */
+            color: "#fff",
+            /** 确认按钮背景颜色 */
+            backgroundColor: "#990000"
         };
     },
     _create: function() {
         this.state = 0;
-        this.animating = false;
         if(ui.core.type(this.option.backTime) !== "number" || this.option.backTime <= 0) {
             this.option.backTime = 5000;
         }
@@ -52,7 +53,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = onButtonClick.bind(this);
+        this.onButtonClickHandler = $.proxy(onButtonClick, this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);
@@ -67,12 +68,10 @@ ui.define("ui.ctrls.ConfirmButton", {
         confirmState = $("<i class='confirm-state' />");
         
         textState.text(text);
-        if(!this.option.backgroundColor) {
-            this.option.backgroundColor = this.element.css("color");
+        confirmState.text("确定");
+        if(this.option.backgroundColor) {
+            confirmState.css("background-color", this.option.backgroundColor);
         }
-        confirmState
-            .text("确定")
-            .css("background-color", this.option.backgroundColor);
         if(this.option.color) {
             confirmState.css("color", this.option.color);
         }
@@ -84,11 +83,11 @@ ui.define("ui.ctrls.ConfirmButton", {
             .append(confirmState);
         this.element.click(this.onButtonClickHandler);
         
-        this._initAnimation();
+        this._initAnimation(textState, confirmState);
         
         this.disabled = this.option.disabled;
     },
-    _initAnimation: function() {
+    _initAnimation: function(textState, confirmState) {
         this.changeAnimator = ui.animator({
             target: textState,
             ease: ui.AnimationStyle.easeFromTo,
@@ -108,10 +107,11 @@ ui.define("ui.ctrls.ConfirmButton", {
         var that,
             option;
 
-        if(this.animating) {
+        if(this.changeAnimator.isStarted) {
             return;
         }
         this.state = 0;
+
         option = this.changeAnimator[0];
         option.target.css("margin-left", "-200%");
         option.begin = -200;
@@ -121,17 +121,13 @@ ui.define("ui.ctrls.ConfirmButton", {
         option.begin = 0;
         option.end = 100;
         
-        this.animating = true;
-        that = this;
-        this.changeAnimator.start().done(function() {
-            that.animating = false;
-        });
+        this.changeAnimator.start();
     },
     _next: function(state) {
         var that,
             option;
 
-        if(this.animating) {
+        if(this.changeAnimator.isStarted) {
             return;
         }
         if(this.state === 0) {
@@ -157,11 +153,8 @@ ui.define("ui.ctrls.ConfirmButton", {
             
             this.state = 0;
         }
-        this.animating = true;
-        that = this;
-        this.changeAnimator.start().done(function() {
-            that.animating = false;
-        });
+        
+        this.changeAnimator.start();
     },
     getDisabled: function() {
         return this.option.disabled;
