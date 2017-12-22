@@ -39,7 +39,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.hasCloseButton = false;
         if(this.option.centerIcon === "close") {
             this.hasCloseButton = true;
-            this.centerIcon = $("<a class='center-icon close-button font-highlight' style='font-size:24px !important;' title='关闭'>×</a>");
+            this.centerIcon = $("<a class='center-icon closable-button font-highlight' style='font-size:24px !important;' title='关闭'>×</a>");
         } else if(this.option.centerIcon === "none") {
             this.centerIcon = $("<a class='center-icon center-none border-highlight' />");
             this.backgroundColorPanel = $("<div class='background-panel' />");
@@ -48,10 +48,12 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonPanelBackground.css("background-color", "transparent");
         } else {
             this.centerIcon = $("<a class='center-icon' />");
-            if(!ui.str.isNullOrEmpty(this.option.centerIcon)) {
+            if(!ui.str.isEmpty(this.option.centerIcon)) {
                 this.centerIcon.append(this.option.centerIcon);
             }
         }
+        
+        this._createAnimator();
     },
     _render: function() {
         var i = 0,
@@ -97,7 +99,7 @@ ui.define("ui.ctrls.ExtendButton", {
         }
         
         for(len = this.option.buttons.length; i < len; i++) {
-                this._createButton(this.option.buttons[i], this.deg * i);
+            this._createButton(this.option.buttons[i], this.deg * i);
         }
         if($.isFunction(this.element.addClass)) {
             this.element.addClass("extend-element");
@@ -114,15 +116,13 @@ ui.define("ui.ctrls.ExtendButton", {
                 that.hide();
             });
         } else {
-            ui.docClick(function(e) {
+            ui.page.htmlclick(function(e) {
                 that.hide();
             });
         }
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
-        
-        this._createAnimator();
     },
     _createAnimator: function() {
         this.buttonPanelAnimator = ui.animator({
@@ -289,7 +289,7 @@ ui.define("ui.ctrls.ExtendButton", {
         if(button.icon) {
             button.elem.append(button.icon);
         }
-        if(ui.str.isNullOrEmpty(button.title)) {
+        if(ui.str.isEmpty(button.title)) {
             button.elem.prop("title", button.title);
         }
         button.centerStartLeft = 0;
