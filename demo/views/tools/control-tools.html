@@ -108,11 +108,17 @@
             <dt>滑动条</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    互动条
+                    滑动条，默认是横向的。
                 </p>
-                <div class="box-line" style="height:40px;">
+                <div class="box-line clear" style="height:40px;">
                     <div id="slidebar" style="width:160px;margin-top:8px;margin-left:8px;float:left;"></div>
                     <div id="slidebarValue" style="width:60px;margin-top:8px;text-align:center;float:left;">0%</div>
+                </div>
+                <p class="description-paragraph">
+                    滑动条，默认是横向的。如果想要纵向的可以设置参数<span class="font-highlight">direction: vertical</span>
+                </p>
+                <div class="box-line" style="height:80px;">
+                        <div id="slidebarVertical" style="height:60px;margin-top:8px;"></div>
                 </div>
             </dd>
             <dt>悬停提示框</dt>
@@ -337,6 +343,10 @@
                 this.slidebar = $("#slidebar").slidebar();
                 this.slidebar.changed(function(e, percent) {
                     $("#slidebarValue").html(percent + "%");
+                });
+
+                this.verticalBar = $("#slidebarVertical").slidebar({
+                    direction: "vertical"
                 });
             }
         })();
