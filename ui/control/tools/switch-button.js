@@ -33,12 +33,6 @@ ui.define("ui.ctrls.SwitchButton", {
             this.thumbSize = 18;
         }
 
-        if(this.option.thumbColor) {
-            this.thumb.css("background-color", this.option.thumbColor);
-        } else {
-            this.option.thumbColor = this.thumb.css("background-color");
-        }
-
         this._createAnimator();
         
         this.element.wrap(this.switchBox);
@@ -46,6 +40,12 @@ ui.define("ui.ctrls.SwitchButton", {
         this.switchBox
             .append(this.inner)
             .append(this.thumb);
+        
+        if(this.option.thumbColor) {
+            this.thumb.css("background-color", this.option.thumbColor);
+        } else {
+            this.option.thumbColor = this.thumb.css("background-color");
+        }
         
         this.width = this.option.width || parseFloat(this.switchBox.css("width"));
         this.height = this.option.height || parseFloat(this.switchBox.css("height"));
