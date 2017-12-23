@@ -5,10 +5,10 @@
 <partial id="content">
     <div class="content-panel">
         <dl class="ui-fold-view" style="padding:20px;">
-            <dt>开关按钮</dt>
+            <dt>ui.ctrls.SwitchButton</dt>
                 <dd class="section-container">
                     <p class="description-paragraph">
-                        开关按钮如今已经大范围的替代了checkbox，非常直观的表达了boolean状态。<br />
+                        开关按钮(<span class="font-highlight">ui.ctrls.SwitchButton</span>)如今已经大范围的替代了checkbox，非常直观的表达了boolean状态。<br />
                         <span class="font-highlight">SwitchButton</span>会将checkbox包裹起来，并且根据checkbox的状态呈现。如果checkbox的checked属性为true，则会展示为开启状态。<br />
                         <span class="font-highlight">注意：由于没有办法捕获form reset事件，所以使用reset时会出现状态不匹配的问题。</span>
                     </p>
@@ -33,10 +33,10 @@
                         </div>
                     </div>
                 </dd>
-            <dt>确认按钮</dt>
+            <dt>ui.ctrls.ConfirmButton</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    确认按钮，一般用在删除操作。常规的删除确认交互都是采用window.comfirm实现的，但是确认框会阻塞JavaScript线程执行，用户体验不好。而且反复的提示也大大降低了用户的操作效率。<br />
+                    确认按钮(<span class="font-highlight">ui.ctrls.ConfirmButton</span>)，一般用在删除操作。常规的删除确认交互都是采用window.comfirm实现的，但是确认框会阻塞JavaScript线程执行，用户体验不好。而且反复的提示也大大降低了用户的操作效率。<br />
                     确认按钮被设计成双重点击的交互方式，用户点击一次的时候，按钮会转变形态，询问用户是否确定，用户再次点击才会真正执行操作。
                 </p>
                 <div class="box-line clear">
@@ -78,10 +78,10 @@
                     </div>
                 </div>
             </dd>
-            <dt>扩展按钮</dt>
+            <dt>ui.ctrls.ExtendButton</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    为地图点位交互专门设计的扩展按钮，相当于一个上下文菜单。
+                    扩展按钮(<span class="font-highlight">ui.ctrls.ExtendButton</span>)为地图点位交互专门设计的，相当于一个上下文菜单。
                 </p>
                 <div class="box-line clear" style="height:240px;">
                     <div class="box-column" style="position:relative;width:200px;">
@@ -98,19 +98,19 @@
                     </div>
                 </div>
             </dd>
-            <dt>内容过滤</dt>
+            <dt>ui.ctrls.FilterTool</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    内容过滤，常常用来作为查询条件。
+                    内容过滤(<span class="font-highlight">ui.ctrls.FilterTool</span>)，常常用来作为查询条件。
                 </p>
                 <div class="box-line" style="height:40px;">
                     <div id="filter" style="margin-top:16px;"></div>
                 </div>
             </dd>
-            <dt>滑动条</dt>
+            <dt>ui.ctrls.Slidebar</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    滑动条，默认是横向的。如果要获取slidebar当前的进度值可以使用<span class="font-highlight">percentValue</span>，该值是一个0 ~ 100直接的数据，表示百分比，保留两位小数。<br />
+                    滑动条(<span class="font-highlight">ui.ctrls.Slidebar</span>)，默认是横向的。如果要获取slidebar当前的进度值可以使用<span class="font-highlight">percentValue</span>，该值是一个0 ~ 100直接的数据，表示百分比，保留两位小数。<br />
                     如果想设置初始值，那么可以直接对percentValue进行赋值，如:<br />
                     slidebar.percentValue = 15;<br />
                     如果页面中包含<span class="font-highlight">iframe</span>元素，请设置参数<span class="font-highlight">iframeShield: true</span>
@@ -126,10 +126,10 @@
                     <div id="slidebarVertical" style="height:60px;margin-top:8px;"></div>
                 </div>
             </dd>
-            <dt>悬停提示框</dt>
+            <dt>ui.ctrls.HoverView</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    对html element title属性的补充，可以对内容进行格式化和布局，也可以放入一些交互控件。在布局空间局促又需要展示很多信息的时候有大用。<br />
+                    悬停提示(<span class="font-highlight">ui.ctrls.HoverView</span>)是对html element title属性的补充，可以对内容进行格式化和布局，也可以放入一些交互控件。在布局空间局促又需要展示很多信息的时候有大用。<br />
                     <span class="font-highlight">用法：</span><br />
                     第一步：创建<span class="font-highlight">HoverView</span>对象。var hoverView = ui.ctrls.HoverView();<br />
                     第二步: 定义<span class="font-highlight">showing</span>事件，在事件处理函数中使用<span class="font-highlight">this.empty()</span>清空内容，使用<span class="font-highlight">this.append()</span>添加内容。<br />
