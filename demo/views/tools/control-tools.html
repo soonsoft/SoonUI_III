@@ -8,7 +8,9 @@
             <dt>开关按钮</dt>
                 <dd class="section-container">
                     <p class="description-paragraph">
-                        开关按钮
+                        开关按钮如今已经大范围的替代了checkbox，非常直观的表达了boolean状态。<br />
+                        <span class="font-highlight">SwitchButton</span>会将checkbox包裹起来，并且根据checkbox的状态呈现。如果checkbox的checked属性为true，则会展示为开启状态。<br />
+                        <span class="font-highlight">注意：由于没有办法捕获form reset事件，所以使用reset时会出现状态不匹配的问题。</span>
                     </p>
                     <div class="box-line clear">
                         <div class="box-column">
@@ -20,14 +22,14 @@
                         <div class="box-column">
                             <label class="label-text">棒棒糖样式</label>
                             <br />
-                            <input id="lollipop" type="checkbox" checked="checked" />
-                            <label for="lollipop" class="ui-switch-text">开</label>
+                            <input id="lollipop" type="checkbox" />
+                            <label for="lollipop" class="ui-switch-text">关</label>
                         </div>
                         <div class="box-column">
                             <label class="label-text">棉花糖样式</label>
                             <br />
-                            <input id="marshmallow" type="checkbox" checked="checked" />
-                            <label for="marshmallow" class="ui-switch-text">开</label>
+                            <input id="marshmallow" type="checkbox" />
+                            <label for="marshmallow" class="ui-switch-text">关</label>
                         </div>
                     </div>
                 </dd>
@@ -108,7 +110,10 @@
             <dt>滑动条</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    滑动条，默认是横向的。
+                    滑动条，默认是横向的。如果要获取slidebar当前的进度值可以使用<span class="font-highlight">percentValue</span>，该值是一个0 ~ 100直接的数据，表示百分比，保留两位小数。<br />
+                    如果想设置初始值，那么可以直接对percentValue进行赋值，如:<br />
+                    slidebar.percentValue = 15;<br />
+                    如果页面中包含<span class="font-highlight">iframe</span>元素，请设置参数<span class="font-highlight">iframeShield: true</span>
                 </p>
                 <div class="box-line clear" style="height:40px;">
                     <div id="slidebar" style="width:160px;margin-top:8px;margin-left:8px;float:left;"></div>
@@ -118,12 +123,21 @@
                     滑动条，默认是横向的。如果想要纵向的可以设置参数<span class="font-highlight">direction: vertical</span>
                 </p>
                 <div class="box-line" style="height:80px;">
-                        <div id="slidebarVertical" style="height:60px;margin-top:8px;"></div>
+                    <div id="slidebarVertical" style="height:60px;margin-top:8px;"></div>
                 </div>
             </dd>
             <dt>悬停提示框</dt>
             <dd class="section-container">
-                
+                <p class="description-paragraph">
+                    对html element title属性的补充，可以对内容进行格式化和布局，也可以放入一些交互控件。在布局空间局促又需要展示很多信息的时候有大用。<br />
+                    <span class="font-highlight">用法：</span><br />
+                    第一步：创建<span class="font-highlight">HoverView</span>对象。var hoverView = ui.ctrls.HoverView();<br />
+                    第二步: 定义<span class="font-highlight">showing</span>事件，在事件处理函数中使用<span class="font-highlight">this.empty()</span>清空内容，使用<span class="font-highlight">this.append()</span>添加内容。<br />
+                    第三步：将元素和<span class="font-highlight">HoverView</span>的实例绑定，<span class="font-highlight">$("#hoverElem").addHoverView(hoverView)</span>
+                </p>
+                <div class="box-line">
+                    <a id="hoverLink" href="javascript:void(0)" style="font-size:1.5em;line-height:40px;">云之国</a>
+                </div>
             </dd>
         </dl>
     </div>
@@ -202,6 +216,7 @@
                         createExtendButton.call(this);
                         createFilterTool.call(this);
                         createSlidebar.call(this);
+                        createHoverView.call(this);
 
                         $(".ui-fold-view").foldView();
                     },
@@ -260,7 +275,7 @@
                 });
                 $("#deleteCheckButton").confirmClick(
                     function() {
-                        ui.messageShow("您还没有选择要删除的记录");
+                        ui.warnShow("您还没有选择要删除的记录");
                         return false;
                     },
                     function() {
@@ -344,10 +359,23 @@
                 this.slidebar.changed(function(e, percent) {
                     $("#slidebarValue").html(percent + "%");
                 });
+                this.slidebar.percentValue = 15;
 
                 this.verticalBar = $("#slidebarVertical").slidebar({
                     direction: "vertical"
                 });
+                this.verticalBar.percentValue = 45;
+            }
+
+            function createHoverView() {
+                this.hoverView = ui.ctrls.HoverView({
+                    width: 200,
+                    height: 100
+                });
+                this.hoverView.showing(function() {
+                    this.empty().append("<a href='http://www.yzgit.com' style='line-height:24px;margin-left:5px;'>欢迎去云之国主页看看</a>");
+                });
+                $("#hoverLink").addHoverView(this.hoverView);
             }
         })();
     </script>
