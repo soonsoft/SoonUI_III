@@ -49,7 +49,6 @@ function moveVertical(changeVal, extend, lengthValue) {
 
     if(this.percent !== percent) {
         this.percent = 100 - percent;
-        console.log(this.percent);
         this.valuebar.css({
             "top": percent + "%",
             "height": this.percent + "%"
@@ -101,7 +100,7 @@ ui.define("ui.ctrls.Slidebar", {
         
         this.defineProperty("readonly", this.getReadonly, this.setReadonly);
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
-        this.defineProperty("value", this.getValue, this.setValue);
+        this.defineProperty("percentValue", this.getPercent, this.setPercent);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
@@ -205,18 +204,18 @@ ui.define("ui.ctrls.Slidebar", {
         }
     },
     /** 获取值 */
-    getValue: function() {
+    getPercent: function() {
         return this.percent;
     },
     /** 设置值 */
-    setValue: function(value) {
+    setPercent: function(value) {
         var extend,
             percent,
             arg = {
                 option: {}
             };
-        extend = this.thumb.width() / 2;
         percent = value;
+        extend = this.thumb.width() / 2;
         if(ui.core.isNumber(percent)) {
             if(percent < 0) {
                 percent = 0;
@@ -225,10 +224,10 @@ ui.define("ui.ctrls.Slidebar", {
             }
             if(this.isHorizontal()) {
                 arg.option.lengthValue = this.track.width();
-                arg.x = arg.option.lengthValue * percent / 100 - extend;
+                arg.x = arg.option.lengthValue * percent / 100;
             } else {
                 arg.option.lengthValue = this.track.height();
-                arg.y = arg.option.lengthValue * (100 - percent) / 100 - extend;
+                arg.y = arg.option.lengthValue * (0 - percent) / 100;
             }
             moving.call(this, arg);
         }
