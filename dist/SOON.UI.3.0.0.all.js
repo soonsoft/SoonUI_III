@@ -20465,13 +20465,14 @@ ui.define("ui.ctrls.ConfirmButton", {
             backTime: 3000,
             checkHandler: false,
             handler: false,
-            color: null,
-            backgroundColor: null
+            /** 确认按钮文字颜色 */
+            color: "#fff",
+            /** 确认按钮背景颜色 */
+            backgroundColor: "#990000"
         };
     },
     _create: function() {
         this.state = 0;
-        this.animating = false;
         if(ui.core.type(this.option.backTime) !== "number" || this.option.backTime <= 0) {
             this.option.backTime = 5000;
         }
@@ -20483,7 +20484,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = onButtonClick.bind(this);
+        this.onButtonClickHandler = $.proxy(onButtonClick, this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);
@@ -20498,12 +20499,10 @@ ui.define("ui.ctrls.ConfirmButton", {
         confirmState = $("<i class='confirm-state' />");
         
         textState.text(text);
-        if(!this.option.backgroundColor) {
-            this.option.backgroundColor = this.element.css("color");
+        confirmState.text("确定");
+        if(this.option.backgroundColor) {
+            confirmState.css("background-color", this.option.backgroundColor);
         }
-        confirmState
-            .text("确定")
-            .css("background-color", this.option.backgroundColor);
         if(this.option.color) {
             confirmState.css("color", this.option.color);
         }
@@ -20515,11 +20514,11 @@ ui.define("ui.ctrls.ConfirmButton", {
             .append(confirmState);
         this.element.click(this.onButtonClickHandler);
         
-        this._initAnimation();
+        this._initAnimation(textState, confirmState);
         
         this.disabled = this.option.disabled;
     },
-    _initAnimation: function() {
+    _initAnimation: function(textState, confirmState) {
         this.changeAnimator = ui.animator({
             target: textState,
             ease: ui.AnimationStyle.easeFromTo,
@@ -20539,10 +20538,11 @@ ui.define("ui.ctrls.ConfirmButton", {
         var that,
             option;
 
-        if(this.animating) {
+        if(this.changeAnimator.isStarted) {
             return;
         }
         this.state = 0;
+
         option = this.changeAnimator[0];
         option.target.css("margin-left", "-200%");
         option.begin = -200;
@@ -20552,17 +20552,13 @@ ui.define("ui.ctrls.ConfirmButton", {
         option.begin = 0;
         option.end = 100;
         
-        this.animating = true;
-        that = this;
-        this.changeAnimator.start().done(function() {
-            that.animating = false;
-        });
+        this.changeAnimator.start();
     },
     _next: function(state) {
         var that,
             option;
 
-        if(this.animating) {
+        if(this.changeAnimator.isStarted) {
             return;
         }
         if(this.state === 0) {
@@ -20588,11 +20584,8 @@ ui.define("ui.ctrls.ConfirmButton", {
             
             this.state = 0;
         }
-        this.animating = true;
-        that = this;
-        this.changeAnimator.start().done(function() {
-            that.animating = false;
-        });
+        
+        this.changeAnimator.start();
     },
     getDisabled: function() {
         return this.option.disabled;
@@ -20681,7 +20674,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.hasCloseButton = false;
         if(this.option.centerIcon === "close") {
             this.hasCloseButton = true;
-            this.centerIcon = $("<a class='center-icon close-button font-highlight' style='font-size:24px !important;' title='关闭'>×</a>");
+            this.centerIcon = $("<a class='center-icon closable-button font-highlight' style='font-size:24px !important;' title='关闭'>×</a>");
         } else if(this.option.centerIcon === "none") {
             this.centerIcon = $("<a class='center-icon center-none border-highlight' />");
             this.backgroundColorPanel = $("<div class='background-panel' />");
@@ -20690,10 +20683,12 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonPanelBackground.css("background-color", "transparent");
         } else {
             this.centerIcon = $("<a class='center-icon' />");
-            if(!ui.str.isNullOrEmpty(this.option.centerIcon)) {
+            if(!ui.str.isEmpty(this.option.centerIcon)) {
                 this.centerIcon.append(this.option.centerIcon);
             }
         }
+        
+        this._createAnimator();
     },
     _render: function() {
         var i = 0,
@@ -20739,7 +20734,7 @@ ui.define("ui.ctrls.ExtendButton", {
         }
         
         for(len = this.option.buttons.length; i < len; i++) {
-                this._createButton(this.option.buttons[i], this.deg * i);
+            this._createButton(this.option.buttons[i], this.deg * i);
         }
         if($.isFunction(this.element.addClass)) {
             this.element.addClass("extend-element");
@@ -20756,15 +20751,13 @@ ui.define("ui.ctrls.ExtendButton", {
                 that.hide();
             });
         } else {
-            ui.docClick(function(e) {
+            ui.page.htmlclick(function(e) {
                 that.hide();
             });
         }
         this.buttonPanel.click(function(e) {
             e.stopPropagation();
         });
-        
-        this._createAnimator();
     },
     _createAnimator: function() {
         this.buttonPanelAnimator = ui.animator({
@@ -20931,7 +20924,7 @@ ui.define("ui.ctrls.ExtendButton", {
         if(button.icon) {
             button.elem.append(button.icon);
         }
-        if(ui.str.isNullOrEmpty(button.title)) {
+        if(ui.str.isEmpty(button.title)) {
             button.elem.prop("title", button.title);
         }
         button.centerStartLeft = 0;
@@ -21552,30 +21545,36 @@ function moving(arg) {
     }
 }
 function moveHorizontal(changeVal, extend, lengthValue) {
-    var percent;
-    location = parseFloat(this.thumb.css("left"));
+    var percent,
+        location;
+
+    location = parseFloat(this.thumb.css("left")) || 0;
     location += changeVal;
     percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+    
     if(this.percent !== percent) {
         this.percent = percent;
         this.valuebar.css("width", this.percent + "%");
-        this.thumb.css("left", location + "px");
+        this.thumb.css("left", (lengthValue * (this.percent / 100) - extend) + "px");
 
         this.fire("changed", percent);
     }
 }
 function moveVertical(changeVal, extend, lengthValue) {
-    var percent;
-    location = parseFloat(this.thumb.css("top"));
+    var percent,
+        location;
+
+    location = parseFloat(this.thumb.css("top")) || 0;
     location += changeVal;
     percent = calculatePercent.call(this, location + extend, 0, lengthValue);
+
     if(this.percent !== percent) {
-        this.percent = percent;
+        this.percent = 100 - percent;
         this.valuebar.css({
-            "top": 100 - this.percent + "%",
+            "top": percent + "%",
             "height": this.percent + "%"
         });
-        this.thumb.css("top", location + "px");
+        this.thumb.css("top", (lengthValue * (percent / 100) - extend) + "px");
 
         this.fire("changed", percent);
     }
@@ -21583,11 +21582,11 @@ function moveVertical(changeVal, extend, lengthValue) {
 function calculatePercent(location, min, max) {
     var percent;
     if(location > max) {
-        this.percent = 100;
+        percent = 100;
     } else if(location < min) {
-        this.percent = 0;
+        percent = 0;
     } else {
-        percent = ui.fixedNumber(location / max, 2);
+        percent = ui.fixedNumber((location / max) * 100, 2);
     }
     return percent;
 }
@@ -21622,17 +21621,15 @@ ui.define("ui.ctrls.Slidebar", {
         
         this.defineProperty("readonly", this.getReadonly, this.setReadonly);
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
-        this.defineProperty("value", this.getValue, this.setValue);
+        this.defineProperty("percentValue", this.getPercent, this.setPercent);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
         this.valuebar = $("<div class='ui-slidebar-value' />");
         this.thumb = $("<b class='ui-slidebar-thumb' />");
 
-        this.track
-                .append(this.valuebar)
-                .append(this.thumb);
-        this.element.append(this.track);
+        this.track.append(this.valuebar);
+        this.element.append(this.track).append(this.thumb);
 
         this._initScale();
         this._initMouseDragger();
@@ -21668,7 +21665,7 @@ ui.define("ui.ctrls.Slidebar", {
                 "top": "100%",
                 "height": "0"
             });
-            this.thumb.css("top", this.track().height() - (size / 2) + "px");
+            this.thumb.css("top", this.track.height() - (size / 2) + "px");
             this.element.css("width", size + "px");
         }
     },
@@ -21676,6 +21673,7 @@ ui.define("ui.ctrls.Slidebar", {
         var option = {
             target: this.thumb,
             handle: this.thumb,
+            context: this,
             onBeginDrag: function(arg) {
                 var option = arg.option,
                     context = option.context;
@@ -21701,8 +21699,12 @@ ui.define("ui.ctrls.Slidebar", {
         this.option.readonly = !!value;
         if(this.option.readonly) {
             this.mouseDragger.off();
+            this.valuebar.removeClass("background-highlight");
+            this.thumb.removeClass("background-highlight");
         } else {
             this.mouseDragger.on();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
         }
     },
     /** 获取禁用状态 */
@@ -21714,27 +21716,27 @@ ui.define("ui.ctrls.Slidebar", {
         this.option.disabled = !!value;
         if(this.option.disabled) {
             this.mouseDragger.off();
-            this.valuebar.addClass("background-highlight");
-            this.thumb.addClass("background-highlight");
-        } else {
-            this.mouseDragger.on();
             this.valuebar.removeClass("background-highlight");
             this.thumb.removeClass("background-highlight");
+        } else {
+            this.mouseDragger.on();
+            this.valuebar.addClass("background-highlight");
+            this.thumb.addClass("background-highlight");
         }
     },
     /** 获取值 */
-    getValue: function() {
+    getPercent: function() {
         return this.percent;
     },
     /** 设置值 */
-    setValue: function(value) {
+    setPercent: function(value) {
         var extend,
             percent,
             arg = {
                 option: {}
             };
-        extend = this.thumb.width() / 2;
         percent = value;
+        extend = this.thumb.width() / 2;
         if(ui.core.isNumber(percent)) {
             if(percent < 0) {
                 percent = 0;
@@ -21743,10 +21745,10 @@ ui.define("ui.ctrls.Slidebar", {
             }
             if(this.isHorizontal()) {
                 arg.option.lengthValue = this.track.width();
-                arg.x = arg.option.lengthValue * percent / 100 - extend;
+                arg.x = arg.option.lengthValue * percent / 100;
             } else {
                 arg.option.lengthValue = this.track.height();
-                arg.y = arg.option.lengthValue * (100 - percent) / 100 - extend;
+                arg.y = arg.option.lengthValue * (0 - percent) / 100;
             }
             moving.call(this, arg);
         }
@@ -21768,6 +21770,112 @@ $.fn.slidebar = function(option) {
 (function($, ui) {
 "use strict";
 /* 开关按钮 */
+
+var normalStyle,
+    lollipopStyle,
+    marshmallowStyle;
+
+normalStyle = {
+    open: function() {
+        var option;
+
+        this.animator.stop();
+        this.switchBox.addClass("switch-open");
+        this.inner
+            .addClass("border-highlight")
+            .addClass("background-highlight");
+        
+        option = this.animator[0];
+        option.beginColor = this.option.thumbColor;
+        option.endColor = "#FFFFFF";
+        option.begin = 0;
+        option.end = 100;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = this.width - this.thumbSize - 3;
+        this.animator.start();
+    },
+    close: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.removeClass("switch-open");
+        this.inner
+            .removeClass("border-highlight")
+            .removeClass("background-highlight");
+        
+        option = this.animator[0];
+        option.beginColor = "#FFFFFF";
+        option.endColor = this.option.thumbColor;
+        option.begin = 0;
+        option.end = 100;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = 3;
+        
+        this.animator.start();
+    },
+    thumbSize: 18
+};
+
+lollipopStyle = {
+    init: function() {
+        this.switchBox.addClass("switch-lollipop");
+    },
+    open: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.addClass("switch-open");
+        this.inner.addClass("background-highlight");
+        this.thumb
+            .addClass("border-highlight")
+            .addClass("background-highlight");
+        
+        option = this.animator[0];
+        option.begin = 0;
+        option.end = 0;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = this.option.width - this.thumbSize;
+
+        this.animator.start();
+    },
+    close: function() {
+        var option;
+        
+        this.animator.stop();
+        this.switchBox.removeClass("switch-open");
+        this.inner.removeClass("background-highlight");
+        this.thumb
+            .removeClass("border-highlight")
+            .removeClass("background-highlight");
+        
+        option = this.animator[0];
+        option.begin = 0;
+        option.end = 0;
+        
+        option = this.animator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = 0;
+        
+        this.animator.start();
+    },
+    thumbSize: 24
+};
+
+marshmallowStyle = {
+    init: function() {
+        this.switchBox.addClass("switch-marshmallow");
+    },
+    open: lollipopStyle.open,
+    close: lollipopStyle.close,
+    thumbSize: 24
+};
+
 ui.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
@@ -21782,31 +21890,33 @@ ui.define("ui.ctrls.SwitchButton", {
         return ["changed"];
     },
     _create: function() {
-        var that;
+        var that,
+            style;
         
         this.switchBox = $("<label class='ui-switch-button' />");
         this.inner = $("<div class='switch-inner' />");
         this.thumb = $("<div class='switch-thumb' />");
         
-        if(this.option.style === "lollipop") {
-            this.switchBox.addClass("switch-lollipop");
-            this._open = this._lollipopOpen;
-            this._close = this._lollipopClose;
-            this.thumbSize = 24;
-        } else if(this.option.style === "marshmallow") {
-            this.switchBox.addClass("switch-marshmallow");
-            this._open = this._lollipopOpen;
-            this._close = this._lollipopClose;
-            this.thumbSize = 20;
+        if(ui.core.isString(this.option.style)) {
+            if(this.option.style === "lollipop") {
+                style = lollipopStyle;
+            } else if(this.option.style === "marshmallow") {
+                style = marshmallowStyle;
+            } else {
+                style = normalStyle;
+            }
+        } else if(ui.core.isObject(this.option.style)) {
+            style = this.option.style;
         } else {
-            this.thumbSize = 18;
+            style = normalStyle;
         }
 
-        if(this.option.thumbColor) {
-            this.thumb.css("background-color", this.option.thumbColor);
-        } else {
-            this.option.thumbColor = this.thumb.css("background-color");
+        if(ui.core.isFunction(style.init)) {
+            style.init.call(this);
         }
+        this._open = style.open;
+        this._close = style.close;
+        this.thumbSize = style.thumbSize;
 
         this._createAnimator();
         
@@ -21815,6 +21925,12 @@ ui.define("ui.ctrls.SwitchButton", {
         this.switchBox
             .append(this.inner)
             .append(this.thumb);
+
+        if(this.option.thumbColor) {
+            this.thumb.css("background-color", this.option.thumbColor);
+        } else {
+            this.option.thumbColor = this.thumb.css("background-color");
+        }
         
         this.width = this.option.width || parseFloat(this.switchBox.css("width"));
         this.height = this.option.height || parseFloat(this.switchBox.css("height"));
@@ -21863,83 +21979,6 @@ ui.define("ui.ctrls.SwitchButton", {
             this._close();
         }
         this.fire("changed");
-    },
-    _open: function() {
-        this.animator.stop();
-        this.switchBox.addClass("switch-open");
-        this.inner
-            .addClass("border-highlight")
-            .addClass("background-highlight");
-        var option = this.animator[0];
-        option.beginColor = this.option.thumbColor;
-        option.endColor = "#FFFFFF";
-        option.begin = 0;
-        option.end = 100;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumbSize - 3;
-        this.animator.start();
-    },
-    _close: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.removeClass("switch-open");
-        this.inner
-            .removeClass("border-highlight")
-            .removeClass("background-highlight");
-        
-        option = this.animator[0];
-        option.beginColor = "#FFFFFF";
-        option.endColor = this.option.thumbColor;
-        option.begin = 0;
-        option.end = 100;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = 3;
-        
-        this.animator.start();     
-    },
-    _lollipopOpen: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.addClass("switch-open");
-        this.inner.addClass("background-highlight");
-        this.thumb
-            .addClass("border-highlight")
-            .addClass("background-highlight");
-        
-        option = this.animator[0];
-        option.begin = 0;
-        option.end = 0;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = this.option.width - this.thumbSize;
-        this.animator.start();
-    },
-    _lollipopClose: function() {
-        var option;
-
-        this.animator.stop();
-        this.switchBox.removeClass("switch-open");
-        this.inner.removeClass("background-highlight");
-        this.thumb
-            .removeClass("border-highlight")
-            .removeClass("background-highlight");
-        
-        option = this.animator[0];
-        option.begin = 0;
-        option.end = 0;
-        
-        option = this.animator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = 0;
-        
-        this.animator.start();
     },
     _isOpen: function() {
         return this.switchBox.hasClass("switch-open");  

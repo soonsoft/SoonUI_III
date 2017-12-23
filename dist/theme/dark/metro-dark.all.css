@@ -2545,7 +2545,7 @@ input.ui-selection-list-clear {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #3c3f41;
+  background-color: #5d5f60;
   overflow: visible;
 }
 .ui-slidebar-value {
@@ -2604,7 +2604,7 @@ input.ui-selection-list-clear {
   position: absolute;
   left: -20px;
 }
-.switch-text {
+.ui-switch-text {
   margin-left: 10px;
   vertical-align: middle;
   line-height: 24px !important;
@@ -2613,6 +2613,7 @@ input.ui-selection-list-clear {
 .switch-lollipop .switch-inner {
   border-radius: 2px;
   border: none 0px;
+  width: 100%;
   height: 4px;
   background-color: #888888;
   top: 10px;
@@ -2630,6 +2631,7 @@ input.ui-selection-list-clear {
 .switch-marshmallow .switch-inner {
   border-radius: 8px;
   border: none 0px;
+  width: 100%;
   height: 16px;
   background-color: #888888;
   top: 4px;
