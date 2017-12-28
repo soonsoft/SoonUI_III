@@ -355,7 +355,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem[0]);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
-            this.fire("selected", eventData);
+            this.fire("changed", eventData);
         }
     },
     /** 取消选中 */
