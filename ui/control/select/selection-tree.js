@@ -393,8 +393,28 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         return Array.isArray(children) && children.length > 0;
     },
     _loadChildren: function(dt, dd, nodeData) {
-        var children = this._getChildren(nodeData);
-        this._appendChildren(dt, dd, nodeData, children);
+        var children,
+            dl;
+        
+        children = this._getChildren(nodeData)
+        if(Array.isArray(children) && children.length > 0) {
+            dl = $("<dl />");
+            this._renderTree(
+                children,
+                dl,
+                this._getLevel(nodeData) + 1,
+                ui.str.lTrim(dt.prop("id"), this._treePrefix),
+                nodeData);
+            dd.append(dl);
+        }
+    },
+    _getLevel: function(nodeData) {
+        var level = 0;
+        while(nodeData[parentNode]) {
+            level++;
+            nodeData = nodeData[parentNode];
+        }
+        return level;
     },
     _getNodeData: function(elem) {
         var id;
