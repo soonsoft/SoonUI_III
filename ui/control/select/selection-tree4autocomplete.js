@@ -217,7 +217,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
             if (nodeData) {
                 dt = this._selectNodeByValue(nodeData, path);
                 //触发选择事件
-                this.fire("selected", dt, this._getSelectionData(dt, nodeData));
+                this.fire("changed", this._getSelectionData(dt, nodeData));
             }
             ui.hideAll();
         }
