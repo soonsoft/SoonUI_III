@@ -524,7 +524,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             
             for(j = 0; j < values.length; j++) {
                 if(this._equalValue(item, values[j])) {
-                    outArguments.dt = this._selectNodeByValue(item, id);
+                    outArguments.elem = this._selectNodeByValue(item, id);
                     values.splice(j, 1);
                     break;
                 }
