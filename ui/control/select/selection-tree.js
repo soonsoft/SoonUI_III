@@ -700,7 +700,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
-            this.fire("selected", eventData);
+            this.fire("changed", eventData);
         }
     },
     /** 选择一个节点的所有子节点 */
