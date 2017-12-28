@@ -100,7 +100,9 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             // 数据集
             viewData: null,
             // 内容格式化器，可以自定义内容
-            itemFormatter: null
+            itemFormatter: null,
+            // 下拉框的宽度
+            width: null
         };
     },
     _defineEvents: function() {
