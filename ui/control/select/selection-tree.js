@@ -166,7 +166,9 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             // 是否延迟加载，只有用户展开这个节点才会渲染节点下面的数据（对大数据量时十分有效）
             lazy: false,
             // 内容格式化器，可以自定义内容
-            itemFormatter: null
+            itemFormatter: null,
+            // 下拉框的宽度
+            width: null
         };
     },
     _defineEvents: function() {
