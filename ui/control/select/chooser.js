@@ -267,7 +267,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["changing", "changed"];
+        return ["changing", "changed", "listChanged"];
     },
     _create: function() {
         this._super();
@@ -559,6 +559,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         ul = item.target.find("ul");
         scrollTop = item.target.scrollTop();
         index = parseInt(scrollTop / (this.option.itemSize + this.option.margin), 10);
+
+        eventData = {
+            listItem: item,
+            itemIndex: index 
+        };
+        this.fire("listChanged", eventData);
+
         item._current = $(ul.children()[index + this._getAttachmentCount()]);
         item._current
             .addClass(selectedClass)
