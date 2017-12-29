@@ -569,7 +569,6 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             return;
         }
 
-        this.element.val(eventData.text);
         this.fire("changed", eventData);
     },
     _deselectItem: function(item) {
