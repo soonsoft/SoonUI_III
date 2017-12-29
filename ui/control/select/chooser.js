@@ -76,13 +76,14 @@ chooserTypes = {
 
         data = getTimeData(true, true, false);
         this.option.spliter = ":";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getHours()), 
                 addZero(now.getMinutes())
             ];
         };
+        this.getValue = this.getText = getText;
         return data;
     },
     time: function() {
@@ -90,7 +91,7 @@ chooserTypes = {
 
         data = getTimeData(true, true, true);
         this.option.spliter = ":";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getHours()), 
@@ -98,6 +99,7 @@ chooserTypes = {
                 addZero(now.getSeconds())
             ];
         };
+        this.getValue = this.getText = getText;
         return data;
     },
     yearMonth: function() {
@@ -122,14 +124,14 @@ chooserTypes = {
         data.push(item);
 
         this.option.spliter = "-";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getFullYear()),
                 addZero(now.getMonth() + 1)
             ];
         };
-
+        this.getValue = this.getText = getText;
         return data;
     }
 };
@@ -255,7 +257,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             // 视图数据 [{title: 时, list: [1, 2, ...]}, ...]
             viewData: null,
             // 分隔符常用于日期格式，时间格式
-            spliter: ".",
+            spliter: "",
             // 候选项的间隔距离
             margin: defaultMargin,
             // 候选项的显示个数 S: 3, M: 5, L: 9
@@ -451,7 +453,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
         li.addClass("ui-chooser-item");
         if (text) {
-            li.text(text);
+            li.text(this.getText(text));
         } else {
             li.addClass("ui-chooser-empty-item");
         }
@@ -472,7 +474,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             if(item._current) {
                 index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(item.list[index]);
+                values.push(this.getValue(item.list[index]));
             } else {
                 values.push("");
             }
@@ -495,7 +497,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             }
             indexArray[i] = 0;
             for (j = 0, len = item.list.length; j < len; j++) {
-                if (item.list[j] === values[i]) {
+                if (this.getValue(item.list[j]) === values[i]) {
                     indexArray[i] = j;
                     break;
                 }
@@ -522,8 +524,8 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             i, indexArray;
         if (val.length > 0) {
             this._setValues(val.split(this.option.spliter));
-        } else if (ui.core.isFunction(this.defaultSelectValue)) {
-            this._setValues(this.defaultSelectValue());
+        } else if (ui.core.isFunction(this.defaultValue)) {
+            this._setValues(this.defaultValue());
         } else {
             indexArray = [];
             for (i = 0; i < this.scrollData.length; i++) {
@@ -545,6 +547,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         var ul,
             scrollTop,
             index, i, len,
+            that,
             eventData;
 
         for (i = 0, len = this.scrollData.length; i < len; i++) {
@@ -563,7 +566,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         eventData = {};
         eventData.values = this._getValues();
-        eventData.text = eventData.values.join(this.option.spliter);
+        eventData.text = "";
+        if(Array.isArray(eventData.values)) {
+            that = this;
+            eventData.text = eventData.values.map(function(item) {
+                return that.getText(item);
+            }).join(this.option.spliter);
+        }
 
         if (this.fire("changing", eventData) === false) {
             return;
