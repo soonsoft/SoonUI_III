@@ -265,7 +265,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected"];
+        return ["changing", "changed"];
     },
     _create: function() {
         this._super();
@@ -289,9 +289,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = onFocus.bind(this);
-        this.onItemClickHandler = onItemClick.bind(this);
-        this.onMousewheelHandler = onMousewheel.bind(this);
+        this.onFocusHandler = $.proxy(onFocus, this);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onMousewheelHandler = $.proxy(onMousewheel, this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -565,12 +565,12 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         eventData.values = this._getValues();
         eventData.text = eventData.values.join(this.option.spliter);
 
-        if (this.fire("selecting", eventData) === false) {
+        if (this.fire("changing", eventData) === false) {
             return;
         }
 
         this.element.val(eventData.text);
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _deselectItem: function(item) {
         if(item._current) {
