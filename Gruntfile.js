@@ -2,97 +2,26 @@ module.exports = function(grunt) {
 
     "use strict";
 
-    var i, len, item, key, value;
-
     // 主题色
-    var themeColor = [
+    let themeColor = [
         {
             // 主题名
             name: "light",
             // 描述
-            description: "光明",
-            // 背景色
-            "background-color": "#ffffff",
-            "first-bg-color": "#f6f6f6",
-            "second-bg-color": "#eaeaea",
-            "third-bg-color": "#e1e1e1",
-            "fouth-bg-color": "#dedede",
-            // 字体颜色
-            "font-color": "#333333",
-            "first-color": "#525252",
-            "second-color": "#747474",
-            "third-color": "#979797",
-            "fouth-color": "#bababa",
-            // 边框颜色
-            "border-color": "#dcdcdc",
-            "first-border-color": "#cccccc",
-            "second-border-color": "#efefef",
-            // 面板颜色
-            "panel-color": "#f1f1f1",
-            // 面板悬停色
-            "panel-hover-color": "#dcdcdc",
-            // 面板激活色
-            "panel-active-color": "#aaaaaa",
-            // 交互元素色
-            "tool-color": "#666666",
-            "tool-first-color": "#777777",
-            "tool-second-color": "#888888",
-            // 只读色
-            "readonly-color": "#666666",
-            // 禁用色
-            "disabled-color": "#aaaaaa",
-            // 悬停色
-            "hover-color": "#434343",
-            // 激活色
-            "active-color": "#434343",
-            // 阴影色
-            "shadow-color": "#434343"
+            description: "光明"
         },
         {
             // 主题名
             name: "dark",
             // 描述
-            description: "暗夜",
-            // 背景色
-            "background-color": "#1d1f21",
-            "first-bg-color": "#2e3032",
-            "second-bg-color": "#37383a",
-            "third-bg-color": "#434547",
-            "fouth-bg-color": "#505253",
-            // 字体颜色
-            "font-color": "#aaaaaa",
-            "first-color": "#949494",
-            "second-color": "#808080",
-            "third-color": "#737373",
-            "fouth-color": "#676767",
-            // 边框颜色
-            "border-color": "#5d5f60",
-            "first-border-color": "#3c3f41",
-            "second-border-color": "#4b4d4f",
-            // 面板颜色
-            "panel-color": "#3c3f41",
-            // 面板悬停色
-            "panel-hover-color": "#5d5f60",
-            // 面板激活色
-            "panel-active-color": "#1d1f21",
-            // 交互元素色
-            "tool-color": "#888888",
-            "tool-first-color": "#999999",
-            "tool-second-color": "#aaaaaa",
-            // 只读色
-            "readonly-color": "#888888",
-            // 禁用色
-            "disabled-color": "#5d5f60",
-            // 悬停色
-            "hover-color": "#999999",
-            // 激活色
-            "active-color": "#999999",
-            // 阴影色
-            "shadow-color": "#999999"
+            description: "暗夜"
         }
     ];
+    let colors = require("./theme-colors");
+    let images = require("./theme-inner-images");
+
     // layer indexes
-    var layerIndexes = {
+    let layerIndexes = {
         // 内容边栏
         "container-aside": 9000,
         // 遮罩层
@@ -104,21 +33,35 @@ module.exports = function(grunt) {
         // 最高层
         "highest-layer": 10001
     };
-    var themeFiles = [];
+    let themeFiles = [];
     // 主题色
-    for(i = 0, len = themeColor.length; i < len; i++) {
-        item = themeColor[i];
+    themeColor.forEach(function(item) {
+        let name = item.name;
+        let color = colors[name];
         // 合并参数
-        for(key in layerIndexes) {
-            item[key] = layerIndexes[key];
+        for(let key in color) {
+            if(color.hasOwnProperty(key)) {
+                item[key] = color[key];
+            }
+        }
+        let image = images[name];
+        for(let key in image) {
+            if(image.hasOwnProperty(key)) {
+                item[key] = "url(\"" + image[key] + "\")";
+            }
+        }
+        for(let key in layerIndexes) {
+            if(layerIndexes.hasOwnProperty(key)) {
+                item[key] = layerIndexes[key];
+            }
         }
         // 构建输出文件
-        key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
-        value = "theme/site." + item.name + ".less";
+        let key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
+        let value = "theme/site." + item.name + ".less";
         item = {};
         item[key] = value;
         themeFiles.push(item);
-    }
+    });
 
     // 控件主题色
     themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/metro/light/**/*.less" });
@@ -126,7 +69,7 @@ module.exports = function(grunt) {
     themeFiles.push({ "dist/theme/viewpage/viewpage.all.css": "theme/viewpage/**/*.less" });
 
     // 高亮色
-    var highlights = [
+    let highlights = [
         {
             name: "Default",
             description: "藏蓝",
@@ -297,17 +240,17 @@ module.exports = function(grunt) {
         }
     ];
     // 高亮色
-    for(i = 0, len = highlights.length; i < len; i++) {
-        item = highlights[i];
-        key = "dist/theme/color/ui.metro." + item.name + ".css";
-        value = "theme/color/ui.metro." + item.name + ".less";
+    for(let i = 0; i < highlights.length; i++) {
+        let item = highlights[i];
+        let key = "dist/theme/color/ui.metro." + item.name + ".css";
+        let value = "theme/color/ui.metro." + item.name + ".less";
         item = {};
         item[key] = value;
         themeFiles.push(item);
     }
 
     // UI库主框架文件
-    var frameFiles = [
+    let frameFiles = [
         "ui/soon-ui.js",
         "ui/core.js",
 
@@ -340,16 +283,16 @@ module.exports = function(grunt) {
         "ui/theme.js",
         "ui/page.js"
     ];
-    var frameDestFile = "dist/ui-core.<%= pkg.version %>.js";
+    let frameDestFile = "dist/ui-core.<%= pkg.version %>.js";
 
     // 组件文件
-    var componentFiles = [
+    let componentFiles = [
         "ui/component/**/*.js"
     ];
-    var componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
+    let componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
 
     // 控件文件
-    var controlFiles = [
+    let controlFiles = [
         "ui/control/base/**/*.js",
         "ui/control/common/**/*.js",
         "ui/control/box/**/*.js",
@@ -358,21 +301,21 @@ module.exports = function(grunt) {
         "ui/control/tools/**/*.js",
         "ui/control/images/**/*.js"
     ];
-    var controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
+    let controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
     // 特效文件
-    var effectFiles = [
+    let effectFiles = [
         "ui/effect/**/*.js"
     ];
-    var effectDestFile = "dist/ui-effects.<%= pkg.version %>.js";
+    let effectDestFile = "dist/ui-effects.<%= pkg.version %>.js";
 
     // 视图文件
-    var viewFiles = [
+    let viewFiles = [
         "ui/viewpage/**/*.js"
     ];
-    var viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
+    let viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
     
-    var wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
+    let wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {
             if(filepath === frameFiles[0]) {
                 return src;

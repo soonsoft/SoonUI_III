@@ -24,7 +24,7 @@ function farbtastic(container, callback) {
 
     //events
     fb.eventDispatcher = new ui.CustomEvent(fb);
-    fb.eventDispatcher.initEvents(["selected"]);
+    fb.eventDispatcher.initEvents(["changed"]);
 
     // Insert markup
     $(container).html('<div class="farbtastic"><div class="color"></div><div class="wheel"></div><div class="overlay"></div><div class="h-marker marker"></div><div class="sl-marker marker"></div></div>');
@@ -250,7 +250,7 @@ function farbtastic(container, callback) {
             fb.callback.call(fb, fb.color);
         }
 
-        this.fire("selected", fb.color);
+        this.fire("changed", fb.color);
     };
 
     /**

@@ -308,9 +308,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             .append(this._itemTitlePanel)
             .append(this._itemListPanel);
 
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-chooser-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function () {
             this.element.val("");
         };
@@ -339,7 +339,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         var sizeData, div, css, ul,
             item, i, len, tsd, isClassifiableTitle,
             tempWidth,
-            surwidth,
+            surWidth,
             temp;
         
         sizeData = {

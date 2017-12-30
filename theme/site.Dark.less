@@ -27,6 +27,9 @@
 @hover-color: #999999;
 @active-color: #999999;
 @shadow-color: #999999;
+@date-text: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA4RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1M2JkMjQ0ZC05NzNkLWM1NDctYWU5MC0xOWY5NDkyMzdlYTkiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6Q0MzNUYxRDhFRDFEMTFFNzhCNUZERTBFRDBFQThFRDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6Q0MzNUYxRDdFRDFEMTFFNzhCNUZERTBFRDBFQThFRDAiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ZWZkN2M2MmUtYTVmNy0zYzRlLWExNTEtMTk1NjAzMGIzYzBhIiBzdFJlZjpkb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6M2ZjN2JiMDktZWQxMi0xMWU3LWFjNWEtODQ2NjhiZjAzOTBhIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+teMCBQAAAAlQTFRF/v7+////////8+z6lwAAAAN0Uk5T//8A18oNQQAAADBJREFUeNpiYMIBGKgtwcCIDBgQEoyogBgJFOOJk2BERkRJDCmjcIYuPaIWCwAIMACeVQP7CjuaeQAAAABJRU5ErkJggg==");
+@select-text: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA4RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1M2JkMjQ0ZC05NzNkLWM1NDctYWU5MC0xOWY5NDkyMzdlYTkiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RkVFM0ZCN0JFRDFEMTFFNzhEOEZBRjM5MkQxRDc4MjQiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RkVFM0ZCN0FFRDFEMTFFNzhEOEZBRjM5MkQxRDc4MjQiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Y2Q3ZGI2ZWEtODk1MS0wNDRmLTkwYzMtNTRjODhmNTg3NDMxIiBzdFJlZjpkb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6OWU5Y2E3MTAtZWQxMy0xMWU3LWFjNWEtODQ2NjhiZjAzOTBhIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+TugAiwAAAAZQTFRF////////VXz1bAAAAAJ0Uk5T/wDltzBKAAAAQUlEQVR42tSRMQ4AMAgCz/9/upMBMd1bFgk3KJG6iJcBK2ogQgBqOgHCCGBTW5HinMjLr/HcC4x8NoNP/rF1BBgAWqMCAMaN1EoAAAAASUVORK5CYII=");
+@clear-text: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA4RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1M2JkMjQ0ZC05NzNkLWM1NDctYWU5MC0xOWY5NDkyMzdlYTkiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTUzOUJDNDlFRDFFMTFFNzg0NDNGMjQ1MUJGMEZEMzciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTUzOUJDNDhFRDFFMTFFNzg0NDNGMjQ1MUJGMEZEMzciIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Y2IwODg3MDMtYTBkNC05NjQxLWIzYmEtYTM3YTQyM2E4ZGJmIiBzdFJlZjpkb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZTEyYTEzOGQtZWQxMy0xMWU3LWFjNWEtODQ2NjhiZjAzOTBhIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+eTF0ZwAAAAZQTFRF////////VXz1bAAAAAJ0Uk5T/wDltzBKAAAAPklEQVR42mJgxAEYBoMEAwMDCo0swYCg0CQYoCSqHQwwgGE5qjiyq1DEidCByw6crsLnD+w+H5wRhQEAAgwAPd4B7DQ4N/4AAAAASUVORK5CYII=");
 @container-aside: 9000;
 @mask-layer: 9999;
 @box-layer: 9999;
@@ -708,10 +711,8 @@ html
 /* 定义滚动条渐增按扭的样式 */
 /* 向下 */
 ::-webkit-scrollbar-button:vertical:increment {
-    height: 12px;
+    height: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -48px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:vertical:increment:hover {
@@ -719,10 +720,8 @@ html
 }
 /* 向上 */
 ::-webkit-scrollbar-button:vertical:decrement {
-    height: 12px;
+    height: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -12px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:vertical:decrement:hover {
@@ -730,10 +729,8 @@ html
 }
 /* 向右 */
 ::-webkit-scrollbar-button:horizontal:increment {
-    width: 12px;
+    width: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -120px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:horizontal:increment:hover {
@@ -741,10 +738,8 @@ html
 }
 /* 向左 */
 ::-webkit-scrollbar-button:horizontal:decrement {
-    width: 12px;
+    width: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -84px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:horizontal:decrement:hover {
@@ -763,11 +758,11 @@ html
 
 /* 垂直滚动条的滑动块 */ 
 ::-webkit-scrollbar-thumb:vertical {
-    height: 48px;
+    height: 12px;
     background-color: @border-color; 
 }
 ::-webkit-scrollbar-thumb:horizontal {
-    height: 48px;
+    height: 12px;
     background-color: @border-color; 
 }
 

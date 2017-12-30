@@ -2439,13 +2439,14 @@ chooserTypes = {
 
         data = getTimeData(true, true, false);
         this.option.spliter = ":";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getHours()), 
                 addZero(now.getMinutes())
             ];
         };
+        this.getValue = this.getText = getText;
         return data;
     },
     time: function() {
@@ -2453,7 +2454,7 @@ chooserTypes = {
 
         data = getTimeData(true, true, true);
         this.option.spliter = ":";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getHours()), 
@@ -2461,6 +2462,7 @@ chooserTypes = {
                 addZero(now.getSeconds())
             ];
         };
+        this.getValue = this.getText = getText;
         return data;
     },
     yearMonth: function() {
@@ -2485,14 +2487,14 @@ chooserTypes = {
         data.push(item);
 
         this.option.spliter = "-";
-        this.defaultSelectValue = function () {
+        this.defaultValue = function () {
             var now = new Date();
             return [
                 addZero(now.getFullYear()),
                 addZero(now.getMonth() + 1)
             ];
         };
-
+        this.getValue = this.getText = getText;
         return data;
     }
 };
@@ -2618,7 +2620,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             // 视图数据 [{title: 时, list: [1, 2, ...]}, ...]
             viewData: null,
             // 分隔符常用于日期格式，时间格式
-            spliter: ".",
+            spliter: "",
             // 候选项的间隔距离
             margin: defaultMargin,
             // 候选项的显示个数 S: 3, M: 5, L: 9
@@ -2628,7 +2630,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["selecting", "selected"];
+        return ["changing", "changed", "listChanged"];
     },
     _create: function() {
         this._super();
@@ -2652,9 +2654,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = onFocus.bind(this);
-        this.onItemClickHandler = onItemClick.bind(this);
-        this.onMousewheelHandler = onMousewheel.bind(this);
+        this.onFocusHandler = $.proxy(onFocus, this);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onMousewheelHandler = $.proxy(onMousewheel, this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -2669,9 +2671,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             .append(this._itemTitlePanel)
             .append(this._itemListPanel);
 
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-chooser-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function () {
             this.element.val("");
         };
@@ -2700,7 +2702,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         var sizeData, div, css, ul,
             item, i, len, tsd, isClassifiableTitle,
             tempWidth,
-            surwidth,
+            surWidth,
             temp;
         
         sizeData = {
@@ -2814,7 +2816,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
         li.addClass("ui-chooser-item");
         if (text) {
-            li.text(text);
+            li.text(this.getText(text));
         } else {
             li.addClass("ui-chooser-empty-item");
         }
@@ -2835,7 +2837,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             if(item._current) {
                 index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(item.list[index]);
+                values.push(this.getValue(item.list[index]));
             } else {
                 values.push("");
             }
@@ -2858,7 +2860,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             }
             indexArray[i] = 0;
             for (j = 0, len = item.list.length; j < len; j++) {
-                if (item.list[j] === values[i]) {
+                if (this.getValue(item.list[j]) === values[i]) {
                     indexArray[i] = j;
                     break;
                 }
@@ -2885,8 +2887,8 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             i, indexArray;
         if (val.length > 0) {
             this._setValues(val.split(this.option.spliter));
-        } else if (ui.core.isFunction(this.defaultSelectValue)) {
-            this._setValues(this.defaultSelectValue());
+        } else if (ui.core.isFunction(this.defaultValue)) {
+            this._setValues(this.defaultValue());
         } else {
             indexArray = [];
             for (i = 0; i < this.scrollData.length; i++) {
@@ -2908,6 +2910,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         var ul,
             scrollTop,
             index, i, len,
+            that,
             eventData;
 
         for (i = 0, len = this.scrollData.length; i < len; i++) {
@@ -2919,6 +2922,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         ul = item.target.find("ul");
         scrollTop = item.target.scrollTop();
         index = parseInt(scrollTop / (this.option.itemSize + this.option.margin), 10);
+
+        eventData = {
+            listItem: item,
+            itemIndex: index 
+        };
+        this.fire("listChanged", eventData);
+
         item._current = $(ul.children()[index + this._getAttachmentCount()]);
         item._current
             .addClass(selectedClass)
@@ -2926,14 +2936,19 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         eventData = {};
         eventData.values = this._getValues();
-        eventData.text = eventData.values.join(this.option.spliter);
+        eventData.text = "";
+        if(Array.isArray(eventData.values)) {
+            that = this;
+            eventData.text = eventData.values.map(function(item) {
+                return that.getText(item);
+            }).join(this.option.spliter);
+        }
 
-        if (this.fire("selecting", eventData) === false) {
+        if (this.fire("changing", eventData) === false) {
             return;
         }
 
-        this.element.val(eventData.text);
-        this.fire("selected", eventData);
+        this.fire("changed", eventData);
     },
     _deselectItem: function(item) {
         if(item._current) {
@@ -2994,7 +3009,7 @@ function farbtastic(container, callback) {
 
     //events
     fb.eventDispatcher = new ui.CustomEvent(fb);
-    fb.eventDispatcher.initEvents(["selected"]);
+    fb.eventDispatcher.initEvents(["changed"]);
 
     // Insert markup
     $(container).html('<div class="farbtastic"><div class="color"></div><div class="wheel"></div><div class="overlay"></div><div class="h-marker marker"></div><div class="sl-marker marker"></div></div>');
@@ -3220,7 +3235,7 @@ function farbtastic(container, callback) {
             fb.callback.call(fb, fb.color);
         }
 
-        this.fire("selected", fb.color);
+        this.fire("changed", fb.color);
     };
 
     /**
@@ -3830,8 +3845,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         this._showClass = "ui-date-chooser-show";
         this._panel = this._calendarPanel;
-        this._selectTextClass = "date-text";
-        this._clearClass = "ui-date-chooser-clear";
+        this._selectTextClass = "ui-date-text";
+        this._clearClass = "ui-clear-text";
         this._clear = (function () {
             this.cancelSelection();
         }).bind(this);
@@ -4912,7 +4927,9 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             // 数据集
             viewData: null,
             // 内容格式化器，可以自定义内容
-            itemFormatter: null
+            itemFormatter: null,
+            // 下拉框的宽度
+            width: null
         };
     },
     _defineEvents: function() {
@@ -4948,11 +4965,11 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         this.wrapElement(this.element, this.listPanel);
 
         this._showClass = "ui-selection-list-show";
-        this._clearClass = "ui-selection-list-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function() {
             this.cancelSelection();
         };
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
 
         this.initPanelWidth(this.option.width);
         if (ui.core.isFunction(this.option.itemFormatter)) {
@@ -5167,7 +5184,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem[0]);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
-            this.fire("selected", eventData);
+            this.fire("changed", eventData);
         }
     },
     /** 取消选中 */
@@ -5403,7 +5420,9 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             // 是否延迟加载，只有用户展开这个节点才会渲染节点下面的数据（对大数据量时十分有效）
             lazy: false,
             // 内容格式化器，可以自定义内容
-            itemFormatter: null
+            itemFormatter: null,
+            // 下拉框的宽度
+            width: null
         };
     },
     _defineEvents: function() {
@@ -5472,11 +5491,11 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         this.wrapElement(this.element, this.treePanel);
 
         this._showClass = "ui-selection-tree-show";
-        this._clearClass = "ui-selection-tree-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function() {
             this.cancelSelection();
         };
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
 
         this.initPanelWidth(this.option.width);
         if (ui.core.isFunction(this.option.itemFormatter)) {
@@ -5628,8 +5647,28 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         return Array.isArray(children) && children.length > 0;
     },
     _loadChildren: function(dt, dd, nodeData) {
-        var children = this._getChildren(nodeData);
-        this._appendChildren(dt, dd, nodeData, children);
+        var children,
+            dl;
+        
+        children = this._getChildren(nodeData)
+        if(Array.isArray(children) && children.length > 0) {
+            dl = $("<dl />");
+            this._renderTree(
+                children,
+                dl,
+                this._getLevel(nodeData) + 1,
+                ui.str.lTrim(dt.prop("id"), this._treePrefix),
+                nodeData);
+            dd.append(dl);
+        }
+    },
+    _getLevel: function(nodeData) {
+        var level = 0;
+        while(nodeData[parentNode]) {
+            level++;
+            nodeData = nodeData[parentNode];
+        }
+        return level;
     },
     _getNodeData: function(elem) {
         var id;
@@ -5759,7 +5798,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             
             for(j = 0; j < values.length; j++) {
                 if(this._equalValue(item, values[j])) {
-                    outArguments.dt = this._selectNodeByValue(item, id);
+                    outArguments.elem = this._selectNodeByValue(item, id);
                     values.splice(j, 1);
                     break;
                 }
@@ -5937,7 +5976,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
-            this.fire("selected", eventData);
+            this.fire("changed", eventData);
         }
     },
     /** 选择一个节点的所有子节点 */
@@ -6264,7 +6303,7 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
             if (nodeData) {
                 dt = this._selectNodeByValue(nodeData, path);
                 //触发选择事件
-                this.fire("selected", dt, this._getSelectionData(dt, nodeData));
+                this.fire("changed", this._getSelectionData(dt, nodeData));
             }
             ui.hideAll();
         }

@@ -447,8 +447,8 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         this._showClass = "ui-date-chooser-show";
         this._panel = this._calendarPanel;
-        this._selectTextClass = "date-text";
-        this._clearClass = "ui-date-chooser-clear";
+        this._selectTextClass = "ui-date-text";
+        this._clearClass = "ui-clear-text";
         this._clear = (function () {
             this.cancelSelection();
         }).bind(this);

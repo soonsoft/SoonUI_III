@@ -674,10 +674,8 @@ html
 /* 定义滚动条渐增按扭的样式 */
 /* 向下 */
 ::-webkit-scrollbar-button:vertical:increment {
-    height: 12px;
+    height: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -48px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:vertical:increment:hover {
@@ -685,10 +683,8 @@ html
 }
 /* 向上 */
 ::-webkit-scrollbar-button:vertical:decrement {
-    height: 12px;
+    height: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -12px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:vertical:decrement:hover {
@@ -696,10 +692,8 @@ html
 }
 /* 向右 */
 ::-webkit-scrollbar-button:horizontal:increment {
-    width: 12px;
+    width: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -120px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:horizontal:increment:hover {
@@ -707,10 +701,8 @@ html
 }
 /* 向左 */
 ::-webkit-scrollbar-button:horizontal:decrement {
-    width: 12px;
+    width: 0;
     background-color: @panel-color;
-    background-image: url(images/arrow.png);
-    background-position: 0px -84px;
     border: none 0px;
 }
 ::-webkit-scrollbar-button:horizontal:decrement:hover {
@@ -729,11 +721,11 @@ html
 
 /* 垂直滚动条的滑动块 */ 
 ::-webkit-scrollbar-thumb:vertical {
-    height: 48px;
+    height: 12px;
     background-color: @border-color; 
 }
 ::-webkit-scrollbar-thumb:horizontal {
-    height: 48px;
+    height: 12px;
     background-color: @border-color; 
 }
 

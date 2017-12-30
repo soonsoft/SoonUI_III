@@ -237,11 +237,11 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         this.wrapElement(this.element, this.treePanel);
 
         this._showClass = "ui-selection-tree-show";
-        this._clearClass = "ui-selection-tree-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function() {
             this.cancelSelection();
         };
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
 
         this.initPanelWidth(this.option.width);
         if (ui.core.isFunction(this.option.itemFormatter)) {

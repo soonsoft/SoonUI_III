@@ -138,11 +138,11 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         this.wrapElement(this.element, this.listPanel);
 
         this._showClass = "ui-selection-list-show";
-        this._clearClass = "ui-selection-list-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function() {
             this.cancelSelection();
         };
-        this._selectTextClass = "select-text";
+        this._selectTextClass = "ui-select-text";
 
         this.initPanelWidth(this.option.width);
         if (ui.core.isFunction(this.option.itemFormatter)) {
