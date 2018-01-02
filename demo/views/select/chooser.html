@@ -131,6 +131,9 @@
                 this.yearMonthChooser.changed(function(e, eventData) {
                     this.element.val(eventData.text);
                 });
+                this.yearMonthChooser.cancel(function() {
+                    this.element.val("");
+                });
 
                 this.timeChooser = $("#timeChooser").chooser({
                     type: "time"
@@ -138,12 +141,18 @@
                 this.timeChooser.changed(function(e, eventData) {
                     this.element.val(eventData.text);
                 });
+                this.timeChooser.cancel(function() {
+                    this.element.val("");
+                });
 
                 this.hourMinuteChooser = $("#hourMinuteChooser").chooser({
                     type: "hourMinute"
                 });
                 this.hourMinuteChooser.changed(function(e, eventData) {
                     this.element.val(eventData.text);
+                });
+                this.hourMinuteChooser.cancel(function() {
+                    this.element.val("");
                 });
             }
 
@@ -239,6 +248,9 @@
                 });
                 this.customChooser.changed(function(e, eventData) {
                     this.element.val(eventData.text);
+                });
+                this.customChooser.cancel(function() {
+                    this.element.val("");
                 });
             }
 
