@@ -43,12 +43,12 @@
             <dt>颜色选择器</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    
+                    一个好用的调色盘会大大的提高用户体验，这里集成了Farbtastic Color Picker 1.2。<br />
                 </p>
                 <div class="box-line">
                     <label class="label-text">请选择您喜欢的颜色：</label>
                     <br />
-                    <input id="selectColor" type="text" />
+                    <input id="color" type="text" value="#ffffff" />
                 </div>
             </dd>
         </dl>
@@ -102,6 +102,7 @@
 
                         createChooser.call(this);
                         createCustomChooser.call(this);
+                        createColorPicker.call(this);
 
                         $(".ui-fold-view").foldView();
                     },
@@ -241,7 +242,9 @@
                 });
             }
 
-            
+            function createColorPicker() {
+                $("#color").colorPicker();
+            }
         })();
     </script>
 </partial>
