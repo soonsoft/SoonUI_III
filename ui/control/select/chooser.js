@@ -17,6 +17,7 @@ var sizeInfo = {
     minWidth = 120,
     chooserTypes;
 
+function noop() {}
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -267,11 +268,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["changing", "changed", "listChanged"];
+        return ["changing", "changed", "cancel", "listChanged"];
     },
     _create: function() {
         this._super();
 
+        // 存放当前的选择数据
+        this.scrollData = null;
         if (sizeInfo.hasOwnProperty(this.option.size)) {
             this.size = sizeInfo[this.option.size];
         } else {
@@ -308,11 +311,11 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             .append(this._itemTitlePanel)
             .append(this._itemListPanel);
 
-        this._selectTextClass = "ui-select-text";
+        this._selectTextClass = "select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-clear-text";
+        this._clearClass = "ui-chooser-clear";
         this._clear = function () {
-            this.element.val("");
+            this.cancelSelection();
         };
         this.wrapElement(this.element, this.chooserPanel);
         this._super();
@@ -339,7 +342,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         var sizeData, div, css, ul,
             item, i, len, tsd, isClassifiableTitle,
             tempWidth,
-            surWidth,
+            surwidth,
             temp;
         
         sizeData = {
@@ -347,7 +350,6 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             height: this.size * (this.option.itemSize + this.option.margin) + this.option.margin
         };
 
-        this.scrollData = null;
         if(ui.core.isString(this.option.type)) {
             if(chooserTypes.hasOwnProperty(this.option.type)) {
                 this.scrollData = chooserTypes[this.option.type].call(this);
@@ -462,24 +464,47 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _getAttachmentCount: function() {
         return Math.floor((this.size - 1) / 2);
     },
-    _getValues: function() {
+    _getIndexes: function(fn) {
         var attachmentCount,
-            values,
+            indexes,
             i, len, item, index;
         
         attachmentCount = this._getAttachmentCount();
-        values = [];
+        indexes = [];
+        if(!ui.core.isFunction(fn)) {
+            fn = noop;
+        }
         for(i = 0, len = this.scrollData.length; i < len; i++) {
             item = this.scrollData[i];
             if(item._current) {
                 index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(this.getValue(item.list[index]));
+                indexes.push(index);
+                fn.call(this, item.list[index]);
+            } else {
+                indexes.push(-1);
+                fn.call(this, null);
+            }
+        }
+        return indexes;
+    },
+    _getValues: function() {
+        var values,
+            indexes;
+        
+        values = [];
+        indexes = this._getIndexes(function(item) {
+            if(item) {
+                values.push(this.getValue(item));
             } else {
                 values.push("");
             }
-        }
-        return values;
+        });
+
+        return {
+            values: values,
+            indexes: indexes
+        };
     },
     _setValues: function(values) {
         var i, j, len, 
@@ -520,10 +545,16 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         }
     },
     _updateSelectionState: function() {
-        var val = this.element.val(), 
-            i, indexArray;
-        if (val.length > 0) {
-            this._setValues(val.split(this.option.spliter));
+        var i, indexArray;
+
+        indexArray = this._getIndexes();
+        for(i = indexArray.length - 1; i >= 0; i--) {
+            if(indexArray[i] === -1) {
+                indexArray.splice(i, 1);
+            }
+        }
+        if (indexArray.length > 0) {
+            this._setSelectionState(indexArray);
         } else if (ui.core.isFunction(this.defaultValue)) {
             this._setValues(this.defaultValue());
         } else {
@@ -571,8 +602,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             .addClass(selectedClass)
             .addClass("font-highlight");
 
-        eventData = {};
-        eventData.values = this._getValues();
+        eventData = this._getValues();
         eventData.text = "";
         if(Array.isArray(eventData.values)) {
             that = this;
@@ -585,6 +615,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             return;
         }
 
+        this._selectedItems = eventData.indexes;
         this.fire("changed", eventData);
     },
     _deselectItem: function(item) {
@@ -592,6 +623,34 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             item._current
                 .removeClass(selectedClass)
                 .removeClass("font-highlight");
+        }
+    },
+    /** 获取当前选中项 */
+    getSelection: function() {
+        var selectionItem,
+            values = [],
+            i;
+        selectionItem = this._getValues();
+        for(i = 0; i < selectionItem.indexes.length; i++) {
+            if(selectionItem.indexes[i] === -1) {
+                values.push(null);
+            } else {
+                values.push(selectionItem.values[i]);
+            }
+        }
+        return values;
+    },
+    /** 设置选中项 */
+    setSelection: function(values) {
+        this._setValues(values);
+    },
+    /** 清除选择 */
+    cancelSelection: function(isFire) {
+        this.scrollData.forEach(function(item) {
+            item._current = null;
+        });
+        if(isFire !== false) {
+            this.fire("cancel");
         }
     }
 });
