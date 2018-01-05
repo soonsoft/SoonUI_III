@@ -34,8 +34,9 @@ ui.define("ui.ctrls.FilterTool", {
         this.filterPanel = $("<div class='filter-tools-panel'>");
         this.parent = this.element;
         this.radioName = prefix + "_" + (filterCount++);
+        this._current = null;
 
-        this.onItemClickHandler = onItemClick.bind(this);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {
@@ -57,48 +58,59 @@ ui.define("ui.ctrls.FilterTool", {
         this.setIndex(this.option.defaultIndex);
     },
     _createTool: function (item, index) {
+        var label,
+            radio,
+            span;
+
         if (!ui.core.isPlainObject(item)) {
             return;
         }
 
-        item.index = index;
-        var label = $("<label class='filter-tools-item' />"),
-            radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>"),
-            span = $("<span class='filter-tools-item-text' />");
+        label = $("<label class='filter-tools-item' />");
+        radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>");
+        span = $("<span class='filter-tools-item-text' />");
         label.append(radio).append(span);
 
+        label.attr("data-index", index);
         if (index === 0) {
             label.addClass("filter-tools-item-first");
         }
         label.addClass("font-highlight").addClass("border-highlight");
+
         radio.prop("value", item.value || "");
         span.text(item.text || "tool" + index);
-        label.data("dataItem", item);
 
         this.filterPanel.append(label);
     },
+    _getSelectionData: function(elem) {
+        var index = parseInt(elem.attr("data-index"), 10);
+        return {
+            itemIndex: index,
+            itemData: this.getViewData()[index]
+        };
+    },
     _selectItem: function (label) {
-        var item = label.data("dataItem"),
-            currentItem;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
-            if (item.index == currentItem.index) {
+        var eventData;
+        if (this._current) {
+            if (label[0] === this._current[0]) {
                 return;
             }
 
-            this.current
+            this._current
                 .addClass("font-highlight")
                 .removeClass("background-highlight");
-            this.fire("deselected", currentItem);
+            eventData = this._getSelectionData(this._current);
+            this.fire("deselected", eventData);
         }
 
-        this.current = label;
+        this._current = label;
         label.find("input").prop("checked", true);
-        this.current
+        this._current
             .addClass("background-highlight")
             .removeClass("font-highlight");
 
-        this.fire("selected", item);
+        eventData = this._getSelectionData(this._current);
+        this.fire("selected", eventData);
     },
     _getIndexByValue: function(value) {
         var viewData,
@@ -164,15 +176,14 @@ ui.define("ui.ctrls.FilterTool", {
             : [];
     },
     getSelection: function () {
-        var currentItem = null;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
+        if (this._current) {
+            return this._getSelectionData(this._current);
         }
-        return currentItem;
+        return null;
     },
     setIndex: function (index) {
         var viewData,
-            label;
+            lable;
 
         viewData = this.getViewData();
         if (!viewData.length === 0) {
