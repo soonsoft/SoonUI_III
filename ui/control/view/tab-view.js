@@ -441,22 +441,36 @@ ui.define("ctrls.TabView", {
 });
 
 // 缓存数据，切换工具栏按钮
-function TabManager() {
+function TabManager(tabView, changingHandler, changedHandler) {
     if(this instanceof TabManager) {
-        this.initialize();
+        this.initialize(tabView, changingHandler, changedHandler);
     } else {
-        return new TabManager();
+        return new TabManager(tabView, changingHandler, changedHandler);
     }
 }
 TabManager.prototype = {
     constructor: TabManager,
-    initialize: function() {
+    initialize: function(tabView, changingHandler, changedHandler) {
+        this.tabView = tabView;
         this.tabTools = [];
         this.tabLoadStates = [];
-        this.tabChanging = function (e, index) {
-            this.showTools(index);
-        };
-        this.tabChanged = null;
+        
+        if(!ui.core.isFunction(changedHandler)) {
+            changedHandler = changingHandler;
+            changingHandler = null;
+        }
+        if(!ui.core.isFunction(changingHandler)) {
+            changingHandler = function(e, index) {
+                this.showTools(index);
+            };
+        }
+
+        if(this.tabView) {
+            this.tabView.changing(changingHandler.bind(this));
+            if(ui.core.isFunction(changedHandler)) {
+                this.tabView.changed(changedHandler.bind(this));
+            }
+        }
     },
     addTools: function() {
         var i, len,
@@ -518,7 +532,7 @@ TabManager.prototype = {
             args.push(arguments[i]);
         }
         if(!this.tabLoadStates[index]) {
-            func.apply(caller, args);
+            fn.apply(caller, args);
             this.tabLoadStates[index] = true;
         }
     },
