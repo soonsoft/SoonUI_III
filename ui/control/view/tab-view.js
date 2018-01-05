@@ -397,7 +397,10 @@ ui.define("ctrls.TabView", {
         if(!ui.core.isNumber(index)) {
             index = 0;
         }
-        this.model.showIndex(index, !!animation);
+        if(animation !== false) {
+            animation = true;
+        }
+        this.model.showIndex(index, animation);
     },
     /** 放置视图 */
     putBodies: function(width, height) {
