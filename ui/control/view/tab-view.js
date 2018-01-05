@@ -32,8 +32,10 @@ View.prototype = {
             }
         });
         this.animator.onEnd = function() {
+            that.currentIndex = that.nextIndex;
             tabView._current.css("display", "none");
             tabView._current = that.nextView;
+            that.nextIndex = null;
             that.nextView = null;
 
             tabView.fire("changed", that.currentIndex);
@@ -58,14 +60,28 @@ View.prototype = {
         }
     },
     _setCurrent: function(view, index, animation) {
-        var that,
-            tabView,
+        var tabView,
             option,
-            isNext,
+            currentValue,
             cssValue;
 
         tabView = this.tabView;
+        currentValue = 0;
+
+        // 将正在进行的动画停下来
+        if(this.animator.isStarted) {
+            this.animator.stop();
+            currentValue = parseFloat(tabView._current.css(this.animationCssItem));
+            option = this.animator[1];
+            if(option.target) {
+                option.target.css("display", "none");
+            }
+        }
+
         if(this.currentIndex === index) {
+            tabView._current.css(this.animationCssItem, 0);
+            this.nextIndex = null;
+            this.nextView = null;
             return;
         }
 
@@ -79,21 +95,24 @@ View.prototype = {
             tabView.fire("changed", index);
             return;
         }
-
-        this.nextView = view;
+        
         cssValue = tabView.isHorizontal ? tabView.bodyWidth : tabView.bodyHeight;
-        if(index > this.currentIndex) {
-            this.nextView.css(this.animationCssItem, cssValue + "px");
-            isNext = true;
+        if(currentValue === 0) {
+            // 更新动画的方向
+            this.animator.isNext = index > this.currentIndex;
+        }
+        this.nextIndex = index;
+        this.nextView = view;
+        if(this.animator.isNext) {
+            this.nextView.css(this.animationCssItem, (cssValue + currentValue) + "px");
         } else {
-            this.nextView.css(this.animationCssItem, -cssValue + "px");
-            isNext = false;
+            this.nextView.css(this.animationCssItem, (-cssValue + currentValue) + "px");
         }
 
         option = this.animator[0];
         option.target = tabView._current;
-        option.begin = parseFloat(option.target.css(this.animationCssItem));
-        if(isNext) {
+        option.begin = currentValue;
+        if(this.animator.isNext) {
             option.end = -cssValue;
         } else {
             option.end = cssValue;
