@@ -7407,6 +7407,7 @@ var sizeInfo = {
     minWidth = 120,
     chooserTypes;
 
+function noop() {}
 function addZero (val) {
     return val < 10 ? "0" + val : "" + val;
 }
@@ -7657,11 +7658,13 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         };
     },
     _defineEvents: function() {
-        return ["changing", "changed", "listChanged"];
+        return ["changing", "changed", "cancel", "listChanged"];
     },
     _create: function() {
         this._super();
 
+        // 存放当前的选择数据
+        this.scrollData = null;
         if (sizeInfo.hasOwnProperty(this.option.size)) {
             this.size = sizeInfo[this.option.size];
         } else {
@@ -7700,9 +7703,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-clear-text";
+        this._clearClass = "ui-chooser-clear";
         this._clear = function () {
-            this.element.val("");
+            this.cancelSelection();
         };
         this.wrapElement(this.element, this.chooserPanel);
         this._super();
@@ -7737,7 +7740,6 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             height: this.size * (this.option.itemSize + this.option.margin) + this.option.margin
         };
 
-        this.scrollData = null;
         if(ui.core.isString(this.option.type)) {
             if(chooserTypes.hasOwnProperty(this.option.type)) {
                 this.scrollData = chooserTypes[this.option.type].call(this);
@@ -7852,24 +7854,47 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _getAttachmentCount: function() {
         return Math.floor((this.size - 1) / 2);
     },
-    _getValues: function() {
+    _getIndexes: function(fn) {
         var attachmentCount,
-            values,
+            indexes,
             i, len, item, index;
         
         attachmentCount = this._getAttachmentCount();
-        values = [];
+        indexes = [];
+        if(!ui.core.isFunction(fn)) {
+            fn = noop;
+        }
         for(i = 0, len = this.scrollData.length; i < len; i++) {
             item = this.scrollData[i];
             if(item._current) {
                 index = parseInt(item._current.attr("data-index"), 10);
                 index -= attachmentCount;
-                values.push(this.getValue(item.list[index]));
+                indexes.push(index);
+                fn.call(this, item.list[index]);
+            } else {
+                indexes.push(-1);
+                fn.call(this, null);
+            }
+        }
+        return indexes;
+    },
+    _getValues: function() {
+        var values,
+            indexes;
+        
+        values = [];
+        indexes = this._getIndexes(function(item) {
+            if(item) {
+                values.push(this.getValue(item));
             } else {
                 values.push("");
             }
-        }
-        return values;
+        });
+
+        return {
+            values: values,
+            indexes: indexes
+        };
     },
     _setValues: function(values) {
         var i, j, len, 
@@ -7910,10 +7935,16 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         }
     },
     _updateSelectionState: function() {
-        var val = this.element.val(), 
-            i, indexArray;
-        if (val.length > 0) {
-            this._setValues(val.split(this.option.spliter));
+        var i, indexArray;
+
+        indexArray = this._getIndexes();
+        for(i = indexArray.length - 1; i >= 0; i--) {
+            if(indexArray[i] === -1) {
+                indexArray.splice(i, 1);
+            }
+        }
+        if (indexArray.length > 0) {
+            this._setSelectionState(indexArray);
         } else if (ui.core.isFunction(this.defaultValue)) {
             this._setValues(this.defaultValue());
         } else {
@@ -7961,8 +7992,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             .addClass(selectedClass)
             .addClass("font-highlight");
 
-        eventData = {};
-        eventData.values = this._getValues();
+        eventData = this._getValues();
         eventData.text = "";
         if(Array.isArray(eventData.values)) {
             that = this;
@@ -7975,6 +8005,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             return;
         }
 
+        this._selectedItems = eventData.indexes;
         this.fire("changed", eventData);
     },
     _deselectItem: function(item) {
@@ -7982,6 +8013,34 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             item._current
                 .removeClass(selectedClass)
                 .removeClass("font-highlight");
+        }
+    },
+    /** 获取当前选中项 */
+    getSelection: function() {
+        var selectionItem,
+            values = [],
+            i;
+        selectionItem = this._getValues();
+        for(i = 0; i < selectionItem.indexes.length; i++) {
+            if(selectionItem.indexes[i] === -1) {
+                values.push(null);
+            } else {
+                values.push(selectionItem.values[i]);
+            }
+        }
+        return values;
+    },
+    /** 设置选中项 */
+    setSelection: function(values) {
+        this._setValues(values);
+    },
+    /** 清除选择 */
+    cancelSelection: function(isFire) {
+        this.scrollData.forEach(function(item) {
+            item._current = null;
+        });
+        if(isFire !== false) {
+            this.fire("cancel");
         }
     }
 });
@@ -19939,8 +19998,10 @@ View.prototype = {
             }
         });
         this.animator.onEnd = function() {
+            that.currentIndex = that.nextIndex;
             tabView._current.css("display", "none");
             tabView._current = that.nextView;
+            that.nextIndex = null;
             that.nextView = null;
 
             tabView.fire("changed", that.currentIndex);
@@ -19965,19 +20026,32 @@ View.prototype = {
         }
     },
     _setCurrent: function(view, index, animation) {
-        var that,
-            tabView,
+        var tabView,
             option,
-            isNext,
+            currentValue,
             cssValue;
 
         tabView = this.tabView;
+        currentValue = 0;
+
+        // 将正在进行的动画停下来
+        if(this.animator.isStarted) {
+            this.animator.stop();
+            currentValue = parseFloat(tabView._current.css(this.animationCssItem));
+            option = this.animator[1];
+            if(option.target) {
+                option.target.css("display", "none");
+            }
+        }
+
         if(this.currentIndex === index) {
+            tabView._current.css(this.animationCssItem, 0);
+            this.nextIndex = null;
+            this.nextView = null;
             return;
         }
 
-        result = tabView.fire("changing", index);
-        if(result === false) {
+        if(tabView.fire("changing", index) === false) {
             return;
         }
 
@@ -19986,21 +20060,24 @@ View.prototype = {
             tabView.fire("changed", index);
             return;
         }
-
-        this.nextView = view;
+        
         cssValue = tabView.isHorizontal ? tabView.bodyWidth : tabView.bodyHeight;
-        if(index > this.currentIndex) {
-            this.nextView.css(this.animationCssItem, cssValue + "px");
-            isNext = true;
+        if(currentValue === 0) {
+            // 更新动画的方向
+            this.animator.isNext = index > this.currentIndex;
+        }
+        this.nextIndex = index;
+        this.nextView = view;
+        if(this.animator.isNext) {
+            this.nextView.css(this.animationCssItem, (cssValue + currentValue) + "px");
         } else {
-            this.nextView.css(this.animationCssItem, -cssValue + "px");
-            isNext = false;
+            this.nextView.css(this.animationCssItem, (-cssValue + currentValue) + "px");
         }
 
         option = this.animator[0];
         option.target = tabView._current;
-        option.begin = parseFloat(option.target.css(this.animationCssItem));
-        if(isNext) {
+        option.begin = currentValue;
+        if(this.animator.isNext) {
             option.end = -cssValue;
         } else {
             option.end = cssValue;
@@ -20304,7 +20381,10 @@ ui.define("ctrls.TabView", {
         if(!ui.core.isNumber(index)) {
             index = 0;
         }
-        this.model.showIndex(index, !!animation);
+        if(animation !== false) {
+            animation = true;
+        }
+        this.model.showIndex(index, animation);
     },
     /** 放置视图 */
     putBodies: function(width, height) {
@@ -20326,22 +20406,36 @@ ui.define("ctrls.TabView", {
 });
 
 // 缓存数据，切换工具栏按钮
-function TabManager() {
+function TabManager(tabView, changingHandler, changedHandler) {
     if(this instanceof TabManager) {
-        this.initialize();
+        this.initialize(tabView, changingHandler, changedHandler);
     } else {
-        return new TabManager();
+        return new TabManager(tabView, changingHandler, changedHandler);
     }
 }
 TabManager.prototype = {
     constructor: TabManager,
-    initialize: function() {
+    initialize: function(tabView, changingHandler, changedHandler) {
+        this.tabView = tabView;
         this.tabTools = [];
         this.tabLoadStates = [];
-        this.tabChanging = function (e, index) {
-            this.showTools(index);
-        };
-        this.tabChanged = null;
+        
+        if(!ui.core.isFunction(changedHandler)) {
+            changedHandler = changingHandler;
+            changingHandler = null;
+        }
+        if(!ui.core.isFunction(changingHandler)) {
+            changingHandler = function(e, index) {
+                this.showTools(index);
+            };
+        }
+
+        if(this.tabView) {
+            this.tabView.changing(changingHandler.bind(this));
+            if(ui.core.isFunction(changedHandler)) {
+                this.tabView.changed(changedHandler.bind(this));
+            }
+        }
     },
     addTools: function() {
         var i, len,
@@ -20403,7 +20497,7 @@ TabManager.prototype = {
             args.push(arguments[i]);
         }
         if(!this.tabLoadStates[index]) {
-            func.apply(caller, args);
+            fn.apply(caller, args);
             this.tabLoadStates[index] = true;
         }
     },
@@ -21115,8 +21209,9 @@ ui.define("ui.ctrls.FilterTool", {
         this.filterPanel = $("<div class='filter-tools-panel'>");
         this.parent = this.element;
         this.radioName = prefix + "_" + (filterCount++);
+        this._current = null;
 
-        this.onItemClickHandler = onItemClick.bind(this);
+        this.onItemClickHandler = $.proxy(onItemClick, this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {
@@ -21138,48 +21233,59 @@ ui.define("ui.ctrls.FilterTool", {
         this.setIndex(this.option.defaultIndex);
     },
     _createTool: function (item, index) {
+        var label,
+            radio,
+            span;
+
         if (!ui.core.isPlainObject(item)) {
             return;
         }
 
-        item.index = index;
-        var label = $("<label class='filter-tools-item' />"),
-            radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>"),
-            span = $("<span class='filter-tools-item-text' />");
+        label = $("<label class='filter-tools-item' />");
+        radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>");
+        span = $("<span class='filter-tools-item-text' />");
         label.append(radio).append(span);
 
+        label.attr("data-index", index);
         if (index === 0) {
             label.addClass("filter-tools-item-first");
         }
         label.addClass("font-highlight").addClass("border-highlight");
+
         radio.prop("value", item.value || "");
         span.text(item.text || "tool" + index);
-        label.data("dataItem", item);
 
         this.filterPanel.append(label);
     },
+    _getSelectionData: function(elem) {
+        var index = parseInt(elem.attr("data-index"), 10);
+        return {
+            itemIndex: index,
+            itemData: this.getViewData()[index]
+        };
+    },
     _selectItem: function (label) {
-        var item = label.data("dataItem"),
-            currentItem;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
-            if (item.index == currentItem.index) {
+        var eventData;
+        if (this._current) {
+            if (label[0] === this._current[0]) {
                 return;
             }
 
-            this.current
+            this._current
                 .addClass("font-highlight")
                 .removeClass("background-highlight");
-            this.fire("deselected", currentItem);
+            eventData = this._getSelectionData(this._current);
+            this.fire("deselected", eventData);
         }
 
-        this.current = label;
+        this._current = label;
         label.find("input").prop("checked", true);
-        this.current
+        this._current
             .addClass("background-highlight")
             .removeClass("font-highlight");
 
-        this.fire("selected", item);
+        eventData = this._getSelectionData(this._current);
+        this.fire("selected", eventData);
     },
     _getIndexByValue: function(value) {
         var viewData,
@@ -21245,11 +21351,10 @@ ui.define("ui.ctrls.FilterTool", {
             : [];
     },
     getSelection: function () {
-        var currentItem = null;
-        if (this.current) {
-            currentItem = this.current.data("dataItem");
+        if (this._current) {
+            return this._getSelectionData(this._current);
         }
-        return currentItem;
+        return null;
     },
     setIndex: function (index) {
         var viewData,

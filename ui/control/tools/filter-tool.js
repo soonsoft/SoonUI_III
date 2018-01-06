@@ -183,7 +183,7 @@ ui.define("ui.ctrls.FilterTool", {
     },
     setIndex: function (index) {
         var viewData,
-            lable;
+            label;
 
         viewData = this.getViewData();
         if (!viewData.length === 0) {

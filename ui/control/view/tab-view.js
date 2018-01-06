@@ -85,8 +85,7 @@ View.prototype = {
             return;
         }
 
-        result = tabView.fire("changing", index);
-        if(result === false) {
+        if(tabView.fire("changing", index) === false) {
             return;
         }
 
