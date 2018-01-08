@@ -406,7 +406,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         return {
             parentW: parentW,
             parentH: parentH,
-            parentLoc: parentLoc
+            parentLoc: parentLocation
         };
     }
 });
