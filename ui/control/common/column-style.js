@@ -372,15 +372,14 @@ cellParameterFormatter = {
             prefix += "";
         }
         imageZoomer = ui.ctrls.ImageZoomer({
-            getNext: function(val) {
-                var img = this.target;
-                var cell = img.parent().parent();
-                var row = cell.parent();
-                var tableBody = row.parent();
-                var rowCount = tableBody[0].rows.length;
-                
-                var rowIndex = row[0].rowIndex + val;
-                var imgPanel = null;
+            get: function(val) {
+                var img = this.target,
+                    cell = img.parent().parent(),
+                    row = cell.parent(),
+                    tableBody = row.parent(),
+                    rowCount = tableBody[0].rows.length,
+                    rowIndex = row[0].rowIndex + val,
+                    imgPanel;
                 do {
                     if(rowIndex < 0 || rowIndex >= rowCount) {
                         return false;
@@ -391,17 +390,17 @@ cellParameterFormatter = {
                 } while(imgPanel.hasClass("failed-image"));
                 return img;
             },
-            onNext: function() {
-                return this.option.getNext.call(this, 1) || null;
+            getNext: function() {
+                return this.option.get(1) || null;
             },
-            onPrev: function() {
-                return this.option.getNext.call(this, -1) || null;
+            getPrev: function() {
+                return this.option.get(-1) || null;
             },
             hasNext: function() {
-                return !!this.option.getNext.call(this, 1);
+                return !!this.option.get(1);
             },
             hasPrev: function() {
-                return !!this.option.getNext.call(this, -1);
+                return !!this.option.get(-1);
             }
         });
         return function(imageSrc, column, index, td) {
