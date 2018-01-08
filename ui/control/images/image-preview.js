@@ -1,4 +1,25 @@
 //图片预览视图
+
+function onChooserItemClick(e) {
+    var elem = $(e.target),
+        nodeName = elem.nodeName(),
+        index;
+    if(elem.hasClass("chooser-queue")) {
+        return;
+    }
+    if(nodeName === "IMG") {
+        elem = elem.parent();
+    }
+    index = parseInt(elem.attr("data-index"), 10);
+    if(this.fire("changing", index) === false) {
+        return;
+    }
+    if(this.selectItem(index) === false) {
+        return;
+    }
+    this.imageViewer.showImage(index);
+}
+
 ui.define("ui.ctrls.ImagePreview", {
     _defineOption: function () {
         return {
@@ -28,8 +49,14 @@ ui.define("ui.ctrls.ImagePreview", {
             this.option.chooserButtonSize = 16;
         }
         this.item = [];
+
+        this._onChooserItemClickHandler = onChooserItemClick.bind(this);
     },
     _render: function () {
+        var buttonSize,
+            showCss,
+            that;
+        
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
@@ -37,20 +64,20 @@ ui.define("ui.ctrls.ImagePreview", {
             .append(this.chooserQueue)
             .append(this.chooserNext);
         
-        this.chooserPrev.click((function(e) {
-            this.beforeItems();
-        }).bind(this));
-        this.chooserNext.click((function(e) {
-            this.afterItems();
-        }).bind(this));
+        that = this;
+        this.chooserPrev.click(function(e) {
+            that.beforeItems();
+        });
+        this.chooserNext.click(function(e) {
+            that.afterItems();
+        });
         
         this.chooserAnimator = ui.animator({
             target: this.chooserQueue,
             ease: ui.AnimationStyle.easeFromTo
         });
         
-        var buttonSize = this.option.chooserButtonSize,
-            showCss = null;
+        buttonSize = this.option.chooserButtonSize;
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
@@ -126,22 +153,21 @@ ui.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click(this._onClickHandler.bind(this));
+        this.chooserQueue.click(this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
     _initImages: function(images) {
         var width, 
             height,
-            marginValue,
-            i, len,
-            image,
+            marginValue, 
+            i, len, image,
             item, img,
             css;
 
+        marginValue = 0;
         height = this.smallImageSize - 4;
         width = height;
-        marginValue = 0;
 
         this.imageSource = images;
         for(i = 0, len = images.length; i < len; i++) {
@@ -181,57 +207,22 @@ ui.define("ui.ctrls.ImagePreview", {
             this.fire("changed", this.imageViewer.currentIndex);
         }
     },
-    _getImageDisplay: function(displayWidth, displayHeight, imgWidth, imgHeight) {
-        var width,
-            height,
-            css = {
-                top: "0px",
-                left: "0px"
-            };
+    _getImageDisplay: function(width, height, originalWidth, originalHeight) {
+        var context = {
+            width: width,
+            height: height,
+            originalWidth: originalWidth,
+            originalHeight: originalHeight
+        };
+        ui.ImageLoader.centerCrop.call(context);
+        
+        return {
+            "width": context.displayWidth + "px",
+            "height": context.displayHeight + "px",
+            "top": context.marginTop + "px",
+            "left": context.marginLeft + "px"
+        };
 
-        if (displayWidth > displayHeight) {
-            height = displayHeight;
-            width = Math.floor(imgWidth * (height / imgHeight));
-            if (width > displayWidth) {
-                width = displayWidth;
-                height = Math.floor(imgHeight * (width / imgWidth));
-                css.top = Math.floor((displayHeight - height) / 2) + "px";
-            } else {
-                css.left = Math.floor((displayWidth - width) / 2) + "px";
-            }
-        } else {
-            width = displayWidth;
-            height = Math.floor(imgHeight * (width / imgWidth));
-            if (height > displayHeight) {
-                height = displayHeight;
-                width = Math.floor(imgWidth * (height / imgHeight));
-                css.left = Math.floor((displayWidth - width) / 2) + "px";
-            } else {
-                css.top = Math.floor((displayHeight - height) / 2) + "px";
-            }
-        }
-        css.width = width + "px";
-        css.height = height + "px";
-        return css;
-    },
-    _onClickHandler: function(e) {
-        var elem = $(e.target),
-            nodeName = elem.nodeName(),
-            index;
-        if(elem.hasClass("chooser-queue")) {
-            return;
-        }
-        if(nodeName === "IMG") {
-            elem = elem.parent();
-        }
-        index = parseInt(elem.attr("data-index"), 10);
-        if(this.fire("changing", index) === false) {
-            return;
-        }
-        if(this.selectItem(index) === false) {
-            return;
-        }
-        this.imageViewer.showImage(index);
     },
     selectItem: function(index) {
         var elem = this.items[index];
@@ -261,16 +252,15 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     setImages: function(images) {
         var that;
-
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
         
         this.option.images = images;
-        that = this;
         if(!this.imageViewer) {
             this.imageViewer = this.viewer.imageViewer(this.option);
+            that = this;
             this.imageViewer.ready(function(e, images) {
                 that._initImages(images);
                 that.fire("ready");
