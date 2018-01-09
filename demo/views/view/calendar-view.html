@@ -201,8 +201,8 @@
                                 { text: "日", value: "DayView" }
                             ]
                         });
-                        this.viewFilter.selected(function(e, item) {
-                            pageLogic.calendarView.changeView(item.value);
+                        this.viewFilter.selected(function(e, eventData) {
+                            pageLogic.calendarView.changeView(eventData.itemData.value);
                         });
                         $("#calendarTitle").text(pageLogic.calendarView.getTitle());
                     },

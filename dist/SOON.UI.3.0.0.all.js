@@ -1726,6 +1726,8 @@ ui.str = {
         }
         if(!htmlEncodeSpan) {
             htmlEncodeSpan = $("<span />");
+        } else {
+            htmlEncodeSpan.html("");
         }
         return htmlEncodeSpan.append(document.createTextNode(str)).html();
     },
@@ -1736,6 +1738,8 @@ ui.str = {
         }
         if(!htmlEncodeSpan) {
             htmlEncodeSpan = $("<span />");
+        } else {
+            htmlEncodeSpan.html("");
         }
         return htmlEncodeSpan.html(str).text();
     },
