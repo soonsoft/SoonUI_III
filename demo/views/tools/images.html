@@ -25,23 +25,33 @@
                     图片放大镜(<span class="font-highlight">ui.ctrls.ImageWatcher</span>)，类似淘宝的商品细节展示。
                 </p>
                 <div class="box-line clear" style="overflow:visible;">
-                    <div class="box-column" style="width:400px;height:300px;background:#ccc;">
+                    <div class="box-column theme-bg4" style="width:400px;height:300px;">
                         <img id="imageWatchSource1" src="" alt="" />
                     </div>
-                    <div class="box-column" style="width:300px;height:300px;background:#ccc;">
+                    <div class="box-column theme-bg4" style="width:300px;height:300px;">
                         <img id="imageWatchSource2" src="" alt="" />
                     </div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.ImageViewer</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    图片轮播(<span class="font-highlight">ui.ctrls.ImageViewer</span>)，这是一个图片轮播组件，充当一个controller的角色，本身不是完整的控件。<br />
+                    它可以被嵌入到页面的任意位置，可以通过调用改组件提供的API方便的和各种交互逻辑集成。
+                </p>
+                <div class="box-line">
+                    <div id="imageViewer" class="theme-bg4" style="width:576px;height:360px;"></div>
                 </div>
             </dd>
             <dt>ui.ctrls.ImagePreview</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    图片轮播(<span class="font-highlight">ui.ctrls.ImagePreview</span>)
+                    图片预览视图(<span class="font-highlight">ui.ctrls.ImagePreview</span>)，这是结合上面<span class="font-highlight">ui.ctrls.ImageViewer</span>实现的一个完整的图片预览视图控件。<br />
                 </p>
-                <div class="box-line clear">
+                <div class="box-line">
                     <div id="preview1" class="image-preview" style="height:448px">
-                        <div class="image-view-panel" style="width:100%;height:400px;background-color:#CCCCCC;"></div>
-                        <div class="image-preview-chooser" style="background-color:#F1F1F1"></div>
+                        <div class="image-view-panel theme-bg4" style="width:100%;height:400px;"></div>
+                        <div class="image-preview-chooser theme-panel"></div>
                     </div>
                 </div>
                 <p class="description-paragraph">
@@ -49,8 +59,8 @@
                 </p>
                 <div class="box-line clear">
                     <div id="preview2" class="image-preview" style="width:648px;">
-                        <div class="image-view-panel" style="width:600px;height:100%;background-color:#CCCCCC;position:absolute;"></div>
-                        <div class="image-preview-chooser" style="background-color:#F1F1F1;position:absolute;left:600px;height:100%;width:48px;"></div>
+                        <div class="image-view-panel theme-bg4" style="width:600px;height:100%;position:absolute;"></div>
+                        <div class="image-preview-chooser theme-panel" style="position:absolute;left:600px;height:100%;width:48px;"></div>
                     </div>
                 </div>
             </dd>
@@ -123,6 +133,7 @@
                     before: function() {
                         createImageZoomer.call(this);
                         createImageWather.call(this);
+                        createImageViewer.call(this);
                         createImagePreview.call(this);
 
                         $(".ui-fold-view").foldView();
@@ -204,6 +215,18 @@
                         zoomWidth: 400,
                         zoomHeight: 300
                     });
+                });
+            }
+
+            function createImageViewer() {
+                this.imageViewer = $("#imageViewer").imageViewer({
+                    interval: 2000,
+                    hasSwitchButtom: true,
+                    images: [
+                        "../../content/pictures/24.jpg",
+                        "../../content/pictures/25.jpg",
+                        "../../content/pictures/26.jpg"
+                    ]
                 });
             }
 
