@@ -19,7 +19,7 @@ ui.define("ui.ctrls.ImageViewer", {
         if(!Array.isArray(this.option.images)) {
             this.option.images = [];
         }
-        if(ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
+        if(!ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
             this.isAutoView = false;
         } else {
             this.isAutoView = true;
