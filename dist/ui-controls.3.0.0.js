@@ -857,15 +857,14 @@ cellParameterFormatter = {
             prefix += "";
         }
         imageZoomer = ui.ctrls.ImageZoomer({
-            getNext: function(val) {
-                var img = this.target;
-                var cell = img.parent().parent();
-                var row = cell.parent();
-                var tableBody = row.parent();
-                var rowCount = tableBody[0].rows.length;
-                
-                var rowIndex = row[0].rowIndex + val;
-                var imgPanel = null;
+            get: function(val) {
+                var img = this.target,
+                    cell = img.parent().parent(),
+                    row = cell.parent(),
+                    tableBody = row.parent(),
+                    rowCount = tableBody[0].rows.length,
+                    rowIndex = row[0].rowIndex + val,
+                    imgPanel;
                 do {
                     if(rowIndex < 0 || rowIndex >= rowCount) {
                         return false;
@@ -876,17 +875,17 @@ cellParameterFormatter = {
                 } while(imgPanel.hasClass("failed-image"));
                 return img;
             },
-            onNext: function() {
-                return this.option.getNext.call(this, 1) || null;
+            getNext: function() {
+                return this.option.get(1) || null;
             },
-            onPrev: function() {
-                return this.option.getNext.call(this, -1) || null;
+            getPrev: function() {
+                return this.option.get(-1) || null;
             },
             hasNext: function() {
-                return !!this.option.getNext.call(this, 1);
+                return !!this.option.get(1);
             },
             hasPrev: function() {
-                return !!this.option.getNext.call(this, -1);
+                return !!this.option.get(-1);
             }
         });
         return function(imageSrc, column, index, td) {
@@ -17487,6 +17486,27 @@ $.fn.uploader = function(option) {
 (function($, ui) {
 "use strict";
 //图片预览视图
+
+function onChooserItemClick(e) {
+    var elem = $(e.target),
+        nodeName = elem.nodeName(),
+        index;
+    if(elem.hasClass("chooser-queue")) {
+        return;
+    }
+    if(nodeName === "IMG") {
+        elem = elem.parent();
+    }
+    index = parseInt(elem.attr("data-index"), 10);
+    if(this.fire("changing", index) === false) {
+        return;
+    }
+    if(this.selectItem(index) === false) {
+        return;
+    }
+    this.imageViewer.showImage(index);
+}
+
 ui.define("ui.ctrls.ImagePreview", {
     _defineOption: function () {
         return {
@@ -17516,8 +17536,14 @@ ui.define("ui.ctrls.ImagePreview", {
             this.option.chooserButtonSize = 16;
         }
         this.item = [];
+
+        this._onChooserItemClickHandler = onChooserItemClick.bind(this);
     },
     _render: function () {
+        var buttonSize,
+            showCss,
+            that;
+        
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
@@ -17525,20 +17551,20 @@ ui.define("ui.ctrls.ImagePreview", {
             .append(this.chooserQueue)
             .append(this.chooserNext);
         
-        this.chooserPrev.click((function(e) {
-            this.beforeItems();
-        }).bind(this));
-        this.chooserNext.click((function(e) {
-            this.afterItems();
-        }).bind(this));
+        that = this;
+        this.chooserPrev.click(function(e) {
+            that.beforeItems();
+        });
+        this.chooserNext.click(function(e) {
+            that.afterItems();
+        });
         
         this.chooserAnimator = ui.animator({
             target: this.chooserQueue,
             ease: ui.AnimationStyle.easeFromTo
         });
         
-        var buttonSize = this.option.chooserButtonSize,
-            showCss = null;
+        buttonSize = this.option.chooserButtonSize;
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
@@ -17614,22 +17640,21 @@ ui.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click(this._onClickHandler.bind(this));
+        this.chooserQueue.click(this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
     _initImages: function(images) {
         var width, 
             height,
-            marginValue,
-            i, len,
-            image,
+            marginValue, 
+            i, len, image,
             item, img,
             css;
 
+        marginValue = 0;
         height = this.smallImageSize - 4;
         width = height;
-        marginValue = 0;
 
         this.imageSource = images;
         for(i = 0, len = images.length; i < len; i++) {
@@ -17669,57 +17694,22 @@ ui.define("ui.ctrls.ImagePreview", {
             this.fire("changed", this.imageViewer.currentIndex);
         }
     },
-    _getImageDisplay: function(displayWidth, displayHeight, imgWidth, imgHeight) {
-        var width,
-            height,
-            css = {
-                top: "0px",
-                left: "0px"
-            };
+    _getImageDisplay: function(width, height, originalWidth, originalHeight) {
+        var context = {
+            width: width,
+            height: height,
+            originalWidth: originalWidth,
+            originalHeight: originalHeight
+        };
+        ui.ImageLoader.centerCrop.call(context);
+        
+        return {
+            "width": context.displayWidth + "px",
+            "height": context.displayHeight + "px",
+            "top": context.marginTop + "px",
+            "left": context.marginLeft + "px"
+        };
 
-        if (displayWidth > displayHeight) {
-            height = displayHeight;
-            width = Math.floor(imgWidth * (height / imgHeight));
-            if (width > displayWidth) {
-                width = displayWidth;
-                height = Math.floor(imgHeight * (width / imgWidth));
-                css.top = Math.floor((displayHeight - height) / 2) + "px";
-            } else {
-                css.left = Math.floor((displayWidth - width) / 2) + "px";
-            }
-        } else {
-            width = displayWidth;
-            height = Math.floor(imgHeight * (width / imgWidth));
-            if (height > displayHeight) {
-                height = displayHeight;
-                width = Math.floor(imgWidth * (height / imgHeight));
-                css.left = Math.floor((displayWidth - width) / 2) + "px";
-            } else {
-                css.top = Math.floor((displayHeight - height) / 2) + "px";
-            }
-        }
-        css.width = width + "px";
-        css.height = height + "px";
-        return css;
-    },
-    _onClickHandler: function(e) {
-        var elem = $(e.target),
-            nodeName = elem.nodeName(),
-            index;
-        if(elem.hasClass("chooser-queue")) {
-            return;
-        }
-        if(nodeName === "IMG") {
-            elem = elem.parent();
-        }
-        index = parseInt(elem.attr("data-index"), 10);
-        if(this.fire("changing", index) === false) {
-            return;
-        }
-        if(this.selectItem(index) === false) {
-            return;
-        }
-        this.imageViewer.showImage(index);
     },
     selectItem: function(index) {
         var elem = this.items[index];
@@ -17749,16 +17739,15 @@ ui.define("ui.ctrls.ImagePreview", {
     },
     setImages: function(images) {
         var that;
-
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
         this.empty();
         
         this.option.images = images;
-        that = this;
         if(!this.imageViewer) {
             this.imageViewer = this.viewer.imageViewer(this.option);
+            that = this;
             this.imageViewer.ready(function(e, images) {
                 that._initImages(images);
                 that.fire("ready");
@@ -17883,7 +17872,7 @@ ui.define("ui.ctrls.ImageViewer", {
         if(!Array.isArray(this.option.images)) {
             this.option.images = [];
         }
-        if(ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
+        if(!ui.core.isNumber(this.option.interval) || this.option.interval <= 0) {
             this.isAutoView = false;
         } else {
             this.isAutoView = true;
@@ -18238,10 +18227,10 @@ ui.define("ui.ctrls.ImageWatcher", {
     },
     _initZoomer: function() {
         var that = this;
-        if(ui.core.isNumber(this.option.zoomHeight)) {
+        if(!ui.core.isNumber(this.option.zoomHeight)) {
             this.zoomHeight = this.element.height();
         }
-        if(ui.core.isNumber(this.option.zoomWidth)) {
+        if(!ui.core.isNumber(this.option.zoomWidth)) {
             this.zoomWidth = this.zoomHeight;
         }
         this.zoomView.css({
@@ -18368,6 +18357,7 @@ function loadImageSize(src) {
                 width: -1,
                 height: -1
             };
+
         reimg.onload = function () {
             reimg.onload = null;
             size.width = reimg.width;
@@ -18387,8 +18377,8 @@ ui.define("ui.ctrls.ImageZoomer", {
     _defineOption: function () {
         return {
             parentContent: $(document.body),
-            onNext: null,
-            onPrev: null,
+            getNext: null,
+            getPrev: null,
             hasNext: null,
             hasPrev: null,
             getLargeImageSrc: null
@@ -18398,6 +18388,8 @@ ui.define("ui.ctrls.ImageZoomer", {
         return ["hided"];
     },
     _create: function () {
+        var that;
+
         this.parentContent = this.option.parentContent;
         this.closeButton = null;
         this.mask = null;
@@ -18408,15 +18400,25 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.targetTop = null;
         this.targetLeft = null;
 
-        if(ui.core.isFunction(this.option.getLargeImageSrc)) {
+        if($.isFunction(this.option.getLargeImageSrc)) {
             this._getLargeImageSrc = this.option.getLargeImageSrc;
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
+
+        that = this;
+        ["getNext", "getPrev", "hasNext", "hasPrev"].forEach(function(key) {
+            var fn = that.option[key];
+            if(ui.core.isFunction(fn)) {
+                that.option[key] = fn.bind(that);
+            } else {
+                that.option[key] = null;
+            }
+        });
     },
     _render: function () {
-        var that;
-
+        var that = this;
+        
         this.imagePanel = $("<div class='show-image-panel' />");
         this.currentView = $("<div class='image-view-panel' style='display:none;' />");
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
@@ -18424,7 +18426,6 @@ ui.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='close-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        that = this;
         this.closeButton.click(function () {
             that.hide();
         });
@@ -18433,14 +18434,14 @@ ui.define("ui.ctrls.ImageZoomer", {
             .append(this.currentView)
             .append(this.nextView)
             .append(this.closeButton);
-        if(ui.core.isFunction(this.option.onNext)) {
+        if(this.option.getNext) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
             this.nextButton.click(function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
-        if(ui.core.isFunction(this.option.onPrev)) {
+        if(this.option.getPrev) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
             this.prevButton.click(function(e) {
                 that._doPrevView();
@@ -18484,15 +18485,15 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     _updateButtonState: function() {
-        if(ui.core.isFunction(this.option.hasNext)) {
-            if(this.option.hasNext.call(this)) {
+        if(this.option.hasNext) {
+            if(this.option.hasNext()) {
                 this.nextButton.removeClass("disabled-button");
             } else {
                 this.nextButton.addClass("disabled-button");
             }
         }
-        if(ui.core.isFunction(this.option.hasPrev)) {
-            if(this.option.hasPrev.call(this)) {
+        if(this.option.hasPrev) {
+            if(this.option.hasPrev()) {
                 this.prevButton.removeClass("disabled-button");
             } else {
                 this.prevButton.addClass("disabled-button");
@@ -18500,17 +18501,16 @@ ui.define("ui.ctrls.ImageZoomer", {
         }
     },
     show: function (target) {
-        var content,
-            img,
-            left,
-            top,
-            that;
+        var img,
+            that,
+            left, top;
 
         this.target = target;
-        content = this._setImageSize();
+        var content = this._setImageSize();
         if (!content) {
             return;
         }
+        
         img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
         img.css({
@@ -18521,14 +18521,14 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
         this.imagePanel.css({
             "display": "block",
-            "width": content.parentWidth + "px",
-            "height": content.parentHeight + "px",
-            "left": content.parentLocation.left + "px",
-            "top": content.parentLocation.top + "px"
+            "width": content.parentW + "px",
+            "height": content.parentH + "px",
+            "left": content.parentLoc.left + "px",
+            "top": content.parentLoc.top + "px"
         });
         this.currentView.css("display", "block");
-        left = (content.parentWidth - this.width) / 2;
-        top = (content.parentHeight - this.height) / 2;
+        left = (content.parentW - this.width) / 2;
+        top = (content.parentH - this.height) / 2;
         
         that = this;
         ui.mask.open({
@@ -18564,7 +18564,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         if(this.changeViewAnimator.isStarted) {
             return;
         }
-        nextImg = this.option.onNext.call(this);
+        nextImg = this.option.getNext();
         if(!nextImg) {
             return;
         }
@@ -18579,7 +18579,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         if(this.changeViewAnimator.isStarted) {
             return;
         }
-        prevImg = this.option.onPrev.call(this);
+        prevImg = this.option.getPrev();
         if(!prevImg) {
             return;
         }
@@ -18620,8 +18620,8 @@ ui.define("ui.ctrls.ImageZoomer", {
         temp = this.currentView;
         this.currentView = this.nextView;
         this.nextView = temp;
+        
         largeSrc = this._getLargeImageSrc(this.target);
-
         content = this._setImageSize();
         if (!content) {
             return;
@@ -18629,8 +18629,8 @@ ui.define("ui.ctrls.ImageZoomer", {
         img = this.currentView.children("img");
         img.prop("src", largeSrc);
         img.css({
-            "left": (content.parentWidth - this.width) / 2 + "px",
-            "top": (content.parentHeight - this.height) / 2 + "px",
+            "left": (content.parentW - this.width) / 2 + "px",
+            "top": (content.parentH - this.height) / 2 + "px",
             "width": this.width + "px",
             "height": this.height + "px"
         });
@@ -18663,13 +18663,14 @@ ui.define("ui.ctrls.ImageZoomer", {
         if (!content) {
             return;
         }
-        left = (content.parentWidth - this.width) / 2;
-        top = (content.parentHeight - this.height) / 2;
+        left = (content.parentW - this.width) / 2;
+        top = (content.parentH - this.height) / 2;
         
         this.imagePanel.css({
-            "width": content.parentWidth + "px",
-            "height": content.parentHeight + "px",
+            "width": content.parentW + "px",
+            "height": content.parentH + "px",
         });
+
         img = this.currentView.children("img");
         img.css({
             "left": left + "px",
@@ -18679,32 +18680,25 @@ ui.define("ui.ctrls.ImageZoomer", {
         });
     },
     _getActualSize: function (img) {
-        var largeSize,
-            mem, 
-            width, 
-            height;
-
-        largeSize = img.data("LargeSize");
+        var largeSize = img.data("LargeSize"),
+            mem, w, h;
         if(!largeSize) {
             //保存原来的尺寸  
-            mem = { width: img.width(), height: img.height() };
+            mem = { w: img.width(), h: img.height() };
             //重写
             img.css({
                 "width": "auto",
                 "height": "auto"
             });
             //取得现在的尺寸 
-            width = img.width();
-            height = img.height();
+            w = img.width();
+            h = img.height();
             //还原
             img.css({
-                "width": mem.width + "px",
-                "height": mem.height + "px"
+                "width": mem.w + "px",
+                "height": mem.h + "px"
             });
-            largeSize = { 
-                width: width, 
-                height: height 
-            };
+            largeSize = { width: w, height: h };
         }
         
         return largeSize;
@@ -18712,12 +18706,9 @@ ui.define("ui.ctrls.ImageZoomer", {
     _setImageSize: function () {
         var img,
             size,
-            parentHeight,
-            parentWidth,
-            imageWidth,
-            imageHeight,
-            location,
-            parentLocation;
+            parentW, parentH,
+            imageW, imageH,
+            location, parentLocation;
 
         if (!this.currentView) {
             return;
@@ -18725,39 +18716,40 @@ ui.define("ui.ctrls.ImageZoomer", {
         if (!this.target) {
             return;
         }
+        
         img = this.currentView.children("img");
         img.stop();
         
         size = this._getActualSize(this.target);
 
-        parentHeight = this.parentContent.height();
-        parentWidth = this.parentContent.width();
-        imageWidth = size.width;
-        imageHeight = size.height;
-        if (imageWidth / parentWidth < imageHeight / parentHeight) {
-            if(imageHeight >= parentHeight) {
-                this.height = parentHeight;
+        parentH = this.parentContent.height();
+        parentW = this.parentContent.width();
+        imageW = size.width;
+        imageH = size.height;
+        if (imageW / parentW < imageH / parentH) {
+            if(imageH >= parentH) {
+                this.height = parentH;
             } else {
-                this.height = imageHeight;
+                this.height = imageH;
             }
-            this.width = Math.floor(imageWidth * (this.height / imageHeight));
+            this.width = Math.floor(imageW * (this.height / imageH));
         } else {
-            if(imageWidth >= parentWidth) {
-                this.width = parentWidth;
+            if(imageW >= parentW) {
+                this.width = parentW;
             } else {
-                this.width = imageHeight;
+                this.width = imageH;
             }
-            this.height = Math.floor(imageHeight * (this.width / imageWidth));
+            this.height = Math.floor(imageH * (this.width / imageW));
         }
         location = this.target.offset();
         parentLocation = this.parentContent.offset();
-
         this.targetTop = location.top - parentLocation.top;
         this.targetLeft = location.left - parentLocation.left;
+
         return {
-            parentWidth: parentWidth,
-            parentHeight: parentHeight,
-            parentLocation: parentLocation
+            parentW: parentW,
+            parentH: parentH,
+            parentLoc: parentLocation
         };
     }
 });
@@ -18768,8 +18760,8 @@ $.fn.addImageZoomer = function (image) {
     }
     if (image instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
-            var target = $(e.target),
-                largeSize = target.data("LargeSize");
+            var target = $(e.target);
+            var largeSize = target.data("LargeSize");
             if(largeSize) {
                 image.show(target);
             } else {

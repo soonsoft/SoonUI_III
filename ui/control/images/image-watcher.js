@@ -49,10 +49,10 @@ ui.define("ui.ctrls.ImageWatcher", {
     },
     _initZoomer: function() {
         var that = this;
-        if(ui.core.isNumber(this.option.zoomHeight)) {
+        if(!ui.core.isNumber(this.option.zoomHeight)) {
             this.zoomHeight = this.element.height();
         }
-        if(ui.core.isNumber(this.option.zoomWidth)) {
+        if(!ui.core.isNumber(this.option.zoomWidth)) {
             this.zoomWidth = this.zoomHeight;
         }
         this.zoomView.css({
