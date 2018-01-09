@@ -11531,18 +11531,27 @@ function onMouseItemClick(e) {
 // 周视图标题点击事件
 function onWeekHeadItemClick(e) {
     var th = $(e.target),
+        eventData,
         nodeName;
     while ((nodeName = th.nodeName()) !== "TH") {
         if(nodeName === "TABLE") {
             return;
         }
         th = th.parent();
+    };
+    eventData = {
+        view: this,
+        index: th[0].cellIndex
     }
-    this.calendar.fire("weekTitleClick", this, th[0].cellIndex);
+    this.calendar.fire("weekTitleClick", eventData);
 }
 // 日视图标题点击事件
 function onDayHeadItemClick(e) {
-    this.calendar.fire("weekTitleClick", this, 0);
+    var eventData = {
+        view: this,
+        index: 0
+    };
+    this.calendar.fire("weekTitleClick", eventData);
 }
 
 // 年视图
@@ -13839,17 +13848,19 @@ Selector.prototype = {
         that = this;
         //保证动画流畅
         setTimeout(function () {
-            var eventData = {
-                view: that.view,
-                beginTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), beginHour, beginMinute, 0),
-                endTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute, 0),
-                element: box,
-                originElement: null,
-                top: parseFloat(box.css("top")),
-                left: parseFloat(box.css("left")),
-                parentWidth: that.view.viewPanel.width() - timeTitleWidth,
-                parentHeight: that.view.hourTable.outerHeight()
-            };
+            var selectorInfo, 
+                eventData = {
+                    view: that.view,
+                    beginTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), beginHour, beginMinute, 0),
+                    endTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute, 0),
+                    originElement: null
+                };
+            selectorInfo = that.getSelectorInfo();
+            eventData.element = selectorInfo.element;
+            eventData.top = selectorInfo.top;
+            eventData.left = selectorInfo.left;
+            eventData.parentWidth = selectorInfo.parentWidth;
+            eventData.parentWidth = selectorInfo.parentWidth;
             that.view.calendar.fire("selected", eventData);
         }, 50);
     },
@@ -13892,7 +13903,16 @@ Selector.prototype = {
             this.selectableMax = max - 1;
         }
     },
-
+    getSelectorInfo: function() {
+        var box = this.selectionBox;
+        return {
+            element: box,
+            top: parseFloat(box.css("top")),
+            left: parseFloat(box.css("left")),
+            parentWidth: this.view.viewPanel.width() - timeTitleWidth,
+            parentHeight: this.view.hourTable.outerHeight()
+        };
+    },
     /** 获取选则的内容 */
     getSelection: function() {
         var result,

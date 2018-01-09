@@ -324,12 +324,33 @@
                         hideDayCtrlPanel(view);
                     }
                 });
-                this.calendarView.weekTitleClick(function (e, view, weekIndex) {
-                    if (view.hasSchedule(weekIndex)) {
+                this.calendarView.weekTitleClick(function (e, eventData) {
+                    var view = eventData.view,
+                        that = this,
+                        selectorInfo;
+                    if (view.hasSchedule(eventData.index)) {
                         ui.messageShow("已经设置日程信息，不能选择全天！");
                         return;
                     }
-                    view.selector.setSelectionByTime(weekIndex, "08:00:00", "18:00:00");
+                    view.selector.setSelectionByTime(eventData.index, "08:00:00", "18:00:00");
+                    setTimeout(function() {
+                        selectorInfo = view.selector.getSelectorInfo();
+                        if (that.isView(view, "WeekView")) {
+                            showWeekCtrlPanel(view, selectorInfo.element, {
+                                top: selectorInfo.top,
+                                left: selectorInfo.left,
+                                parentWidth: selectorInfo.parentWidth,
+                                parentHeight: selectorInfo.parentHeight
+                            });
+                        } else if (that.isView(view, "DayView")) {
+                            showDayCtrlPanel(view, selectorInfo.element, {
+                                top: selectorInfo.top,
+                                left: selectorInfo.left,
+                                parentWidth: selectorInfo.parentWidth,
+                                parentHeight: selectorInfo.parentHeight
+                            });
+                        }
+                    }, 240);
                 });
             }
 
