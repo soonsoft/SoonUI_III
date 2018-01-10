@@ -2176,6 +2176,11 @@ Selector.prototype = {
 
         this._selectDirection = null;
 
+        //设置选择时间
+        this._beginTime = this.view.calendar.indexToTime(beginIndex);
+        this._endTime = this.view.calendar.indexToTime(endIndex);
+        box.boxTextSpan.text(this._beginTime + " - " + this._endTime);
+
         this.selectAnimator.stop();
         option = this.selectAnimator[0];
         option.begin = parseFloat(option.target.css("top"));
@@ -2195,12 +2200,7 @@ Selector.prototype = {
 
         box.css("display", "block");
         this._isNotCompletedYet = false;
-        this.selectAnimator.start();
-
-        //设置选择时间
-        this._beginTime = this.view.calendar.indexToTime(beginIndex);
-        this._endTime = this.view.calendar.indexToTime(endIndex);
-        box.boxTextSpan.text(this._beginTime + " - " + this._endTime);
+        return this.selectAnimator.start();
     },
     _autoScrollY: function (value, direction) {
         var currentScrollY,
