@@ -2510,7 +2510,7 @@ Selector.prototype = {
         this.view.setBeginTime(beginTime);
 
         this._startCell = begin;
-        this._selectCell(begin, end);
+        return this._selectCell(begin, end);
     },
     /** 取消选择 */
     cancelSelection: function () {
