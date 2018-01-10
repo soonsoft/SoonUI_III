@@ -2161,17 +2161,18 @@ Selector.prototype = {
     },
     _selectCell: function(td) {
         var box, 
-            p, beginIndex, endIndex,
+            cellPosition, endCellPosition,
+            beginIndex, endIndex,
             option; 
 
         box = this.selectionBox;
-        p = this._getPositionAndSize(td);
+        cellPosition = this._getPositionAndSize(td);
         beginIndex = td.hourIndex;
         endIndex = td.hourIndex + 1;
         if (arguments.length > 1 && arguments[1]) {
             endIndex = arguments[1].hourIndex + 1;
-            var p2 = this._getPositionAndSize(arguments[1]);
-            p.height = p2.top + p2.height - p.top
+            endCellPosition = this._getPositionAndSize(arguments[1]);
+            cellPosition.height = endCellPosition.top + endCellPosition.height - cellPosition.top;
         }
 
         this._selectDirection = null;
@@ -2184,19 +2185,19 @@ Selector.prototype = {
         this.selectAnimator.stop();
         option = this.selectAnimator[0];
         option.begin = parseFloat(option.target.css("top"));
-        option.end = p.top;
+        option.end = cellPosition.top;
 
         option = this.selectAnimator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = p.left;
+        option.end = cellPosition.left;
 
         option = this.selectAnimator[2];
         option.begin = parseFloat(option.target.css("width"));
-        option.end = p.width;
+        option.end = cellPosition.width;
 
         option = this.selectAnimator[3];
         option.begin = parseFloat(option.target.css("height"));
-        option.end = p.height;
+        option.end = cellPosition.height;
 
         box.css("display", "block");
         this._isNotCompletedYet = false;
