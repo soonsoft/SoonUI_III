@@ -1,0 +1,214 @@
+
+<partial id="title">对话框</partial>
+<partial id="header">DIALOG BOX</partial>
+
+<partial id="content">
+    <div class="content-panel">
+        <dl class="ui-fold-view" style="padding:20px;">
+            <dt>简单模式</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    对话框(ui.ctrls.DialogBox)是非常常用的一种布局控件。往往用在展示表单和详情信息这样的场景。<br />
+                    对话框的内容部分可以事先定义在html页面上，然后通过dom方式放入对话框中，也可以用JavaScript DOM API动态创建后放入对话框中。<br />
+                    对话框有专门的按钮栏，如果需要添加按钮则可以通过参数<span class="font-highlight">buttons: []</span>进行设置，设置的数组中可以设置为id值，DOM元素和jQuery元素。<br />
+                    在设计时我们希望通过不同的移动动画来表达不同的含义，默认的情况，对话框从窗口下方被呼出，关闭时会移回下方。如果操作完成则是从窗口的上方移出。这三中不同的状态用<span class="font-highlight">show（显示）</span>，<span class="font-highlight">hide（隐藏）</span>，<span class="font-highlight">done（完成）</span>表示。<br />
+                    如果想要自定义，也可以通过参数来设置，默认已经提供了5中样式，分别是上（up）、下（down）、左（left）、右（right）四个方向的移入移除，此外还有一个很常见的淡入、淡出效果。设置参数为<span class="font-highlight">show: "up", hide: "down", done: "up"</span>。
+                </p>
+                <div class="box-line">
+                    <button id="showSimpleDialogBox" class="button background-highlight">打开对话框</button>
+                </div>
+            </dd>
+            <dt>嵌入iframe</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    当需要外链一个其它页面的时候可以通过设置参数<span>src: "http://cn.bing.com"</span>来实现。<br />
+                    <span class="font-highlight">特别注意</span>，嵌入iframe的时候要记得设置参数<span class="font-highlight">hasIframe: true</span>，这样拖动窗体的时候能保持住鼠标的轨迹，不会收到iframe元素的干扰。
+                </p>
+                <div class="box-line">
+                    <button id="showIframeDialogBox" class="button background-highlight">打开Bing</button>
+                </div>
+            </dd>
+            <dt>样式定制</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    想要修改默认风格的话有两种途径，第一种是在页面上覆盖默认的样式，第二种是通过参数来定制样式。<br />
+                    <span class="font-highlight">定制参数</span><br />
+                    title: { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式 } <br />
+                    titleHeight: 48 标题栏高度 <br />
+                    operatePanelHeight: 48 按钮栏的高度 <br />
+                    style: 窗体的样式<br />
+                    closeButtonStyle: 关闭按钮样式<br />
+                </p>
+                <div class="box-line">
+                    <button id="showStyleDialogBox" class="button background-highlight">打开对话框</button>
+                </div>
+            </dd>
+            <dt>其它定制</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    <span class="font-highlight">重要参数</span><br />
+                    width: 640，对话框的宽度 <br />
+                    height: 480，对话框的高度 <br />
+                    maskable: true，是否需要遮罩层 <br />
+                    suitable: true，是否随着对话框的变化自动居中显示 <br />
+                    resizeable: false，是否可以随意调整对话框的尺寸 <br />
+                    draggable: true，是否可以拖动位置
+                </p>
+                <div class="box-line">
+                    <button id="showCustomingDialogBox" class="button background-highlight">打开对话框</button>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</partial>
+
+<partial id="style">
+    <style type="text/css">
+        .content-panel {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .section-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-paragraph {
+            /* text-indent: 2em; */
+            line-height: 1.5;
+            font-size: 1.25em;
+        }
+
+        .box-line {
+            width: 100%;
+            height: 60px;
+            overflow: visible;
+        }
+
+        .box-column {
+            width: 200px;
+            height: 100%;
+            float: left;
+        }
+
+        .label-text {
+            line-height: 24px;
+        }
+    </style>
+</partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createSimpleDialog.call(this);
+                        createIframeDialog.call(this);
+                        createStyleDialog.call(this);
+                        createCustomingDialog.call(this);
+
+                        $(".ui-fold-view").foldView();
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+                        $("#showSimpleDialogBox").click(function(e) {
+                            pageLogic.simpleDialogBox.show();
+                        });
+                        $("#showIframeDialogBox").click(function(e) {
+                            pageLogic.iframeDialogBox.show();
+                        });
+                        $("#showStyleDialogBox").click(function(e) {
+                            pageLogic.styleDialogBox.show();
+                        });
+                        $("#showCustomingDialogBox").click(function(e) {
+                            pageLogic.customingDialogBox.show();
+                        });
+                    },
+                    load: function() {
+                        
+                    }
+                }
+            };
+
+            function createSimpleDialog() {
+                var content,
+                    yesButton,
+                    noButton;
+
+                content = $("<div style='padding-left:16px;padding-right:16px;' />");
+                content.html("<h1>我是一个简单的对话框</h1>");
+                yesButton = $("<button class='button background-highlight'>确定</button>");
+                noButton = $("<button class='button'>取消</button>");
+                this.simpleDialogBox = content.dialogBox({
+                    title: "对话框标题",
+                    resizeable: true,
+                    buttons: [yesButton, noButton]
+                });
+
+                yesButton.click(function(e) {
+                    pageLogic.simpleDialogBox.done();
+                });
+                noButton.click(function(e) {
+                    pageLogic.simpleDialogBox.hide();
+                });
+            }
+
+            function createIframeDialog() {
+                this.iframeDialogBox = ui.ctrls.DialogBox({
+                    title: "Bing",
+                    resizeable: true,
+                    width: 800,
+                    height: 600,
+                    src: "https://cn.bing.com",
+                    hasIframe: true
+                });
+            }
+
+            function createStyleDialog() {
+                var content;
+                content = $("<div style='padding-left:16px;padding-right:16px;' />");
+                content.html("<h1>我是被修改了样式的对话框</h1>");
+                this.styleDialogBox = content.dialogBox({
+                    title: {
+                        text: "新主题样式",
+                        hasHr: false,
+                        style: {
+                            "line-height": "30px",
+                            "color": "#fff !important",
+                            "background-color": "#000",//ui.theme.currentHighlight.color,
+                            "overflow": "hidden"
+                        }
+                    },
+                    titleHeight: 30,
+                    resizeable: false,
+                    draggable: false,
+                    style: {
+                        "border": "none 0"
+                    }
+                });
+            }
+
+            function createCustomingDialog() {
+                var content;
+                content = $("<div style='padding-left:16px;padding-right:16px;' />");
+                content.html("<h1>我是个性化的对话框</h1>");
+                this.customingDialogBox = content.dialogBox({
+                    title: "对话框标题",
+                    resizeable: false,
+                    draggable: false
+                });
+            }
+        })();
+    </script>
+</partial>
