@@ -4654,7 +4654,7 @@ $.fn.draggable = function(option) {
         return parseFloat(option.parent.css(prop)) || 0;
     };
     option.onBeginDrag = function(arg) {
-        var option = this.option;
+        var option = this.option,
             p = option.parent.offset();
         if(!p) p = { top: 0, left: 0 };
 

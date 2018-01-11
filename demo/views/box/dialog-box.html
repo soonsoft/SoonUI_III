@@ -12,7 +12,7 @@
                     对话框的内容部分可以事先定义在html页面上，然后通过dom方式放入对话框中，也可以用JavaScript DOM API动态创建后放入对话框中。<br />
                     对话框有专门的按钮栏，如果需要添加按钮则可以通过参数<span class="font-highlight">buttons: []</span>进行设置，设置的数组中可以设置为id值，DOM元素和jQuery元素。<br />
                     在设计时我们希望通过不同的移动动画来表达不同的含义，默认的情况，对话框从窗口下方被呼出，关闭时会移回下方。如果操作完成则是从窗口的上方移出。这三中不同的状态用<span class="font-highlight">show（显示）</span>，<span class="font-highlight">hide（隐藏）</span>，<span class="font-highlight">done（完成）</span>表示。<br />
-                    如果想要自定义，也可以通过参数来设置，默认已经提供了5中样式，分别是上（up）、下（down）、左（left）、右（right）四个方向的移入移除，此外还有一个很常见的淡入、淡出效果。设置参数为<span class="font-highlight">show: "up", hide: "down", done: "up"</span>。
+                    如果想要自定义，也可以通过参数来设置，默认已经提供了5中样式，分别是上（up）、下（down）、左（left）、右（right）四个方向的移入移出，此外还有一个很常见的淡入淡出（fadein/fadeout）的效果。设置参数为<span class="font-highlight">show: "up", hide: "down", done: "up"</span>。
                 </p>
                 <div class="box-line">
                     <button id="showSimpleDialogBox" class="button background-highlight">打开对话框</button>
@@ -180,7 +180,10 @@
 
             function createIframeDialog() {
                 this.iframeDialogBox = ui.ctrls.DialogBox({
-                    title: "Bing",
+                    title: {
+                        text: "Bing",
+                        hasHr: false
+                    },
                     resizeable: true,
                     width: 800,
                     height: 600,
@@ -200,7 +203,7 @@
                         style: {
                             "line-height": "30px",
                             "color": "#fff",
-                            "background-color": "#000",//ui.theme.currentHighlight.color,
+                            "background-color": ui.theme.currentHighlight.Color,
                             "overflow": "hidden"
                         }
                     },
