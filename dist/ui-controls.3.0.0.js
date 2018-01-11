@@ -1455,7 +1455,7 @@ hideStyles = {
 ui.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
-            // 标题
+            // 标题 { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式 }
             title: "",
             // 标题栏的高度
             titleHeight: 48,
@@ -1509,6 +1509,8 @@ ui.define("ui.ctrls.DialogBox", {
         if(!ui.core.isNumber(this.option.height)) {
             this.option.height = defaultHeight;
         }
+        this.option.titleHeight = parseInt(this.option.titleHeight, 10) || 48;
+        
         this.offsetWidth = this.width = this.option.width;
         this.offsetHeight = this.height = this.option.height;
         this.contentWidth = this.width;
@@ -1565,9 +1567,10 @@ ui.define("ui.ctrls.DialogBox", {
         if(ui.core.isPlainObject(this.option.style)) {
             this.box.css(this.option.style);
         }
+        this.titlePanel.css("height", this.option.titleHeight + "px");
         this.contentPanel.css({
             "height": this.contentHeight + "px",
-            "top": (parseInt(this.option.titleHeight, 10) || 48) + "px"
+            "top": this.option.titleHeight + "px"
         });
     },
     _initTitle: function() {
@@ -1748,8 +1751,7 @@ ui.define("ui.ctrls.DialogBox", {
     /** 设置标题 */
     setTitle: function(title, hasHr, style) {
         var titleContent,
-            titleInner,
-            i, len;
+            titleInner;
         if(ui.core.isString(title)) {
             titleContent = $("<span class='title-text font-highlight' />").text(title);
             if (hasHr !== false) {
@@ -1770,9 +1772,9 @@ ui.define("ui.ctrls.DialogBox", {
         this.titlePanel.append(titleInner);
 
         if(Array.isArray(style)) {
-            for(i = 0, len = style.length; i < len; i++) {
-                this.titlePanel.addClass(style[i]);
-            }
+            style.forEach((function(item) {
+                this.titlePanel.addClass(item);
+            }).bind(this));
         } else if(ui.core.isPlainObject(style)) {
             this.titlePanel.css(style);
         }
@@ -8589,46 +8591,47 @@ Selector.prototype = {
     },
     _selectCell: function(td) {
         var box, 
-            p, beginIndex, endIndex,
+            cellPosition, endCellPosition,
+            beginIndex, endIndex,
             option; 
 
         box = this.selectionBox;
-        p = this._getPositionAndSize(td);
+        cellPosition = this._getPositionAndSize(td);
         beginIndex = td.hourIndex;
         endIndex = td.hourIndex + 1;
         if (arguments.length > 1 && arguments[1]) {
             endIndex = arguments[1].hourIndex + 1;
-            var p2 = this._getPositionAndSize(arguments[1]);
-            p.height = p2.top + p2.height - p.top
+            endCellPosition = this._getPositionAndSize(arguments[1]);
+            cellPosition.height = endCellPosition.top + endCellPosition.height - cellPosition.top;
         }
 
         this._selectDirection = null;
-
-        this.selectAnimator.stop();
-        option = this.selectAnimator[0];
-        option.begin = parseFloat(option.target.css("top"));
-        option.end = p.top;
-
-        option = this.selectAnimator[1];
-        option.begin = parseFloat(option.target.css("left"));
-        option.end = p.left;
-
-        option = this.selectAnimator[2];
-        option.begin = parseFloat(option.target.css("width"));
-        option.end = p.width;
-
-        option = this.selectAnimator[3];
-        option.begin = parseFloat(option.target.css("height"));
-        option.end = p.height;
-
-        box.css("display", "block");
-        this._isNotCompletedYet = false;
-        this.selectAnimator.start();
 
         //设置选择时间
         this._beginTime = this.view.calendar.indexToTime(beginIndex);
         this._endTime = this.view.calendar.indexToTime(endIndex);
         box.boxTextSpan.text(this._beginTime + " - " + this._endTime);
+
+        this.selectAnimator.stop();
+        option = this.selectAnimator[0];
+        option.begin = parseFloat(option.target.css("top"));
+        option.end = cellPosition.top;
+
+        option = this.selectAnimator[1];
+        option.begin = parseFloat(option.target.css("left"));
+        option.end = cellPosition.left;
+
+        option = this.selectAnimator[2];
+        option.begin = parseFloat(option.target.css("width"));
+        option.end = cellPosition.width;
+
+        option = this.selectAnimator[3];
+        option.begin = parseFloat(option.target.css("height"));
+        option.end = cellPosition.height;
+
+        box.css("display", "block");
+        this._isNotCompletedYet = false;
+        return this.selectAnimator.start();
     },
     _autoScrollY: function (value, direction) {
         var currentScrollY,
@@ -8937,7 +8940,7 @@ Selector.prototype = {
         this.view.setBeginTime(beginTime);
 
         this._startCell = begin;
-        this._selectCell(begin, end);
+        return this._selectCell(begin, end);
     },
     /** 取消选择 */
     cancelSelection: function () {
