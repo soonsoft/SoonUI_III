@@ -236,7 +236,7 @@ hideStyles = {
 ui.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
-            // 标题
+            // 标题 { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式 }
             title: "",
             // 标题栏的高度
             titleHeight: 48,
