@@ -96,6 +96,20 @@
         .label-text {
             line-height: 24px;
         }
+
+        .style-dialog-button {
+            position: absolute;
+            display: block;
+            text-decoration: none !important;
+            font: 18px/20px Tahoma,Verdana,sans-serif;
+            width: 30px;
+            height: 30px;
+            right: 0;
+            top: 0;
+            line-height: 30px;
+            text-align: center;
+            color: #fff;
+        }
     </style>
 </partial>
 
@@ -181,11 +195,11 @@
                 content.html("<h1>我是被修改了样式的对话框</h1>");
                 this.styleDialogBox = content.dialogBox({
                     title: {
-                        text: "新主题样式",
+                        text: $("<span>新主题样式</span>"),
                         hasHr: false,
                         style: {
                             "line-height": "30px",
-                            "color": "#fff !important",
+                            "color": "#fff",
                             "background-color": "#000",//ui.theme.currentHighlight.color,
                             "overflow": "hidden"
                         }
@@ -193,8 +207,11 @@
                     titleHeight: 30,
                     resizeable: false,
                     draggable: false,
+                    closeButtonStyle: "style-dialog-button",
                     style: {
-                        "border": "none 0"
+                        "border": "none 0",
+                        "border-radius": "10px",
+                        "overflow": "hidden"
                     }
                 });
             }
