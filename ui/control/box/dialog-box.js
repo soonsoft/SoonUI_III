@@ -236,7 +236,7 @@ hideStyles = {
 ui.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
-            // 标题 { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式, textStyle: 文本样式 }
+            // 标题 { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式 }
             title: "",
             // 标题栏的高度
             titleHeight: 48,
@@ -532,8 +532,7 @@ ui.define("ui.ctrls.DialogBox", {
     /** 设置标题 */
     setTitle: function(title, hasHr, style) {
         var titleContent,
-            titleInner,
-            i, len;
+            titleInner;
         if(ui.core.isString(title)) {
             titleContent = $("<span class='title-text font-highlight' />").text(title);
             if (hasHr !== false) {
@@ -554,9 +553,9 @@ ui.define("ui.ctrls.DialogBox", {
         this.titlePanel.append(titleInner);
 
         if(Array.isArray(style)) {
-            for(i = 0, len = style.length; i < len; i++) {
-                this.titlePanel.addClass(style[i]);
-            }
+            style.forEach((function(item) {
+                this.titlePanel.addClass(item);
+            }).bind(this));
         } else if(ui.core.isPlainObject(style)) {
             this.titlePanel.css(style);
         }
