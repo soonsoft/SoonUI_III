@@ -348,6 +348,7 @@ ui.define("ui.ctrls.DialogBox", {
         if(ui.core.isPlainObject(this.option.style)) {
             this.box.css(this.option.style);
         }
+        this.titlePanel.css("height", this.option.titleHeight + "px");
         this.contentPanel.css({
             "height": this.contentHeight + "px",
             "top": this.option.titleHeight + "px"
