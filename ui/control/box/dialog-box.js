@@ -290,6 +290,8 @@ ui.define("ui.ctrls.DialogBox", {
         if(!ui.core.isNumber(this.option.height)) {
             this.option.height = defaultHeight;
         }
+        this.option.titleHeight = parseInt(this.option.titleHeight, 10) || 48;
+        
         this.offsetWidth = this.width = this.option.width;
         this.offsetHeight = this.height = this.option.height;
         this.contentWidth = this.width;
@@ -348,7 +350,7 @@ ui.define("ui.ctrls.DialogBox", {
         }
         this.contentPanel.css({
             "height": this.contentHeight + "px",
-            "top": (parseInt(this.option.titleHeight, 10) || 48) + "px"
+            "top": this.option.titleHeight + "px"
         });
     },
     _initTitle: function() {
