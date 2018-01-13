@@ -76,7 +76,8 @@
     <script type="text/javascript">
         (function() {
             var sections,
-                itemHeight;
+                itemHeight,
+                currentIndex;
 
             function resetFixedItems() {
                 var scrollTop,
@@ -84,9 +85,11 @@
 
                 scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                 index = Math.floor((scrollTop + itemHeight) / itemHeight) - 1;
-                for(i = 0; i <= index; i++) {
-                    $(sections[i]).removeClass("container-item-fixed");
+                if(currentIndex === index) {
+                    return;
                 }
+
+                sections.removeClass("container-item-fixed");
                 for(i = index + 1, len = sections.length; i < len; i++) {
                     $(sections[i]).addClass("container-item-fixed");
                 }
@@ -95,15 +98,15 @@
             $(document).ready(function(e) {
                 sections = $(".container-item");
 
-
-                var onResize = function() {
+                function onResize() {
                     var sections = $(".container-item"),
                         height = document.documentElement.clientHeight;
                     sections.css("height", height + "px");
                     $(".heighter").css("height", height * sections.length + "px");
                     itemHeight = document.documentElement.clientHeight;
                 };
-                $(window).on(onResize);
+
+                ui.page.resize(onResize);
                 onResize();
                 
                 //resetFixedItems();
