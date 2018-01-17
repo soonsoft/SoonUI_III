@@ -26,12 +26,31 @@
             width: 100%;
             height: auto;
             position: relative;
+            overflow: hidden;
         }
 
         .container-item-fixed {
             position: fixed;
             top: 0px;
             left: 0px;
+        }
+
+        .theme-container-item {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .theme-box {
+            width: 240px;
+            height: 240px;
+            border: 2px solid #aaa;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -121px;
+            margin-left: -121px;
+            border-radius: 10px;
         }
 
         h1 {
@@ -52,8 +71,28 @@
     <section class="container-item" style="background-color:#f1f1f1;z-index:10;">
         <h1>1</h1>
     </section>
-    <section class="container-item" style="background-color:#ccc;z-index:9;">
-        <h1>2</h1>
+    <section class="container-item" style="z-index:9;">
+        <div class="theme-container-item" style="background-color:#fff;height:60%;"></div>
+        <div class="theme-container-item" style="top:-18%;height:70%;">
+            <div style="width:100%;height:100%;position:absolute;">
+                <svg viewBox="0 0 2560 2560" preserveAspectRatio="xMidYMid slice" 
+                        xmlns:dc="http://purl.org/dc/elements/1.1/" 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        xmlns:xlink="http://www.w3.org/1999/xlink" 
+                        version="1.1" class="section__svg">
+                    <defs>
+                        <clipPath id="clipPathDark">
+                            <path fill="none" class="section__svg-path" d="M2560,0 0,200 0,2560 2560,2560z"/>
+                        </clipPath>
+                    </defs>
+                    <rect width="100%" height="100%" fill="#1d1f21" clip-path="url(#clipPathDark)" />
+                </svg>
+            </div>
+            <div style="position:absolute;width:100%;height:80%;top:10%;">
+                <h1>2</h1>
+            </div>
+        </div>
+        <div class="theme-box border-highlight theme-panel"></div>
     </section>
     <section class="container-item" style="background-color:#f1f1f1;z-index:8;">
         <h1>3</h1>
@@ -76,6 +115,7 @@
     <script type="text/javascript">
         (function() {
             var sections,
+                heighter,
                 itemHeight,
                 currentIndex;
 
@@ -97,19 +137,19 @@
             }
             $(document).ready(function(e) {
                 sections = $(".container-item");
+                heighter = $(".heighter");
 
                 function onResize() {
                     var sections = $(".container-item"),
                         height = document.documentElement.clientHeight;
                     sections.css("height", height + "px");
-                    $(".heighter").css("height", height * sections.length + "px");
+                    heighter.css("height", height * sections.length + "px");
                     itemHeight = document.documentElement.clientHeight;
                 };
 
                 ui.page.resize(onResize);
                 onResize();
                 
-                //resetFixedItems();
                 $(document).on("scroll", function() {
                     resetFixedItems();
                 });
