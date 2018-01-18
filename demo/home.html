@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
     <link type="text/css" href="../dist/theme/light/site.Light.css" rel="stylesheet" />
     <link id="theme" type="text/css" href="../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
@@ -35,6 +36,10 @@
             left: 0px;
         }
 
+        .head-title {
+            font-size: 2em;
+        }
+
         .theme-container-item {
             width: 100%;
             overflow: hidden;
@@ -53,6 +58,59 @@
             border-radius: 10px;
         }
 
+        .demo-background {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            transform: rotate(-30deg) translate(-20%, 12%);
+        }
+
+        .demo-box {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-group {
+
+        }
+
+        .demo-title {
+
+        }
+
+        .demo-item {
+            display: inline-block;
+            vertical-align: top;
+            height: 32px;
+            line-height: 32px;
+            width: auto;
+            border: 1px solid #000;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .demo-item:hover {
+            text-decoration: none;
+        }
+
+        .demo-item-icon {
+            display: inline-block;
+            vertical-align: top;
+            width: 32px;
+            height: 32px;
+            background-color: #ccc;
+            border-radius: 50%;
+        }
+
+        .demo-item-text {
+            font-size: 1.1em;
+            margin-right: 16px;
+        }
+
         h1 {
             width: 100px;
             height: 100px;
@@ -63,7 +121,25 @@
             margin-left: -50px;
             font-size: 48pt;
         }
-        
+    </style>
+    <style type="text/css">
+        @media screen and (min-width:1200px) {
+        }
+
+        @media screen and (min-width: 960px) and (max-width: 1199px) {
+        }
+
+        @media screen and (min-width: 768px) and (max-width: 959px) {
+        }
+
+        @media only screen and (min-width: 480px) and (max-width: 767px) {
+        }
+
+        @media only screen and (max-width: 767px) {
+        }
+
+        @media only screen and (max-width: 479px) {
+        }
     </style>
 </head>
 <body>
@@ -94,8 +170,22 @@
         </div>
         <div class="theme-box border-highlight theme-panel"></div>
     </section>
-    <section class="container-item" style="background-color:#f1f1f1;z-index:8;">
-        <h1>3</h1>
+    <section class="container-item" style="background-color:#fff;z-index:8;">
+        <div class="demo-background">
+            <canvas id="colorLines" style="width:100%;height:100%;"></canvas>
+        </div>
+        <div class="demo-box">
+            <h2 class="head-title">DEMO</h2>
+            <dl class="demo-group">
+                <dt class="demo-title"></dt>
+                <dd class="">
+                    <a href="javascript:void(0)" class="demo-item background-highlight">
+                        <i class="demo-item-icon"></i>
+                        <span class="demo-item-text">表格视图</span>
+                    </a>
+                </dd>
+            </dl>
+        </div>
     </section>
     <section class="container-item" style="background-color:#ccc;z-index:7;">
         <h1>4</h1>
@@ -117,11 +207,13 @@
             var sections,
                 heighter,
                 itemHeight,
-                currentIndex;
+                currentIndex,
+                wave;
 
             function resetFixedItems() {
                 var scrollTop,
-                    i, len, index;
+                    i, len, 
+                    index;
 
                 scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                 index = Math.floor((scrollTop + itemHeight) / itemHeight) - 1;
@@ -145,6 +237,12 @@
                     sections.css("height", height + "px");
                     heighter.css("height", height * sections.length + "px");
                     itemHeight = document.documentElement.clientHeight;
+
+                    if(wave) {
+                        wave.resize();
+                    }
+
+                    resetFixedItems();
                 };
 
                 ui.page.resize(onResize);
@@ -153,7 +251,152 @@
                 $(document).on("scroll", function() {
                     resetFixedItems();
                 });
+
+                setTimeout(function() {
+                    initWave();
+                });
             });
+
+            function initWave() {
+                var canvas = $("#colorLines");
+                wave = Wave(canvas, {
+                    speed: 0.01,
+                    waterHeight: 1,
+                    level: 0.07,
+                    // 波浪高度百分比
+                    waveMax: 1
+                });
+                wave.start();
+            }
+
+
+            function Wave(canvas, option) {
+                if(this instanceof Wave) {
+                    this.initialize(canvas, option);
+                } else {
+                    return new Wave(canvas, option);
+                }
+            }
+            Wave.prototype = {
+                constructor: Wave,
+                initialize: function(canvas, option) {
+                    //x轴 x坐标的数量，单位百
+                    this.K = 2;
+                    //常数
+                    this.F = 6;
+
+                    this.colors = [
+                        { r: 40, g: 150, b: 202 },
+                        { r: 144, g: 217, b: 43 },
+                        { r: 1, g: 170, b: 167 },
+                        { r: 232, g: 113, b: 141 },
+                        { r: 105, g: 187, b: 218 }
+                    ];
+                    this.bgColor = "rgba(255, 255, 255, 1)";
+
+                    this.speed = option.speed || 0.01;
+                    this.phase = option.phase || 0;
+
+                    this.width = option.width || canvas.width();
+                    this.height = option.height || canvas.height();
+
+                    this.MAX = Math.floor(this.height * option.waveMax);
+                    this.peak = option.level * this.MAX;
+
+                    this.waterHeight = option.waterHeight || 1.5;
+
+                    this.canvas = canvas.get(0);
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                    this.context = this.canvas.getContext("2d");
+
+                    this.run = false;
+                },
+                _globalAttenuationFn: function (x, k) {
+                    return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
+                },
+                _drawLine: function (attenuation, color, width, k, f, h) {
+                    var x, y,
+                        i, gradient;
+
+                    console.log([attenuation, color, width, k, f, h]);
+
+                    this.context.moveTo(0, 0);
+                    this.context.beginPath();
+                    this.context.strokeStyle = ["rgba(", color.r, ",", color.g, ",", color.b, ",1)"].join("");
+                    this.context.lineWidth = width || 1;
+
+                    this.context.lineTo(0, this.height);
+                    for (i = -k; i <= k; i += 0.01) {
+                        x = this.width * ((i + k) / (k * 2));
+                        y = this.height / h + this.peak * this._globalAttenuationFn(i, k) * (1 / attenuation) * (Math.sin(f * i * .2 - this.phase) - .5);
+                        y *= this.waterHeight;
+                        this.context.lineTo(x, y);
+                    }
+                    this.context.lineTo(this.width, this.height);
+                    this.context.stroke();
+
+                    /*
+                    gradient = this.context.createLinearGradient(0, 0, 0, this.height);
+                    gradient.addColorStop(0, ["rgba(", color.r, ",", color.g, ",", color.b, ",0)"].join(""));
+                    gradient.addColorStop(1, this.bgColor);
+
+                    this.context.fillStyle = gradient;
+                    this.context.fill();  
+                    */
+                },
+                _fillStyle: function(startColor, endColor) {
+                    var gradient = this.context.createLinearGradient(0, 0, 0, this.height);
+                    gradient.addColorStop(0, startColor);
+                    gradient.addColorStop(1, endColor);
+                    this.context.fillStyle = gradient;
+                    this.context.fill();
+                },
+                _clear: function () {
+                    this.context.globalCompositeOperation = "destination-out";
+                    this.context.fillRect(0, 0, this.width, this.height);
+                    this.context.globalCompositeOperation = "source-over";
+                },
+                _draw: function () {
+                    var i, len,
+                        that, color,
+                        delta;
+                    if (!this.run) return;
+
+                    this.phase = (this.phase + this.speed) % (Math.PI * 64);
+                    this._clear();
+
+                    for(i = 0, len = this.colors.length; i < len; i++) {
+                        color = this.colors[i];
+                        delta = (i + 1) / len;
+                        this._drawLine(0.5, color, 1.5, this.K, this.F, 1.8);
+                        break;
+                    }
+                    //this._drawLine(1, ui.str.stringFormat("rgba({0}, 0.7)", this.rgbColor), 1.5, this.K, this.F);
+                    //this._drawLine(0.8, ui.str.stringFormat("rgba({0}, 1)", this.rgbColor), 2, this.K * 1.15, this.F * 1.2);
+
+                    that = this;
+                    requestAnimationFrame(function () {
+                        that._draw();
+                    }, 1000);
+                },
+                start: function () {
+                    this.phase = 0;
+                    this.run = true;
+                    this._draw();
+                },
+                stop: function () {
+                    this.run = false;
+                    this._clear();
+                },
+                resize: function () {
+                    var c = $(this.canvas);
+                    this.width = c.width();
+                    this.height = c.height();
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                }
+            }
         })();
     </script>
 </body>
