@@ -264,6 +264,8 @@ Animator.prototype.removeTarget = function (option) {
 };
 Animator.prototype.doAnimation = function () {
     var fps,
+        startTime,
+        onEndFn,
         i, len,
         that;
 
@@ -271,13 +273,16 @@ Animator.prototype.doAnimation = function () {
         return;
     }
 
-    this.isStarted = true;
     fps = parseInt(this.fps, 10) || 60;
-    that = this;
     len = this.length;
-    //开始执行的时间
-    var startTime = new Date().getTime();
+    onEndFn = ui.core.isFunction(this.onEnd) ? this.onEnd : null;
+    
+    this.isStarted = true;
     this.stopHandle = null;
+    that = this;
+    
+    //开始执行的时间
+    startTime = new Date().getTime();
     (function () {
         var fn = function () {
             var newTime,
@@ -313,8 +318,8 @@ Animator.prototype.doAnimation = function () {
             if (that.duration <= timestamp) {
                 that.isStarted = false;
                 that.stopHandle = null;
-                if ($.isFunction(that.onEnd)) {
-                    that.onEnd.call(that);
+                if (onEndFn) {
+                    onEndFn.call(that);
                 }
             } else {
                 that.stopHandle = requestAnimationFrame(fn);
