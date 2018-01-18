@@ -278,55 +278,51 @@ Animator.prototype.doAnimation = function () {
     onEndFn = ui.core.isFunction(this.onEnd) ? this.onEnd : null;
     
     this.isStarted = true;
-    this.stopHandle = null;
     that = this;
-    
     //开始执行的时间
     startTime = new Date().getTime();
-    (function () {
-        var fn = function () {
-            var newTime,
-                timestamp,
-                option,
-                duration,
-                delta;
+    
+    this.stopHandle = requestAnimationFrame(function() {
+        var newTime,
+            timestamp,
+            option,
+            duration,
+            delta;
 
-            //当前帧开始的时间
-            newTime = new Date().getTime();
-            //逝去时间
-            timestamp = newTime - startTime
+        //当前帧开始的时间
+        newTime = new Date().getTime();
+        //逝去时间
+        timestamp = newTime - startTime
 
-            for (i = 0; i < len; i++) {
-                option = that[i];
-                duration = option.duration || that.duration;
-                if (option.disabled || timestamp < option.delay) {
-                    continue;
-                }
-                try {
-                    if(duration + option.delay <= timestamp) {
-                        delta = 1;
-                        option.disabled = true;
-                    } else {
-                        delta = option.ease((timestamp - option.delay) / duration);
-                    }
-                    option.current = Math.ceil(option.begin + delta * option.change);
-                    option.onChange(option.current, option.target, that);
-                } catch(e) {
-                    that.promise._reject(e);
-                }
+        for (i = 0; i < len; i++) {
+            option = that[i];
+            duration = option.duration || that.duration;
+            if (option.disabled || timestamp < option.delay) {
+                continue;
             }
-            if (that.duration <= timestamp) {
-                that.isStarted = false;
-                that.stopHandle = null;
-                if (onEndFn) {
-                    onEndFn.call(that);
+            try {
+                if(duration + option.delay <= timestamp) {
+                    delta = 1;
+                    option.disabled = true;
+                } else {
+                    delta = option.ease((timestamp - option.delay) / duration);
                 }
-            } else {
-                that.stopHandle = requestAnimationFrame(fn);
+                option.current = Math.ceil(option.begin + delta * option.change);
+                option.onChange(option.current, option.target, that);
+            } catch(e) {
+                that.promise._reject(e);
             }
-        };
-        that.stopHandle = requestAnimationFrame(fn, 1000 / fps);
-    })();
+        }
+        if (that.duration <= timestamp) {
+            that.isStarted = false;
+            that.stopHandle = null;
+            if (onEndFn) {
+                onEndFn.call(that);
+            }
+        } else {
+            that.stopHandle = requestAnimationFrame(fn);
+        }
+    }, 1000 / fps);
 };
 Animator.prototype._prepare = function () {
     var i, len,
