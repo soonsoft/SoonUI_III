@@ -62,6 +62,8 @@
             position: absolute;
             width: 200%;
             height: 100%;
+            /*
+            */
             transform: rotate(-30deg) translate(-20%, 12%);
         }
 
@@ -260,14 +262,73 @@
             function initWave() {
                 var canvas = $("#colorLines");
                 wave = Wave(canvas, {
-                    speed: 0.01,
-                    waterHeight: 1,
+                    speed: 0.02,
+                    waterHeight: 0.2,
                     level: 0.07,
                     // 波浪高度百分比
                     waveMax: 1
                 });
                 wave.start();
             }
+
+            function globalAttenuation(x, k) {
+                return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
+            }
+
+            function WaveLine(option) {
+                if(this instanceof WaveLine) {
+                    this.initialize(option);
+                } else {
+                    return new WaveLine(option);
+                }
+            }
+            WaveLine.prototype = {
+                constructor: WaveLine,
+                initialize: function(option) {
+                    this.K = option.K || 2;
+                    this.F = option.F || 6;
+
+                    this.speed = option.speed || 0.01;
+                    this.phase = option.phase || 0;
+
+                    this.width = option.width || 100;
+                    this.height = option.height || 100;
+
+                    this.wavePeak = Math.floor(this.height * (option.waveMax || .5) * (option.level || .1));
+                    this.deep = option.deep || 1.5;
+                    this.attenuation = option.attenuation || 1;
+                    
+                    this.thin = option.thin || 1;
+                    this.color = option.color || "rgba(0,0,0,1)";
+
+                    this.context = option.context || null;
+                },
+                draw: function() {
+                    var x, y,
+                        k, f;
+
+                    k = this.K;
+                    f = this.F;
+
+                    if(!this.context) {
+                        return;
+                    }
+
+                    this.context.moveTo(0, 0);
+                    this.context.beginPath();
+
+                    for (var i = -k; i <= k; i += 0.01) {
+                        x = this.width * ((i + k) / (k * 2));
+                        y = this.height / 2 + this.wavePeak * globalAttenuation(i, k) * (1 / this.attenuation) * (Math.sin(f * i * .2 - this.phase) - .5);
+                        y *= this.deep;
+                        this.context.lineTo(x, y);
+                    }
+
+                    this.context.strokeStyle = this.color;
+                    this.context.lineWidth = this.thin;
+                    this.context.stroke();
+                }
+            };
 
 
             function Wave(canvas, option) {
@@ -311,39 +372,83 @@
                     this.context = this.canvas.getContext("2d");
 
                     this.run = false;
-                },
-                _globalAttenuationFn: function (x, k) {
-                    return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
-                },
-                _drawLine: function (attenuation, color, width, k, f, h) {
-                    var x, y,
-                        i, gradient;
 
-                    console.log([attenuation, color, width, k, f, h]);
-
-                    this.context.moveTo(0, 0);
-                    this.context.beginPath();
-                    this.context.strokeStyle = ["rgba(", color.r, ",", color.g, ",", color.b, ",1)"].join("");
-                    this.context.lineWidth = width || 1;
-
-                    this.context.lineTo(0, this.height);
-                    for (i = -k; i <= k; i += 0.01) {
-                        x = this.width * ((i + k) / (k * 2));
-                        y = this.height / h + this.peak * this._globalAttenuationFn(i, k) * (1 / attenuation) * (Math.sin(f * i * .2 - this.phase) - .5);
-                        y *= this.waterHeight;
-                        this.context.lineTo(x, y);
-                    }
-                    this.context.lineTo(this.width, this.height);
-                    this.context.stroke();
-
-                    /*
-                    gradient = this.context.createLinearGradient(0, 0, 0, this.height);
-                    gradient.addColorStop(0, ["rgba(", color.r, ",", color.g, ",", color.b, ",0)"].join(""));
-                    gradient.addColorStop(1, this.bgColor);
-
-                    this.context.fillStyle = gradient;
-                    this.context.fill();  
-                    */
+                    this.lines = [
+                        WaveLine({
+                            context: this.context,
+                            speed: 0.02,
+                            deep: .8,
+                            level: 0.07,
+                            waveMax: 1.5,
+                            attenuation: 1,
+                            K: 2.12,
+                            F: 8,
+                            width: this.width,
+                            height: this.height,
+                            thin: 10,
+                            color: "rgba(1,170,167,.3)"
+                        }),
+                        WaveLine({
+                            context: this.context,
+                            speed: 0.04,
+                            deep: 1,
+                            level: 0.08,
+                            waveMax: 1.2,
+                            attenuation: .6,
+                            K: 3,
+                            F: 8,
+                            width: this.width,
+                            height: this.height,
+                            thin: 4,
+                            color: "rgba(232,113,141,.6)"
+                        }),
+                        WaveLine({
+                            context: this.context,
+                            speed: 0.02,
+                            deep: 1,
+                            level: 0.08,
+                            waveMax: .8,
+                            attenuation: 1.2,
+                            K: 2,
+                            F: 6,
+                            width: this.width,
+                            height: this.height,
+                            thin: 2,
+                            color: "rgba(144,217,43,1)"
+                        })
+                        /*
+                        , WaveLine({
+                            context: this.context,
+                            speed: 0.01,
+                            deep: 1,
+                            level: 0.08,
+                            waveMax: .8,
+                            attenuation: 1.5,
+                            K: 2,
+                            F: 10,
+                            width: this.width,
+                            height: this.height,
+                            thin: 3,
+                            color: "rgba(40,150,202,1)"
+                        })
+                        */
+                        /*
+                        , WaveLine({
+                            context: this.context,
+                            speed: 0.04,
+                            deep: 1,
+                            level: 0.08,
+                            waveMax: 1,
+                            attenuation: .75,
+                            K: 4,
+                            F: 7.65,
+                            width: this.width,
+                            height: this.height,
+                            thin: 4,
+                            color: "rgba(105,187,218,.6)"
+                        })
+                        */
+                    ];
                 },
                 _fillStyle: function(startColor, endColor) {
                     var gradient = this.context.createLinearGradient(0, 0, 0, this.height);
@@ -357,7 +462,18 @@
                     this.context.fillRect(0, 0, this.width, this.height);
                     this.context.globalCompositeOperation = "source-over";
                 },
-                _draw: function () {
+                _draw: function() {
+                    var that = this;
+                    this._clear();
+                    this.lines.forEach(function(line) {
+                        line.phase = (line.phase + line.speed) % (Math.PI * 64);
+                        line.draw();
+                    });
+                    requestAnimationFrame(function () {
+                        that._draw();
+                    }, 1000);
+                },
+                _draw1: function () {
                     var i, len,
                         that, color,
                         delta;
@@ -369,7 +485,7 @@
                     for(i = 0, len = this.colors.length; i < len; i++) {
                         color = this.colors[i];
                         delta = (i + 1) / len;
-                        this._drawLine(0.5, color, 1.5, this.K, this.F, 1.8);
+                        this._drawLine(1, color, 2, this.K * 1.2, this.F * 1.2, 6);
                         break;
                     }
                     //this._drawLine(1, ui.str.stringFormat("rgba({0}, 0.7)", this.rgbColor), 1.5, this.K, this.F);
@@ -381,7 +497,9 @@
                     }, 1000);
                 },
                 start: function () {
-                    this.phase = 0;
+                    this.lines.forEach(function(line) {
+                        line.phase = 0;
+                    });
                     this.run = true;
                     this._draw();
                 },
