@@ -1754,9 +1754,6 @@ ui.define("ui.ctrls.DialogBox", {
             titleInner;
         if(ui.core.isString(title)) {
             titleContent = $("<span class='title-text font-highlight' />").text(title);
-            if (hasHr !== false) {
-                hasHr = true;
-            }
         } else if (ui.core.isDomObject(title)) {
             titleContent = $(title);
         } else if (ui.core.isJQueryObject(title)) {
@@ -1766,6 +1763,10 @@ ui.define("ui.ctrls.DialogBox", {
         this.titlePanel.empty();
         titleInner = $("<div class='title-inner-panel' />");
         titleInner.append(titleContent);
+        
+        if (hasHr !== false) {
+            hasHr = true;
+        }
         if(hasHr) {
             titleInner.append("<hr class='ui-dialog-box-spline background-highlight' />");
         }

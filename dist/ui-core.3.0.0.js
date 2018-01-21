@@ -1095,20 +1095,6 @@ ui.Introsort = Introsort;
 "use strict";
 // util
 
-/**
- * 修复javascript中四舍五入方法的bug
- */ 
-ui.fixedNumber = function (number, precision) {
-    var multiplier,
-        b = 1;
-    if (isNaN(number)) return number;
-    if (number < 0) b = -1;
-    if (isNaN(precision)) precision = 0;
-    
-    multiplier = Math.pow(10, precision);
-    return Math.round(Math.abs(number) * multiplier) / multiplier * b;
-};
-
 //获取浏览器滚动条的宽度
 ui.scrollbarHeight = ui.scrollbarWidth = 17;
 ui.tempDiv = $("<div style='position:absolute;left:-1000px;top:-100px;width:100px;height:100px;overflow:auto;' />");
@@ -1123,6 +1109,20 @@ ui.tempDiv.remove();
 delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
+
+/**
+ * 修复javascript中四舍五入方法的bug
+ */ 
+ui.fixedNumber = function (number, precision) {
+    var multiplier,
+        b = 1;
+    if (isNaN(number)) return number;
+    if (number < 0) b = -1;
+    if (isNaN(precision)) precision = 0;
+    
+    multiplier = Math.pow(10, precision);
+    return Math.round(Math.abs(number) * multiplier) / multiplier * b;
+};
 
 /**
  * 以一个对象的scrollLeft和scrollTop属性的方式返回滚动条的偏移量
@@ -2328,6 +2328,13 @@ if (!cancelAnimationFrame) {
 
 function noop() { }
 
+ui.getRequestAnimationFrame = function() {
+    return requestAnimationFrame;
+};
+ui.getCancelAnimationFrame = function() {
+    return cancelAnimationFrame;
+};
+
 //动画效果
 ui.AnimationStyle = {
     easeInQuad: function (pos) {
@@ -2562,6 +2569,8 @@ Animator.prototype.removeTarget = function (option) {
 };
 Animator.prototype.doAnimation = function () {
     var fps,
+        startTime,
+        onEndFn,
         i, len,
         that;
 
@@ -2569,26 +2578,29 @@ Animator.prototype.doAnimation = function () {
         return;
     }
 
-    this.isStarted = true;
     fps = parseInt(this.fps, 10) || 60;
-    that = this;
     len = this.length;
+    onEndFn = ui.core.isFunction(this.onEnd) ? this.onEnd : null;
+    
+    this.isStarted = true;
+    that = this;
     //开始执行的时间
-    var startTime = new Date().getTime();
-    this.stopHandle = null;
-    (function () {
-        var fn = function () {
+    startTime = new Date().getTime();
+    
+    (function() {
+        var fn;
+        fn = function() {
             var newTime,
                 timestamp,
                 option,
                 duration,
                 delta;
-
+    
             //当前帧开始的时间
             newTime = new Date().getTime();
             //逝去时间
             timestamp = newTime - startTime
-
+    
             for (i = 0; i < len; i++) {
                 option = that[i];
                 duration = option.duration || that.duration;
@@ -2611,8 +2623,8 @@ Animator.prototype.doAnimation = function () {
             if (that.duration <= timestamp) {
                 that.isStarted = false;
                 that.stopHandle = null;
-                if ($.isFunction(that.onEnd)) {
-                    that.onEnd.call(that);
+                if (onEndFn) {
+                    onEndFn.call(that);
                 }
             } else {
                 that.stopHandle = requestAnimationFrame(fn);

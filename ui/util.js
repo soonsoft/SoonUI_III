@@ -1,19 +1,5 @@
 // util
 
-/**
- * 修复javascript中四舍五入方法的bug
- */ 
-ui.fixedNumber = function (number, precision) {
-    var multiplier,
-        b = 1;
-    if (isNaN(number)) return number;
-    if (number < 0) b = -1;
-    if (isNaN(precision)) precision = 0;
-    
-    multiplier = Math.pow(10, precision);
-    return Math.round(Math.abs(number) * multiplier) / multiplier * b;
-};
-
 //获取浏览器滚动条的宽度
 ui.scrollbarHeight = ui.scrollbarWidth = 17;
 ui.tempDiv = $("<div style='position:absolute;left:-1000px;top:-100px;width:100px;height:100px;overflow:auto;' />");
@@ -28,6 +14,20 @@ ui.tempDiv.remove();
 delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
+
+/**
+ * 修复javascript中四舍五入方法的bug
+ */ 
+ui.fixedNumber = function (number, precision) {
+    var multiplier,
+        b = 1;
+    if (isNaN(number)) return number;
+    if (number < 0) b = -1;
+    if (isNaN(precision)) precision = 0;
+    
+    multiplier = Math.pow(10, precision);
+    return Math.round(Math.abs(number) * multiplier) / multiplier * b;
+};
 
 /**
  * 以一个对象的scrollLeft和scrollTop属性的方式返回滚动条的偏移量

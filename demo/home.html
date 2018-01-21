@@ -60,11 +60,8 @@
 
         .demo-background {
             position: absolute;
-            width: 200%;
+            width: 100%;
             height: 100%;
-            /*
-            */
-            transform: rotate(-30deg) translate(-20%, 12%);
         }
 
         .demo-box {
@@ -204,17 +201,22 @@
 
     <script type="text/javascript" src="../jquery.js"></script>
     <script type="text/javascript" src="../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/ui-effects.3.0.0.js"></script>
     <script type="text/javascript">
         (function() {
             var sections,
+                sectionOperators = [],
                 heighter,
                 itemHeight,
                 currentIndex,
-                wave;
+                wave,
+                requestAnimationFrame,
+                cancelAnimationFrame;
 
             function resetFixedItems() {
                 var scrollTop,
                     i, len, 
+                    operator,
                     index;
 
                 scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -228,6 +230,17 @@
                     $(sections[i]).addClass("container-item-fixed");
                 }
 
+                /*
+                currentIndex = index;
+                operator = sectionOperators[currentIndex];
+                if(operator) {
+                    operator.stop();
+                }
+                operator = sectionOperators[index];
+                if(operator) {
+                    operator.start();
+                }
+                */
             }
             $(document).ready(function(e) {
                 sections = $(".container-item");
@@ -243,7 +256,6 @@
                     if(wave) {
                         wave.resize();
                     }
-
                     resetFixedItems();
                 };
 
@@ -255,266 +267,85 @@
                 });
 
                 setTimeout(function() {
-                    initWave();
+                    demoSection();
                 });
             });
 
-            function initWave() {
-                var canvas = $("#colorLines");
-                wave = Wave(canvas, {
-                    speed: 0.02,
-                    waterHeight: 0.2,
-                    level: 0.07,
-                    // 波浪高度百分比
-                    waveMax: 1
-                });
+            requestAnimationFrame = ui.getRequestAnimationFrame();
+            cancelAnimationFrame = ui.getCancelAnimationFrame();
+
+            function demoSection() {
+                initWave();
+                wave.resize();
                 wave.start();
-            }
-
-            function globalAttenuation(x, k) {
-                return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
-            }
-
-            function WaveLine(option) {
-                if(this instanceof WaveLine) {
-                    this.initialize(option);
-                } else {
-                    return new WaveLine(option);
-                }
-            }
-            WaveLine.prototype = {
-                constructor: WaveLine,
-                initialize: function(option) {
-                    this.K = option.K || 2;
-                    this.F = option.F || 6;
-
-                    this.speed = option.speed || 0.01;
-                    this.phase = option.phase || 0;
-
-                    this.width = option.width || 100;
-                    this.height = option.height || 100;
-
-                    this.wavePeak = Math.floor(this.height * (option.waveMax || .5) * (option.level || .1));
-                    this.deep = option.deep || 1.5;
-                    this.attenuation = option.attenuation || 1;
-                    
-                    this.thin = option.thin || 1;
-                    this.color = option.color || "rgba(0,0,0,1)";
-
-                    this.context = option.context || null;
-                },
-                draw: function() {
-                    var x, y,
-                        k, f;
-
-                    k = this.K;
-                    f = this.F;
-
-                    if(!this.context) {
-                        return;
+                sectionOperators[2] = {
+                    start: function() {
+                        wave.start();
+                    },
+                    stop: function() {
+                        wave.stop();
                     }
-
-                    this.context.moveTo(0, 0);
-                    this.context.beginPath();
-
-                    for (var i = -k; i <= k; i += 0.01) {
-                        x = this.width * ((i + k) / (k * 2));
-                        y = this.height / 2 + this.wavePeak * globalAttenuation(i, k) * (1 / this.attenuation) * (Math.sin(f * i * .2 - this.phase) - .5);
-                        y *= this.deep;
-                        this.context.lineTo(x, y);
-                    }
-
-                    this.context.strokeStyle = this.color;
-                    this.context.lineWidth = this.thin;
-                    this.context.stroke();
-                }
-            };
-
-
-            function Wave(canvas, option) {
-                if(this instanceof Wave) {
-                    this.initialize(canvas, option);
-                } else {
-                    return new Wave(canvas, option);
-                }
+                };
             }
-            Wave.prototype = {
-                constructor: Wave,
-                initialize: function(canvas, option) {
-                    //x轴 x坐标的数量，单位百
-                    this.K = 2;
-                    //常数
-                    this.F = 6;
 
-                    this.colors = [
-                        { r: 40, g: 150, b: 202 },
-                        { r: 144, g: 217, b: 43 },
-                        { r: 1, g: 170, b: 167 },
-                        { r: 232, g: 113, b: 141 },
-                        { r: 105, g: 187, b: 218 }
-                    ];
-                    this.bgColor = "rgba(255, 255, 255, 1)";
+            function initWave() {
+                var canvas = $("#colorLines"),
+                    width = canvas.width(),
+                    height = canvas.height(),
+                    resize;
 
-                    this.speed = option.speed || 0.01;
-                    this.phase = option.phase || 0;
+                wave = ui.effect.Wave(canvas.get(0), width, height);
+                resize = wave.resize;
+                wave.resize = function() {
+                    var div, 
+                        section,
+                        width, height,
+                        top, left;
 
-                    this.width = option.width || canvas.width();
-                    this.height = option.height || canvas.height();
+                    div = canvas.parent();
+                    section = div.parent();
+                    width = section.width();
+                    height = section.height();
 
-                    this.MAX = Math.floor(this.height * option.waveMax);
-                    this.peak = option.level * this.MAX;
+                    left = width - (width * Math.sin(75 * Math.PI / 180));
+                    top = height - (width * Math.sin(15 * Math.PI / 180));
 
-                    this.waterHeight = option.waterHeight || 1.5;
-
-                    this.canvas = canvas.get(0);
-                    this.canvas.width = this.width;
-                    this.canvas.height = this.height;
-                    this.context = this.canvas.getContext("2d");
-
-                    this.run = false;
-
-                    this.lines = [
-                        WaveLine({
-                            context: this.context,
-                            speed: 0.02,
-                            deep: .8,
-                            level: 0.07,
-                            waveMax: 1.5,
-                            attenuation: 1,
-                            K: 2.12,
-                            F: 8,
-                            width: this.width,
-                            height: this.height,
-                            thin: 10,
-                            color: "rgba(1,170,167,.3)"
-                        }),
-                        WaveLine({
-                            context: this.context,
-                            speed: 0.04,
-                            deep: 1,
-                            level: 0.08,
-                            waveMax: 1.2,
-                            attenuation: .6,
-                            K: 3,
-                            F: 8,
-                            width: this.width,
-                            height: this.height,
-                            thin: 4,
-                            color: "rgba(232,113,141,.6)"
-                        }),
-                        WaveLine({
-                            context: this.context,
-                            speed: 0.02,
-                            deep: 1,
-                            level: 0.08,
-                            waveMax: .8,
-                            attenuation: 1.2,
-                            K: 2,
-                            F: 6,
-                            width: this.width,
-                            height: this.height,
-                            thin: 2,
-                            color: "rgba(144,217,43,1)"
-                        })
-                        /*
-                        , WaveLine({
-                            context: this.context,
-                            speed: 0.01,
-                            deep: 1,
-                            level: 0.08,
-                            waveMax: .8,
-                            attenuation: 1.5,
-                            K: 2,
-                            F: 10,
-                            width: this.width,
-                            height: this.height,
-                            thin: 3,
-                            color: "rgba(40,150,202,1)"
-                        })
-                        */
-                        /*
-                        , WaveLine({
-                            context: this.context,
-                            speed: 0.04,
-                            deep: 1,
-                            level: 0.08,
-                            waveMax: 1,
-                            attenuation: .75,
-                            K: 4,
-                            F: 7.65,
-                            width: this.width,
-                            height: this.height,
-                            thin: 4,
-                            color: "rgba(105,187,218,.6)"
-                        })
-                        */
-                    ];
-                },
-                _fillStyle: function(startColor, endColor) {
-                    var gradient = this.context.createLinearGradient(0, 0, 0, this.height);
-                    gradient.addColorStop(0, startColor);
-                    gradient.addColorStop(1, endColor);
-                    this.context.fillStyle = gradient;
-                    this.context.fill();
-                },
-                _clear: function () {
-                    this.context.globalCompositeOperation = "destination-out";
-                    this.context.fillRect(0, 0, this.width, this.height);
-                    this.context.globalCompositeOperation = "source-over";
-                },
-                _draw: function() {
-                    var that = this;
-                    this._clear();
-                    this.lines.forEach(function(line) {
-                        line.phase = (line.phase + line.speed) % (Math.PI * 64);
-                        line.draw();
-                    });
-                    requestAnimationFrame(function () {
-                        that._draw();
-                    }, 1000);
-                },
-                _draw1: function () {
-                    var i, len,
-                        that, color,
-                        delta;
-                    if (!this.run) return;
-
-                    this.phase = (this.phase + this.speed) % (Math.PI * 64);
-                    this._clear();
-
-                    for(i = 0, len = this.colors.length; i < len; i++) {
-                        color = this.colors[i];
-                        delta = (i + 1) / len;
-                        this._drawLine(1, color, 2, this.K * 1.2, this.F * 1.2, 6);
-                        break;
-                    }
-                    //this._drawLine(1, ui.str.stringFormat("rgba({0}, 0.7)", this.rgbColor), 1.5, this.K, this.F);
-                    //this._drawLine(0.8, ui.str.stringFormat("rgba({0}, 1)", this.rgbColor), 2, this.K * 1.15, this.F * 1.2);
-
-                    that = this;
-                    requestAnimationFrame(function () {
-                        that._draw();
-                    }, 1000);
-                },
-                start: function () {
-                    this.lines.forEach(function(line) {
-                        line.phase = 0;
-                    });
-                    this.run = true;
-                    this._draw();
-                },
-                stop: function () {
-                    this.run = false;
-                    this._clear();
-                },
-                resize: function () {
-                    var c = $(this.canvas);
-                    this.width = c.width();
-                    this.height = c.height();
-                    this.canvas.width = this.width;
-                    this.canvas.height = this.height;
-                }
+                    div.css("transform", "rotate(-30deg) translate(" + left + "px, " + top + "px)");
+                };
+                wave.push(
+                    ui.effect.WaveArea({
+                        context: wave.context,
+                        speed: 0.02,
+                        deep: .6,
+                        level: 0.08,
+                        waveMax: 1.2,
+                        attenuation: .6,
+                        K: 1.5,
+                        F: 8,
+                        width: width,
+                        height: height,
+                        thin: 4,
+                        color: "rgba(232,113,141,.3)",
+                        bgColor: "rgba(255,255,255,1)"
+                    })
+                    , ui.effect.WaveArea({
+                        context: wave.context,
+                        speed: 0.01,
+                        deep: 1,
+                        level: 0.07,
+                        waveMax: 3,
+                        attenuation: 1,
+                        K: 1,
+                        F: 8,
+                        width: width,
+                        height: height,
+                        thin: 4,
+                        color: "rgba(1,170,167,.3)",
+                        bgColor:"rgba(255,255,255,1)"
+                    })
+                );
             }
+
         })();
     </script>
 </body>
