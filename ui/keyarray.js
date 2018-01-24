@@ -110,8 +110,5 @@ KeyArray.prototype.clear = function () {
     arrayInstance.splice.apply(this, [0, this.length]);
     this._keys = {};
 };
-KeyArray.prototype.toArray = function () {
-    return Array.from(this);
-};
 
 ui.KeyArray = KeyArray;
