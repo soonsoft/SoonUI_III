@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        .animation-item {
+            position: relative;
+            height: 75px;
+            width: 75px;
+            background: no-repeat 50%;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            background-size: 75px;
+            background-position: 0 0;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin: 0 auto; width: 305px; height: 190px; padding-top: 20px; padding-left: 20px;">
+        <div class="animation-item" style="background-image:url(./1.jpg);"></div>
+        <div class="animation-item" style="background-image:url(./2.jpg);"></div>
+        <div class="animation-item" style="background-image:url(./3.jpg);"></div>
+        <div class="animation-item" style="background-image:url(./4.jpg);"></div>
+        <div class="animation-item" style="background-image:url(./5.jpg);"></div>
+        <div class="animation-item" style="background-image:url(./6.jpg);"></div>
+        <br clear="left" />
+    </div>
+
+    <script type="text/javascript" src="./jquery.js"></script>
+    <script type="text/javascript" src="./ui-core.3.0.0.js"></script>
+    <script type="text/javascript">
+        (function() {
+            $(document).ready(function() {
+                var items = $(".animation-item"),
+                    item,
+                    animator,
+                    i, len;
+
+                for(i = 0, len = items.length; i < len; i++) {
+                    item = $(items[i]);
+                    animator = ui.animator({
+                        target: item,
+                        ease: ui.AnimationStyle.linear,
+                        begin: 0,
+                        end: 59,
+                        duration: 1000,
+                        onChange: function(val) {
+                            this.target.css("background-position", "0 -" + (val * 75) + "px");
+                        }
+                    });
+                    (function(a) {
+                        item.on("mouseover", function() {
+                            var option;
+
+                            a.stop();
+                            option = a[0];
+                            option.begin = option.current || 0;
+                            option.end = 59;
+                            a.start();
+                        });
+                        item.on("mouseout", function() {
+                            var option;
+
+                            a.stop();
+                            option = a[0];
+                            option.begin = option.current || 59;
+                            option.end = 0;
+                            a.start();
+                        });
+                    })(animator);
+                }
+
+            });
+        })();
+    </script>
+</body>
+</html>
