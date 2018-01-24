@@ -1,14 +1,19 @@
-@{layout:demo/views/shared/menu-layout.html}
-
 <partial id="title">树形视图</partial>
 <partial id="header">TREE VIEW</partial>
 
 <partial id="content">
     <div class="toolbar"></div>
-    <div id="cardView"></div>
+    <div id="treeView"></div>
 </partial>
 
-<partial id="style"></partial>
+<partial id="style">
+    <style type="text/css">
+        #treeView {
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</partial>
 
 <partial id="script">
     <script type="text/javascript">
@@ -32,7 +37,6 @@
 
                     },
                     load: function() {
-                        loadCardViewData();
                     }
                 }
             };

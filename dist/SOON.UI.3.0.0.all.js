@@ -225,43 +225,46 @@ core.isTouchAvailable = function() {
 
 })(jQuery, ui);
 
-// Source: ui/ecmascript-extends.js
+// Source: ui/ES-array-extends.js
 
 (function($, ui) {
 "use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
 // Array.prototype
 // isArray
-if(typeof Array.isArray !== "function") {
+if(!isFunction(Array.isArray)) {
     Array.isArray = function(obj) {
         return ui.core.type(obj) === "array";
     };
 }
 // forEach
-if(typeof Array.prototype.forEach !== "function") {
+if(!isFunction(Array.prototype.forEach)) {
     Array.prototype.forEach = function(fn, caller) {
-        if(typeof fn !== "function") {
+        var i, len;
+        if(!isFunction(fn)) {
             return;
         }
-        var i = 0,
-            len = this.length;
-        for(; i < len; i++) {
+        for(i = 0, len = this.length; i < len; i++) {
             if(!(i in this)) continue;
             fn.call(caller, this[i], i, this);
         }
     };
 }
 // map
-if(typeof Array.prototype.map !== "function") {
+if(!isFunction(Array.prototype.map)) {
     Array.prototype.map = function(fn, caller) {
-        if(typeof fn !== "function") {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
             return;
         }
-        var result = new Array(this.length);
-        var i = 0,
-            len = this.length;
-        for(; i < len; i++) {
+        result = new Array(this.length);
+        for(i = 0, len = this.length; i < len; i++) {
             if(!(i in this)) continue;
             result[i] = fn.call(caller, this[i], i, this);
         }
@@ -269,15 +272,15 @@ if(typeof Array.prototype.map !== "function") {
     };
 }
 // filter
-if(typeof Array.prototype.filter !== "function") {
+if(!isFunction(Array.prototype.filter)) {
     Array.prototype.filter = function(fn, caller) {
-        if(typeof fn !== "function") {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
             return;
         }
-        var result = [];
-        var i = 0,
-            len = this.length;
-        for(; i < len; i++) {
+        result = [];
+        for(i = 0, len = this.length; i < len; i++) {
             if(!(i in this)) continue;
             if(fn.call(caller, this[i], i, this)) {
                 result.push(this[i]);
@@ -287,14 +290,13 @@ if(typeof Array.prototype.filter !== "function") {
     };
 }
 // every
-if(typeof Array.prototype.every !== "function") {
+if(!isFunction(Array.prototype.every)) {
     Array.prototype.every = function(fn, caller) {
-        if(typeof fn !== "function") {
+        var i, len;
+        if(!isFunction(fn)) {
             return;
         }
-        var i = 0,
-            len = this.length;
-        for(; i < len; i++) {
+        for(i = 0, len = this.length; i < len; i++) {
             if(!(i in this)) continue;
             if(!fn.call(caller, this[i], i, this)) {
                 return false;
@@ -304,14 +306,13 @@ if(typeof Array.prototype.every !== "function") {
     };
 }
 // some
-if(typeof Array.prototype.some !== "function") {
+if(!isFunction(Array.prototype.some)) {
     Array.prototype.some = function(fn, caller) {
-        if(typeof fn !== "function") {
+        var i, len;
+        if(!isFunction(fn)) {
             return;
         }
-        var i = 0,
-            len = this.length;
-        for(; i < len; i++) {
+        for(i = 0, len = this.length; i < len; i++) {
             if(!(i in this)) continue;
             if(fn.call(caller, this[i], i, this)) {
                 return true;
@@ -321,14 +322,17 @@ if(typeof Array.prototype.some !== "function") {
     };
 }
 // reduce
-if(typeof Array.prototype.reduce !== "function") {
+if(!isFunction(Array.prototype.reduce)) {
     Array.prototype.reduce = function(fn, defaultValue) {
-        if(typeof fn !== "function") {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
             return;
         }
-        var i = 0,
-            len = this.length;
-        var result;
+        
+        i = 0;
+        len = this.length;
         if(arguments.length < 2) {
             if(len === 0) {
                 throw new TypeError("Reduce of empty array with no initial value");
@@ -346,14 +350,17 @@ if(typeof Array.prototype.reduce !== "function") {
     };
 }
 // reduceRight
-if(typeof Array.prototype.reduceRight !== "function") {
+if(!isFunction(Array.prototype.reduceRight)) {
     Array.prototype.reduceRight = function(fn, defaultValue) {
-        if(typeof fn !== "function") {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
             return;
         }
-        var len = this.length,
-            i = len - 1;
-        var result;
+
+        len = this.length;
+        i = len - 1;
         if(arguments.length < 2) {
             if(len === 0) {
                 throw new TypeError("Reduce of empty array with no initial value");
@@ -371,14 +378,20 @@ if(typeof Array.prototype.reduceRight !== "function") {
     };
 }
 // indexOf
-if(typeof Array.prototype.indexOf !== "function") {
+if(!isFunction(Array.prototype.indexOf)) {
     Array.prototype.indexOf = function(value, startIndex) {
-        if(!startIndex) startIndex = 0;
-        var i, len = this.length,
-            index = -1;
+        var i, len,
+            index;
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        index = -1;
         if(len > 0) {
-            while(startIndex < 0)
+            while(startIndex < 0) {
                 startIndex = len + startIndex;
+            }
             
             for(i = startIndex; i < len; i++) {
                 if(this[i] === value) {
@@ -391,12 +404,18 @@ if(typeof Array.prototype.indexOf !== "function") {
     };
 }
 // lastIndexOf
-if(typeof Array.prototype.lastIndexOf !== "function") {
+if(!isFunction(Array.prototype.lastIndexOf)) {
     Array.prototype.lastIndexOf = function(value, startIndex) {
-        if(!startIndex) startIndex = 0;
-        var len = this.length,
-            i = len - 1, 
-            index = -1;
+        var i, len,
+            index;
+
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        i = len - 1;
+        index = -1;
         if(len > 0) {
             while(startIndex < 0)
                 startIndex = len + startIndex;
@@ -412,27 +431,122 @@ if(typeof Array.prototype.lastIndexOf !== "function") {
     };
 }
 
+// find
+if(!isFunction(Array.prototype.find)) {
+    Array.prototype.find = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return this[i];
+            }
+        }
+    };
+}
+// findIndex
+if(!isFunction(Array.prototype.findIndex)) {
+    Array.prototype.findIndex = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return -1;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+// fill
+if(!isFunction(Array.prototype.fill)) {
+    Array.prototype.fill = function(value) {
+        var i, len;
+        for(i = 0, len = this.length; i < len; i++) {
+            this[i] = value;
+        }
+    };
+}
+// includes
+if(!isFunction(Array.prototype.includes)) {
+    Array.prototype.includes = function(value) {
+        return this.some(function(item) {
+            return item === value;
+        });
+    };
+}
+
+// Array.from
+if(!isFunction(Array.from)) {
+    Array.from = function(arrayLike, fn) {
+        var i, len,
+            itenFn,
+            result = [];
+
+        if(arrayLike && arrayLike.length) {
+            itemFn = fn;
+            if(!isFunction(itemFn)) {
+                itemFn = function(item) { 
+                    return item; 
+                };
+            }
+            for(i = 0, len = arrayLike.length; i < len; i++) {
+                result.push(itemFn.call(null, arrayLike[i], i));
+            }
+        }
+        return result;
+    };
+}
+
+// Array.of
+if(!isFunction(Array.of)) {
+    Array.of = function() {
+        return [].slice.call(arguments);
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: ui/ES-string-extends.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
 // String.prototype
 // trim
-// http://www.cnblogs.com/rubylouvre/archive/2009/09/18/1568794.html
-// 各种空格字符的穷举\n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000
-if(typeof String.prototype.trim !== "function") {
+if(!isFunction(String.prototype.trim)) {
     String.protocol.trim = function() {
-        var str = this,
-            ws = /\s/,
-            i;
-            
-        str = str.replace(/^\s\s*/, '');
-        i = str.length - 1;
-
-        while (ws.test(str.charAt(i--)));
-        return str.slice(0, i + 1);
+        return ui.str.trim(this);
     };
+}
+
+
+
+})(jQuery, ui);
+
+// Source: ui/ES-function-extends.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
 }
 
 // Function.prototype
 // bind
-if(typeof Function.prototype.bind !== "function") {
+if(!isFunction(Function.prototype.bind)) {
     Function.prototype.bind = function(o) {
         var self = this,
             boundArgs = arguments;
@@ -449,6 +563,7 @@ if(typeof Function.prototype.bind !== "function") {
         };
     };
 }
+
 
 })(jQuery, ui);
 
@@ -728,6 +843,9 @@ ArrayFaker.prototype = {
         }
         return ret;
     },
+    toArray: function() {
+        return Array.from(this);
+    },
     toString: function () {
         //返回一个字符串
         var array = Array.prototype.slice.call(this);
@@ -755,6 +873,10 @@ ArrayFaker.prototype = {
     reduceRight: arrayInstance.reduceRight,
     indexOf: arrayInstance.indexOf,
     lastIndexOf: arrayInstance.lastIndexOf,
+    find: arrayInstance.find,
+    findIndex: arrayInstance.findIndex,
+    fill: arrayInstance.fill,
+    includes: arrayInstance.includes,
     constructor: ui.ArrayFaker
 };
 
@@ -771,7 +893,7 @@ ui.ArrayFaker = ArrayFaker;
     字典数组，同时支持索引和hash访问数组元素
  */
 var arrayInstance = [];
-var rebuildIndex = function (obj, key) {
+function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
         if (k === key) {
@@ -783,7 +905,7 @@ var rebuildIndex = function (obj, key) {
         }
         obj[k] = --obj[k];
     }
-};
+}
 
 function KeyArray () {
     if(this instanceof KeyArray) {
@@ -878,14 +1000,6 @@ KeyArray.prototype.removeAt = function (index) {
 KeyArray.prototype.clear = function () {
     arrayInstance.splice.apply(this, [0, this.length]);
     this._keys = {};
-};
-KeyArray.prototype.toArray = function () {
-    var arr = [];
-    var i = this.length - 1;
-    for (; i >= 0 ; i--) {
-        arr[i] = this[i];
-    }
-    return arr;
 };
 
 ui.KeyArray = KeyArray;
