@@ -36,6 +36,9 @@ ArrayFaker.prototype = {
         }
         return ret;
     },
+    toArray: function() {
+        return Array.from(this);
+    },
     toString: function () {
         //返回一个字符串
         var array = Array.prototype.slice.call(this);
@@ -63,6 +66,10 @@ ArrayFaker.prototype = {
     reduceRight: arrayInstance.reduceRight,
     indexOf: arrayInstance.indexOf,
     lastIndexOf: arrayInstance.lastIndexOf,
+    find: arrayInstance.find,
+    findIndex: arrayInstance.findIndex,
+    fill: arrayInstance.fill,
+    includes: arrayInstance.includes,
     constructor: ui.ArrayFaker
 };
 
