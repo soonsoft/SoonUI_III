@@ -111,12 +111,7 @@ KeyArray.prototype.clear = function () {
     this._keys = {};
 };
 KeyArray.prototype.toArray = function () {
-    var arr = [];
-    var i = this.length - 1;
-    for (; i >= 0 ; i--) {
-        arr[i] = this[i];
-    }
-    return arr;
+    return Array.from(this);
 };
 
 ui.KeyArray = KeyArray;
