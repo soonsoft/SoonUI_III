@@ -2,7 +2,7 @@
     字典数组，同时支持索引和hash访问数组元素
  */
 var arrayInstance = [];
-var rebuildIndex = function (obj, key) {
+function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
         if (k === key) {
@@ -14,7 +14,7 @@ var rebuildIndex = function (obj, key) {
         }
         obj[k] = --obj[k];
     }
-};
+}
 
 function KeyArray () {
     if(this instanceof KeyArray) {
