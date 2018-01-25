@@ -41,22 +41,24 @@ ui.keyCode = {
     UP: 38
 };
 
-var core = ui.core = {};
+ui.core = {};
 
-var DOC = document;
-//切割字符串为一个个小块，以空格或豆号分开它们，结合replace实现字符串的forEach
-var rword = /[^, ]+/g;
-var arrayInstance = [];
-var class2type = {};
-var oproto = Object.prototype;
-var ohasOwn = oproto.hasOwnProperty;
-var W3C = window.dispatchEvent;
-var root = DOC.documentElement;
-var serialize = oproto.toString;
-var aslice = arrayInstance.slice;
-var head = DOC.head || DOC.getElementsByTagName("head")[0];
-var rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/;
-var isTouchAvailable = "ontouchstart" in window;
+var core = ui.core,
+    DOC = document,
+    //切割字符串为一个个小块，以空格或豆号分开它们，结合replace实现字符串的forEach
+    rword = /[^, ]+/g,
+    arrayInstance = [],
+    class2type = {},
+    oproto = Object.prototype,
+    ohasOwn = oproto.hasOwnProperty,
+    W3C = window.dispatchEvent,
+    root = DOC.documentElement,
+    serialize = oproto.toString,
+    aslice = arrayInstance.slice,
+    head = DOC.head || DOC.getElementsByTagName("head")[0],
+    rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/,
+    isTouchAvailable = "ontouchstart" in window,
+    typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 
 // 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
 core.each = function(text, fn) {
@@ -64,7 +66,6 @@ core.each = function(text, fn) {
 };
 
 // 数据类型处理
-var typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 core.each(typeStr, function (name) {
     class2type["[object " + name + "]"] = name.toLowerCase();
 });
