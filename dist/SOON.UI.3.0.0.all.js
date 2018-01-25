@@ -226,6 +226,523 @@ core.isTouchAvailable = function() {
 
 })(jQuery, ui);
 
+// Source: ui/ES5-Array-shims.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Array.prototype
+// isArray
+if(!isFunction(Array.isArray)) {
+    Array.isArray = function(obj) {
+        return ui.core.type(obj) === "array";
+    };
+}
+// forEach
+if(!isFunction(Array.prototype.forEach)) {
+    Array.prototype.forEach = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            fn.call(caller, this[i], i, this);
+        }
+    };
+}
+// map
+if(!isFunction(Array.prototype.map)) {
+    Array.prototype.map = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = new Array(this.length);
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            result[i] = fn.call(caller, this[i], i, this);
+        }
+        return result;
+    };
+}
+// filter
+if(!isFunction(Array.prototype.filter)) {
+    Array.prototype.filter = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = [];
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                result.push(this[i]);
+            }
+        }
+        return result;
+    };
+}
+// every
+if(!isFunction(Array.prototype.every)) {
+    Array.prototype.every = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(!fn.call(caller, this[i], i, this)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+// some
+if(!isFunction(Array.prototype.some)) {
+    Array.prototype.some = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+// reduce
+if(!isFunction(Array.prototype.reduce)) {
+    Array.prototype.reduce = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+        
+        i = 0;
+        len = this.length;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i++;
+        } else {
+            result = defaultValue;
+        }
+        for(; i < len; i++) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// reduceRight
+if(!isFunction(Array.prototype.reduceRight)) {
+    Array.prototype.reduceRight = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+
+        len = this.length;
+        i = len - 1;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i--;
+        } else {
+            result = defaultValue;
+        }
+        for(; i >= 0; i--) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// indexOf
+if(!isFunction(Array.prototype.indexOf)) {
+    Array.prototype.indexOf = function(value, startIndex) {
+        var i, len,
+            index;
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0) {
+                startIndex = len + startIndex;
+            }
+            
+            for(i = startIndex; i < len; i++) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+// lastIndexOf
+if(!isFunction(Array.prototype.lastIndexOf)) {
+    Array.prototype.lastIndexOf = function(value, startIndex) {
+        var i, len,
+            index;
+
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        i = len - 1;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0)
+                startIndex = len + startIndex;
+            
+            for(i = startIndex; i >= 0; i--) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: ui/ES6-Array-shims.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// find
+if(!isFunction(Array.prototype.find)) {
+    Array.prototype.find = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return this[i];
+            }
+        }
+    };
+}
+// findIndex
+if(!isFunction(Array.prototype.findIndex)) {
+    Array.prototype.findIndex = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return -1;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+// fill
+if(!isFunction(Array.prototype.fill)) {
+    Array.prototype.fill = function(value) {
+        var i, len;
+        for(i = 0, len = this.length; i < len; i++) {
+            this[i] = value;
+        }
+    };
+}
+// includes
+if(!isFunction(Array.prototype.includes)) {
+    Array.prototype.includes = function(value) {
+        return this.some(function(item) {
+            return item === value;
+        });
+    };
+}
+
+// Array.from
+if(!isFunction(Array.from)) {
+    Array.from = function(arrayLike, fn) {
+        var i, len,
+            itenFn,
+            result = [];
+
+        if(arrayLike && arrayLike.length) {
+            itemFn = fn;
+            if(!isFunction(itemFn)) {
+                itemFn = function(item) { 
+                    return item; 
+                };
+            }
+            for(i = 0, len = arrayLike.length; i < len; i++) {
+                result.push(itemFn.call(null, arrayLike[i], i));
+            }
+        }
+        return result;
+    };
+}
+
+// Array.of
+if(!isFunction(Array.of)) {
+    Array.of = function() {
+        return [].slice.call(arguments);
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: ui/ES5-String-shims.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// String.prototype
+// trim
+if(!isFunction(String.prototype.trim)) {
+    String.protocol.trim = function() {
+        return ui.str.trim(this);
+    };
+}
+
+
+
+})(jQuery, ui);
+
+// Source: ui/ES6-String-shims.js
+
+(function($, ui) {
+"use strict";
+// 为String对象添加ES6的一些方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function ensureInteger(position) {
+	var index = position ? Number(position) : 0;
+	if(isNaN(index)) {
+		index = 0;
+	}
+	return index;
+}
+
+var toString = Object.prototype.toString;
+
+// at
+if(!isFunction(String.prototype.at)) {
+	String.prototype.at = function(position) {
+		var str,
+			index,
+			endIndex,
+			len,
+			firstChar, secondChar;
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		index = ensureInteger(position);
+		index = Math.max(index, 0);
+
+		str = toString.call(this);
+		len = str.length;
+		if(index <= -1 || index >= len) {
+			return "";
+		}
+
+		first = str.charCodeAt(index);
+		endIndex = index + 1;
+		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
+			secondChar = str.charCodeAt(endIndex);
+			if(secondChar >= 0xDC00 && secondChar <= 0xDFFF) {
+				endIndex = index + 2;
+			}
+		}
+
+		return str.slice(index, endIndex);
+	};
+}
+
+// includes
+if(!isFunction(String.prototype.includes)) {
+	String.prototype.includes = function() {
+		return String.prototype.indexOf.apply(this, arguments) !== -1;
+	};
+}
+
+// startsWith
+if(!isFunction(String.prototype.startsWith)) {
+	String.prototype.startsWith = function(searchStr) {
+		var str,
+			search,
+			startIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			startIndex = ensureInteger(arguments[1]);
+		} else {
+			startIndex = 0;
+		}
+		startIndex = Math.max(startIndex, 0);
+		
+		return str.slice(startIndex, startIndex + search.length) === search;
+	};
+}
+
+// endsWith
+if(!isFunction(String.prototype.endsWith)) {
+	String.prototype.endsWith = function(searchStr) {
+		var str,
+			search,
+			endIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			endIndex = ensureInteger(arguments[1]);
+		} else {
+			endIndex = str.length;
+		}
+		endIndex = Math.min(Math.max(endIndex, 0), str.length);
+		
+		return str.slice(endIndex - search.length, endIndex) === search;
+	};
+}
+
+
+})(jQuery, ui);
+
+// Source: ui/ES5-Function-shims.js
+
+(function($, ui) {
+"use strict";
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Function.prototype
+// bind
+if(!isFunction(Function.prototype.bind)) {
+    Function.prototype.bind = function(o) {
+        var self = this,
+            boundArgs = arguments;
+        return function() {
+            var args = [],
+                i;
+            for(i = 1; i < boundArgs.length; i++) {
+                args.push(boundArgs[i]);
+            }
+            for(i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            return self.apply(o, args);
+        };
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: ui/ES6-Number-shims.js
+
+(function($, ui) {
+"use strict";
+// 为Number对象添加ES6的一些方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function isNumber(value) {
+    return ui.core.type(value) === "number";
+}
+
+// Number.isFinite
+if(!isFunction(Number.isFinite)) {
+    Number.isFinite = function(num) {
+        return isNumber(num) && (num > -Infinity && num < Infinity);
+    };
+}
+
+// Number.isNaN
+if(!isFunction(Number.isNaN)) {
+    Number.isNaN = isNaN;
+}
+
+// Number.parseInt
+if(!isFunction(Number.parseInt)) {
+    Number.parseInt = parseInt;
+}
+
+// Number.parseFloat
+if(!isFunction(Number.parseFloat)) {
+    Number.parseFloat = parseFloat;
+}
+
+
+})(jQuery, ui);
+
 // Source: ui/promise.js
 
 (function($, ui) {

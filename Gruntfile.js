@@ -254,9 +254,12 @@ module.exports = function(grunt) {
         "ui/soon-ui.js",
         "ui/core.js",
 
-        "ui/ES-array-extends.js",
-        "ui/ES-string-extends.js",
-        "ui/ES-function-extends.js",
+        "ui/ES5-Array-shims.js",
+        "ui/ES6-Array-shims.js",
+        "ui/ES5-String-shims.js",
+        "ui/ES6-String-shims.js",
+        "ui/ES5-Function-shims.js",
+        "ui/ES6-Number-shims.js",
 
         "ui/promise.js",
         "ui/array-faker.js",

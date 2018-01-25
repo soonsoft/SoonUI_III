@@ -26,6 +26,6 @@ if(!isFunction(Number.parseInt)) {
 }
 
 // Number.parseFloat
-if(!isFunction(Number.parseFloat) {
+if(!isFunction(Number.parseFloat)) {
     Number.parseFloat = parseFloat;
 }
