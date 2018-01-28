@@ -359,11 +359,12 @@ cellParameterFormatter = {
     },
     /** 显示图片，并具有点击放大浏览功能 */
     getImageFormatter: function(width, height, prefix, defaultSrc, fillMode) {
-        var imageZoomer;
-        if(ui.core.isNumber(width) || width <= 0) {
+        var imageZoomer,
+            getFn;
+        if(!ui.core.isNumber(width) || width <= 0) {
             width = 120;
         }
-        if(ui.core.isNumber(height) || width <= 0) {
+        if(!ui.core.isNumber(height) || height <= 0) {
             height = 90;
         }
         if(!prefix) {
@@ -371,44 +372,48 @@ cellParameterFormatter = {
         } else {
             prefix += "";
         }
+
+        getFn = function(val) {
+            var img = this.target,
+                cell = img.parent().parent(),
+                row = cell.parent(),
+                tableBody = row.parent(),
+                rowCount = tableBody[0].rows.length,
+                rowIndex = row[0].rowIndex + val,
+                imgPanel;
+            do {
+                if(rowIndex < 0 || rowIndex >= rowCount) {
+                    return false;
+                }
+                imgPanel = $(tableBody[0].rows[rowIndex].cells[cell[0].cellIndex]).children();
+                img = imgPanel.children("img");
+                rowIndex += val;
+            } while(imgPanel.hasClass("failed-image"));
+            return img;
+        };
+
         imageZoomer = ui.ctrls.ImageZoomer({
-            get: function(val) {
-                var img = this.target,
-                    cell = img.parent().parent(),
-                    row = cell.parent(),
-                    tableBody = row.parent(),
-                    rowCount = tableBody[0].rows.length,
-                    rowIndex = row[0].rowIndex + val,
-                    imgPanel;
-                do {
-                    if(rowIndex < 0 || rowIndex >= rowCount) {
-                        return false;
-                    }
-                    imgPanel = $(tableBody[0].rows[rowIndex].cells[cell[0].cellIndex]).children();
-                    img = imgPanel.children("img");
-                    rowIndex += val;
-                } while(imgPanel.hasClass("failed-image"));
-                return img;
-            },
             getNext: function() {
-                return this.option.get(1) || null;
+                return getFn.call(this, 1) || null;
             },
             getPrev: function() {
-                return this.option.get(-1) || null;
+                return getFn.call(this, -1) || null;
             },
             hasNext: function() {
-                return !!this.option.get(1);
+                return !!getFn.call(this, 1);
             },
             hasPrev: function() {
-                return !!this.option.get(-1);
+                return !!getFn.call(this, -1);
             }
         });
         return function(imageSrc, column, index, td) {
+            var imagePanel,
+                image;
             if(!imageSrc) {
                 return "<span>暂无图片</span>";
             }
-            var imagePanel = $("<div class='grid-small-image' style='overflow:hidden;' />");
-            var image = $("<img style='cursor:crosshair;' />");
+            imagePanel = $("<div class='grid-small-image' style='overflow:hidden;' />");
+            image = $("<img style='cursor:crosshair;' />");
             imagePanel.css({
                 "width": width + "px",
                 "height": height + "px"
@@ -421,9 +426,23 @@ cellParameterFormatter = {
                         image.addImageZoomer(imageZoomer);
                     }, 
                     function(e) {
+                        var imageInfo = {
+                            originalWidth: 120,
+                            originalHeight: 90,
+                            width: width,
+                            height: height
+                        };
                         image.attr("alt", "请求图片失败");
                         if(defaultSrc) {
                             image.prop("src", defaultSrc);
+                            fillMode.call(imageInfo);
+                            image.css({
+                                "vertical-align": "top",
+                                "width": imageInfo.displayWidth + "px",
+                                "height": imageInfo.displayHeight + "px",
+                                "margin-top": imageInfo.marginTop + "px",
+                                "margin-left": imageInfo.marginLeft + "px"
+                            });
                             image.addClass("default-image");
                         }
                         imagePanel.addClass("failed-image");

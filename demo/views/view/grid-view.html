@@ -43,7 +43,7 @@
                     columns: [
                         { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
                         { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
-                        { text: "缩略图", column: "image", len: 120, formatter: ui.ColumnStyle.cfnp.getImageFormatter(120, 90, "", "../../content/images/disabled_l1.png") },
+                        { text: "缩略图", column: "image", len: 121, formatter: ui.ColumnStyle.cfnp.getImageFormatter(120, 90, "", "../../content/images/disabled_l1.png", ui.ImageLoader.centerCrop) },
                         { text: "姓名", column: "name", sort: true, len: 100 },
                         { text: "年龄", column: "age", len: 60, align: "right", sort: true },
                         //{ text: "点数", column: "point", len: 60, align: "right", formatter: ui.ColumnStyle.cfn.rowspan },
