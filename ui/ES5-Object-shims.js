@@ -1,6 +1,6 @@
 // 为String对象添加ES6的一些方法
 
-var prototypeOfObject = Object.proto,
+var prototypeOfObject = Object.prototype,
 	hasOwnProperty = prototypeOfObject.hasOwnProperty,
 	isEnumerable = prototypeOfObject.propertyIsEnumerable,
 

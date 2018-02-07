@@ -260,6 +260,7 @@ module.exports = function(grunt) {
         "ui/ES6-String-shims.js",
         "ui/ES5-Function-shims.js",
         "ui/ES6-Number-shims.js",
+        "ui/ES5-Object-shims.js",
 
         "ui/promise.js",
         "ui/array-faker.js",
