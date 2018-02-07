@@ -2,7 +2,7 @@
 
 var prototypeOfObject = Object.proto,
 	hasOwnProperty = prototypeOfObject.hasOwnProperty,
-	isEnumerable = prototypeOfObject.isEnumerable,
+	isEnumerable = prototypeOfObject.propertyIsEnumerable,
 
 	supportsAccessors,
 	defineGetter,
@@ -20,11 +20,11 @@ if(supportsAccessors) {
 	
 
 function isFunction(fn) {
-    return ui.core.isFunction(fn);
+	return ui.core.isFunction(fn);
 }
 
 function isPrimitive(obj) {
-    return typeof obj !== 'object' && typeof obj !== 'function' || obj === null
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null
 }
 
 // 返回一个由一个给定对象的自身可枚举属性组成的数组
@@ -80,7 +80,7 @@ if(!isFunction(Object.getOwnPropertyNames)) {
 }
 
 // 检查getOwnPropertyDescriptor是否需要修复
-var oldGetOwnPropertyDescriptor = null;
+var getOwnPropertyDescriptorFallback = null;
 function doesGetOwnPropertyDescriptorWork(obj) {
 	try {
 		object.sentinel = 0;
@@ -89,13 +89,13 @@ function doesGetOwnPropertyDescriptorWork(obj) {
 		return false;
 	}
 }
-if(isFunction(Object.defineProperty)) {
+if(Object.getOwnPropertyDescriptor) {
 	if(!doesGetOwnPropertyDescriptorWork({}) || 
 		!(typeof document === "undefined" || doesGetOwnPropertyDescriptorWork(document.createElement("div")))) {
-		oldGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+		getOwnPropertyDescriptorFallback = Object.getOwnPropertyDescriptor;
 	}
 }
-if(!isFunction(Object.getOwnPropertyDescriptor) || oldGetOwnPropertyDescriptor) {
+if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallback) {
 	Object.getOwnPropertyDescriptor = function(obj, property) {
 		var descriptor,
 			originalPrototype,
@@ -105,8 +105,8 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || oldGetOwnPropertyDescriptor) 
 			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
 		}
 
-		// 尝试使用原始的getOwnPropertyDescriptor方法
-		if(oldGetOwnPropertyDescriptor) {
+		// 尝试使用原始的getOwnPropertyDescriptor方法 for IE8
+		if(getOwnPropertyDescriptorFallback) {
 			try {
 				return getOwnPropertyDescriptorFallback.call(Object, obj, property);
 			} catch(e) {
@@ -118,7 +118,7 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || oldGetOwnPropertyDescriptor) 
 			return descriptor;
 		}
 
-		 descriptor = {
+		descriptor = {
             enumerable: isEnumerable.call(obj, property),
             value: obj[property],
             configurable: true,
@@ -152,4 +152,91 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || oldGetOwnPropertyDescriptor) 
 
         return descriptor;
 	};
+}
+
+// 检查defineProperty是否需要修复
+var definePropertyFallback = null,
+	definePropertiesFallback = null;
+function doesDefinePropertyWork(object) {
+	try {
+		Object.defineProperty(object, 'sentinel', {});
+		return 'sentinel' in object;
+	} catch (exception) {
+		return false;
+	}
+}
+if(Object.defineProperty) {
+	if(!doesDefinePropertyWork({}) || 
+		!(typeof document === "undefined" || doesDefinePropertyWork(document.createElement("div")))) {
+		definePropertyFallback = Object.defineProperty;
+		definePropertiesFallback = Object.defineProperties;
+	}
+}
+if(!isFunction(Object.defineProperty) || definePropertyFallback) {
+	Object.defineProperty = function(obj, property, descriptor) {
+		var originalPrototype,
+			notPrototypeOfObject,
+			hasGetter,
+			hasSetter;
+
+		if(isPrimitive(obj) || isPrimitive(property)) {
+			throw new TypeError("Object.defineProperty called on non-object");
+		}
+
+		// 尝试使用原始的defineProperty方法 for IE8
+		if(definePropertyFallback) {
+			try {
+				return definePropertyFallback.call(Object, obj, property, descriptor);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if("value" in descriptor) {
+			if(supportsAccessors && (lookupGetter.call(obj, property) || lookupSetter.call(obj, property))) {
+				originalPrototype = obj.__proto__;
+				obj.__proto__ = prototypeOfObject;
+				
+				delete obj[prototype];
+				obj[prototype] = descriptor.value;
+
+				obj.__proto__ = originalPrototype;
+			} else {
+				obj[prototype] = descriptor.value;
+			}
+		} else {
+			hasGetter = "get" in descriptor && isFunction(descriptor.get);
+			hasSetter = "set" in descriptor && isFunction(descriptor.set);
+			if(!supportsAccessors && (hasGetter || hasSetter)) {
+				throw new TypeError("getters & setters can not be defined on this javascript engine");
+			}
+
+			if(hasGetter) {
+				defineGetter.call(obj, property, descriptor.get);
+			}
+			if(hasSetter) {
+				defineSetter.call(obj, property, descriptor.set);
+			}
+		}
+	};
+}
+
+// 检查defineProperties是否需要修复
+if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
+	Object.defineProperties = function(obj, properties) {
+		if(definePropertiesFallback) {
+			try {
+				return definePropertiesFallback.call(obj, properties);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		Object.keys(obj).forEash(function(prop) {
+			if(prop !== "__proto__") {
+				Object.defineProperty(obj, prop);
+			}
+		});
+		return obj;
+	}
 }
