@@ -1,6 +1,37 @@
 // 对象观察者
 
 // 观察者
+var arrayObserverPrototype = [],
+    overrideMethods = ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"];
+// 劫持修改数组的API方法
+overrideMethods.forEach(function(methodName) {
+    var originalMethod = arrayObserverPrototype[methodName];
+
+    arrayObserverPrototype[methodName] = function() {
+        var result,
+            insertedItems,
+            args = arrayObserverPrototype.slice(arguments, 0);
+
+        result = originalMethod.apply(this, args);
+
+        switch(methodName) {
+            case "push":
+            case "unshift":
+                insertedItems = args;
+                break;
+            case "splice":
+                insertedItems = args.slice(2);
+                break;
+        }
+
+        if(insertedItems) {
+            // insertedItems 包装ViewModel 
+        }
+        // notify
+        return result;
+    };
+});
+
 function Observer() {
     if(this instanceof Observer) {
         this.initialize();
