@@ -262,5 +262,3 @@ if(!isFunction(Object.isExtensible)) {
 		return returnValue;
 	};
 }
-
-
