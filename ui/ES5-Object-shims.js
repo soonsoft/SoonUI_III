@@ -240,3 +240,25 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 		return obj;
 	}
 }
+
+// 检查isExtensible是否需要修复
+if(!isFunction(Object.isExtensible)) {
+	Object.isExtensible = function(obj) {
+		var tmpPropertyName,
+			returnValue;
+		if(ui.core.isObject(obj)) {
+			throw new TypeError("Object.isExtensible can only be called on Objects.");
+		}
+
+		tmpPropertyName = "_tmp";
+		while(hasOwnProperty(obj, tmpPropertyName)) {
+			tmpPropertyName += "_";
+		}
+
+		obj[tmpPropertyName] = true;
+		returnValue = hasOwnProperty(obj, tmpPropertyName);
+		delete obj[tmpPropertyName];
+
+		return returnValue;
+	};
+}
