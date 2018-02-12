@@ -72,7 +72,8 @@ function defineNotifyProperty(obj, key, val, shallow) {
         enumerable: true,
         configurable: true,
         get: function () {
-
+            var oldVal = getter ? getter.call(obj) : val;
+            return val;
         },
         set: function(newVal) {
             var oldVal = getter ? getter.call(obj) : val;
@@ -119,26 +120,64 @@ function createNotifyObject(obj) {
     return obj;
 }
 
-function NotifyObject(value) {
-    if(this instanceof NotifyObject) {
-        this.initialize(value);
+/**
+function BaseNotifyObject() {
+}
+NotifyBase.prototype = {
+    constructor: NotifyBase,
+    addPropertyChanged: function(handler) {
+
+    },
+    removePropertyChanged: function(handler) {
+
+    }
+};
+
+function NotifyArray(array) {
+    this.dependency = new Dependency();
+    updatePrototype(array, arrayObserverPrototype, overrideMethods);
+    this.arrayNotify(array);
+}
+NotifyArray.prototype = new BaseNotifyObject();
+NotifyArray.prototype.constructor = NotifyArray;
+NotifyArray.prototype.wrapArray = function() {
+    var i, len;
+    for(i = 0, len = array.length; i < len; i++) {
+        createNotifyObject(array[i]);
+    }
+};
+
+function NotifyObject(obj) {
+    this._original = obj;
+    this.dependency = new Dependency();
+
+}
+NotifyObject.prototype = new BaseNotifyObject();
+NotifyObject.prototype.constructor = NotifyObject;
+NotifyObject.prototype.wrapObject = function(obj) {
+    var keys = Object.keys(obj),
+        i, len;
+
+    keys = Object.keys(obj);
+    for(i = 0, len = keys.length; i < len; i++) {
+        defineNotifyProperty(obj, keys[i], obj[keys[i]]);
+    }
+};
+*/
+
+function NotifyObject(obj) {
+    this.value = value;
+    this.dependency = new Dependency();
+    value.__notice__ = this;
+    if(Array.isArray(value)) {
+        updatePrototype(value, arrayObserverPrototype, overrideMethods);
+        this.arrayNotify(value);
     } else {
-        return new NotifyObject(value);
+        this.objectNotify(value);
     }
 }
 NotifyObject.prototype = {
-    constructor: NotifyObject
-    initialize: function() {
-        this.value = value;
-        this.dependency = new Dependency();
-        value.__notice__ = this;
-        if(Array.isArray(value)) {
-            updatePrototype(value, arrayObserverPrototype, overrideMethods);
-            this.arrayNotify(value);
-        } else {
-            this.objectNotify(value);
-        }
-    },
+    constructor: NotifyObject,
     arrayNotify: function(array) {
         var i, len;
         for(i = 0, len = array.length; i < len; i++) {
