@@ -49,13 +49,14 @@ if(hasProto) {
     }
 }
 
-function defineNotifyProperty(obj, key, val, shallow) {
+function defineNotifyProperty(obj, propertyName, val, shallow, path) {
     var descriptor,
         getter,
         setter,
+        notice,
         childNotice;
 
-    descriptor = Object.getOwnPropertyDescriptor(obj, key);
+    descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
     if (descriptor && descriptor.configurable === false) {
         return;
     }
@@ -68,12 +69,13 @@ function defineNotifyProperty(obj, key, val, shallow) {
         childNotice = new NotifyObject(val);
     }
 
-    Object.defineProperty(obj, key, {
+    notice = obj.__notice__;
+    Object.defineProperty(obj, propertyName, {
         enumerable: true,
         configurable: true,
         get: function () {
             var oldVal = getter ? getter.call(obj) : val;
-            return val;
+            return oldVal;
         },
         set: function(newVal) {
             var oldVal = getter ? getter.call(obj) : val;
@@ -91,6 +93,7 @@ function defineNotifyProperty(obj, key, val, shallow) {
                 // 更新通知对象
                 childNotice = new NotifyObject(newVal);
             }
+            notice.dependency.notify(propertyName);
         }
     });
 }
@@ -113,7 +116,7 @@ function createNotifyObject(obj) {
     if(Object.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
         notice = obj.__notice__;
         // TODO notice.count++;
-    } else if((Array.isArray(obj) || ui.core.isPlainObject(obj)) && Object.isExtensible(obj)) {
+    } else if((isArray || isObject) && Object.isExtensible(obj)) {
         notice = new NotifyObject(obj);
     }
 
@@ -196,13 +199,15 @@ NotifyObject.prototype = {
 
 // 依赖属性
 function Dependency() {
-
+    this.depMap = {};
 }
 Dependency.prototype = {
     constructor: Dependency,
     // 添加依赖处理
-    addPropertyChanged: function() {
-
+    add: function(binder) {
+        if(binder instanceof Binder) {
+            
+        }
     },
     // 移除依赖处理
     remove: function(item) {
@@ -210,8 +215,35 @@ Dependency.prototype = {
     },
     depend: function() {
     },
-    notify: function() {
-
+    // 变化通知
+    notify: function(propertyName) {
+        var keys,
+            delegate,
+            errors,
+            i, len;
+        if(ui.core.type(propertyName) === "string" && propertyName) {
+            if(this.depMap.hasOwnProperty(propertyName)) {
+                keys = [propertyName];    
+            } else {
+                keys = [];
+            }
+        } else {
+            keys = Object.keys(this.depMap);
+        }
+        errors = [];
+        for(i = 0, len = keys.length; i < len; i++) {
+            delegate = this.depMap[keys[i]];
+            delegate.forEach(function(binder) {
+                try {
+                    binder.update();
+                } catch(e) {
+                    errors.push(e);
+                }
+            });
+        }
+        if(errors.length > 0) {
+            throw errors.toString();
+        }
     }
 };
 
@@ -228,7 +260,22 @@ Binder.prototype = {
     constructor: Binder,
     initialize: funciton() {
 
+    },
+    update: function() {
+
     }
 };
 
 ui.ViewModel = createNotifyObject;
+ui.ViewModel.bindOnce = function(vm, propertyName, bindData, fn) {
+    if(ui.core.isFunction(bindData)) {
+        fn = bindData;
+        bindData = null;
+    }
+};
+ui.ViewModel.bindOneWay = function(vm, propertyName, bindData, fn) {
+    if(ui.core.isFunction(bindData)) {
+        fn = bindData;
+        bindData = null;
+    }
+};
