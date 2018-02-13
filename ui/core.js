@@ -57,8 +57,8 @@ var core = ui.core,
     aslice = arrayInstance.slice,
     head = DOC.head || DOC.getElementsByTagName("head")[0],
     rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/,
-    isTouchAvailable = "ontouchstart" in window,
-    isSupportCanvas = !!document.createElement("canvas").getContext,
+    isTouchAvailable,
+    isSupportCanvas,
     typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 
 // 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
@@ -155,11 +155,17 @@ core.isJQueryObject = function (obj) {
 
 // 判断浏览器是否支持canvas对象
 core.isSupportCanvas = function () {
+    if(core.type(isSupportCanvas) !== "boolean") {
+        isSupportCanvas = !!document.createElement("canvas").getContext;
+    }
     return isSupportCanvas;
 };
 
 // 判断是否支持触摸操作
 core.isTouchAvailable = function() {
+    if(core.type(isTouchAvaliable) !== "boolean") {
+        isTouchAvaliable = "ontouchstart" in window;
+    }
     return isTouchAvailable;  
 };
 
