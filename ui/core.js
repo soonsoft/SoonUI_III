@@ -169,3 +169,8 @@ core.isTouchAvailable = function() {
     return isTouchAvailable;  
 };
 
+// TODO 统一的异常处理函数
+core.handleError = function(e) {
+    console.log(e);
+};
+

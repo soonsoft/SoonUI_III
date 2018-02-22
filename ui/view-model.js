@@ -49,6 +49,8 @@ if(hasProto) {
     }
 }
 
+function noop() {}
+
 function defineNotifyProperty(obj, propertyName, val, shallow, path) {
     var descriptor,
         getter,
@@ -113,7 +115,7 @@ function createNotifyObject(obj) {
         return obj;
     }
 
-    if(Object.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
+    if(obj.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
         notice = obj.__notice__;
         // TODO notice.count++;
     } else if((isArray || isObject) && Object.isExtensible(obj)) {
@@ -122,51 +124,6 @@ function createNotifyObject(obj) {
 
     return obj;
 }
-
-/**
-function BaseNotifyObject() {
-}
-NotifyBase.prototype = {
-    constructor: NotifyBase,
-    addPropertyChanged: function(handler) {
-
-    },
-    removePropertyChanged: function(handler) {
-
-    }
-};
-
-function NotifyArray(array) {
-    this.dependency = new Dependency();
-    updatePrototype(array, arrayObserverPrototype, overrideMethods);
-    this.arrayNotify(array);
-}
-NotifyArray.prototype = new BaseNotifyObject();
-NotifyArray.prototype.constructor = NotifyArray;
-NotifyArray.prototype.wrapArray = function() {
-    var i, len;
-    for(i = 0, len = array.length; i < len; i++) {
-        createNotifyObject(array[i]);
-    }
-};
-
-function NotifyObject(obj) {
-    this._original = obj;
-    this.dependency = new Dependency();
-
-}
-NotifyObject.prototype = new BaseNotifyObject();
-NotifyObject.prototype.constructor = NotifyObject;
-NotifyObject.prototype.wrapObject = function(obj) {
-    var keys = Object.keys(obj),
-        i, len;
-
-    keys = Object.keys(obj);
-    for(i = 0, len = keys.length; i < len; i++) {
-        defineNotifyProperty(obj, keys[i], obj[keys[i]]);
-    }
-};
-*/
 
 function NotifyObject(obj) {
     this.value = value;
@@ -205,13 +162,34 @@ Dependency.prototype = {
     constructor: Dependency,
     // 添加依赖处理
     add: function(binder) {
+        var propertyName;
         if(binder instanceof Binder) {
-            
+            propertyName = binder.propertyName;
+            if(!this.depMap.hasOwnProperty(binder.propertyName)) {
+                this.depMap[propertyName] = [];
+            }
+            this.depMap[propertyName].push(binder);
         }
     },
     // 移除依赖处理
-    remove: function(item) {
+    remove: function(binder) {
+        var propertyName;
+        if(binder instanceof Binder) {
+            var propertyName,
+                binderList,
+                i, len;
+            propertyName = binder.propertyName;
+            binderList = this.depMap[propertyName];
 
+            if(Array.isArray(binderList)) {
+                for(i = binderList.length - 1; i >= 0; i--) {
+                    if(binderList[i] === binder) {
+                        binderList.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
     },
     depend: function() {
     },
@@ -249,22 +227,62 @@ Dependency.prototype = {
 
 
 // 查看器
-function Binder() {
-    if(this instanceof Binder) {
-        this.initialize();
+function Binder(option) {
+    var propertyName = null;
+    Object.defineProperty(this, "propertyName", {
+        configurable: false,
+        enumerable: true,
+        get: function() {
+            if(!propertyName) {
+                return "_";
+            }
+            return propertyName;
+        },
+        set: function(val) {
+            propertyName = val;
+        }
+    });
+
+    this.viewModel = null;
+    this.isActive = true;
+
+    if(option) {
+        this.sync = !!option.sync;
+        this.lazy = !!option.lazy;
     } else {
-        return new Binder();
+        this.sync = this.lazy = false;
     }
 }
 Binder.prototype = {
     constructor: Binder,
-    initialize: funciton() {
-
-    },
     update: function() {
-
+        if(!this.isActive) {
+            return;
+        }
     }
 };
+
+function createBinder(viewModel, propertyName, bindData, handler) {
+    var binder;
+    if(!viewModel || viewModel.__notice__) {
+        throw new TypeError("the arguments 'viewModel' is invalid.");
+    }
+    if(!viewModel.hasOwnProperty(propertyName)) {
+        throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
+    }
+    if(!isFunction(handler)) {
+        return null;
+    }
+
+    binder = new Binder();
+    binder.propertyName = propertyName;
+    binder.viewModel = vm;
+    binder.action = function() {
+        handler.call(viewModel, bindData);
+    };
+
+    return binder;
+}
 
 ui.ViewModel = createNotifyObject;
 ui.ViewModel.bindOnce = function(vm, propertyName, bindData, fn) {
@@ -273,9 +291,12 @@ ui.ViewModel.bindOnce = function(vm, propertyName, bindData, fn) {
         bindData = null;
     }
 };
-ui.ViewModel.bindOneWay = function(vm, propertyName, bindData, fn) {
-    if(ui.core.isFunction(bindData)) {
-        fn = bindData;
-        bindData = null;
+ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn) {
+    var binder = createBinder(viewModel, propertyName, bindData, fn);
+    if(binder) {
+        viewModel.dependency.add(binder);
     }
+};
+ui.ViewModel.bindTwoWay = function(option) {
+
 };

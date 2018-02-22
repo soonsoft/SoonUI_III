@@ -262,3 +262,125 @@ if(!isFunction(Object.isExtensible)) {
 		return returnValue;
 	};
 }
+
+// 检查getPrototypeOf是否需要修复
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			prototype;
+		
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		prototype = obj.__proto__;
+		if(property || prototype === null) {
+			return prototype;
+		} else if(ui.core.isFunction(property.constructor)) {
+			return prototype.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			return null;
+		}
+	};
+}
+
+// 检查create是否需要修复
+var createEmpty,
+	supportsProto,
+	shouldUseActiveX,
+	getEmptyViaActiveX,
+	getEmptyViaIFrame;
+if(!isFunction(Object.create)) {
+	supportsProto = !({ __proto__: null } instanceof Object);
+	shouldUseActiveX = function () {
+		if (!document.domain) {
+			return false;
+		}
+		try {
+			return !!new ActiveXObject('htmlfile');
+		} catch (e) {
+			return false;
+		}
+	};
+	getEmptyViaActiveX = function() {
+		var empty,
+			script,
+			xDoc;
+
+        xDoc = new ActiveXObject('htmlfile');
+		script = 'script';
+		xDoc.write('<' + script + '></' + script + '>');
+		xDoc.close();
+		empty = xDoc.parentWindow.Object.prototype;
+		xDoc = null;
+		return empty;
+	};
+	getEmptyViaIFrame = function() {
+		var iframe = document.createElement('iframe'),
+			parent = document.body || document.documentElement,
+			empty;
+
+		iframe.style.display = 'none';
+		parent.appendChild(iframe);
+
+		// eslint-disable-next-line no-script-url
+		iframe.src = 'javascript:';
+		empty = iframe.contentWindow.Object.prototype;
+		parent.removeChild(iframe);
+		iframe = null;
+		return empty;
+	};
+
+	if(supportsProto || typeof document === "undefined") {
+		createEmpty = function () {
+			return {
+				__proto__: null
+			};	
+		};
+	} else {
+		createEmpty = (function() {
+			var emptyPrototype = shouldUseActiveX() ? getEmptyViaActiveX() : getEmptyViaIFrame();
+
+			delete emptyPrototype.constructor;
+			delete emptyPrototype.hasOwnProperty;
+			delete emptyPrototype.propertyIsEnumerable;
+			delete emptyPrototype.isPrototypeOf;
+			delete emptyPrototype.toLocalString;
+			delete emptyPrototype.toString;
+			delete emptyPrototype.valueOf;
+
+			function Empty() {}
+			Empty.prototype = empty;
+
+			return function() {
+				return new Empty();
+			};
+		})();
+	}
+
+	Object.create = function(prototype, properties) {
+		var obj;
+
+		function Type() {}
+
+		if(prototype === null) {
+			return createEmpty();
+		} else {
+			if(isPrimitive(prototype)) {
+				throw TypeError("Object prototype may only be an Object or null");
+			}
+			Type.prototype = prototype;
+			obj = new Type();
+			obj.__proto__ = prototype;
+		}
+
+		if(properties !== undefined) {
+			Object.defineProperties(obj, properties);
+		}
+
+		return obj;
+	};
+}

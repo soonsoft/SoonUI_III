@@ -602,7 +602,11 @@ TileContainer.prototype = {
                     if(tile.isActivated && currentTime > tile.activeTime) {
                         tile.isActivated = false;
                         that.dynamicTiles.activeCount--;
-                        tile.updateFn.call(that, tile);
+                        try {
+                            tile.updateFn.call(that, tile);
+                        } catch(e) {
+                            ui.handleError(e);
+                        }
                     }
                 }
                 if(that.dynamicTiles.activeCount > 0) {
