@@ -76,8 +76,7 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
         enumerable: true,
         configurable: true,
         get: function () {
-            var oldVal = getter ? getter.call(obj) : val;
-            return oldVal;
+            return getter ? getter.call(obj) : val;
         },
         set: function(newVal) {
             var oldVal = getter ? getter.call(obj) : val;
@@ -248,10 +247,12 @@ function Binder(option) {
 
     if(option) {
         this.sync = !!option.sync;
-        this.lazy = !!option.lazy;
+        //this.lazy = !!option.lazy;
     } else {
         this.sync = this.lazy = false;
     }
+
+    this.value = this.lazy ? null : this.get();
 }
 Binder.prototype = {
     constructor: Binder,
@@ -259,10 +260,41 @@ Binder.prototype = {
         if(!this.isActive) {
             return;
         }
+
+        if(this.sync) {
+            this.execute();
+        } else {
+            enqueue(this);
+        }
+    },
+    execute: function() {
+        var oldValue,
+            value;
+
+        oldValue = this.value;
+        value = this.get();
+
+        if(value !== oldValue) {
+            this.value = value;
+            try {
+                this.action(value, oldValue);
+            } catch(e) {
+                ui.core.handleError(e);
+            }
+        }
+    },
+    get: function() {
+        var value = null;
+
+        if(this.viewModel && this.viewModel.hasOwnProperty(this.propertyName)) {
+            value = this.viewModel[this.propertyName];
+        }
+
+        return value;
     }
 };
 
-function createBinder(viewModel, propertyName, bindData, handler) {
+function createBinder(viewModel, propertyName, bindData, handler, option) {
     var binder;
     if(!viewModel || viewModel.__notice__) {
         throw new TypeError("the arguments 'viewModel' is invalid.");
@@ -270,15 +302,19 @@ function createBinder(viewModel, propertyName, bindData, handler) {
     if(!viewModel.hasOwnProperty(propertyName)) {
         throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
     }
-    if(!isFunction(handler)) {
+    if(!ui.core.isFunction(bindData)) {
+        handler = bindData;
+        bindData = null;
+    }
+    if(!ui.core.isFunction(handler)) {
         return null;
     }
 
-    binder = new Binder();
+    binder = new Binder(option);
     binder.propertyName = propertyName;
     binder.viewModel = vm;
-    binder.action = function() {
-        handler.call(viewModel, bindData);
+    binder.action = function(value, oldValue) {
+        handler.call(viewModel, value, oldValue, bindData);
     };
 
     return binder;
@@ -286,17 +322,20 @@ function createBinder(viewModel, propertyName, bindData, handler) {
 
 ui.ViewModel = createNotifyObject;
 ui.ViewModel.bindOnce = function(vm, propertyName, bindData, fn) {
-    if(ui.core.isFunction(bindData)) {
-        fn = bindData;
-        bindData = null;
-    }
-};
-ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn) {
     var binder = createBinder(viewModel, propertyName, bindData, fn);
+};
+ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
+    var binder,
+        option;
+
+    option = {
+        sync: !!isSync
+    };
+    binder = createBinder(viewModel, propertyName, bindData, fn, option);
     if(binder) {
         viewModel.dependency.add(binder);
     }
 };
 ui.ViewModel.bindTwoWay = function(option) {
-
+    //var binder = createBinder();
 };
