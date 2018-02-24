@@ -39,7 +39,7 @@
 var formatters,
 	parsers,
 	locale;
-var rFormat = /((?:[^yMdHhmstZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|t+|Z))(.*)/,
+var rFormat = /((?:[^yMdHhmsStZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|S|t+|Z))(.*)/,
 	rAspNetFormat = /^\/Date\((\d+)\)\/$/;
 var lastFormat,
 	lastParts;
@@ -82,7 +82,7 @@ function dateGetter(name, len, offset, isTrim) {
 
 function dateStrGetter(name, shortForm) {
 	return function(date, formats) {
-		var value = date["get" + name],
+		var value = date["get" + name](),
 			key = (shortForm ? ("SHORT" + name) : name).toUpperCase();
 		return formats[key][value];
 	};
@@ -144,7 +144,7 @@ formatters = {
 
 function getDateParser(name) {
 	return function(value, dateInfo) {
-		dateInfo[name] = toInt(name);
+		dateInfo[name] = toInt(value);
 	};
 }
 
@@ -218,7 +218,8 @@ locale = {
 locale["SHORTMONTH"] = locale["MONTH"];
 
 function getParts(format) {
-	var parts;
+	var parts,
+		match;
 	if(format === lastFormat) {
 		parts = lastParts;
 	} else {
@@ -227,7 +228,7 @@ function getParts(format) {
 			match = rFormat.exec(format);
 			if(match) {
 				parts.push(match[1]);
-				format = parts[2];
+				format = match[2];
 			} else {
 				parts.push(format);
 				break;
@@ -310,7 +311,7 @@ ui.date = {
 
 		dateInfo = {
 			year: 1970,
-			month: 0,
+			month: 1,
 			date: 1,
 			hours: 0,
 			minutes: 0,
@@ -318,7 +319,7 @@ ui.date = {
 			milliseconds: 0
 		};
 
-		parts = getParts(format);
+		parts = getParts(formatValue);
 		startIndex = 0;
 		for(i = 0, len = parts.length; i < len;) {
 			part = parts[i];
@@ -330,19 +331,28 @@ ui.date = {
 
 			i++;
 			if(i < len) {
-				nextPart = parsers[i + 1];
+				nextPart = parts[i];
+				if(parsers.hasOwnProperty(nextPart)) {
+					return null;
+				}
+				i++;
 				index = dateStr.indexOf(nextPart, startIndex);
+				if(index === -1) {
+					return null;
+				}
 			} else {
 				index = dateStr.length;
 			}
 
-			parsers[part](dateStr.substring(startIndex, index), dateInfo, part);
-			startIndex += index;
+			if(parsers[part]) {
+				parsers[part](dateStr.substring(startIndex, index), dateInfo, part);
+			}
+			startIndex = index + 1;
 		}
 
 		return new Date(
 			dateInfo.year,
-			dateInfo.month,
+			dateInfo.month - 1,
 			dateInfo.date,
 			dateInfo.hours,
 			dateInfo.minutes,
