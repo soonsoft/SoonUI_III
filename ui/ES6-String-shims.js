@@ -1,5 +1,7 @@
 // 为String对象添加ES6的一些方法
 
+var toString = Object.prototype.toString;
+
 function isFunction(fn) {
     return ui.core.isFunction(fn);
 }
@@ -11,8 +13,6 @@ function ensureInteger(position) {
 	}
 	return index;
 }
-
-var toString = Object.prototype.toString;
 
 // at
 if(!isFunction(String.prototype.at)) {
