@@ -1,4 +1,0 @@
-
-(function($, ui) {
-//$|$
-})(jQuery, ui);
