@@ -1,0 +1,4 @@
+
+(function($, ui) {
+//$|$
+})(jQuery, ui);
