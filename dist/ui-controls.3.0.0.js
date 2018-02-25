@@ -1,4 +1,4 @@
-// Source: ui/control/base/dropdown-base.js
+// Source: src/control/base/dropdown-base.js
 
 (function($, ui) {
 "use strict";
@@ -276,7 +276,7 @@ ui.define("ui.ctrls.DropDownBase", {
 
 })(jQuery, ui);
 
-// Source: ui/control/base/sidebar-base.js
+// Source: src/control/base/sidebar-base.js
 
 (function($, ui) {
 "use strict";
@@ -479,7 +479,7 @@ ui.define("ui.ctrls.SidebarBase", {
 
 })(jQuery, ui);
 
-// Source: ui/control/common/column-style.js
+// Source: src/control/common/column-style.js
 
 (function($, ui) {
 "use strict";
@@ -1012,7 +1012,7 @@ ui.ColumnStyle = {
 
 })(jQuery, ui);
 
-// Source: ui/control/common/pager.js
+// Source: src/control/common/pager.js
 
 (function($, ui) {
 "use strict";
@@ -1232,7 +1232,7 @@ ui.ctrls.Pager = Pager;
 
 })(jQuery, ui);
 
-// Source: ui/control/box/dialog-box.js
+// Source: src/control/box/dialog-box.js
 
 (function($, ui) {
 "use strict";
@@ -1955,7 +1955,7 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 
 })(jQuery, ui);
 
-// Source: ui/control/box/loading-box.js
+// Source: src/control/box/loading-box.js
 
 (function($, ui) {
 "use strict";
@@ -2039,7 +2039,7 @@ ui.loadingHide = function() {
 
 })(jQuery, ui);
 
-// Source: ui/control/box/message-box.js
+// Source: src/control/box/message-box.js
 
 (function($, ui) {
 "use strict";
@@ -2254,7 +2254,7 @@ ui.failedShow = function(text) {
 
 })(jQuery, ui);
 
-// Source: ui/control/box/option-box.js
+// Source: src/control/box/option-box.js
 
 (function($, ui) {
 "use strict";
@@ -2378,7 +2378,7 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/chooser.js
+// Source: src/control/select/chooser.js
 
 (function($, ui) {
 "use strict";
@@ -3059,7 +3059,7 @@ $.fn.chooser = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/color-picker.js
+// Source: src/control/select/color-picker.js
 
 (function($, ui) {
 "use strict";
@@ -3472,7 +3472,7 @@ $.fn.colorPicker = function (option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/date-chooser.js
+// Source: src/control/select/date-chooser.js
 
 (function($, ui) {
 "use strict";
@@ -4901,7 +4901,7 @@ $.fn.dateChooser = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/selection-list.js
+// Source: src/control/select/selection-list.js
 
 (function($, ui) {
 "use strict";
@@ -5328,7 +5328,7 @@ $.fn.selectionList = function (option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/selection-tree.js
+// Source: src/control/select/selection-tree.js
 
 (function($, ui) {
 "use strict";
@@ -6160,7 +6160,7 @@ $.fn.selectionTree = function (option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/select/selection-tree4autocomplete.js
+// Source: src/control/select/selection-tree4autocomplete.js
 
 (function($, ui) {
 "use strict";
@@ -6444,7 +6444,7 @@ $.fn.autocompleteSelectionTree = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/calendar-view.js
+// Source: src/control/view/calendar-view.js
 
 (function($, ui) {
 "use strict";
@@ -9541,7 +9541,7 @@ ui.page.hlchanged(function(e, colorInfo) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/card-view.js
+// Source: src/control/view/card-view.js
 
 (function($, ui) {
 "use strict";
@@ -10549,7 +10549,7 @@ $.fn.cardView = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/fold-view.js
+// Source: src/control/view/fold-view.js
 
 (function($, ui) {
 "use strict";
@@ -10644,7 +10644,7 @@ $.fn.foldView = function() {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/grid-view-group.js
+// Source: src/control/view/grid-view-group.js
 
 (function($, ui) {
 "use strict";
@@ -10806,7 +10806,7 @@ ui.ctrls.GridViewGroup = GridViewGroup;
 
 })(jQuery, ui);
 
-// Source: ui/control/view/grid-view-tree.js
+// Source: src/control/view/grid-view-tree.js
 
 (function($, ui) {
 "use strict";
@@ -11213,7 +11213,7 @@ ui.ctrls.GridViewTree = GridViewTree;
 
 })(jQuery, ui);
 
-// Source: ui/control/view/grid-view.js
+// Source: src/control/view/grid-view.js
 
 (function($, ui) {
 "use strict";
@@ -12527,7 +12527,7 @@ $.fn.gridView = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/list-view.js
+// Source: src/control/view/list-view.js
 
 (function($, ui) {
 "use strict";
@@ -13175,7 +13175,7 @@ $.fn.listView = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/report-view.js
+// Source: src/control/view/report-view.js
 
 (function($, ui) {
 "use strict";
@@ -14975,7 +14975,7 @@ $.fn.reportView = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/view/tab-view.js
+// Source: src/control/view/tab-view.js
 
 (function($, ui) {
 "use strict";
@@ -15535,7 +15535,7 @@ ui.ctrls.TabView.TabManager = TabManager;
 
 })(jQuery, ui);
 
-// Source: ui/control/view/tree-view.js
+// Source: src/control/view/tree-view.js
 
 (function($, ui) {
 "use strict";
@@ -15573,7 +15573,7 @@ $.fn.treeView = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/confirm-button.js
+// Source: src/control/tools/confirm-button.js
 
 (function($, ui) {
 "use strict";
@@ -15777,7 +15777,7 @@ $.fn.confirmClick = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/extend-button.js
+// Source: src/control/tools/extend-button.js
 
 (function($, ui) {
 "use strict";
@@ -16184,7 +16184,7 @@ $.fn.extendButton = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/filter-tool.js
+// Source: src/control/tools/filter-tool.js
 
 (function($, ui) {
 "use strict";
@@ -16422,7 +16422,7 @@ $.fn.filterTool = function (option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/hover-view.js
+// Source: src/control/tools/hover-view.js
 
 (function($, ui) {
 "use strict";
@@ -16674,7 +16674,7 @@ $.fn.addHoverView = function (view) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/slidebar.js
+// Source: src/control/tools/slidebar.js
 
 (function($, ui) {
 "use strict";
@@ -16924,7 +16924,7 @@ $.fn.slidebar = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/switch-button.js
+// Source: src/control/tools/switch-button.js
 
 (function($, ui) {
 "use strict";
@@ -17191,7 +17191,7 @@ $.fn.switchButton = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/tools/uploader.js
+// Source: src/control/tools/uploader.js
 
 (function($, ui) {
 "use strict";
@@ -17524,7 +17524,7 @@ $.fn.uploader = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/images/image-preview.js
+// Source: src/control/images/image-preview.js
 
 (function($, ui) {
 "use strict";
@@ -17890,7 +17890,7 @@ $.fn.imagePreview = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/images/image-viewer.js
+// Source: src/control/images/image-viewer.js
 
 (function($, ui) {
 "use strict";
@@ -18215,7 +18215,7 @@ $.fn.imageViewer = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/images/image-watcher.js
+// Source: src/control/images/image-watcher.js
 
 (function($, ui) {
 "use strict";
@@ -18380,7 +18380,7 @@ $.fn.imageWatcher = function(option) {
 
 })(jQuery, ui);
 
-// Source: ui/control/images/image-zoomer.js
+// Source: src/control/images/image-zoomer.js
 
 (function($, ui) {
 "use strict";

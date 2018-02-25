@@ -173,8 +173,10 @@ function hour12Parser(value, dateInfo) {
 	}
 }
 
-function monthTextParser(value, dateInfo, part) {
-	var name = (part.length === 4 ? "" : "SHORT") + "_MONTH_MAPPING";
+function monthTextParser(value, dateInfo, parts, index) {
+	var part, name;
+	part = parts[index];
+	name = (part.length === 4 ? "" : "SHORT") + "MONTH_MAPPING";
 	if(!locale[name]) {
 		dateInfo.month = NaN;
 		return;
@@ -212,10 +214,25 @@ locale = {
 	"MONTH": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
 	"DAY": ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
 	"SHORTDAY": ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+	"MONTH_MAPPING": {
+		"一月": 1,
+		"二月": 2,
+		"三月": 3,
+		"四月": 4,
+		"五月": 5,
+		"六月": 6,
+		"七月": 7,
+		"八月": 8,
+		"九月": 9,
+		"十月": 10,
+		"十一月": 11,
+		"十二月": 12
+	},
 
 	default: "yyyy-MM-dd HH:mm:ss"
 };
 locale["SHORTMONTH"] = locale["MONTH"];
+locale["SHORTMONTH_MAPPING"] = locale["MONTH_MAPPING"];
 
 function getParts(format) {
 	var parts,
@@ -295,10 +312,9 @@ ui.date = {
 	parse: function(dateStr, format) {
 		var formatValue,
 			parts,
-			valueParts,
 			part,
 			nextPart,
-			startIndex, index,
+			startIndex, endIndex, index,
 			i, len,
 			dateInfo;
 
@@ -323,6 +339,7 @@ ui.date = {
 		startIndex = 0;
 		for(i = 0, len = parts.length; i < len;) {
 			part = parts[i];
+			index = i;
 			if(!parsers.hasOwnProperty(part)) {
 				i++;
 				startIndex += part.length;
@@ -336,18 +353,22 @@ ui.date = {
 					return null;
 				}
 				i++;
-				index = dateStr.indexOf(nextPart, startIndex);
-				if(index === -1) {
+				endIndex = dateStr.indexOf(nextPart, startIndex);
+				if(endIndex === -1) {
 					return null;
 				}
 			} else {
-				index = dateStr.length;
+				endIndex = dateStr.length;
 			}
 
 			if(parsers[part]) {
-				parsers[part](dateStr.substring(startIndex, index), dateInfo, part);
+				parsers[part](
+					dateStr.substring(startIndex, endIndex), 
+					dateInfo, 
+					parts, 
+					index);
 			}
-			startIndex = index + 1;
+			startIndex = endIndex + 1;
 		}
 
 		return new Date(

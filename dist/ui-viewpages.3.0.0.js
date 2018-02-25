@@ -1,4 +1,4 @@
-// Source: ui/viewpage/master.js
+// Source: src/viewpage/master.js
 
 (function($, ui) {
 "use strict";
@@ -399,7 +399,7 @@ ui.master = master;
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/menu.js
+// Source: src/viewpage/menu.js
 
 (function($, ui) {
 "use strict";
@@ -1350,7 +1350,7 @@ ui.define("ui.ctrls.Menu", {
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/sidebar-manager.js
+// Source: src/viewpage/sidebar-manager.js
 
 (function($, ui) {
 "use strict";
@@ -1457,7 +1457,7 @@ ui.SidebarManager = SidebarManager;
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/tile-view.js
+// Source: src/viewpage/tile-view.js
 
 (function($, ui) {
 "use strict";
@@ -2065,7 +2065,11 @@ TileContainer.prototype = {
                     if(tile.isActivated && currentTime > tile.activeTime) {
                         tile.isActivated = false;
                         that.dynamicTiles.activeCount--;
-                        tile.updateFn.call(that, tile);
+                        try {
+                            tile.updateFn.call(that, tile);
+                        } catch(e) {
+                            ui.handleError(e);
+                        }
                     }
                 }
                 if(that.dynamicTiles.activeCount > 0) {
@@ -2236,7 +2240,7 @@ ui.TileContainer = TileContainer;
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/tiles/tile-calendar.js
+// Source: src/viewpage/tiles/tile-calendar.js
 
 (function($, ui) {
 "use strict";
@@ -2323,7 +2327,7 @@ ui.tiles.calendar = function(tile) {
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/tiles/tile-clock.js
+// Source: src/viewpage/tiles/tile-clock.js
 
 (function($, ui) {
 "use strict";
@@ -2414,7 +2418,7 @@ ui.tiles.clock = function(tile) {
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/tiles/tile-picture.js
+// Source: src/viewpage/tiles/tile-picture.js
 
 (function($, ui) {
 "use strict";
@@ -2601,7 +2605,7 @@ function moveNext(tile) {
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/tiles/tile-weather.js
+// Source: src/viewpage/tiles/tile-weather.js
 
 (function($, ui) {
 "use strict";
@@ -2912,7 +2916,7 @@ ui.tiles.weather = function(tile, weatherData) {
 
 })(jQuery, ui);
 
-// Source: ui/viewpage/toolbar.js
+// Source: src/viewpage/toolbar.js
 
 (function($, ui) {
 "use strict";

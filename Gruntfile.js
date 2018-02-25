@@ -251,78 +251,79 @@ module.exports = function(grunt) {
 
     // UI库主框架文件
     let frameFiles = [
-        "ui/soon-ui.js",
-        "ui/core.js",
+        "src/soon-ui.js",
+        "src/core.js",
 
-        "ui/ES5-Array-shims.js",
-        "ui/ES6-Array-shims.js",
-        "ui/ES5-String-shims.js",
-        "ui/ES6-String-shims.js",
-        "ui/ES5-Function-shims.js",
-        "ui/ES6-Number-shims.js",
-        "ui/ES5-Object-shims.js",
+        "src/ES5-Array-shims.js",
+        "src/ES6-Array-shims.js",
+        "src/ES5-String-shims.js",
+        "src/ES6-String-shims.js",
+        "src/ES5-Function-shims.js",
+        "src/ES6-Number-shims.js",
+        "src/ES5-Object-shims.js",
 
-        "ui/promise.js",
-        "ui/array-faker.js",
-        "ui/keyarray.js",
-        "ui/introsort.js",
+        "src/promise.js",
+        "src/array-faker.js",
+        "src/keyarray.js",
+        "src/introsort.js",
         
-        "ui/util.js",
-        "ui/util-string.js",
-        "ui/util-object.js",
-        "ui/util-url.js",
-        "ui/util-structure-transform.js",
-        "ui/util-random.js",
+        "src/util.js",
+        "src/util-string.js",
+        "src/util-date.js",
+        "src/util-object.js",
+        "src/util-url.js",
+        "src/util-structure-transform.js",
+        "src/util-random.js",
 
-        "ui/animation.js",
-        "ui/custom-event.js",
-        "ui/json.js",
-        "ui/ajax.js",
-        "ui/cookie.js",
-        "ui/color.js",
-        "ui/browser.js",
-        "ui/image-loader.js",
+        "src/animation.js",
+        "src/custom-event.js",
+        "src/json.js",
+        "src/ajax.js",
+        "src/cookie.js",
+        "src/color.js",
+        "src/browser.js",
+        "src/image-loader.js",
 
-        "ui/jquery-extends.js",
-        "ui/define.js",
-        "ui/draggable.js",
-        "ui/style-sheet.js",
-        "ui/theme.js",
-        "ui/page.js"
+        "src/jquery-extends.js",
+        "src/define.js",
+        "src/draggable.js",
+        "src/style-sheet.js",
+        "src/theme.js",
+        "src/page.js"
     ];
     let frameDestFile = "dist/ui-core.<%= pkg.version %>.js";
 
     // 组件文件
     let componentFiles = [
-        "ui/component/**/*.js"
+        "src/component/**/*.js"
     ];
     let componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
 
     // 控件文件
     let controlFiles = [
-        "ui/control/base/**/*.js",
-        "ui/control/common/**/*.js",
-        "ui/control/box/**/*.js",
-        "ui/control/select/**/*.js",
-        "ui/control/view/**/*.js",
-        "ui/control/tools/**/*.js",
-        "ui/control/images/**/*.js"
+        "src/control/base/**/*.js",
+        "src/control/common/**/*.js",
+        "src/control/box/**/*.js",
+        "src/control/select/**/*.js",
+        "src/control/view/**/*.js",
+        "src/control/tools/**/*.js",
+        "src/control/images/**/*.js"
     ];
     let controlDestFile = "dist/ui-controls.<%= pkg.version %>.js";
 
     // 特效文件
     let effectFiles = [
-        "ui/effect/**/*.js"
+        "src/effect/**/*.js"
     ];
     let effectDestFile = "dist/ui-effects.<%= pkg.version %>.js";
 
     // 视图文件
     let viewFiles = [
-        "ui/viewpage/**/*.js"
+        "src/viewpage/**/*.js"
     ];
     let viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
     
-    let wrapper = grunt.file.read("ui/wrapper.js").split(/\/\/\$\|\$/),
+    let wrapper = grunt.file.read("src/wrapper.js").split(/\/\/\$\|\$/),
         option = function(src, filepath) {
             if(filepath === frameFiles[0]) {
                 return src;
@@ -434,7 +435,7 @@ module.exports = function(grunt) {
         // javaScript语法和风格的检查工具
         jshint: {
             // define the files to lint
-            files: ["gruntfile.js", "ui/**/*.js", "test/**/*.js"],
+            files: ["gruntfile.js", "src/**/*.js", "test/**/*.js"],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 // more options here if you want to override JSHint defaults

@@ -54,7 +54,7 @@
     return ui;
 } );
 
-// Source: ui/core.js
+// Source: src/core.js
 
 (function($, ui) {
 "use strict";
@@ -117,7 +117,8 @@ var core = ui.core,
     aslice = arrayInstance.slice,
     head = DOC.head || DOC.getElementsByTagName("head")[0],
     rwindow = /^[\[]object (Window|DOMWindow|global)[\]]$/,
-    isTouchAvailable = "ontouchstart" in window,
+    isTouchAvailable,
+    isSupportCanvas,
     typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 
 // 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
@@ -214,19 +215,30 @@ core.isJQueryObject = function (obj) {
 
 // 判断浏览器是否支持canvas对象
 core.isSupportCanvas = function () {
-    return !!document.createElement("canvas").getContext;
+    if(core.type(isSupportCanvas) !== "boolean") {
+        isSupportCanvas = !!document.createElement("canvas").getContext;
+    }
+    return isSupportCanvas;
 };
 
 // 判断是否支持触摸操作
 core.isTouchAvailable = function() {
-    return isTouchAvailable;  
+    if(core.type(isTouchAvaliable) !== "boolean") {
+        isTouchAvaliable = "ontouchstart" in window;
+    }
+    return isTouchAvailable;
+};
+
+// TODO 统一的异常处理函数
+core.handleError = function(e) {
+    console.log(e);
 };
 
 
 
 })(jQuery, ui);
 
-// Source: ui/ES5-Array-shims.js
+// Source: src/ES5-Array-shims.js
 
 (function($, ui) {
 "use strict";
@@ -435,7 +447,7 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES6-Array-shims.js
+// Source: src/ES6-Array-shims.js
 
 (function($, ui) {
 "use strict";
@@ -526,7 +538,7 @@ if(!isFunction(Array.of)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES5-String-shims.js
+// Source: src/ES5-String-shims.js
 
 (function($, ui) {
 "use strict";
@@ -548,11 +560,13 @@ if(!isFunction(String.prototype.trim)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES6-String-shims.js
+// Source: src/ES6-String-shims.js
 
 (function($, ui) {
 "use strict";
 // 为String对象添加ES6的一些方法
+
+var toString = Object.prototype.toString;
 
 function isFunction(fn) {
     return ui.core.isFunction(fn);
@@ -565,8 +579,6 @@ function ensureInteger(position) {
 	}
 	return index;
 }
-
-var toString = Object.prototype.toString;
 
 // at
 if(!isFunction(String.prototype.at)) {
@@ -671,7 +683,7 @@ if(!isFunction(String.prototype.endsWith)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES5-Function-shims.js
+// Source: src/ES5-Function-shims.js
 
 (function($, ui) {
 "use strict";
@@ -704,7 +716,7 @@ if(!isFunction(Function.prototype.bind)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES6-Number-shims.js
+// Source: src/ES6-Number-shims.js
 
 (function($, ui) {
 "use strict";
@@ -743,7 +755,7 @@ if(!isFunction(Number.parseFloat)) {
 
 })(jQuery, ui);
 
-// Source: ui/ES5-Object-shims.js
+// Source: src/ES5-Object-shims.js
 
 (function($, ui) {
 "use strict";
@@ -990,10 +1002,154 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 	}
 }
 
+// 检查isExtensible是否需要修复
+if(!isFunction(Object.isExtensible)) {
+	Object.isExtensible = function(obj) {
+		var tmpPropertyName,
+			returnValue;
+		if(ui.core.isObject(obj)) {
+			throw new TypeError("Object.isExtensible can only be called on Objects.");
+		}
+
+		tmpPropertyName = "_tmp";
+		while(hasOwnProperty(obj, tmpPropertyName)) {
+			tmpPropertyName += "_";
+		}
+
+		obj[tmpPropertyName] = true;
+		returnValue = hasOwnProperty(obj, tmpPropertyName);
+		delete obj[tmpPropertyName];
+
+		return returnValue;
+	};
+}
+
+// 检查getPrototypeOf是否需要修复
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			prototype;
+		
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		prototype = obj.__proto__;
+		if(property || prototype === null) {
+			return prototype;
+		} else if(ui.core.isFunction(property.constructor)) {
+			return prototype.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			return null;
+		}
+	};
+}
+
+// 检查create是否需要修复
+var createEmpty,
+	supportsProto,
+	shouldUseActiveX,
+	getEmptyViaActiveX,
+	getEmptyViaIFrame;
+if(!isFunction(Object.create)) {
+	supportsProto = !({ __proto__: null } instanceof Object);
+	shouldUseActiveX = function () {
+		if (!document.domain) {
+			return false;
+		}
+		try {
+			return !!new ActiveXObject('htmlfile');
+		} catch (e) {
+			return false;
+		}
+	};
+	getEmptyViaActiveX = function() {
+		var empty,
+			script,
+			xDoc;
+
+        xDoc = new ActiveXObject('htmlfile');
+		script = 'script';
+		xDoc.write('<' + script + '></' + script + '>');
+		xDoc.close();
+		empty = xDoc.parentWindow.Object.prototype;
+		xDoc = null;
+		return empty;
+	};
+	getEmptyViaIFrame = function() {
+		var iframe = document.createElement('iframe'),
+			parent = document.body || document.documentElement,
+			empty;
+
+		iframe.style.display = 'none';
+		parent.appendChild(iframe);
+
+		// eslint-disable-next-line no-script-url
+		iframe.src = 'javascript:';
+		empty = iframe.contentWindow.Object.prototype;
+		parent.removeChild(iframe);
+		iframe = null;
+		return empty;
+	};
+
+	if(supportsProto || typeof document === "undefined") {
+		createEmpty = function () {
+			return {
+				__proto__: null
+			};	
+		};
+	} else {
+		createEmpty = (function() {
+			var emptyPrototype = shouldUseActiveX() ? getEmptyViaActiveX() : getEmptyViaIFrame();
+
+			delete emptyPrototype.constructor;
+			delete emptyPrototype.hasOwnProperty;
+			delete emptyPrototype.propertyIsEnumerable;
+			delete emptyPrototype.isPrototypeOf;
+			delete emptyPrototype.toLocalString;
+			delete emptyPrototype.toString;
+			delete emptyPrototype.valueOf;
+
+			function Empty() {}
+			Empty.prototype = empty;
+
+			return function() {
+				return new Empty();
+			};
+		})();
+	}
+
+	Object.create = function(prototype, properties) {
+		var obj;
+
+		function Type() {}
+
+		if(prototype === null) {
+			return createEmpty();
+		} else {
+			if(isPrimitive(prototype)) {
+				throw TypeError("Object prototype may only be an Object or null");
+			}
+			Type.prototype = prototype;
+			obj = new Type();
+			obj.__proto__ = prototype;
+		}
+
+		if(properties !== undefined) {
+			Object.defineProperties(obj, properties);
+		}
+
+		return obj;
+	};
+}
+
 
 })(jQuery, ui);
 
-// Source: ui/promise.js
+// Source: src/promise.js
 
 (function($, ui) {
 "use strict";
@@ -1227,7 +1383,7 @@ window.Promise = nativePromise || uiPromise;
 
 })(jQuery, ui);
 
-// Source: ui/array-faker.js
+// Source: src/array-faker.js
 
 (function($, ui) {
 "use strict";
@@ -1311,7 +1467,7 @@ ui.ArrayFaker = ArrayFaker;
 
 })(jQuery, ui);
 
-// Source: ui/keyarray.js
+// Source: src/keyarray.js
 
 (function($, ui) {
 "use strict";
@@ -1433,7 +1589,7 @@ ui.KeyArray = KeyArray;
 
 })(jQuery, ui);
 
-// Source: ui/introsort.js
+// Source: src/introsort.js
 
 (function($, ui) {
 "use strict";
@@ -1629,7 +1785,7 @@ ui.Introsort = Introsort;
 
 })(jQuery, ui);
 
-// Source: ui/util.js
+// Source: src/util.js
 
 (function($, ui) {
 "use strict";
@@ -1952,7 +2108,7 @@ ui.mask = {
 
 })(jQuery, ui);
 
-// Source: ui/util-string.js
+// Source: src/util-string.js
 
 (function($, ui) {
 "use strict";
@@ -2360,7 +2516,399 @@ ui.str = {
 
 })(jQuery, ui);
 
-// Source: ui/util-object.js
+// Source: src/util-date.js
+
+(function($, ui) {
+"use strict";
+// ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
+
+/*
+ 'yyyy': 4 digit representation of year (e.g. AD 1 => 0001, AD 2010 => 2010)
+ 'yy': 2 digit representation of year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
+ 'y': 1 digit representation of year, e.g. (AD 1 => 1, AD 199 => 199)
+ 'MMMM': Month in year (January-December)
+ 'MMM': Month in year (Jan-Dec)
+ 'MM': Month in year, padded (01-12)
+ 'M': Month in year (1-12)
+ 'dd': Day in month, padded (01-31)
+ 'd': Day in month (1-31)
+ 'EEEE': Day in Week,(Sunday-Saturday)
+ 'EEE': Day in Week, (Sun-Sat)
+ 'HH': Hour in day, padded (00-23)
+ 'H': Hour in day (0-23)
+ 'hh': Hour in am/pm, padded (01-12)
+ 'h': Hour in am/pm, (1-12)
+ 'mm': Minute in hour, padded (00-59)
+ 'm': Minute in hour (0-59)
+ 'ss': Second in minute, padded (00-59)
+ 's': Second in minute (0-59)
+ 'S': Milliseconds in second (0-999)
+ 't': the first char of AM/PM marker padded(A/P)
+ 'tt': AM/PM marker
+ 'Z': 4 digit (+sign) representation of the timezone offset (-1200-+1200)
+ format string can also be one of the following predefined localizable formats:
+ 
+ 'medium': equivalent to 'MMM d, y h:mm:ss a' for en_US locale (e.g. Sep 3, 2010 12:05:08 pm)
+ 'short': equivalent to 'M/d/yy h:mm a' for en_US locale (e.g. 9/3/10 12:05 pm)
+ 'fullDate': equivalent to 'EEEE, MMMM d,y' for en_US locale (e.g. Friday, September 3, 2010)
+ 'longDate': equivalent to 'MMMM d, y' for en_US locale (e.g. September 3, 2010
+ 'mediumDate': equivalent to 'MMM d, y' for en_US locale (e.g. Sep 3, 2010)
+ 'shortDate': equivalent to 'M/d/yy' for en_US locale (e.g. 9/3/10)
+ 'mediumTime': equivalent to 'h:mm:ss a' for en_US locale (e.g. 12:05:08 pm)
+ 'shortTime': equivalent to 'h:mm a' for en_US locale (e.g. 12:05 pm)
+ */
+
+var formatters,
+	parsers,
+	locale;
+var rFormat = /((?:[^yMdHhmsStZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|S|t+|Z))(.*)/,
+	rAspNetFormat = /^\/Date\((\d+)\)\/$/;
+var lastFormat,
+	lastParts;
+
+function noop() {}
+
+function toInt(str) {
+	return parseInt(str, 10) || 0;
+}
+
+function padNumber(num, digits, isTrim) {
+	var negative = "";
+	if(num < 0) {
+		negative = "-";
+		num = -num;
+	}
+	num += "";
+	while(num.length < digits) {
+		num = "0" + num;
+	}
+	if(isTrim && num.length > digits) {
+		num = num.substring(num.length - digits);
+	}
+	return negative + num;
+}
+
+function dateGetter(name, len, offset, isTrim) {
+	return function(date) {
+		var value = date["get" + name]();
+		if(offset > 0 || value > -offset) {
+			value += offset;
+		}
+		if(value === 0 && offset === -12) {
+			// 如果是0点，并且是12个小时制，则将0点改为12点
+			value = 12;
+		}
+		return padNumber(value, len, isTrim)
+	};
+}
+
+function dateStrGetter(name, shortForm) {
+	return function(date, formats) {
+		var value = date["get" + name](),
+			key = (shortForm ? ("SHORT" + name) : name).toUpperCase();
+		return formats[key][value];
+	};
+}
+
+function getTimeZone(date) {
+	var zone = date.getTimezoneOffset() * -1,
+		result = "";
+
+	if(zone >= 0) {
+		result += "+";
+	}
+	if(zone > 0) {
+		result += padNumber(Math.floor(zone / 60), 2);
+	} else {
+		result += padNumber(Math.ceil(zone / 60), 2);
+	}
+	result += ":" + padNumber(Math.abs(zone % 60), 2);
+
+	return result;
+}
+
+function ampmGetter(len) {
+	return function(date) {
+		var value = date.getHours(),
+			result = value > 12 ? "PM" : "AM";
+		if(result.length > len) {
+			result = result.substring(0, len);
+		}
+		return result;
+	};
+}
+
+formatters = {
+	"yyyy": dateGetter("FullYear", 4),
+	"yy": dateGetter("FullYear", 2, 0, true),
+	"y": dateGetter("FullYear", 1),
+	"MMMM": dateStrGetter("Month"),
+	"MMM": dateStrGetter("Month", true),
+	"MM": dateGetter("Month", 2, 1),
+	"M": dateGetter("Month", 1, 1),
+	"dd": dateGetter("Date", 2),
+	"d": dateGetter("Date", 1),
+	"EEEE": dateStrGetter("Day"),
+	"EEE": dateStrGetter("Day", true),
+	"HH": dateGetter("Hours", 2),
+	"H": dateGetter("Hours", 1),
+	"hh": dateGetter("Hours", 2, -12),
+	"h": dateGetter("Hours", 1, -12),
+	"mm": dateGetter("Minutes", 2),
+	"m": dateGetter("Minutes", 1),
+	"ss": dateGetter("Seconds", 2),
+	"s": dateGetter("Seconds", 1),
+	"S": dateGetter("Milliseconds", 1),
+	"t": ampmGetter(1),
+	"tt": ampmGetter(2),
+	"Z": getTimeZone
+};
+
+function getDateParser(name) {
+	return function(value, dateInfo) {
+		dateInfo[name] = toInt(value);
+	};
+}
+
+function ampmParser(value, dateInfo) {
+	value = value.toUpperCase();
+	if(value === "P" || value === "PM") {
+		dateInfo.AMPM = "PM";
+	} else {
+		dateInfo.AMPM = "AM";
+	}
+
+	if(dateInfo.hours > 0) {
+		hour12Parser(dateInfo.hours, dateInfo);
+	}
+}
+
+function hour12Parser(value, dateInfo) {
+	dateInfo.hours = toInt(value);
+	if(dateInfo.hasOwnProperty("AMPM")) {
+		if(dateInfo.AMPM === "PM" && dateInfo.hours > 0) {
+			dateInfo.hours += 12;
+			if(dateInfo.hours >= 24) {
+				dateInfo.hours = 0;
+			}
+		}
+	}
+}
+
+function monthTextParser(value, dateInfo, parts, index) {
+	var part, name;
+	part = parts[index];
+	name = (part.length === 4 ? "" : "SHORT") + "MONTH_MAPPING";
+	if(!locale[name]) {
+		dateInfo.month = NaN;
+		return;
+	}
+	dateInfo.month = locale[name][value] || NaN;
+}
+
+parsers = {
+	"yyyy": getDateParser("year"),
+	"yy": noop,
+	"y": getDateParser("year"),
+	"MMMM": monthTextParser,
+	"MMM": monthTextParser,
+	"MM": getDateParser("month"),
+	"M": getDateParser("month"),
+	"dd": getDateParser("date"),
+	"d": getDateParser("date"),
+	"EEEE": noop,
+	"EEE": noop,
+	"HH": getDateParser("hours"),
+	"H": getDateParser("hours"),
+	"hh": hour12Parser,
+	"h": hour12Parser,
+	"mm": getDateParser("minutes"),
+	"m": getDateParser("minutes"),
+	"ss": getDateParser("seconds"),
+	"s": getDateParser("seconds"),
+	"S": getDateParser("milliseconds"),
+	"t": ampmParser,
+	"tt": ampmParser,
+	"Z": noop
+};
+
+locale = {
+	"MONTH": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+	"DAY": ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+	"SHORTDAY": ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+	"MONTH_MAPPING": {
+		"一月": 1,
+		"二月": 2,
+		"三月": 3,
+		"四月": 4,
+		"五月": 5,
+		"六月": 6,
+		"七月": 7,
+		"八月": 8,
+		"九月": 9,
+		"十月": 10,
+		"十一月": 11,
+		"十二月": 12
+	},
+
+	default: "yyyy-MM-dd HH:mm:ss"
+};
+locale["SHORTMONTH"] = locale["MONTH"];
+locale["SHORTMONTH_MAPPING"] = locale["MONTH_MAPPING"];
+
+function getParts(format) {
+	var parts,
+		match;
+	if(format === lastFormat) {
+		parts = lastParts;
+	} else {
+		parts = [];
+		while(format) {
+			match = rFormat.exec(format);
+			if(match) {
+				parts.push(match[1]);
+				format = match[2];
+			} else {
+				parts.push(format);
+				break;
+			}
+		}
+		if(parts.length > 0) {
+			lastFormat = format;
+			lastParts = parts;
+		}
+	}
+	return parts;
+}
+
+ui.date = {
+	format: function(date, format) {
+		var dateValue,
+			formatValue,
+			match,
+			parts,
+			result;
+
+		if(ui.core.isString(date)) {
+			if(/^\d+$/.test(date)) {
+				// 如果全是数字
+				dateValue = toInt(date);
+			} else {
+				// 尝试ISO 8601
+				dateValue = new Date(date);
+				if(isNaN(dateValue)) {
+					// 尝试AspNet的格式
+					dateValue = rAspNetFormat.exec(date);
+					if(dateValue !== null) {
+						dateValue = Number(dateValue[1]);
+					}
+				}
+			}
+		} else {
+			dateValue = date;
+		}
+
+		if(ui.core.isNumber(dateValue)) {
+			dateValue = new Date(dateValue);
+		}
+
+		result = [];
+
+		formatValue = format || "default";
+		formatValue = locale[formatValue] || formatValue;
+		
+		if(dateValue instanceof Date) {
+			parts = getParts(formatValue);
+			parts.forEach(function(p) {
+				var formatter = formatters[p];
+				if(formatter) {
+					result.push(formatter(dateValue, locale));
+				} else {
+					result.push(p);
+				}
+			});
+		}
+
+		return result.join("");
+	},
+	parse: function(dateStr, format) {
+		var formatValue,
+			parts,
+			part,
+			nextPart,
+			startIndex, endIndex, index,
+			i, len,
+			dateInfo;
+
+		if(typeof dateStr !== "string" || !dateStr) {
+			return null;
+		}
+
+		formatValue = format || "default";
+		formatValue = locale[formatValue] || formatValue;
+
+		dateInfo = {
+			year: 1970,
+			month: 1,
+			date: 1,
+			hours: 0,
+			minutes: 0,
+			seconds: 0,
+			milliseconds: 0
+		};
+
+		parts = getParts(formatValue);
+		startIndex = 0;
+		for(i = 0, len = parts.length; i < len;) {
+			part = parts[i];
+			index = i;
+			if(!parsers.hasOwnProperty(part)) {
+				i++;
+				startIndex += part.length;
+				continue;
+			}
+
+			i++;
+			if(i < len) {
+				nextPart = parts[i];
+				if(parsers.hasOwnProperty(nextPart)) {
+					return null;
+				}
+				i++;
+				endIndex = dateStr.indexOf(nextPart, startIndex);
+				if(endIndex === -1) {
+					return null;
+				}
+			} else {
+				endIndex = dateStr.length;
+			}
+
+			if(parsers[part]) {
+				parsers[part](
+					dateStr.substring(startIndex, endIndex), 
+					dateInfo, 
+					parts, 
+					index);
+			}
+			startIndex = endIndex + 1;
+		}
+
+		return new Date(
+			dateInfo.year,
+			dateInfo.month - 1,
+			dateInfo.date,
+			dateInfo.hours,
+			dateInfo.minutes,
+			dateInfo.seconds,
+			dateInfo.milliseconds);
+	},
+	locale: locale
+};
+
+
+})(jQuery, ui);
+
+// Source: src/util-object.js
 
 (function($, ui) {
 "use strict";
@@ -2450,7 +2998,7 @@ ui.obj = {
 
 })(jQuery, ui);
 
-// Source: ui/util-url.js
+// Source: src/util-url.js
 
 (function($, ui) {
 "use strict";
@@ -2564,7 +3112,7 @@ ui.url = {
 
 })(jQuery, ui);
 
-// Source: ui/util-structure-transform.js
+// Source: src/util-structure-transform.js
 
 (function($, ui) {
 "use strict";
@@ -2688,7 +3236,7 @@ ui.trans = {
 
 })(jQuery, ui);
 
-// Source: ui/util-random.js
+// Source: src/util-random.js
 
 (function($, ui) {
 "use strict";
@@ -2832,7 +3380,7 @@ ui.random = random;
 
 })(jQuery, ui);
 
-// Source: ui/animation.js
+// Source: src/animation.js
 
 (function($, ui) {
 "use strict";
@@ -3279,7 +3827,7 @@ ui.animator = function (target, option) {
 
 })(jQuery, ui);
 
-// Source: ui/custom-event.js
+// Source: src/custom-event.js
 
 (function($, ui) {
 "use strict";
@@ -3397,7 +3945,7 @@ ui.CustomEvent = CustomEvent;
 
 })(jQuery, ui);
 
-// Source: ui/json.js
+// Source: src/json.js
 
 (function($, ui) {
 "use strict";
@@ -3617,7 +4165,7 @@ JSON.parse = function (text, reviver) {
 
 })(jQuery, ui);
 
-// Source: ui/ajax.js
+// Source: src/ajax.js
 
 (function($, ui) {
 "use strict";
@@ -3888,7 +4436,7 @@ ui.ajax = {
 
 })(jQuery, ui);
 
-// Source: ui/cookie.js
+// Source: src/cookie.js
 
 (function($, ui) {
 "use strict";
@@ -3982,7 +4530,7 @@ ui.cookie = {
 
 })(jQuery, ui);
 
-// Source: ui/color.js
+// Source: src/color.js
 
 (function($, ui) {
 "use strict";
@@ -4123,7 +4671,7 @@ ui.color = {
 
 })(jQuery, ui);
 
-// Source: ui/browser.js
+// Source: src/browser.js
 
 (function($, ui) {
 "use strict";
@@ -4251,7 +4799,7 @@ ui.engine = engine;
 
 })(jQuery, ui);
 
-// Source: ui/image-loader.js
+// Source: src/image-loader.js
 
 (function($, ui) {
 "use strict";
@@ -4385,7 +4933,7 @@ ui.ImageLoader = ImageLoader;
 
 })(jQuery, ui);
 
-// Source: ui/jquery-extends.js
+// Source: src/jquery-extends.js
 
 (function($, ui) {
 "use strict";
@@ -4712,7 +5260,7 @@ $.fn.textinput = function(data, fn) {
 
 })(jQuery, ui);
 
-// Source: ui/define.js
+// Source: src/define.js
 
 (function($, ui) {
 "use strict";
@@ -4998,7 +5546,7 @@ ui.define = function(name, base, prototype) {
 
 })(jQuery, ui);
 
-// Source: ui/draggable.js
+// Source: src/draggable.js
 
 (function($, ui) {
 "use strict";
@@ -5259,7 +5807,7 @@ $.fn.undraggable = function() {
 
 })(jQuery, ui);
 
-// Source: ui/style-sheet.js
+// Source: src/style-sheet.js
 
 (function($, ui) {
 "use strict";
@@ -5428,7 +5976,7 @@ ui.StyleSheet = StyleSheet;
 
 })(jQuery, ui);
 
-// Source: ui/theme.js
+// Source: src/theme.js
 
 (function($, ui) {
 "use strict";
@@ -5515,7 +6063,7 @@ ui.theme = {
 
 })(jQuery, ui);
 
-// Source: ui/page.js
+// Source: src/page.js
 
 (function($, ui) {
 "use strict";

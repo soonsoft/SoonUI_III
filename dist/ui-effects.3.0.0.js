@@ -1,4 +1,4 @@
-// Source: ui/effect/0.js
+// Source: src/effect/0.js
 
 (function($, ui) {
 "use strict";
@@ -6,7 +6,7 @@ ui.effect = {};
 
 })(jQuery, ui);
 
-// Source: ui/effect/wave.js
+// Source: src/effect/wave.js
 
 (function($, ui) {
 "use strict";
