@@ -534,7 +534,7 @@ YearView.prototype = {
                 throw new Error(
                     ui.str.textFormat(
                         "the date({0}) does not belong to {1}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year));
             }
             cell = this._getCellByDate(months, date);
@@ -1056,7 +1056,7 @@ MonthView.prototype = {
                 throw new Error(
                     ui.str.textFormat(
                         "the date({0}) does not belong to {1}-{2}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year,
                         this.month));
             }
@@ -1683,8 +1683,8 @@ WeekView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(weekIndex, startTime, endTime);
     },
     /** 取消选中状态 */
@@ -1974,8 +1974,8 @@ DayView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(0, startTime, endTime);
     },
     /** 取消选中状态 */
