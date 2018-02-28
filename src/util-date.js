@@ -1,39 +1,40 @@
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
- 'yyyy': 4 digit representation of year (e.g. AD 1 => 0001, AD 2010 => 2010)
- 'yy': 2 digit representation of year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
- 'y': 1 digit representation of year, e.g. (AD 1 => 1, AD 199 => 199)
- 'MMMM': Month in year (January-December)
- 'MMM': Month in year (Jan-Dec)
- 'MM': Month in year, padded (01-12)
- 'M': Month in year (1-12)
- 'dd': Day in month, padded (01-31)
- 'd': Day in month (1-31)
- 'EEEE': Day in Week,(Sunday-Saturday)
- 'EEE': Day in Week, (Sun-Sat)
- 'HH': Hour in day, padded (00-23)
- 'H': Hour in day (0-23)
- 'hh': Hour in am/pm, padded (01-12)
- 'h': Hour in am/pm, (1-12)
- 'mm': Minute in hour, padded (00-59)
- 'm': Minute in hour (0-59)
- 'ss': Second in minute, padded (00-59)
- 's': Second in minute (0-59)
- 'S': Milliseconds in second (0-999)
- 't': the first char of AM/PM marker padded(A/P)
- 'tt': AM/PM marker
- 'Z': 4 digit (+sign) representation of the timezone offset (-1200-+1200)
- format string can also be one of the following predefined localizable formats:
+ 'yyyy': 4位数字年份，会补零 (e.g. AD 1 => 0001, AD 2010 => 2010)
+ 'yy': 2位数字年份 (e.g. AD 2001 => 01, AD 2010 => 10)
+ 'y': 不固定位数年份, e.g. (AD 1 => 1, AD 199 => 199)
+ 'MMMM': 完整月份 (January-December)
+ 'MMM': 简写月份 (Jan-Dec)
+ 'MM': 2位数字月份, padded (01-12)
+ 'M': 不固定位数月份 (1-12)
+ 'dd': 2位数字日期, padded (01-31)
+ 'd': 不固定位数日期 (1-31)
+ 'EEEE': 完整星期表示,(Sunday-Saturday)
+ 'EEE': 简写星期表示, (Sun-Sat)
+ 'HH': 2位数字小时, padded (00-23)
+ 'H': 不固定位数小时 (0-23)
+ 'hh': 2位数字12小时表示, padded (01-12)
+ 'h': 不固定位数12小时表示, (1-12)
+ 'mm': 2位数字分钟, padded (00-59)
+ 'm': 不固定位数分钟 (0-59)
+ 'ss': 2位数字秒, padded (00-59)
+ 's': 不固定位数秒 (0-59)
+ 'S': 毫秒数 (0-999)
+ 't': AM和PM的第一个字符(A/P)
+ 'tt': AM/PM
+ 'Z': 时区格式化如(+08:00)
+ 格式化别名:
  
- 'medium': equivalent to 'MMM d, y h:mm:ss a' for en_US locale (e.g. Sep 3, 2010 12:05:08 pm)
- 'short': equivalent to 'M/d/yy h:mm a' for en_US locale (e.g. 9/3/10 12:05 pm)
- 'fullDate': equivalent to 'EEEE, MMMM d,y' for en_US locale (e.g. Friday, September 3, 2010)
- 'longDate': equivalent to 'MMMM d, y' for en_US locale (e.g. September 3, 2010
- 'mediumDate': equivalent to 'MMM d, y' for en_US locale (e.g. Sep 3, 2010)
- 'shortDate': equivalent to 'M/d/yy' for en_US locale (e.g. 9/3/10)
- 'mediumTime': equivalent to 'h:mm:ss a' for en_US locale (e.g. 12:05:08 pm)
- 'shortTime': equivalent to 'h:mm a' for en_US locale (e.g. 12:05 pm)
+ 'default': 'yyyy-MM-dd HH:mm:ss'
+ 'medium': 'yyyy-MM-dd HH:mm'
+ 'date': 'yyyy-MM-dd'
+ 'longDate': 'yyyy-MM-dd EEEE',
+ 'shortDate': 'y-M'
+ 'time': 'HH:mm:ss'
+ 'shortTime': 'HH:mm'
+ 'time12': 'h:m:s tt'
+ 'shortTime12': 'h:m tt'
  */
 
 var formatters,
@@ -89,9 +90,16 @@ function dateStrGetter(name, shortForm) {
 }
 
 function getTimeZone(date) {
-	var zone = date.getTimezoneOffset() * -1,
-		result = "";
+	var zone,
+		result;
 
+	zone = date.getTimezoneOffset();
+	if(zone === 0) {
+		return "Z";
+	}
+
+	zone *= -1;
+	result = "";
 	if(zone >= 0) {
 		result += "+";
 	}
@@ -136,7 +144,7 @@ formatters = {
 	"m": dateGetter("Minutes", 1),
 	"ss": dateGetter("Seconds", 2),
 	"s": dateGetter("Seconds", 1),
-	"S": dateGetter("Milliseconds", 1),
+	"S": dateGetter("Milliseconds", 3),
 	"t": ampmGetter(1),
 	"tt": ampmGetter(2),
 	"Z": getTimeZone
@@ -184,6 +192,48 @@ function monthTextParser(value, dateInfo, parts, index) {
 	dateInfo.month = locale[name][value] || NaN;
 }
 
+function parseTimeZone(dateStr, startIndex, dateInfo, parts, index) {
+	var part = parts[index],
+		datePart,
+		timeZonePart,
+		hour, minute,
+		skip = startIndex,
+		char,
+		i;
+
+	for(i = startIndex; i < dateStr.length; i++) {
+		char = dateStr.charAt(i);
+		if(char === 'Z' || char === '+' || char === '-') {
+			datePart = dateStr.substring(startIndex, i);
+			if(char === 'Z') {
+				timeZonePart = dateStr.substring(i, i + 1);
+			} else {
+				timeZonePart = dateStr.substring(i, i + 6);
+			}
+			break;
+		}
+	}
+
+	if(datePart && parsers[part]) {
+		skip += datePart.length;
+		parsers[part](datePart, dateInfo, parts, index);
+	}
+	if(timeZonePart && timeZonePart !== "Z") {
+		skip += timeZonePart.length;
+		char = timeZonePart.charAt(0);
+		minute = timeZonePart.substring(1).split(":");
+		hour = toInt(minute[0]);
+		minute = toInt(minute[1]);
+
+		dateInfo.timezone = hour * 60;
+		dateInfo.timezone += minute;
+		if(char === '-' && dateInfo.timezone > 0) {
+			dateInfo.timezone = -dateInfo.timezone;
+		}
+	}
+	return skip;
+}
+
 parsers = {
 	"yyyy": getDateParser("year"),
 	"yy": noop,
@@ -229,7 +279,16 @@ locale = {
 		"十二月": 12
 	},
 
-	default: "yyyy-MM-dd HH:mm:ss"
+	default: "yyyy-MM-dd HH:mm:ss",
+	medium: "yyyy-MM-dd HH:mm",
+	date: "yyyy-MM-dd",
+	longDate: "yyyy-MM-dd EEEE",
+	shortDate: "y-M",
+	time: "HH:mm:ss",
+	shortTime: "HH:mm",
+	time12: "h:m:s tt",
+	shortTime12: "h:m tt",
+	json: "yyyy-MM-ddTHH:mm:ss.SZ"
 };
 locale["SHORTMONTH"] = locale["MONTH"];
 locale["SHORTMONTH_MAPPING"] = locale["MONTH_MAPPING"];
@@ -259,6 +318,31 @@ function getParts(format) {
 	return parts;
 }
 
+function parseJson(dateStr) {
+	var date;
+
+	dateStr = dateStr.trim();
+	if(dateStr.length === 0) {
+		return null;
+	}
+
+	if(/^\d+$/.test(dateStr)) {
+		// 如果全是数字
+		return new Date(toInt(dateStr));
+	} else {
+		// 尝试ISO 8601
+		date = new Date(dateStr);
+		if(isNaN(date)) {
+			// 尝试AspNet的格式
+			date = rAspNetFormat.exec(dateStr);
+			if(date !== null) {
+				date = new Date(Number(date[1]));
+			}
+		}
+		return isNaN(date) ? null : date;
+	}
+}
+
 ui.date = {
 	format: function(date, format) {
 		var dateValue,
@@ -268,20 +352,7 @@ ui.date = {
 			result;
 
 		if(ui.core.isString(date)) {
-			if(/^\d+$/.test(date)) {
-				// 如果全是数字
-				dateValue = toInt(date);
-			} else {
-				// 尝试ISO 8601
-				dateValue = new Date(date);
-				if(isNaN(dateValue)) {
-					// 尝试AspNet的格式
-					dateValue = rAspNetFormat.exec(date);
-					if(dateValue !== null) {
-						dateValue = Number(dateValue[1]);
-					}
-				}
-			}
+			dateValue = parseJson(date);
 		} else {
 			dateValue = date;
 		}
@@ -292,7 +363,7 @@ ui.date = {
 
 		result = [];
 
-		formatValue = format || "default";
+		formatValue = (ui.core.isString(format) ? format.trim() : format) || "default";
 		formatValue = locale[formatValue] || formatValue;
 		
 		if(dateValue instanceof Date) {
@@ -309,20 +380,31 @@ ui.date = {
 
 		return result.join("");
 	},
+	jsonParse: function(dateStr) {
+		if(ui.core.isString(dateStr)) {
+			return parseJson(dateStr);
+		} else if(dateStr instanceof Date) {
+			return dateStr;
+		} else {
+			return null;
+		}
+	},
 	parse: function(dateStr, format) {
 		var formatValue,
 			parts,
 			part,
 			nextPart,
+			timeZoneParser,
 			startIndex, endIndex, index,
 			i, len,
-			dateInfo;
+			dateInfo,
+			result;
 
 		if(typeof dateStr !== "string" || !dateStr) {
 			return null;
 		}
 
-		formatValue = format || "default";
+		formatValue = (ui.core.isString(format) ? format.trim() : format) || "default";
 		formatValue = locale[formatValue] || formatValue;
 
 		dateInfo = {
@@ -339,6 +421,7 @@ ui.date = {
 		startIndex = 0;
 		for(i = 0, len = parts.length; i < len;) {
 			part = parts[i];
+			nextPart = "";
 			index = i;
 			if(!parsers.hasOwnProperty(part)) {
 				i++;
@@ -349,13 +432,24 @@ ui.date = {
 			i++;
 			if(i < len) {
 				nextPart = parts[i];
-				if(parsers.hasOwnProperty(nextPart)) {
-					return null;
-				}
-				i++;
-				endIndex = dateStr.indexOf(nextPart, startIndex);
-				if(endIndex === -1) {
-					return null;
+				if(nextPart === "Z") {
+					// 对时区做特殊处理
+					i++;
+					timeZoneParser = parsers[nextPart];
+					if(timeZoneParser === noop || !ui.core.isFunction(timeZoneParser)) {
+						timeZoneParser = parseTimeZone;
+					}
+					startIndex += timeZoneParser(dateStr, startIndex, dateInfo, parts, index);
+					continue;
+				} else {
+					if(parsers.hasOwnProperty(nextPart)) {
+						return null;
+					}
+					i++;
+					endIndex = dateStr.indexOf(nextPart, startIndex);
+					if(endIndex === -1) {
+						return null;
+					}
 				}
 			} else {
 				endIndex = dateStr.length;
@@ -368,10 +462,10 @@ ui.date = {
 					parts, 
 					index);
 			}
-			startIndex = endIndex + 1;
+			startIndex = endIndex + nextPart.length;
 		}
 
-		return new Date(
+		result = new Date(
 			dateInfo.year,
 			dateInfo.month - 1,
 			dateInfo.date,
@@ -379,6 +473,10 @@ ui.date = {
 			dateInfo.minutes,
 			dateInfo.seconds,
 			dateInfo.milliseconds);
+		if(dateInfo.timezone) {
+			result.setMinutes(result.getMinutes() + dateInfo.timezone);
+		}
+		return result;
 	},
 	locale: locale
 };
