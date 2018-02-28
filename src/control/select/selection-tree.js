@@ -403,7 +403,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 children,
                 dl,
                 this._getLevel(nodeData) + 1,
-                ui.str.lTrim(dt.prop("id"), this._treePrefix),
+                ui.str.trimLeft(dt.prop("id"), this._treePrefix),
                 nodeData);
             dd.append(dl);
         }

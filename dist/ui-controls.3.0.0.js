@@ -500,14 +500,7 @@ function getMoney (symbol, content) {
     return "<span>" + ui.str.moneyFormat(content, symbol) + "</span>";
 }
 function getDate(val) {
-    var date = val;
-    if(!date) {
-        return null;
-    }
-    if(ui.core.isString(val)) {
-        date = ui.str.jsonToDate(date);
-    }
-    return date;
+    return ui.date.parseJSON(val);
 }
 
 var columnFormatter,
@@ -2697,7 +2690,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-chooser-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function () {
             this.cancelSelection();
         };
@@ -5737,7 +5730,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 children,
                 dl,
                 this._getLevel(nodeData) + 1,
-                ui.str.lTrim(dt.prop("id"), this._treePrefix),
+                ui.str.trimLeft(dt.prop("id"), this._treePrefix),
                 nodeData);
             dd.append(dl);
         }
@@ -6982,9 +6975,9 @@ YearView.prototype = {
             }
             if (date.getFullYear() !== this.year) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year));
             }
             cell = this._getCellByDate(months, date);
@@ -7504,9 +7497,9 @@ MonthView.prototype = {
             }
             if (date.getFullYear() !== this.year || date.getMonth() !== this.month) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}-{2}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year,
                         this.month));
             }
@@ -8133,8 +8126,8 @@ WeekView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(weekIndex, startTime, endTime);
     },
     /** 取消选中状态 */
@@ -8148,7 +8141,7 @@ WeekView.prototype = {
     },
     /** 获取周视图标题 */
     getTitle: function () {
-        return ui.str.textFormat(
+        return ui.str.format(
             "{0}年{1}月{2}日 ~ {3}年{4}月{5}日",
             this.startDate.getFullYear(), 
             this.startDate.getMonth() + 1, 
@@ -8424,8 +8417,8 @@ DayView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(0, startTime, endTime);
     },
     /** 取消选中状态 */
@@ -8439,7 +8432,7 @@ DayView.prototype = {
     },
     /** 获取日视图标题 */
     getTitle: function () {
-        return ui.str.textFormat("{0}年{1}月{2}日",
+        return ui.str.format("{0}年{1}月{2}日",
             this.year, this.month + 1, this.day);
     },
     /** 重写toString方法 */
@@ -9384,7 +9377,7 @@ ui.define("ui.ctrls.CalendarView", {
         
         view = this.views[(viewName + "").toUpperCase()];
         if(!view) {
-            throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
+            throw new Error(ui.str.format("没有注册名为{0}的视图", viewName));
         }
 
         if(this.fire("viewChanging", this.currentView, view) === false) {
@@ -9591,7 +9584,7 @@ function defaultGroupListHandler(viewData, groupField, itemsField) {
 }
 
 function defaultGroupHeadFormatter(groupItem, margin) {
-    return ui.str.textFormat(
+    return ui.str.format(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
         groupItem[this.option.group.groupField]);

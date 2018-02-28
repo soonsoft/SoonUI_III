@@ -30,7 +30,7 @@ function findToday(days) {
         today = new Date();
         for(i = 0, len = days.length; i < len; i++) {
             weatherDay = days[i];
-            weatherDay.date = ui.str.jsonToDate(weatherDay.date);
+            weatherDay.date = ui.date.parseJSON(weatherDay.date);
             if(!weatherDay.date) {
                 continue;
             }
@@ -117,10 +117,10 @@ function days() {
             builder.push("</div>");
             builder.push("<div class='weather-handle", i === 0 ? " weather-current-handle" : "", "'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
+                ui.str.format("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
                     getDateText(weatherDay.date),
                     getWeekday(weatherDay.date), 
-                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
+                    ui.str.format("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
                     getWeatherText(weatherData.type)),
                 "</span>");
             builder.push("</div>");

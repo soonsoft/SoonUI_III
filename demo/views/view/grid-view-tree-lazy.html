@@ -122,7 +122,7 @@
                         StatusName: Status[ui.random.getNum(0, Status.length)],
                         Description: "项目描述"
                     };
-                projectItem.ProjectName = ui.str.textFormat("{0}项目", projectItem.ProjectTypeName);
+                projectItem.ProjectName = ui.str.format("{0}项目", projectItem.ProjectTypeName);
                 if(parentID) {
                     projectItem.ParentID = parentID;
                 }

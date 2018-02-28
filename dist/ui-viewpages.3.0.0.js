@@ -177,9 +177,13 @@ function userSettings() {
 
             that._currentHighlightItem = elem;
             that._currentHighlightItem.addClass("highlight-item-selected");
-            //ui.theme.changeHighlight("/Home/ChangeTheme", highlight);
-            $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-            ui.theme.setHighlight(highlight);
+            if(ui.core.isFunction(config.changeHighlightUrl)) {
+                config.changeHighlightUrl.call(null, highlight);
+            } else {
+                if(config.changeHighlightUrl) {
+                    ui.theme.changeHighlight(config.changeHighlightUrl, highlight);
+                }
+            }
         });
     }
 
@@ -262,6 +266,8 @@ var defaultConfig = {
     },
     // 默认用户设置配置
     userSettingsConfig: {
+        // 请求高亮色css的URL
+        changeHighlightUrl: "",
         // 用户操作菜单 [{text: "修改密码", url: "/Account/Password"}, {text: "退出", url: "/Account/LogOff"}]
         operateList: [
             { text: "个性化", url: "javascript:void(0)" },
@@ -288,15 +294,15 @@ var master = {
     contentBodyHeight: 0,
 
     config: function(name, option) {
-        var defaultOption,
+        var marginOptions,
             optionName;
         if(ui.str.isEmpty(name)) {
             return;
         }
         optionName = name + "Config";
-        defaultOption = defaultConfig[optionName];
-        if(defaultConfig) {
-            option = $.extend(defaultOption, option);
+        marginOptions = defaultConfig[optionName];
+        if(marginOptions) {
+            option = $.extend({}, marginOptions, option);
         }
         this[optionName] = option;
     },
@@ -2641,7 +2647,7 @@ function findToday(days) {
         today = new Date();
         for(i = 0, len = days.length; i < len; i++) {
             weatherDay = days[i];
-            weatherDay.date = ui.str.jsonToDate(weatherDay.date);
+            weatherDay.date = ui.date.parseJSON(weatherDay.date);
             if(!weatherDay.date) {
                 continue;
             }
@@ -2728,10 +2734,10 @@ function days() {
             builder.push("</div>");
             builder.push("<div class='weather-handle", i === 0 ? " weather-current-handle" : "", "'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
+                ui.str.format("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
                     getDateText(weatherDay.date),
                     getWeekday(weatherDay.date), 
-                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
+                    ui.str.format("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
                     getWeatherText(weatherData.type)),
                 "</span>");
             builder.push("</div>");

@@ -9,7 +9,7 @@ function getFieldMethod(field, fieldName) {
                 return this[field];
             };
         } else {
-            throw new TypeError(ui.str.textFormat("the {0} is not String or Function.", fieldName));
+            throw new TypeError(ui.str.format("the {0} is not String or Function.", fieldName));
         }
     }
     return field;

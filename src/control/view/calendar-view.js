@@ -532,7 +532,7 @@ YearView.prototype = {
             }
             if (date.getFullYear() !== this.year) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}", 
                         ui.date.format(date, "yyyy-MM-dd"),
                         this.year));
@@ -1054,7 +1054,7 @@ MonthView.prototype = {
             }
             if (date.getFullYear() !== this.year || date.getMonth() !== this.month) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}-{2}", 
                         ui.date.format(date, "yyyy-MM-dd"),
                         this.year,
@@ -1698,7 +1698,7 @@ WeekView.prototype = {
     },
     /** 获取周视图标题 */
     getTitle: function () {
-        return ui.str.textFormat(
+        return ui.str.format(
             "{0}年{1}月{2}日 ~ {3}年{4}月{5}日",
             this.startDate.getFullYear(), 
             this.startDate.getMonth() + 1, 
@@ -1989,7 +1989,7 @@ DayView.prototype = {
     },
     /** 获取日视图标题 */
     getTitle: function () {
-        return ui.str.textFormat("{0}年{1}月{2}日",
+        return ui.str.format("{0}年{1}月{2}日",
             this.year, this.month + 1, this.day);
     },
     /** 重写toString方法 */
@@ -2934,7 +2934,7 @@ ui.define("ui.ctrls.CalendarView", {
         
         view = this.views[(viewName + "").toUpperCase()];
         if(!view) {
-            throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
+            throw new Error(ui.str.format("没有注册名为{0}的视图", viewName));
         }
 
         if(this.fire("viewChanging", this.currentView, view) === false) {

@@ -229,11 +229,6 @@ core.isTouchAvailable = function() {
     return isTouchAvailable;
 };
 
-// TODO 统一的异常处理函数
-core.handleError = function(e) {
-    console.log(e);
-};
-
 
 
 })(jQuery, ui);
@@ -1806,6 +1801,11 @@ delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
 
+// TODO 统一的异常处理函数
+ui.handleError = function(e) {
+    console.log(e);
+};
+
 /**
  * 修复javascript中四舍五入方法的bug
  */ 
@@ -2117,11 +2117,6 @@ ui.mask = {
 var textEmpty = "";
 // text format
 var textFormatReg = /\\?\{([^{}]+)\}/gm;
-// dateFormat
-var defaultWeekFormatFn = function(week) {
-    var name = "日一二三四五六";
-    return "周" + name.charAt(week);
-};
 var htmlEncodeSpan;
 // base64
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -2190,7 +2185,7 @@ ui.str = {
             new RegExp("(^" + trimChar + "*)|(" + trimChar + "*$)", "g"), textEmpty);
     },
     /** 修剪字符串左边的字符 */
-    trimLeft: function (str, textEmpty) {
+    trimLeft: function (str, trimChar) {
         if (typeof str !== "string") {
             return str;
         }
@@ -2201,7 +2196,7 @@ ui.str = {
             new RegExp("(^" + trimChar + "*)", "g"), textEmpty);
     },
     /** 修剪字符串右边的字符 */
-    trimRight: function (str) {
+    trimRight: function (str, trimChar) {
         if (typeof str !== "string") {
             return str;
         }
@@ -2232,7 +2227,7 @@ ui.str = {
         }
     },
     /** 格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello */
-    textFormat: function (str, params) {
+    format: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
         if(!str) {
@@ -2252,108 +2247,6 @@ ui.str = {
             }
             return '';
         });
-    },
-    /** 格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期 */
-    dateFormat: function (date, format, weekFormat) {
-        if (!date) {
-            return textEmpty;
-        } else if (typeof date === "string") {
-            format = date;
-            date = new Date();
-        }
-        if (!$.isFunction(weekFormat))
-            weekFormat = defaultWeekFormatFn;
-
-        var zero = "0";
-        format = format.replace(/y+/i, function ($1) {
-            var year = date.getFullYear() + "";
-            return year.substring(year.length - $1.length);
-        });
-        var tempVal = null;
-        var formatFunc = function ($1) {
-            return ($1.length > 1 && tempVal < 10) ? zero + tempVal : tempVal;
-        };
-        tempVal = date.getMonth() + 1;
-        format = format.replace(/M+/, formatFunc);
-        tempVal = date.getDate();
-        format = format.replace(/d+/i, formatFunc);
-        tempVal = date.getHours();
-        format = format.replace(/H+/, formatFunc);
-        format = format.replace(/h+/, function ($1) {
-            var ampmHour = tempVal % 12 || 12;
-            return ((tempVal > 12) ? "PM" : "AM") + (($1.length > 1 && ampmHour < 10) ? zero + ampmHour : ampmHour);
-        });
-        tempVal = date.getMinutes();
-        format = format.replace(/m+/, formatFunc);
-        tempVal = date.getSeconds();
-        format = format.replace(/S+/i, formatFunc);
-        format = format.replace(/ms/i, date.getMilliseconds());
-        format = format.replace(/wk/i, weekFormat(date.getDay()));
-        return format;
-    },
-    convertDate: function (dateStr, format) {
-        var year = 1970,
-            month = 0,
-            day = 1,
-            hour = 0,
-            minute = 0,
-            second = 0,
-            ms = 0,
-            result = /y+/i.exec(format);
-        if (result !== null) {
-            year = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /M+/.exec(format);
-        if (result !== null) {
-            month = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10) - 1;
-        }
-        result = /d+/i.exec(format);
-        if (result !== null) {
-            day = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /H+/.exec(format);
-        if (result !== null) {
-            hour = parseInt(dateStr.substring(result.index, result.index + result.index + result[0].length), 10);
-        }
-        result = /h+/.exec(format);
-        if (result !== null) {
-            hour = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-            if (dateStr.substring(result.index - 2, 2) === "PM")
-                hour += 12;
-        }
-        result = /m+/.exec(format);
-        if (result !== null) {
-            minute = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /S+/i.exec(format);
-        if (result !== null) {
-            second = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /ms/i.exec(format);
-        if (result !== null) {
-            ms = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        return new Date(year, month, day, hour, minute, second, ms);
-    },
-    jsonnetToDate: function (jsonDate) {
-        if (!jsonDate) {
-            return null;
-        }
-        var val = /Date\(([^)]+)\)/.exec(jsonDate)[1];
-        return new Date(Number(val));
-    },
-    jsonToDate: function (jsonDate) {
-        var date = new Date(jsonDate);
-        var val = null;
-        if (isNaN(date)) {
-            val = /Date\(([^)]+)\)/.exec(jsonDate);
-            if (val !== null) {
-                date = new Date(Number(val[1]));
-            } else {
-                date = this.convertDate(jsonDate, "yyyy-MM-ddTHH:mm:ss");
-            }
-        }
-        return date;
     },
     /** base64编码 */
     base64Encode: function (input) {
@@ -2523,39 +2416,40 @@ ui.str = {
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
- 'yyyy': 4 digit representation of year (e.g. AD 1 => 0001, AD 2010 => 2010)
- 'yy': 2 digit representation of year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
- 'y': 1 digit representation of year, e.g. (AD 1 => 1, AD 199 => 199)
- 'MMMM': Month in year (January-December)
- 'MMM': Month in year (Jan-Dec)
- 'MM': Month in year, padded (01-12)
- 'M': Month in year (1-12)
- 'dd': Day in month, padded (01-31)
- 'd': Day in month (1-31)
- 'EEEE': Day in Week,(Sunday-Saturday)
- 'EEE': Day in Week, (Sun-Sat)
- 'HH': Hour in day, padded (00-23)
- 'H': Hour in day (0-23)
- 'hh': Hour in am/pm, padded (01-12)
- 'h': Hour in am/pm, (1-12)
- 'mm': Minute in hour, padded (00-59)
- 'm': Minute in hour (0-59)
- 'ss': Second in minute, padded (00-59)
- 's': Second in minute (0-59)
- 'S': Milliseconds in second (0-999)
- 't': the first char of AM/PM marker padded(A/P)
- 'tt': AM/PM marker
- 'Z': 4 digit (+sign) representation of the timezone offset (-1200-+1200)
- format string can also be one of the following predefined localizable formats:
+ 'yyyy': 4位数字年份，会补零 (e.g. AD 1 => 0001, AD 2010 => 2010)
+ 'yy': 2位数字年份 (e.g. AD 2001 => 01, AD 2010 => 10)
+ 'y': 不固定位数年份, e.g. (AD 1 => 1, AD 199 => 199)
+ 'MMMM': 完整月份 (January-December)
+ 'MMM': 简写月份 (Jan-Dec)
+ 'MM': 2位数字月份, padded (01-12)
+ 'M': 不固定位数月份 (1-12)
+ 'dd': 2位数字日期, padded (01-31)
+ 'd': 不固定位数日期 (1-31)
+ 'EEEE': 完整星期表示,(Sunday-Saturday)
+ 'EEE': 简写星期表示, (Sun-Sat)
+ 'HH': 2位数字小时, padded (00-23)
+ 'H': 不固定位数小时 (0-23)
+ 'hh': 2位数字12小时表示, padded (01-12)
+ 'h': 不固定位数12小时表示, (1-12)
+ 'mm': 2位数字分钟, padded (00-59)
+ 'm': 不固定位数分钟 (0-59)
+ 'ss': 2位数字秒, padded (00-59)
+ 's': 不固定位数秒 (0-59)
+ 'S': 毫秒数 (0-999)
+ 't': AM和PM的第一个字符(A/P)
+ 'tt': AM/PM
+ 'Z': 时区格式化如(+08:00)
+ 格式化别名:
  
- 'medium': equivalent to 'MMM d, y h:mm:ss a' for en_US locale (e.g. Sep 3, 2010 12:05:08 pm)
- 'short': equivalent to 'M/d/yy h:mm a' for en_US locale (e.g. 9/3/10 12:05 pm)
- 'fullDate': equivalent to 'EEEE, MMMM d,y' for en_US locale (e.g. Friday, September 3, 2010)
- 'longDate': equivalent to 'MMMM d, y' for en_US locale (e.g. September 3, 2010
- 'mediumDate': equivalent to 'MMM d, y' for en_US locale (e.g. Sep 3, 2010)
- 'shortDate': equivalent to 'M/d/yy' for en_US locale (e.g. 9/3/10)
- 'mediumTime': equivalent to 'h:mm:ss a' for en_US locale (e.g. 12:05:08 pm)
- 'shortTime': equivalent to 'h:mm a' for en_US locale (e.g. 12:05 pm)
+ 'default': 'yyyy-MM-dd HH:mm:ss'
+ 'medium': 'yyyy-MM-dd HH:mm'
+ 'date': 'yyyy-MM-dd'
+ 'longDate': 'yyyy-MM-dd EEEE',
+ 'shortDate': 'y-M'
+ 'time': 'HH:mm:ss'
+ 'shortTime': 'HH:mm'
+ 'time12': 'h:m:s tt'
+ 'shortTime12': 'h:m tt'
  */
 
 var formatters,
@@ -2611,9 +2505,16 @@ function dateStrGetter(name, shortForm) {
 }
 
 function getTimeZone(date) {
-	var zone = date.getTimezoneOffset() * -1,
-		result = "";
+	var zone,
+		result;
 
+	zone = date.getTimezoneOffset();
+	if(zone === 0) {
+		return "Z";
+	}
+
+	zone *= -1;
+	result = "";
 	if(zone >= 0) {
 		result += "+";
 	}
@@ -2658,7 +2559,7 @@ formatters = {
 	"m": dateGetter("Minutes", 1),
 	"ss": dateGetter("Seconds", 2),
 	"s": dateGetter("Seconds", 1),
-	"S": dateGetter("Milliseconds", 1),
+	"S": dateGetter("Milliseconds", 3),
 	"t": ampmGetter(1),
 	"tt": ampmGetter(2),
 	"Z": getTimeZone
@@ -2706,6 +2607,48 @@ function monthTextParser(value, dateInfo, parts, index) {
 	dateInfo.month = locale[name][value] || NaN;
 }
 
+function parseTimeZone(dateStr, startIndex, dateInfo, parts, index) {
+	var part = parts[index],
+		datePart,
+		timeZonePart,
+		hour, minute,
+		skip = startIndex,
+		char,
+		i;
+
+	for(i = startIndex; i < dateStr.length; i++) {
+		char = dateStr.charAt(i);
+		if(char === 'Z' || char === '+' || char === '-') {
+			datePart = dateStr.substring(startIndex, i);
+			if(char === 'Z') {
+				timeZonePart = dateStr.substring(i, i + 1);
+			} else {
+				timeZonePart = dateStr.substring(i, i + 6);
+			}
+			break;
+		}
+	}
+
+	if(datePart && parsers[part]) {
+		skip += datePart.length;
+		parsers[part](datePart, dateInfo, parts, index);
+	}
+	if(timeZonePart && timeZonePart !== "Z") {
+		skip += timeZonePart.length;
+		char = timeZonePart.charAt(0);
+		minute = timeZonePart.substring(1).split(":");
+		hour = toInt(minute[0]);
+		minute = toInt(minute[1]);
+
+		dateInfo.timezone = hour * 60;
+		dateInfo.timezone += minute;
+		if(char === '-' && dateInfo.timezone > 0) {
+			dateInfo.timezone = -dateInfo.timezone;
+		}
+	}
+	return skip;
+}
+
 parsers = {
 	"yyyy": getDateParser("year"),
 	"yy": noop,
@@ -2751,7 +2694,16 @@ locale = {
 		"十二月": 12
 	},
 
-	default: "yyyy-MM-dd HH:mm:ss"
+	default: "yyyy-MM-dd HH:mm:ss",
+	medium: "yyyy-MM-dd HH:mm",
+	date: "yyyy-MM-dd",
+	longDate: "yyyy-MM-dd EEEE",
+	shortDate: "y-M",
+	time: "HH:mm:ss",
+	shortTime: "HH:mm",
+	time12: "h:m:s tt",
+	shortTime12: "h:m tt",
+	json: "yyyy-MM-ddTHH:mm:ss.SZ"
 };
 locale["SHORTMONTH"] = locale["MONTH"];
 locale["SHORTMONTH_MAPPING"] = locale["MONTH_MAPPING"];
@@ -2781,6 +2733,31 @@ function getParts(format) {
 	return parts;
 }
 
+function parseJSON(dateStr) {
+	var date;
+
+	dateStr = dateStr.trim();
+	if(dateStr.length === 0) {
+		return null;
+	}
+
+	if(/^\d+$/.test(dateStr)) {
+		// 如果全是数字
+		return new Date(toInt(dateStr));
+	} else {
+		// 尝试ISO 8601
+		date = new Date(dateStr);
+		if(isNaN(date)) {
+			// 尝试AspNet的格式
+			date = rAspNetFormat.exec(dateStr);
+			if(date !== null) {
+				date = new Date(Number(date[1]));
+			}
+		}
+		return isNaN(date) ? null : date;
+	}
+}
+
 ui.date = {
 	format: function(date, format) {
 		var dateValue,
@@ -2790,20 +2767,7 @@ ui.date = {
 			result;
 
 		if(ui.core.isString(date)) {
-			if(/^\d+$/.test(date)) {
-				// 如果全是数字
-				dateValue = toInt(date);
-			} else {
-				// 尝试ISO 8601
-				dateValue = new Date(date);
-				if(isNaN(dateValue)) {
-					// 尝试AspNet的格式
-					dateValue = rAspNetFormat.exec(date);
-					if(dateValue !== null) {
-						dateValue = Number(dateValue[1]);
-					}
-				}
-			}
+			dateValue = parseJSON(date);
 		} else {
 			dateValue = date;
 		}
@@ -2814,7 +2778,7 @@ ui.date = {
 
 		result = [];
 
-		formatValue = format || "default";
+		formatValue = (ui.core.isString(format) ? format.trim() : format) || "default";
 		formatValue = locale[formatValue] || formatValue;
 		
 		if(dateValue instanceof Date) {
@@ -2831,20 +2795,31 @@ ui.date = {
 
 		return result.join("");
 	},
+	parseJSON: function(dateStr) {
+		if(ui.core.isString(dateStr)) {
+			return parseJSON(dateStr);
+		} else if(dateStr instanceof Date) {
+			return dateStr;
+		} else {
+			return null;
+		}
+	},
 	parse: function(dateStr, format) {
 		var formatValue,
 			parts,
 			part,
 			nextPart,
+			timeZoneParser,
 			startIndex, endIndex, index,
 			i, len,
-			dateInfo;
+			dateInfo,
+			result;
 
 		if(typeof dateStr !== "string" || !dateStr) {
 			return null;
 		}
 
-		formatValue = format || "default";
+		formatValue = (ui.core.isString(format) ? format.trim() : format) || "default";
 		formatValue = locale[formatValue] || formatValue;
 
 		dateInfo = {
@@ -2861,6 +2836,7 @@ ui.date = {
 		startIndex = 0;
 		for(i = 0, len = parts.length; i < len;) {
 			part = parts[i];
+			nextPart = "";
 			index = i;
 			if(!parsers.hasOwnProperty(part)) {
 				i++;
@@ -2871,13 +2847,24 @@ ui.date = {
 			i++;
 			if(i < len) {
 				nextPart = parts[i];
-				if(parsers.hasOwnProperty(nextPart)) {
-					return null;
-				}
-				i++;
-				endIndex = dateStr.indexOf(nextPart, startIndex);
-				if(endIndex === -1) {
-					return null;
+				if(nextPart === "Z") {
+					// 对时区做特殊处理
+					i++;
+					timeZoneParser = parsers[nextPart];
+					if(timeZoneParser === noop || !ui.core.isFunction(timeZoneParser)) {
+						timeZoneParser = parseTimeZone;
+					}
+					startIndex += timeZoneParser(dateStr, startIndex, dateInfo, parts, index);
+					continue;
+				} else {
+					if(parsers.hasOwnProperty(nextPart)) {
+						return null;
+					}
+					i++;
+					endIndex = dateStr.indexOf(nextPart, startIndex);
+					if(endIndex === -1) {
+						return null;
+					}
 				}
 			} else {
 				endIndex = dateStr.length;
@@ -2890,10 +2877,10 @@ ui.date = {
 					parts, 
 					index);
 			}
-			startIndex = endIndex + 1;
+			startIndex = endIndex + nextPart.length;
 		}
 
-		return new Date(
+		result = new Date(
 			dateInfo.year,
 			dateInfo.month - 1,
 			dateInfo.date,
@@ -2901,6 +2888,10 @@ ui.date = {
 			dateInfo.minutes,
 			dateInfo.seconds,
 			dateInfo.milliseconds);
+		if(dateInfo.timezone) {
+			result.setMinutes(result.getMinutes() + dateInfo.timezone);
+		}
+		return result;
 	},
 	locale: locale
 };
@@ -3127,7 +3118,7 @@ function getFieldMethod(field, fieldName) {
                 return this[field];
             };
         } else {
-            throw new TypeError(ui.str.textFormat("the {0} is not String or Function.", fieldName));
+            throw new TypeError(ui.str.format("the {0} is not String or Function.", fieldName));
         }
     }
     return field;
@@ -4381,9 +4372,9 @@ ui.ajax = {
         if(btn.isNodeName("input")) {
             text = btn.val();
             if(text.length > 0) {
-                btn.val(ui.str.stringFormat(textFormat, text));
+                btn.val(ui.str.fFormat(textFormat, text));
             } else {
-                btn.val(ui.str.stringFormat(textFormat, "处理"));
+                btn.val(ui.str.format(textFormat, "处理"));
             }
             fn = function() {
                 btn.val(text);
@@ -4392,7 +4383,7 @@ ui.ajax = {
         } else {
             text = btn.html();
             if(!ui._rhtml.test(text)) {
-                btn.text(ui.str.stringFormat(textFormat, text));
+                btn.text(ui.str.format(textFormat, text));
                 fn = function() {
                     btn.text(text);
                     btn.removeAttr("disabled");
@@ -6631,14 +6622,7 @@ function getMoney (symbol, content) {
     return "<span>" + ui.str.moneyFormat(content, symbol) + "</span>";
 }
 function getDate(val) {
-    var date = val;
-    if(!date) {
-        return null;
-    }
-    if(ui.core.isString(val)) {
-        date = ui.str.jsonToDate(date);
-    }
-    return date;
+    return ui.date.parseJSON(val);
 }
 
 var columnFormatter,
@@ -8828,7 +8812,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-chooser-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function () {
             this.cancelSelection();
         };
@@ -11868,7 +11852,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
                 children,
                 dl,
                 this._getLevel(nodeData) + 1,
-                ui.str.lTrim(dt.prop("id"), this._treePrefix),
+                ui.str.trimLeft(dt.prop("id"), this._treePrefix),
                 nodeData);
             dd.append(dl);
         }
@@ -13113,9 +13097,9 @@ YearView.prototype = {
             }
             if (date.getFullYear() !== this.year) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year));
             }
             cell = this._getCellByDate(months, date);
@@ -13635,9 +13619,9 @@ MonthView.prototype = {
             }
             if (date.getFullYear() !== this.year || date.getMonth() !== this.month) {
                 throw new Error(
-                    ui.str.textFormat(
+                    ui.str.format(
                         "the date({0}) does not belong to {1}-{2}", 
-                        ui.str.dateFormat(date, "yyyy-MM-dd"),
+                        ui.date.format(date, "yyyy-MM-dd"),
                         this.year,
                         this.month));
             }
@@ -14264,8 +14248,8 @@ WeekView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(weekIndex, startTime, endTime);
     },
     /** 取消选中状态 */
@@ -14279,7 +14263,7 @@ WeekView.prototype = {
     },
     /** 获取周视图标题 */
     getTitle: function () {
-        return ui.str.textFormat(
+        return ui.str.format(
             "{0}年{1}月{2}日 ~ {3}年{4}月{5}日",
             this.startDate.getFullYear(), 
             this.startDate.getMonth() + 1, 
@@ -14555,8 +14539,8 @@ DayView.prototype = {
             return;
         }
 
-        startTime = ui.str.dateFormat(start, "hh:mm:ss");
-        endTime = ui.str.dateFormat(end, "hh:mm:ss");
+        startTime = ui.date.format(start, "hh:mm:ss");
+        endTime = ui.date.format(end, "hh:mm:ss");
         this.selector.setSelectionByTime(0, startTime, endTime);
     },
     /** 取消选中状态 */
@@ -14570,7 +14554,7 @@ DayView.prototype = {
     },
     /** 获取日视图标题 */
     getTitle: function () {
-        return ui.str.textFormat("{0}年{1}月{2}日",
+        return ui.str.format("{0}年{1}月{2}日",
             this.year, this.month + 1, this.day);
     },
     /** 重写toString方法 */
@@ -15515,7 +15499,7 @@ ui.define("ui.ctrls.CalendarView", {
         
         view = this.views[(viewName + "").toUpperCase()];
         if(!view) {
-            throw new Error(ui.str.textFormat("没有注册名为{0}的视图", viewName));
+            throw new Error(ui.str.format("没有注册名为{0}的视图", viewName));
         }
 
         if(this.fire("viewChanging", this.currentView, view) === false) {
@@ -15722,7 +15706,7 @@ function defaultGroupListHandler(viewData, groupField, itemsField) {
 }
 
 function defaultGroupHeadFormatter(groupItem, margin) {
-    return ui.str.textFormat(
+    return ui.str.format(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
         groupItem[this.option.group.groupField]);
@@ -25320,9 +25304,13 @@ function userSettings() {
 
             that._currentHighlightItem = elem;
             that._currentHighlightItem.addClass("highlight-item-selected");
-            //ui.theme.changeHighlight("/Home/ChangeTheme", highlight);
-            $("#highlight").prop("href", ui.str.textFormat("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-            ui.theme.setHighlight(highlight);
+            if(ui.core.isFunction(config.changeHighlightUrl)) {
+                config.changeHighlightUrl.call(null, highlight);
+            } else {
+                if(config.changeHighlightUrl) {
+                    ui.theme.changeHighlight(config.changeHighlightUrl, highlight);
+                }
+            }
         });
     }
 
@@ -25405,6 +25393,8 @@ var defaultConfig = {
     },
     // 默认用户设置配置
     userSettingsConfig: {
+        // 请求高亮色css的URL
+        changeHighlightUrl: "",
         // 用户操作菜单 [{text: "修改密码", url: "/Account/Password"}, {text: "退出", url: "/Account/LogOff"}]
         operateList: [
             { text: "个性化", url: "javascript:void(0)" },
@@ -25431,15 +25421,15 @@ var master = {
     contentBodyHeight: 0,
 
     config: function(name, option) {
-        var defaultOption,
+        var marginOptions,
             optionName;
         if(ui.str.isEmpty(name)) {
             return;
         }
         optionName = name + "Config";
-        defaultOption = defaultConfig[optionName];
-        if(defaultConfig) {
-            option = $.extend(defaultOption, option);
+        marginOptions = defaultConfig[optionName];
+        if(marginOptions) {
+            option = $.extend({}, marginOptions, option);
         }
         this[optionName] = option;
     },
@@ -27784,7 +27774,7 @@ function findToday(days) {
         today = new Date();
         for(i = 0, len = days.length; i < len; i++) {
             weatherDay = days[i];
-            weatherDay.date = ui.str.jsonToDate(weatherDay.date);
+            weatherDay.date = ui.date.parseJSON(weatherDay.date);
             if(!weatherDay.date) {
                 continue;
             }
@@ -27871,10 +27861,10 @@ function days() {
             builder.push("</div>");
             builder.push("<div class='weather-handle", i === 0 ? " weather-current-handle" : "", "'>");
             builder.push("<span class='weather-text'>", 
-                ui.str.textFormat("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
+                ui.str.format("{0}&nbsp;({1})&nbsp;{2}&nbsp;&nbsp;{3}",
                     getDateText(weatherDay.date),
                     getWeekday(weatherDay.date), 
-                    ui.str.textFormat("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
+                    ui.str.format("{0}℃ - {1}℃", weatherDay.low, weatherDay.high), 
                     getWeatherText(weatherData.type)),
                 "</span>");
             builder.push("</div>");

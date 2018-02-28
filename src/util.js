@@ -15,6 +15,11 @@ delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
 
+// TODO 统一的异常处理函数
+ui.handleError = function(e) {
+    console.log(e);
+};
+
 /**
  * 修复javascript中四舍五入方法的bug
  */ 

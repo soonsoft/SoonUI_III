@@ -313,7 +313,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
         this._selectTextClass = "ui-select-text";
         this._showClass = "ui-chooser-show";
-        this._clearClass = "ui-chooser-clear";
+        this._clearClass = "ui-clear-text";
         this._clear = function () {
             this.cancelSelection();
         };

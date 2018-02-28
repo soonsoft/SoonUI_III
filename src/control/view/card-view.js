@@ -44,7 +44,7 @@ function defaultGroupListHandler(viewData, groupField, itemsField) {
 }
 
 function defaultGroupHeadFormatter(groupItem, margin) {
-    return ui.str.textFormat(
+    return ui.str.format(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
         groupItem[this.option.group.groupField]);

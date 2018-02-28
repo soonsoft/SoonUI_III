@@ -138,7 +138,7 @@
                     calendarPanel: "dateInPanel"
                 });
                 this.date.setDateValue(
-                    ui.str.dateFormat(new Date(), "yyyy-MM-dd"));
+                    ui.date.format(new Date(), "yyyy-MM-dd"));
             }
 
             function createDateInForm() {
@@ -154,7 +154,7 @@
 
             function createDateInCustom() {
                 var customElement = $("#customElement");
-                customElement.text(ui.str.dateFormat(new Date(), "yyyy-MM-dd"));
+                customElement.text(ui.date.format(new Date(), "yyyy-MM-dd"));
                 this.dateText = customElement.dateChooser();
             }
 

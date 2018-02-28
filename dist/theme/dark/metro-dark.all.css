@@ -2681,8 +2681,8 @@ input.ui-select-text {
   background-repeat: no-repeat;
   padding-right: 24px;
 }
-input.date-text::-ms-clear,
-input.select-text::-ms-clear {
+input.ui-date-text::-ms-clear,
+input.ui-select-text::-ms-clear {
   display: none;
 }
 /* 文本框清除按钮 */

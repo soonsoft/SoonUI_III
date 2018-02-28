@@ -210,9 +210,9 @@ ui.ajax = {
         if(btn.isNodeName("input")) {
             text = btn.val();
             if(text.length > 0) {
-                btn.val(ui.str.stringFormat(textFormat, text));
+                btn.val(ui.str.fFormat(textFormat, text));
             } else {
-                btn.val(ui.str.stringFormat(textFormat, "处理"));
+                btn.val(ui.str.format(textFormat, "处理"));
             }
             fn = function() {
                 btn.val(text);
@@ -221,7 +221,7 @@ ui.ajax = {
         } else {
             text = btn.html();
             if(!ui._rhtml.test(text)) {
-                btn.text(ui.str.stringFormat(textFormat, text));
+                btn.text(ui.str.format(textFormat, text));
                 fn = function() {
                     btn.text(text);
                     btn.removeAttr("disabled");

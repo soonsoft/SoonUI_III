@@ -71,7 +71,7 @@ ui.str = {
             new RegExp("(^" + trimChar + "*)|(" + trimChar + "*$)", "g"), textEmpty);
     },
     /** 修剪字符串左边的字符 */
-    trimLeft: function (str, textEmpty) {
+    trimLeft: function (str, trimChar) {
         if (typeof str !== "string") {
             return str;
         }
@@ -82,7 +82,7 @@ ui.str = {
             new RegExp("(^" + trimChar + "*)", "g"), textEmpty);
     },
     /** 修剪字符串右边的字符 */
-    trimRight: function (str) {
+    trimRight: function (str, trimChar) {
         if (typeof str !== "string") {
             return str;
         }

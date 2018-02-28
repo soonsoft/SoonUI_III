@@ -427,7 +427,7 @@
                 }
 
                 view.addSchedules(data, "date", function(item) {
-                    this.prop("title", ui.str.dateFormat(item, "yyyy-MM-dd"));
+                    this.prop("title", ui.date.format(item, "yyyy-MM-dd"));
                 });
             }
             function removeSaturdaySchedule(view) {
@@ -462,7 +462,7 @@
                 var data = view.getSelection(),
                     i, len;
                 for(i = 0, len = data.length; i < len; i++) {
-                    data[i] = ui.str.dateFormat(data[i], "yyyy-MM-dd");
+                    data[i] = ui.date.format(data[i], "yyyy-MM-dd");
                 }
                 return data;
             }
@@ -550,7 +550,7 @@
                             data[i].backgroundColor.red, 
                             data[i].backgroundColor.green, 
                             data[i].backgroundColor.blue);
-                    data[i].text = ui.str.dateFormat(data[i].date, "HH:mm") 
+                    data[i].text = ui.date.format(data[i].date, "HH:mm") 
                         + " " 
                         + textArray[ui.random.getNum(0, textArray.length)];
                 }
@@ -589,7 +589,7 @@
                 var data = view.getSelection(),
                     i, len;
                 for(i = 0, len = data.length; i < len; i++) {
-                    data[i] = ui.str.dateFormat(data[i], "yyyy-MM-dd");
+                    data[i] = ui.date.format(data[i], "yyyy-MM-dd");
                 }
                 return data;
             }
