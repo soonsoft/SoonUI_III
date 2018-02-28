@@ -318,7 +318,7 @@ function getParts(format) {
 	return parts;
 }
 
-function parseJson(dateStr) {
+function parseJSON(dateStr) {
 	var date;
 
 	dateStr = dateStr.trim();
@@ -352,7 +352,7 @@ ui.date = {
 			result;
 
 		if(ui.core.isString(date)) {
-			dateValue = parseJson(date);
+			dateValue = parseJSON(date);
 		} else {
 			dateValue = date;
 		}
@@ -380,9 +380,9 @@ ui.date = {
 
 		return result.join("");
 	},
-	jsonParse: function(dateStr) {
+	parseJSON: function(dateStr) {
 		if(ui.core.isString(dateStr)) {
-			return parseJson(dateStr);
+			return parseJSON(dateStr);
 		} else if(dateStr instanceof Date) {
 			return dateStr;
 		} else {
