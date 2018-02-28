@@ -3,11 +3,6 @@
 var textEmpty = "";
 // text format
 var textFormatReg = /\\?\{([^{}]+)\}/gm;
-// dateFormat
-var defaultWeekFormatFn = function(week) {
-    var name = "日一二三四五六";
-    return "周" + name.charAt(week);
-};
 var htmlEncodeSpan;
 // base64
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -118,7 +113,7 @@ ui.str = {
         }
     },
     /** 格式化字符串，Format("He{0}{1}o", "l", "l") 返回 Hello */
-    textFormat: function (str, params) {
+    format: function (str, params) {
         var Arr_slice = Array.prototype.slice;
         var array = Arr_slice.call(arguments, 1);
         if(!str) {
@@ -138,108 +133,6 @@ ui.str = {
             }
             return '';
         });
-    },
-    /** 格式化日期: y|Y 年; M 月; d|D 日; H|h 小时; m 分; S|s 秒; ms|MS 毫秒; wk|WK 星期 */
-    dateFormat: function (date, format, weekFormat) {
-        if (!date) {
-            return textEmpty;
-        } else if (typeof date === "string") {
-            format = date;
-            date = new Date();
-        }
-        if (!$.isFunction(weekFormat))
-            weekFormat = defaultWeekFormatFn;
-
-        var zero = "0";
-        format = format.replace(/y+/i, function ($1) {
-            var year = date.getFullYear() + "";
-            return year.substring(year.length - $1.length);
-        });
-        var tempVal = null;
-        var formatFunc = function ($1) {
-            return ($1.length > 1 && tempVal < 10) ? zero + tempVal : tempVal;
-        };
-        tempVal = date.getMonth() + 1;
-        format = format.replace(/M+/, formatFunc);
-        tempVal = date.getDate();
-        format = format.replace(/d+/i, formatFunc);
-        tempVal = date.getHours();
-        format = format.replace(/H+/, formatFunc);
-        format = format.replace(/h+/, function ($1) {
-            var ampmHour = tempVal % 12 || 12;
-            return ((tempVal > 12) ? "PM" : "AM") + (($1.length > 1 && ampmHour < 10) ? zero + ampmHour : ampmHour);
-        });
-        tempVal = date.getMinutes();
-        format = format.replace(/m+/, formatFunc);
-        tempVal = date.getSeconds();
-        format = format.replace(/S+/i, formatFunc);
-        format = format.replace(/ms/i, date.getMilliseconds());
-        format = format.replace(/wk/i, weekFormat(date.getDay()));
-        return format;
-    },
-    convertDate: function (dateStr, format) {
-        var year = 1970,
-            month = 0,
-            day = 1,
-            hour = 0,
-            minute = 0,
-            second = 0,
-            ms = 0,
-            result = /y+/i.exec(format);
-        if (result !== null) {
-            year = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /M+/.exec(format);
-        if (result !== null) {
-            month = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10) - 1;
-        }
-        result = /d+/i.exec(format);
-        if (result !== null) {
-            day = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /H+/.exec(format);
-        if (result !== null) {
-            hour = parseInt(dateStr.substring(result.index, result.index + result.index + result[0].length), 10);
-        }
-        result = /h+/.exec(format);
-        if (result !== null) {
-            hour = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-            if (dateStr.substring(result.index - 2, 2) === "PM")
-                hour += 12;
-        }
-        result = /m+/.exec(format);
-        if (result !== null) {
-            minute = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /S+/i.exec(format);
-        if (result !== null) {
-            second = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        result = /ms/i.exec(format);
-        if (result !== null) {
-            ms = parseInt(dateStr.substring(result.index, result.index + result[0].length), 10);
-        }
-        return new Date(year, month, day, hour, minute, second, ms);
-    },
-    jsonnetToDate: function (jsonDate) {
-        if (!jsonDate) {
-            return null;
-        }
-        var val = /Date\(([^)]+)\)/.exec(jsonDate)[1];
-        return new Date(Number(val));
-    },
-    jsonToDate: function (jsonDate) {
-        var date = new Date(jsonDate);
-        var val = null;
-        if (isNaN(date)) {
-            val = /Date\(([^)]+)\)/.exec(jsonDate);
-            if (val !== null) {
-                date = new Date(Number(val[1]));
-            } else {
-                date = this.convertDate(jsonDate, "yyyy-MM-ddTHH:mm:ss");
-            }
-        }
-        return date;
     },
     /** base64编码 */
     base64Encode: function (input) {
