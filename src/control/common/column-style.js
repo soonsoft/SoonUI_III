@@ -15,14 +15,7 @@ function getMoney (symbol, content) {
     return "<span>" + ui.str.moneyFormat(content, symbol) + "</span>";
 }
 function getDate(val) {
-    var date = val;
-    if(!date) {
-        return null;
-    }
-    if(ui.core.isString(val)) {
-        date = ui.str.jsonToDate(date);
-    }
-    return date;
+    return ui.date.parseJSON(val);
 }
 
 var columnFormatter,
