@@ -11,7 +11,18 @@
 6. test 单元测试文件存放目录
 
 ## 组件
-* Uploader 上传组件
+* animation 动画引擎
+* browser 浏览器版本和设备
+* color 颜色处理
+* custom-event 自定义事件处理器
+* define JavaScript类型处理
+* draggable 拖动效果
+* image-loader 异步图片加载，按比例缩放
+* introsoft 内归排序
+* theme 主题处理
+* view-model MVVM视图模型
+* uploader 上传组件
+* page 页面生命周期管理
 
 ## 控件
 ### 对话框
