@@ -153,6 +153,11 @@ core.isJQueryObject = function (obj) {
     return this.type(obj) === "object" && this.type(obj.jquery) === "string";
 };
 
+// 判断是否为原生函数
+core.isNative = function(obj) {
+    return this.type(obj) === "function" && /native code/.test(obj.toString());
+};
+
 // 判断浏览器是否支持canvas对象
 core.isSupportCanvas = function () {
     if(core.type(isSupportCanvas) !== "boolean") {
