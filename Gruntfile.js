@@ -122,6 +122,7 @@ module.exports = function(grunt) {
         "src/component/image-loader.js",
         "src/component/define.js",
         "src/component/draggable.js",
+        "src/component/uploader.js",
         "src/component/theme.js",
         "src/component/page.js"
     ];
