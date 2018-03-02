@@ -3,7 +3,10 @@
 var arrayObserverPrototype = [],
     overrideMethods = ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"],
     hasProto = '__proto__' in {},
-    updatePrototype;
+    updatePrototype,
+    binderQueue,
+    binderId = 0;
+
 // 劫持修改数组的API方法
 overrideMethods.forEach(function(methodName) {
     var originalMethod = arrayObserverPrototype[methodName];
@@ -46,6 +49,73 @@ if(hasProto) {
             key = keys[i];
             target[key] = prototype[key];
         }
+    }
+}
+
+// 数据绑定执行队列
+// TODO 实现nextTick
+binderQueue = {
+    queue: [],
+    queueElementMap: {},
+    // 是否正在执行队列中
+    isRunning: false,
+    // 是否已经注册了nextTick Task
+    isWaiting: false,
+    // 当前执行的队列索引
+    runIndex: 0,
+
+    enqueue: function(binder) {
+        var id = binder.id,
+            index;
+        if(this.queueElementMap[id]) {
+            return;
+        }
+
+        this.queueElementMap[id] = true;
+        if(this.isRunning) {
+            // 从后往前插入队列
+            index = this.queue.length - 1;
+            while(index > this.runIndex && this.queue[index].id > binder.id) {
+                index--;
+            }
+            this.queue.splice(index + 1, 0, binder);
+        } else {
+            this.queue.push(binder);
+        }
+
+        if(!this.isWaiting) {
+            this.isWaiting = true;
+            ui.setTask((function () {
+                this.run();
+            }).bind(this));
+        }
+    },
+    run: function() {
+        var i,
+            binder;
+        this.isRunning = true;
+
+        // 排序，让视图更新按照声明的顺序执行
+        this.queue.sort(function(a, b) {
+            return a.id - b.id;
+        });
+
+        // 这里的queue.length可能发生变化，不能缓存
+        for(i = 0; i < this.queue.length; i++) {
+            this.runIndex = i;
+            binder = this.queue[i];
+            this.queueElementMap[binder.id] = null;
+            binder.execute();
+        }
+
+        // 重置队列
+        this.reset();
+    },
+    reset: function() {
+        this.runIndex = 0;
+        this.queue.length = 0;
+        this.queueElementMap = {};
+        this.isRunning = this.isWaiting = false;
     }
 }
 
@@ -224,10 +294,21 @@ Dependency.prototype = {
     }
 };
 
-
-// 查看器
 function Binder(option) {
-    var propertyName = null;
+    var propertyName = null; 
+
+    this.id = ++binderId;
+    this.viewModel = null;
+    this.isActive = true;
+
+    if(option) {
+        this.sync = !!option.sync;
+        this.lazy = !!option.lazy;
+    } else {
+        this.sync = this.lazy = false;
+    }
+    this.value = this.lazy ? null : this.get();
+
     Object.defineProperty(this, "propertyName", {
         configurable: false,
         enumerable: true,
@@ -241,18 +322,6 @@ function Binder(option) {
             propertyName = val;
         }
     });
-
-    this.viewModel = null;
-    this.isActive = true;
-
-    if(option) {
-        this.sync = !!option.sync;
-        //this.lazy = !!option.lazy;
-    } else {
-        this.sync = this.lazy = false;
-    }
-
-    this.value = this.lazy ? null : this.get();
 }
 Binder.prototype = {
     constructor: Binder,
@@ -264,7 +333,7 @@ Binder.prototype = {
         if(this.sync) {
             this.execute();
         } else {
-            enqueue(this);
+            binderQueue.enqueue(this);
         }
     },
     execute: function() {
@@ -279,7 +348,7 @@ Binder.prototype = {
             try {
                 this.action(value, oldValue);
             } catch(e) {
-                ui.core.handleError(e);
+                ui.handleError(e);
             }
         }
     },
@@ -337,5 +406,5 @@ ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync
     }
 };
 ui.ViewModel.bindTwoWay = function(option) {
-    //var binder = createBinder();
+    // TODO: 双向绑定实际上只有在做表单的时候才有优势
 };
