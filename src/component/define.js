@@ -179,6 +179,9 @@ CtrlBase.prototype = {
 
         return newEvents;
     },
+    i18n: function(key) {
+        // TODO: 实现根据key获取对应的本地化文本
+    },
     _initialize: function(option, element) {
         var events;
 
