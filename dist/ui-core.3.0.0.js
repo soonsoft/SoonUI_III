@@ -1149,7 +1149,7 @@ if(!isFunction(Object.create)) {
 
 })(jQuery, ui);
 
-// Source: src/ES6-promise.js
+// Source: src/ES6-promise.shims.js
 
 (function($, ui) {
 "use strict";
