@@ -25332,7 +25332,7 @@ ui.eventPriority = {
 };
 var page = ui.page = {
     // resize事件延迟时间
-    _resizeDelay: 300,
+    _resizeDelay: 200,
     _resizeTimeoutHandler: null,
     events: [
         "themechanged",
@@ -25360,10 +25360,12 @@ $(document)
 $(window)
     //注册全局resize事件
     .on("resize", function (e) {
+        console.log("resize");
         if(page._resizeTimeoutHandler) {
             clearTimeout(page._resizeTimeoutHandler);
         }
         page._resizeTimeoutHandler = setTimeout(function() {
+            console.log("do");
             page._resizeTimeoutHandler = null;
             page.fire("resize", 
                 document.documentElement.clientWidth, 
