@@ -495,18 +495,20 @@ a {
 /* 表单元素 */
 input[type="text"], 
 input[type="password"], 
+input[type="email"],
+input[type="number"],
+input[type="tel"],
 textarea, 
 select {
+    box-sizing: border-box;
     background-color: transparent;
     background-image: url(images/input-bg.gif);
     border: 1px solid @tool-color;
     color: @tool-color;
     margin: 0;
-    padding-left: 1px;
-    padding-right: 1px;
-    padding-top: 0;
-    padding-bottom: 0;
-    line-height: 22px;
+    padding: 0 1px 0 1px;
+    height: 24px;
+    line-height: 24px;
     font-size: 12px;
     font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
     -moz-border-radius: 0;
@@ -514,12 +516,7 @@ select {
     border-radius: 0;
 }
 
-input[type="text"], 
-input[type="password"] {
-    height: 22px;
-}
-
-input[type=radio] {
+input[type="radio"] {
     display: inline-block;
     width: 16px;
     height: 16px;
@@ -537,17 +534,34 @@ input[type=radio] {
     appearance: none;
 }
 
-input[type=radio]:checked {
+input[type="radio"]:checked {
     border-color: @tool-color;
     background-color: @tool-color;
 }
 
-input[type=radio]:disabled {
+input[type="radio"]:disabled {
     border-color: @disabled-color !important;
 }
 
-input[type=radio]:checked:disabled {
+input[type="radio"]:checked:disabled {
     background-color: @disabled-color !important;
+}
+
+input[type="checkbox"] {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    border: 2px solid #666;
+    border-radius: 4px;
+    background-color: transparent;
+    outline: none;
+    transition: background-color, border-color .3s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 select {
@@ -555,7 +569,10 @@ select {
 }
 
     input[type="text"]:focus, 
-    input[type="password"]:focus, 
+    input[type="password"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    input[type="tel"]:focus,
     textarea:focus, 
     select:focus {
         color: @font-color;
