@@ -1,0 +1,25 @@
+/*日历框样式*/
+input.ui-date-text {
+    background-image: @date-text;
+    background-position: right 0;
+    background-repeat: no-repeat;
+    padding-right: 24px;
+}
+
+/* 对应的文本框样式 */
+input.ui-select-text {
+    background-image: @select-text;
+    background-position:right 0;
+    background-repeat:no-repeat;
+    padding-right: 24px;
+}
+
+input.ui-date-text::-ms-clear,
+input.ui-select-text::-ms-clear {
+    display:none;
+}
+
+/* 文本框清除按钮 */
+input.ui-clear-text {
+    background-image: @clear-text;
+}
