@@ -498,8 +498,7 @@ input[type="password"],
 input[type="email"],
 input[type="number"],
 input[type="tel"],
-textarea, 
-select {
+textarea {
     box-sizing: border-box;
     background-color: transparent;
     background-image: url(images/input-bg.gif);
@@ -565,7 +564,17 @@ input[type="checkbox"] {
 }
 
 select {
+    color: @tool-color;
+    margin: 0;
+    padding: 0 24px 0 1px;
     height: 24px;
+    line-height: 24px;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKCSB3aWR0aD0iMjRweCIgaGVpZ2h0PSIxOHB4IiB2aWV3Qm94PSIwIDAgMTE1MiAxMTUyIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWluWW1pbiBtZWV0Ij4KCTxwYXRoIGZpbGw9ImdyYXkiIGQ9Ik0xMDc1IDM1MnEwIC0xMyAtMTAgLTIzbC01MCAtNTBxLTEwIC0xMCAtMjMgLTEwdC0yMyAxMGwtMzkzIDM5M2wtMzkzIC0zOTNxLTEwIC0xMCAtMjMgLTEwdC0yMyAxMGwtNTAgNTBxLTEwIDEwIC0xMCAyM3QxMCAyM2w0NjYgNDY2cTEwIDEwIDIzIDEwdDIzIC0xMGw0NjYgLTQ2NnExMCAtMTAgMTAgLTIzeiIgLz4KPC9zdmc+);
+    background-repeat: no-repeat;
+    background-position: right;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; 
 }
 
     input[type="text"]:focus, 
