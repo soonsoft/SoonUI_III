@@ -519,6 +519,37 @@ input[type="password"] {
     height: 22px;
 }
 
+input[type=radio] {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin: 0;
+    padding: 2px;
+    border: 2px solid @tool-color;
+    border-radius: 50%;
+    background-clip: content-box;
+    background-color: transparent;
+    outline: none;
+    transition: background-color, border-color .3s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+input[type=radio]:checked {
+    border-color: @tool-color;
+    background-color: @tool-color;
+}
+
+input[type=radio]:disabled {
+    border-color: @disabled-color !important;
+}
+
+input[type=radio]:checked:disabled {
+    background-color: @disabled-color !important;
+}
+
 select {
     height: 24px;
 }
@@ -581,7 +612,7 @@ textarea {
         background-color: @hover-color !important;
         color: #fff;
     }
-    .button:disabled{
+    .button:disabled {
         background-color: @disabled-color !important;
         color: @readonly-color;
     }
