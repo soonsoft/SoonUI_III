@@ -91,11 +91,10 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
     _render: function() {
         var oldFireFn;
 
-        this._super();
-        this.element
-            .off("focus")
-            .on("focus", this.onFocusHandler)
-            .on("keyup", this.onKeyupHandler);
+        this._super({
+            focus: this.onFocusHandler,
+            keyup: this.onKeyupHandler
+        });
 
         if(ui.browser.ie && ui.browser < 9) {
             oldFireFn = this.fire;

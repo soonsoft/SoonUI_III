@@ -57,12 +57,30 @@ a {
     color: @font-color !important;
 }
 
-.tools input[type="text"]:focus, .tools textarea:focus, .tools select:focus {
+.tools input[type="text"]:focus, 
+.tools textarea:focus, 
+.tools select:focus {
     background-color: transparent;
 }
 
-input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+input[type="text"]:focus, 
+input[type="password"]:focus, 
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus, 
+select:focus {
     border-color: @highlight-color;
+}
+
+input[type="radio"]:checked {
+    border-color: @highlight-color;
+    background-color: @highlight-color;
+}
+
+input[type="checkbox"]:checked {
+    border-color: @highlight-color;
+    background-color: @highlight-color;
 }
 
 .closable-button:hover {

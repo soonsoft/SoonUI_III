@@ -289,7 +289,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.option.itemSize = defaultItemSize;
         }
 
-        this.width = this.element.width();
+        this.width = this.element.outerWidth() - borderWidth * 2;
         if (this.width < this.itemSize + (this.margin * 2)) {
             this.width = minWidth;
         }
@@ -318,11 +318,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.cancelSelection();
         };
         this.wrapElement(this.element, this.chooserPanel);
-        this._super();
-
-        this.element
-            .off("focus")
-            .on("focus", this.onFocusHandler);
+        this._super({
+            focus: this.onFocusHandler
+        });
         this.chooserPanel.click(function (e) {
             e.stopPropagation();
         });

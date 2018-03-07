@@ -526,7 +526,6 @@ input[type="radio"] {
     background-clip: content-box;
     background-color: transparent;
     outline: none;
-    transition: background-color, border-color .3s;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -556,10 +555,22 @@ input[type="checkbox"] {
     border-radius: 4px;
     background-color: transparent;
     outline: none;
-    transition: background-color, border-color .3s;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+input[type="checkbox"]:checked {
+    background-color: @tool-color;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMTJweDsgaGVpZ2h0OiAxMnB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNIDk1NC44NTcgMzIzLjQyOSBxIDAgMjIuODU3MSAtMTYgMzguODU3MSBsIC00MTMuNzE0IDQxMy43MTQgbCAtNzcuNzE0MyA3Ny43MTQzIHEgLTE2IDE2IC0zOC44NTcxIDE2IHQgLTM4Ljg1NzEgLTE2IGwgLTc3LjcxNDMgLTc3LjcxNDMgbCAtMjA2Ljg1NyAtMjA2Ljg1NyBxIC0xNiAtMTYgLTE2IC0zOC44NTcxIHQgMTYgLTM4Ljg1NzEgbCA3Ny43MTQzIC03Ny43MTQzIHEgMTYgLTE2IDM4Ljg1NzEgLTE2IHQgMzguODU3MSAxNiBsIDE2OCAxNjguNTcxIGwgMzc0Ljg1NyAtMzc1LjQyOSBxIDE2IC0xNiAzOC44NTcxIC0xNiB0IDM4Ljg1NzEgMTYgbCA3Ny43MTQzIDc3LjcxNDMgcSAxNiAxNiAxNiAzOC44NTcxIFoiIHAtaWQ9IjU3MjAiIC8+PC9zdmc+");
+}
+
+input[type="checkbox"]:disabled {
+    border-color: @disabled-color !important;
+}
+
+input[type="checkbox"]:checked:disabled {
+    background-color: @disabled-color !important;
 }
 
 select {
@@ -568,7 +579,7 @@ select {
     padding: 0 24px 0 1px;
     height: 24px;
     line-height: 24px;
-    background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKCSB3aWR0aD0iMjRweCIgaGVpZ2h0PSIxOHB4IiB2aWV3Qm94PSIwIDAgMTE1MiAxMTUyIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWluWW1pbiBtZWV0Ij4KCTxwYXRoIGZpbGw9ImdyYXkiIGQ9Ik0xMDc1IDM1MnEwIC0xMyAtMTAgLTIzbC01MCAtNTBxLTEwIC0xMCAtMjMgLTEwdC0yMyAxMGwtMzkzIDM5M2wtMzkzIC0zOTNxLTEwIC0xMCAtMjMgLTEwdC0yMyAxMGwtNTAgNTBxLTEwIDEwIC0xMCAyM3QxMCAyM2w0NjYgNDY2cTEwIDEwIDIzIDEwdDIzIC0xMGw0NjYgLTQ2NnExMCAtMTAgMTAgLTIzeiIgLz4KPC9zdmc+);
+    background-image: @select-text;
     background-repeat: no-repeat;
     background-position: right;
     -webkit-appearance: none;

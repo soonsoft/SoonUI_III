@@ -453,33 +453,93 @@ a:active {
 /* 表单元素 */
 input[type="text"],
 input[type="password"],
-textarea,
-select {
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+textarea {
+  box-sizing: border-box;
   background-color: transparent;
-  background-image: url(images/input-bg.gif);
   border: 1px solid #888888;
   color: #888888;
   margin: 0;
-  padding-left: 1px;
-  padding-right: 1px;
-  padding-top: 0;
-  padding-bottom: 0;
-  line-height: 22px;
+  padding: 0 1px 0 1px;
+  height: 24px;
+  line-height: 24px;
   font-size: 12px;
   font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   border-radius: 0;
 }
-input[type="text"],
-input[type="password"] {
-  height: 22px;
+input[type="radio"] {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin: 0;
+  padding: 2px;
+  border: 2px solid #888888;
+  border-radius: 50%;
+  background-clip: content-box;
+  background-color: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+input[type="radio"]:checked {
+  border-color: #888888;
+  background-color: #888888;
+}
+input[type="radio"]:disabled {
+  border-color: #5d5f60 !important;
+}
+input[type="radio"]:checked:disabled {
+  background-color: #5d5f60 !important;
+}
+input[type="checkbox"] {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  border: 2px solid #666;
+  border-radius: 4px;
+  background-color: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+input[type="checkbox"]:checked {
+  background-color: #888888;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMTJweDsgaGVpZ2h0OiAxMnB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNIDk1NC44NTcgMzIzLjQyOSBxIDAgMjIuODU3MSAtMTYgMzguODU3MSBsIC00MTMuNzE0IDQxMy43MTQgbCAtNzcuNzE0MyA3Ny43MTQzIHEgLTE2IDE2IC0zOC44NTcxIDE2IHQgLTM4Ljg1NzEgLTE2IGwgLTc3LjcxNDMgLTc3LjcxNDMgbCAtMjA2Ljg1NyAtMjA2Ljg1NyBxIC0xNiAtMTYgLTE2IC0zOC44NTcxIHQgMTYgLTM4Ljg1NzEgbCA3Ny43MTQzIC03Ny43MTQzIHEgMTYgLTE2IDM4Ljg1NzEgLTE2IHQgMzguODU3MSAxNiBsIDE2OCAxNjguNTcxIGwgMzc0Ljg1NyAtMzc1LjQyOSBxIDE2IC0xNiAzOC44NTcxIC0xNiB0IDM4Ljg1NzEgMTYgbCA3Ny43MTQzIDc3LjcxNDMgcSAxNiAxNiAxNiAzOC44NTcxIFoiIHAtaWQ9IjU3MjAiIC8+PC9zdmc+");
+}
+input[type="checkbox"]:disabled {
+  border-color: #5d5f60 !important;
+}
+input[type="checkbox"]:checked:disabled {
+  background-color: #5d5f60 !important;
 }
 select {
+  color: #888888;
+  margin: 0;
+  padding: 0 24px 0 1px;
   height: 24px;
+  line-height: 24px;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjODg4ODg4IiBkPSJNIDkyNy44MDQgMzUyLjE5MyBsIC00MTUuODA0IDQxNS42MzIgbCAtNDE1LjgwMyAtNDE1LjYzMiBsIDYzLjYxNiAtNjMuNDQ1IGwgMzUyLjIwOSAzNTIuMDE3IGwgMzUyLjEwMiAtMzUyLjAxNyBaIiBwLWlkPSIxNjQwIiAvPjwvc3ZnPg==");
+  background-repeat: no-repeat;
+  background-position: right;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 input[type="text"]:focus,
 input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
 textarea:focus,
 select:focus {
   color: #aaaaaa;

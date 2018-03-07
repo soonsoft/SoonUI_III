@@ -3775,31 +3775,33 @@ ui.StyleSheet = StyleSheet;
 (function($, ui) {
 "use strict";
 var htmlClickHideHandler = [],
-    hideCtrls = function (currentCtrl) {
-        var handler, retain;
-        if (htmlClickHideHandler.length === 0) {
-            return;
-        }
-        retain = [];
-        while (true) {
-            handler = htmlClickHideHandler.shift();
-            if(!handler) {
-                break;
-            }
-            if (currentCtrl && currentCtrl === handler.ctrl) {
-                continue;
-            }
-            if (handler.func.call(handler.ctrl) === "retain") {
-                retain.push(handler);
-            }
-        }
+    dropdownPanelBorderWidth = 2;
 
-        htmlClickHideHandler.push.apply(htmlClickHideHandler, retain);
-    };
+function hideControls (currentCtrl) {
+    var handler, retain;
+    if (htmlClickHideHandler.length === 0) {
+        return;
+    }
+    retain = [];
+    while (true) {
+        handler = htmlClickHideHandler.shift();
+        if(!handler) {
+            break;
+        }
+        if (currentCtrl && currentCtrl === handler.ctrl) {
+            continue;
+        }
+        if (handler.func.call(handler.ctrl) === "retain") {
+            retain.push(handler);
+        }
+    }
+
+    htmlClickHideHandler.push.apply(htmlClickHideHandler, retain);
+}
 
 // 注册document点击事件
 ui.page.htmlclick(function (e) {
-    hideCtrls();
+    hideControls();
 });
 // 添加隐藏的处理方法
 ui.addHideHandler = function (ctrl, func) {
@@ -3812,8 +3814,48 @@ ui.addHideHandler = function (ctrl, func) {
 };
 // 隐藏所有显示出来的下拉框
 ui.hideAll = function (currentCtrl) {
-    hideCtrls(currentCtrl);
+    hideControls(currentCtrl);
 };
+
+function onMousemove(e) {
+    var eWidth = this.element.width(),
+        offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0 && this.isShow()) {
+        this.element.css("cursor", "pointer");
+        this._clearable = true;
+    } else {
+        this.element.css("cursor", "auto");
+        this._clearable = false;
+    }
+}
+
+function onMouseup(e) {
+    if(!this._clearable) {
+        return;
+    }
+    var eWidth = this.element.width(),
+        offsetX = e.offsetX;
+    if(!offsetX) {
+        offsetX = e.clientX - this.element.offset().left;
+    }
+    if (eWidth - offsetX < 0) {
+        if (ui.core.isFunction(this._clear)) {
+            this._clear();
+        }
+    }
+}
+
+function onFocus(e) {
+    ui.hideAll(this);
+    this.show();
+}
+
+function onClick(e) {
+    e.stopPropagation();
+}
 
 // 下拉框基础类
 ui.define("ui.ctrls.DropDownBase", {
@@ -3821,52 +3863,31 @@ ui.define("ui.ctrls.DropDownBase", {
     hideTimeValue: 200,
     _create: function() {
         this.setLayoutPanel(this.option.layoutPanel);
-        this.onMousemoveHandler = (function(e) {
-            var eWidth = this.element.width(),
-                offsetX = e.offsetX;
-            if(!offsetX) {
-                offsetX = e.clientX - this.element.offset().left;
-            }
-            if (eWidth - offsetX < 0 && this.isShow()) {
-                this.element.css("cursor", "pointer");
-                this._clearable = true;
-            } else {
-                this.element.css("cursor", "auto");
-                this._clearable = false;
-            }
-        }).bind(this);
-        this.onMouseupHandler = (function(e) {
-            if(!this._clearable) {
-                return;
-            }
-            var eWidth = this.element.width(),
-                offsetX = e.offsetX;
-            if(!offsetX) {
-                offsetX = e.clientX - this.element.offset().left;
-            }
-            if (eWidth - offsetX < 0) {
-                if ($.isFunction(this._clear)) {
-                    this._clear();
-                }
-            }
-        }).bind(this);
+        this.onMousemoveHandler = onMousemove.bind(this);
+        this.onMouseupHandler = onMouseup.bind(this);
     },
-    _render: function() {
+    _render: function(elementEvents) {
+        var that,
+            onFocusHandler,
+            key;
         if(!this.element) {
             return;
         }
-        var that = this;
-        if(this.element.hasClass(this._selectTextClass)) {
-            this.element.css("width", parseFloat(this.element.css("width"), 10) - 23 + "px");
-            if(this.hasLayoutPanel()) {
-                this.element.parent().css("width", "auto");
-            }
+
+        onFocusHandler = onFocus.bind(this);
+        that = this;
+        if(!elementEvents) {
+            elementEvents = {};
         }
-        this.element.focus(function (e) {
-            ui.hideAll(that);
-            that.show();
-        }).click(function (e) {
-            e.stopPropagation();
+        if(!ui.core.isFunction(elementEvents.focus)) {
+            elementEvents.focus = onFocusHandler;
+        }
+        if(!ui.core.isFunction(elementEvents.click)) {
+            elementEvents.click = onClick;
+        }
+
+        Object.keys(elementEvents).forEach(function(key) {
+            that.element.on(key, elementEvents[key]);
         });
     },
     wrapElement: function(elem, panel) {
@@ -3906,8 +3927,8 @@ ui.define("ui.ctrls.DropDownBase", {
         }
         var wrapElem = $("<div class='dropdown-wrap' />").css(currentCss);
         elem.css({
-                "margin": "0px"
-            }).wrap(wrapElem);
+            "margin": "0px"
+        }).wrap(wrapElem);
         
         wrapElem = elem.parent();
         if(panel) {
@@ -3942,10 +3963,10 @@ ui.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element ? this.element.width() : 100;
+            width = this.element ? this.element.outerWidth() : 100;
         }
-        this.panelWidth = width;
-        this._panel.css("width", width + "px");
+        this.panelWidth = width - dropdownPanelBorderWidth * 2;
+        this._panel.css("width", this.panelWidth + "px");
     },
     hasLayoutPanel: function() {
         return !!this.layoutPanel;
@@ -6438,7 +6459,7 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.option.itemSize = defaultItemSize;
         }
 
-        this.width = this.element.width();
+        this.width = this.element.outerWidth() - borderWidth * 2;
         if (this.width < this.itemSize + (this.margin * 2)) {
             this.width = minWidth;
         }
@@ -6467,11 +6488,9 @@ ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.cancelSelection();
         };
         this.wrapElement(this.element, this.chooserPanel);
-        this._super();
-
-        this.element
-            .off("focus")
-            .on("focus", this.onFocusHandler);
+        this._super({
+            focus: this.onFocusHandler
+        });
         this.chooserPanel.click(function (e) {
             e.stopPropagation();
         });
@@ -10022,11 +10041,10 @@ ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
     _render: function() {
         var oldFireFn;
 
-        this._super();
-        this.element
-            .off("focus")
-            .on("focus", this.onFocusHandler)
-            .on("keyup", this.onKeyupHandler);
+        this._super({
+            focus: this.onFocusHandler,
+            keyup: this.onKeyupHandler
+        });
 
         if(ui.browser.ie && ui.browser < 9) {
             oldFireFn = this.fire;
@@ -23025,12 +23043,159 @@ ui.CustomEvent = CustomEvent;
 
 (function($, ui) {
 "use strict";
+/*
 
-var task,
+JavaScript中分为MacroTask和MicroTask
+Promise\MutationObserver\Object.observer 属于MicroTask
+setImmediate\setTimeout\setInterval 属于MacroTask
+	另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
+
+每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
+所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
+另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
+而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
+
+*/
+
+var callbacks,
+	pedding,
+	isFunction,
+
+	channel, port,
+	resolvePromise,
+	MutationObserver, observer, textNode, counter,
+
+	task,
     microTask;
 
-ui.task = task;
-ui.microTask = microTask;
+isFunction = ui.core.isFunction;
+
+function set(fn) {
+	var index;
+	if(isFunction(fn)) {
+		this.callbacks.push(fn);
+		index = this.callbacks.length - 1;
+		return index;
+
+		if(!this.pedding) {
+			this.pedding = true;
+			this.run();
+		}
+	}
+	return -1;
+}
+
+function clear(index) {
+	if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
+		this.callbacks[index] = false;
+	}
+}
+
+function run() {
+	var copies,
+		i, len;
+
+	this.pedding = false;
+	copies = this.callbacks;
+	this.callbacks = [];
+
+	for(i = 0, len = copies.length; i < len; i++) {
+		if(copies[i]) {
+			try {
+				copies[i]();
+			} catch(e) {
+				ui.handleError(e);
+			}
+		}
+	}
+}
+
+task = {
+	callbacks: [],
+	pedding: false,
+	run: null
+};
+
+// 如果原生支持setImmediate
+if(window.setImmediate && ui.core.isNative(setImmediate)) {
+	// setImmediate
+	task.run = function() {
+		setImmediate(function() {
+			run.call(task);
+		});
+	};
+} else if(MessageChannel && 
+			(ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
+	// MessageChannel & postMessage
+	channel = new MessageChannel();
+	channel.port1.onmessage = function() {
+		run.call(task);
+	};
+	port = channel.port2;
+	task.run = function() {
+		port.postMessage(1);
+	};
+} else {
+	// setTimeout
+	task.run = function() {
+		setTimeout(function() {
+			run.call(task);
+		}, 0);
+	};
+}
+
+microTask = {
+	callbacks: [],
+	pedding: false,
+	run: null
+};
+
+if(window.Promise && ui.core.isNative(Promise)) {
+	// Promise
+	resolvePromise = Promise.resolve();
+	microTask.run = function() {
+		resolvePromise.then(function() {
+			run.call(microTask);
+		});
+	};
+} else {
+	MutationObserver = window.MutationObserver || 
+						window.WebKitMutationObserver || 
+						window.MozMutationObserver || 
+						null;
+
+	if(MutationObserver && ui.core.isNative(MutationObserver)) {
+		// MutationObserver
+		counter = 1;
+		observer = new MutationObserver(function() {
+			run.call(microTask);
+		});
+		textNode = document.createElement(String(counter));
+		observer.observe(textNode, {
+			characterData: true
+		});
+		microTask.run = function() {
+			counter = (counter + 1) % 2;
+			textNode.data = String(counter);
+		};
+	} else {
+		microTask.run = task.run;
+	}
+}
+
+ui.setTask = function(fn) {
+	return set.call(task, fn);
+};
+ui.clearTask = function(index) {
+	clear.call(task, index);
+};
+ui.setMicroTask = function(fn) {
+	return set.call(microTask, fn);
+};
+ui.clearMicroTask = function(index) {
+	clear.call(microTask, index);
+};
+
 
 })(jQuery, ui);
 

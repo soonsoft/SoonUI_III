@@ -50,9 +50,20 @@ a {
 }
 input[type="text"]:focus,
 input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
 textarea:focus,
 select:focus {
   border-color: #F567C5;
+}
+input[type="radio"]:checked {
+  border-color: #F567C5;
+  background-color: #F567C5;
+}
+input[type="checkbox"]:checked {
+  border-color: #F567C5;
+  background-color: #F567C5;
 }
 .closable-button:hover {
   color: #F567C5;

@@ -72,7 +72,7 @@ task = {
 };
 
 // 如果原生支持setImmediate
-if(setImmediate && ui.core.isNative(setImmediate)) {
+if(window.setImmediate && ui.core.isNative(setImmediate)) {
 	// setImmediate
 	task.run = function() {
 		setImmediate(function() {
@@ -105,7 +105,7 @@ microTask = {
 	run: null
 };
 
-if(Promise && ui.core.isNative(Promise)) {
+if(window.Promise && ui.core.isNative(Promise)) {
 	// Promise
 	resolvePromise = Promise.resolve();
 	microTask.run = function() {
