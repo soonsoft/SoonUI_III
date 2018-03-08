@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@{title}</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    @{style}
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">@{header}</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        @{content}
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.config("userSettings", {
+            changeHighlightUrl: function(highlight) {
+                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                ui.theme.setHighlight(highlight);
+            }
+        });
+        ui.master.init();
+    </script>
+    @{script}
+</body>
+</html>
