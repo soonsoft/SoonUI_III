@@ -40,8 +40,8 @@ a {
 }
 .icon-button:active,
 .tool-button:active {
-  background-color: #BDB76B !important;
-  color: #ffffff !important;
+  background-color: #BDB76B;
+  color: #ffffff;
 }
 .tools input[type="text"]:focus,
 .tools textarea:focus,

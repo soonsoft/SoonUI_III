@@ -4025,13 +4025,13 @@ ui.define("ui.ctrls.DropDownBase", {
             } else {
                 ui.setDown(this.element, this._panel);
             }
-            this.doShow(this._panel, fn);
+            this._show(this._panel, fn);
         }
     },
-    doShow: function(panel, fn) {
+    _show: function(panel, fn) {
         var callback,
             that = this;
-        if(!$.isFunction(fn)) {
+        if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }
         if (this._clearClass) {
@@ -4054,16 +4054,17 @@ ui.define("ui.ctrls.DropDownBase", {
             this.element.off("mousemove", this.onMousemoveHandler);
             this.element.off("mouseup", this.onMouseupHandler);
             this.element.css("cursor", "auto");
-            this.doHide(this._panel, fn);
+            this._hide(this._panel, fn);
         }
     },
-    doHide: function(panel, fn) {
+    _hide: function(panel, fn) {
         if(!$.isFunction(fn)) {
             fn = undefined;
         }
         panel.fadeOut(this.hideTimeValue, fn);
     },
-    _clear: null
+    _clear: function() {
+    }
 });
 
 

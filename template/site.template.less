@@ -453,7 +453,7 @@ a {
 
 .tool-button {
     min-width: 60px;
-    font-size: 12px;
+    font-size: @font-normal;
     line-height: 22px;
 }
 
@@ -476,8 +476,9 @@ a {
 
     .icon-button:disabled, 
     .tool-button:disabled {
-        color: @disabled-color;
-        border-color: @disabled-color;
+        color: @disabled-color !important;
+        border-color: @disabled-color !important;
+        background-color: transparent !important;
     }
 
 /* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
@@ -507,8 +508,7 @@ textarea {
     padding: 0 1px 0 1px;
     height: 24px;
     line-height: 24px;
-    font-size: 12px;
-    font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
+    font-size: @font-normal;
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
     border-radius: 0;
@@ -602,16 +602,16 @@ select {
 
     input[type="text"][readonly],
     textarea[readonly] {
-        color: @readonly-color;
-        border-color: @readonly-color;
+        color: @readonly-color !important;
+        border-color: @readonly-color !important;
         cursor: default;
     }
 
     input:disabled,
     textarea:disabled,
     select:disabled {
-        color: @readonly-color;
-        border-color: @readonly-color;
+        color: @disabled-color !important;
+        border-color: @disabled-color !important;
         cursor: not-allowed;
     }
 
@@ -639,7 +639,7 @@ textarea {
     border: 0 solid;
     color: #fff;
     background-color: @tool-color;
-    font-size: @font-small;
+    font-size: @font-normal;
     padding-top: 0;
     padding-bottom: 0;
 }
