@@ -56,6 +56,7 @@
 * ListView 列表视图
 * TabView 选项卡视图
 * TreeView 树视图
+* TileView Windows 10风格的动态磁贴菜单
 
 ## 如何编译
 
