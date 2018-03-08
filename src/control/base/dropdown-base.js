@@ -287,5 +287,6 @@ ui.define("ui.ctrls.DropDownBase", {
         }
         panel.fadeOut(this.hideTimeValue, fn);
     },
-    _clear: null
+    _clear: function() {
+    }
 });
