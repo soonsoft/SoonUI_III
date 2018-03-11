@@ -12571,7 +12571,7 @@ function onListItemClick(e) {
         data;
 
     elem = $(e.target);
-    isCloseButton = elem.hasClass("close-button");
+    isCloseButton = elem.hasClass("ui-item-view-remove");
     while(!elem.isNodeName("li")) {
         if(elem.hasClass("ui-list-view-ul")) {
             return;
@@ -12617,7 +12617,7 @@ ui.define("ui.ctrls.ListView", {
     },
     _create: function() {
         this._selectList = [];
-        this.sorter = Introsort();
+        this.sorter = new ui.Introsort();
 
         if(!ui.core.isFunction(this.option.itemFormatter)) {
             this.option.itemFormatter = defaultItemFormatter;
@@ -12638,7 +12638,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this._initAnimator();
-        this.setData(this.option.viewData);
+        this.setViewData(this.option.viewData);
     },
     _initPager: function(pager) {
         this.pagerPanel = $("<div class='ui-list-view-pager clear' />");
@@ -12684,7 +12684,7 @@ ui.define("ui.ctrls.ListView", {
             if(item === null || item === undefined) {
                 continue;
             }
-            this._createItemHtml(builder, item, i);
+            this._createItemHtml(itemBuilder, item, i);
             this.option.viewData.push(item);
         }
         this.listPanel.html(itemBuilder.join(""));
@@ -12770,13 +12770,13 @@ ui.define("ui.ctrls.ListView", {
     _appendOperateElements: function(builder) {
         builder.push("<b class='ui-list-view-b background-highlight' />");
         if(this.option.hasRemoveButton) {
-            builder.push("<a href='javascript:void(0)' class='close-button ui-item-view-remove'>×</a>");
+            builder.push("<a href='javascript:void(0)' class='closable-button ui-item-view-remove'>×</a>");
         }
     },
     _indexOf: function(item) {
         var i, len,
             viewData = this.getViewData();
-        for(i = 0, len = viewData.length; i > len; i++) {
+        for(i = 0, len = viewData.length; i < len; i++) {
             if(item === viewData[i]) {
                 return i;
             }
@@ -12787,7 +12787,7 @@ ui.define("ui.ctrls.ListView", {
         return parseInt(li.getAttribute(indexAttr), 10);
     },
     _itemIndexAdd: function(li, num) {
-        this._itemIndexSet(indexAttr, this._getItemIndex(li) + num);
+        this._itemIndexSet(li, this._getItemIndex(li) + num);
     },
     _itemIndexSet: function(li, index) {
         li.setAttribute(indexAttr, index);
@@ -12946,7 +12946,8 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 根据数据项移除 */
     remove: function(item) {
-        if(!item) {
+        var type = ui.core.type(item);
+        if(type !== "undefined" || type !== "null") {
             this.removeAt(this._indexOf(item));
         }
     },

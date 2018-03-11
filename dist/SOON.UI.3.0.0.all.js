@@ -16343,7 +16343,7 @@ function onListItemClick(e) {
         data;
 
     elem = $(e.target);
-    isCloseButton = elem.hasClass("close-button");
+    isCloseButton = elem.hasClass("ui-item-view-remove");
     while(!elem.isNodeName("li")) {
         if(elem.hasClass("ui-list-view-ul")) {
             return;
@@ -16389,7 +16389,7 @@ ui.define("ui.ctrls.ListView", {
     },
     _create: function() {
         this._selectList = [];
-        this.sorter = Introsort();
+        this.sorter = new ui.Introsort();
 
         if(!ui.core.isFunction(this.option.itemFormatter)) {
             this.option.itemFormatter = defaultItemFormatter;
@@ -16410,7 +16410,7 @@ ui.define("ui.ctrls.ListView", {
         }
 
         this._initAnimator();
-        this.setData(this.option.viewData);
+        this.setViewData(this.option.viewData);
     },
     _initPager: function(pager) {
         this.pagerPanel = $("<div class='ui-list-view-pager clear' />");
@@ -16456,7 +16456,7 @@ ui.define("ui.ctrls.ListView", {
             if(item === null || item === undefined) {
                 continue;
             }
-            this._createItemHtml(builder, item, i);
+            this._createItemHtml(itemBuilder, item, i);
             this.option.viewData.push(item);
         }
         this.listPanel.html(itemBuilder.join(""));
@@ -16542,13 +16542,13 @@ ui.define("ui.ctrls.ListView", {
     _appendOperateElements: function(builder) {
         builder.push("<b class='ui-list-view-b background-highlight' />");
         if(this.option.hasRemoveButton) {
-            builder.push("<a href='javascript:void(0)' class='close-button ui-item-view-remove'>×</a>");
+            builder.push("<a href='javascript:void(0)' class='closable-button ui-item-view-remove'>×</a>");
         }
     },
     _indexOf: function(item) {
         var i, len,
             viewData = this.getViewData();
-        for(i = 0, len = viewData.length; i > len; i++) {
+        for(i = 0, len = viewData.length; i < len; i++) {
             if(item === viewData[i]) {
                 return i;
             }
@@ -16559,7 +16559,7 @@ ui.define("ui.ctrls.ListView", {
         return parseInt(li.getAttribute(indexAttr), 10);
     },
     _itemIndexAdd: function(li, num) {
-        this._itemIndexSet(indexAttr, this._getItemIndex(li) + num);
+        this._itemIndexSet(li, this._getItemIndex(li) + num);
     },
     _itemIndexSet: function(li, index) {
         li.setAttribute(indexAttr, index);
@@ -16718,7 +16718,8 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 根据数据项移除 */
     remove: function(item) {
-        if(!item) {
+        var type = ui.core.type(item);
+        if(type !== "undefined" || type !== "null") {
             this.removeAt(this._indexOf(item));
         }
     },
@@ -23076,12 +23077,12 @@ function set(fn) {
 	if(isFunction(fn)) {
 		this.callbacks.push(fn);
 		index = this.callbacks.length - 1;
-		return index;
 
 		if(!this.pedding) {
 			this.pedding = true;
 			this.run();
 		}
+		return index;
 	}
 	return -1;
 }
@@ -24114,7 +24115,7 @@ overrideMethods.forEach(function(methodName) {
     arrayObserverPrototype[methodName] = function() {
         var result,
             insertedItems,
-            args = arrayObserverPrototype.slice(arguments, 0),
+            args = arrayObserverPrototype.slice.call(arguments, 0),
             notice;
 
         result = originalMethod.apply(this, args);
@@ -24140,7 +24141,7 @@ overrideMethods.forEach(function(methodName) {
 
 if(hasProto) {
     updatePrototype = function(target, prototype, keys) {
-        value.__proto__ = prototype;
+        target.__proto__ = prototype;
     };
 } else {
     updatePrototype = function(target, prototype, keys) {
@@ -24153,7 +24154,6 @@ if(hasProto) {
 }
 
 // 数据绑定执行队列
-// TODO 实现nextTick
 binderQueue = {
     queue: [],
     queueElementMap: {},
@@ -24237,7 +24237,7 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
     setter = descriptor.set;
 
     // 如果深度引用，则将子属性也转换为通知对象
-    if(!shallow) {
+    if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
         childNotice = new NotifyObject(val);
     }
 
@@ -24249,7 +24249,8 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
             return getter ? getter.call(obj) : val;
         },
         set: function(newVal) {
-            var oldVal = getter ? getter.call(obj) : val;
+            var oldVal = getter ? getter.call(obj) : val,
+                notice;
             if(oldVal === newVal || (newVal !== newVal && val !== val)) {
                 return;
             }
@@ -24260,9 +24261,11 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
                 val = newVal;
             }
 
-            if(!shallow) {
+            if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
+                notice = new NotifyObject(newVal);
+                notice.dependency.depMap = childNotice.dependency.depMap;
                 // 更新通知对象
-                childNotice = new NotifyObject(newVal);
+                childNotice = notice;
             }
             notice.dependency.notify(propertyName);
         }
@@ -24290,14 +24293,48 @@ function createNotifyObject(obj) {
     } else if((isArray || isObject) && Object.isExtensible(obj)) {
         notice = new NotifyObject(obj);
     }
+    // 添加一个手动刷新方法
+    obj.refresh = refresh;
 
     return obj;
 }
 
-function NotifyObject(obj) {
+function refresh() {
+    notifyAll(this);
+}
+
+function notifyAll(viewModel) {
+    var keys = Object.keys(viewModel),
+        i, len,
+        propertyName,
+        value,
+        notice,
+        notifyProperties = [];
+
+    for(i = 0, len = keys.length; i < len; i++) {
+        propertyName = keys[i];
+        value = viewModel[propertyName];
+        if((ui.core.isObject(value) || Array.isArray(value)) 
+            && value.__notice__ instanceof NotifyObject) {
+            notifyAll(value);
+        } else {
+            notifyProperties.push(propertyName);
+        }
+    }
+
+    notice = viewModel.__notice__;
+    notice.dependency.notify.apply(notice.dependency, notifyProperties);
+}
+
+function NotifyObject(value) {
     this.value = value;
     this.dependency = new Dependency();
-    value.__notice__ = this;
+    Object.defineProperty(value, "__notice__", {
+        value: this,
+        enumerable: false,
+        writable: true,
+        configurable: true
+    });
     if(Array.isArray(value)) {
         updatePrototype(value, arrayObserverPrototype, overrideMethods);
         this.arrayNotify(value);
@@ -24363,20 +24400,27 @@ Dependency.prototype = {
     depend: function() {
     },
     // 变化通知
-    notify: function(propertyName) {
+    notify: function() {
         var keys,
+            propertyName,
             delegate,
             errors,
             i, len;
-        if(ui.core.type(propertyName) === "string" && propertyName) {
-            if(this.depMap.hasOwnProperty(propertyName)) {
-                keys = [propertyName];    
-            } else {
-                keys = [];
-            }
-        } else {
+        
+        if(arguments.length === 0) {
             keys = Object.keys(this.depMap);
+        } else {
+            keys = [];
+            for(i = 0, len = arguments.length; i < len; i++) {
+                propertyName = arguments[i];
+                if(ui.core.isString(propertyName) 
+                    && propertyName.length > 0 
+                    && this.depMap.hasOwnProperty(propertyName)) {
+                    keys.push(propertyName);
+                }
+            }
         }
+
         errors = [];
         for(i = 0, len = keys.length; i < len; i++) {
             delegate = this.depMap[keys[i]];
@@ -24465,13 +24509,13 @@ Binder.prototype = {
 
 function createBinder(viewModel, propertyName, bindData, handler, option) {
     var binder;
-    if(!viewModel || viewModel.__notice__) {
+    if(!viewModel || !viewModel.__notice__) {
         throw new TypeError("the arguments 'viewModel' is invalid.");
     }
     if(!viewModel.hasOwnProperty(propertyName)) {
         throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
     }
-    if(!ui.core.isFunction(bindData)) {
+    if(ui.core.isFunction(bindData)) {
         handler = bindData;
         bindData = null;
     }
@@ -24481,7 +24525,7 @@ function createBinder(viewModel, propertyName, bindData, handler, option) {
 
     binder = new Binder(option);
     binder.propertyName = propertyName;
-    binder.viewModel = vm;
+    binder.viewModel = viewModel;
     binder.action = function(value, oldValue) {
         handler.call(viewModel, value, oldValue, bindData);
     };
@@ -24490,19 +24534,29 @@ function createBinder(viewModel, propertyName, bindData, handler, option) {
 }
 
 ui.ViewModel = createNotifyObject;
-ui.ViewModel.bindOnce = function(vm, propertyName, bindData, fn) {
+ui.ViewModel.bindOnce = function(viewModel, propertyName, bindData, fn) {
     var binder = createBinder(viewModel, propertyName, bindData, fn);
 };
 ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
     var binder,
-        option;
+        option,
+        notice,
+        value;
 
     option = {
         sync: !!isSync
     };
     binder = createBinder(viewModel, propertyName, bindData, fn, option);
     if(binder) {
-        viewModel.dependency.add(binder);
+        notice = viewModel.__notice__;
+        notice.dependency.add(binder);
+        value = viewModel[propertyName];
+        if(Array.isArray(value)) {
+            notice = value.__notice__;
+            if(notice) {
+                notice.dependency.add(binder);
+            }
+        }
     }
 };
 ui.ViewModel.bindTwoWay = function(option) {

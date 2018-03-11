@@ -1678,9 +1678,8 @@
   bottom: 0px;
 }
 .ui-list-view-container {
-  position: absolute;
-  padding-left: 4px;
   height: auto;
+  padding: 0 0 0 4px;
 }
 .ui-list-view-item:hover {
   background-color: #1d1f21;
@@ -1690,6 +1689,18 @@
 }
 .ui-list-view-selection .ui-list-view-b {
   display: block;
+}
+.ui-list-view-item-text {
+  line-height: 30px;
+  margin: 0 5px;
+}
+.ui-item-view-remove {
+  width: 30px;
+  height: 30px;
+  top: 0;
+  right: 0;
+  text-align: center;
+  line-height: 30px;
 }
 
 /*

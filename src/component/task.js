@@ -30,12 +30,12 @@ function set(fn) {
 	if(isFunction(fn)) {
 		this.callbacks.push(fn);
 		index = this.callbacks.length - 1;
-		return index;
 
 		if(!this.pedding) {
 			this.pedding = true;
 			this.run();
 		}
+		return index;
 	}
 	return -1;
 }
