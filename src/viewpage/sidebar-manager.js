@@ -67,7 +67,7 @@ SidebarManager.prototype = {
                 return null;
             }
             if(this.currentBar) {
-                return this.currentBar.hide().done(function() {
+                return this.currentBar.hide().then(function() {
                     that.currentBar = sidebar;
                     sidebar.show();
                 });

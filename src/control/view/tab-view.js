@@ -276,7 +276,7 @@ Tab.prototype = {
             this.bodySet(index);
             tabView.fire("changed", index);
         } else {
-            this.bodyShow(index).done(function() {
+            this.bodyShow(index).then(function() {
                 tabView.fire("changed", index);
             });
         }

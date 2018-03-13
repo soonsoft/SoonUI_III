@@ -126,7 +126,7 @@ ui.define("ui.ctrls.ImageViewer", {
         for(; i < images.length; i++) {
             promises.push(this._loadImage(images[i]));
         }
-        Promise.all(promises).done(function(result) {
+        Promise.all(promises).then(function(result) {
             var i = 0,
                 len = result.length,
                 image;

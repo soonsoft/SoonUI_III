@@ -239,7 +239,7 @@ function onWeatherHandleClick(e) {
     option.end = 100;
 
     item = context.current.children(".weather-item");
-    context.changeDayAnimator.start().done(function() {
+    context.changeDayAnimator.start().then(function() {
         var op = this[0];
         item.addClass("active-dynamic");
     });

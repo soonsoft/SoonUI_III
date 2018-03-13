@@ -1099,7 +1099,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option.begin = parseFloat(option.target.css("top"));
         option.end = -option.target.height();
         option.ease = ui.AnimationStyle.easeFrom;
-        this.ymAnimator.start().done(function() {
+        this.ymAnimator.start().then(function() {
             option.target.css("display", "none");
         });
 
@@ -1151,7 +1151,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         
         daysPanel.addClass("click-disabled");
         that = this;
-        this.mcAnimator.start().done(function() {
+        this.mcAnimator.start().then(function() {
             var temp = that._currentDays;
             that._currentDays = that._nextDays;
             that._nextDays = temp;

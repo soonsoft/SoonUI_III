@@ -305,7 +305,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         option.end = 0;
         
         that = this;
-        this.changeViewAnimator.start().done(function() {
+        this.changeViewAnimator.start().then(function() {
             that.nextView.css("display", "none");
         });
         

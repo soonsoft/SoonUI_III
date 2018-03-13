@@ -323,10 +323,10 @@ ui.define("ui.ctrls.ListView", {
 
         this.removeFirstAnimator
             .start()
-            .done(function() {
+            .then(function() {
                 return that.removeSecondAnimator.start();
             })
-            .done(function() {
+            .then(function() {
                 doRemove.call(that);
             });
     },

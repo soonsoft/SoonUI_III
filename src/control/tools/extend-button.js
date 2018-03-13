@@ -358,7 +358,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonPanelAnimator.start();
             this.buttonAnimator.delayHandler = setTimeout(function() {
                 that.buttonAnimator.delayHandler = null;
-                that.buttonAnimator.start().done(function() {
+                that.buttonAnimator.start().then(function() {
                     that.fire("showed");
                 });
             }, 100);
@@ -382,7 +382,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonAnimator.start();
             this.buttonPanelAnimator.delayHandler = setTimeout(function() {
                 that.buttonPanelAnimator.delayHandler = null;
-                that.buttonPanelAnimator.start().done(function() {
+                that.buttonPanelAnimator.start().then(function() {
                     that.buttonPanel.css("display", "none");
                     that.fire("hided");
                 });

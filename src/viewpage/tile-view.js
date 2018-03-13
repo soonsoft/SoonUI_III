@@ -89,7 +89,7 @@ tileUpdater = {
                 this.link.css("display", "none");
             }
             that = this;
-            this.animator.start().done(function() {
+            this.animator.start().then(function() {
                 var temp;
                 temp = that.tileInnerBack;
                 that.tileInnerBack = that.tileInner;

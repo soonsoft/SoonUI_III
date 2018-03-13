@@ -121,6 +121,19 @@ var core = ui.core,
     isSupportCanvas,
     typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 
+core.global = function() {
+    if (typeof self !== "undefined") { 
+        return self; 
+    }
+    if (typeof window !== "undefined") { 
+        return window; 
+    }
+    if (typeof global !== "undefined") { 
+        return global; 
+    }
+    throw new TypeError('unable to locate global object');
+};
+
 // 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
 core.each = function(text, fn) {
     text.replace(rword, fn);
@@ -1149,237 +1162,258 @@ if(!isFunction(Object.create)) {
 
 })(jQuery, ui);
 
-// Source: src/ES6-promise.shims.js
+// Source: src/ES6-Promise.shims.js
 
 (function($, ui) {
 "use strict";
-// promise
 
-//chrome36的原生Promise还多了一个defer()静态方法，允许不通过传参就能生成Promise实例，
-//另还多了一个chain(onSuccess, onFail)原型方法，意义不明
-//目前，firefox24, opera19也支持原生Promise(chrome32就支持了，但需要打开开关，自36起直接可用)
-//本模块提供的Promise完整实现ECMA262v6 的Promise规范
-//2015.3.12 支持async属性
-function ok(val) {
-    return val;
-}
-function ng(e) {
-    throw e;
-}
+var PromiseShim = null,
+    isFunction,
+    global;
 
-function done(onSuccess) {
-    //添加成功回调
-    return this.then(onSuccess, ng);
-}
-function fail(onFail) {
-    //添加出错回调
-    return this.then(ok, onFail);
-}
-function defer() {
-    var ret = {};
-    ret.promise = new this(function (resolve, reject) {
-        ret.resolve = resolve;
-        ret.reject = reject;
-    });
-    return ret;
-}
+isFunction = ui.core.isFunction;
 
-var uiPromise = function (executor) {
-    this._callbacks = [];
-    var me = this;
-    if (typeof this !== "object")
-        throw new Error("Promises must be constructed via new");
-    if (typeof executor !== "function")
-        throw new Error("not a function");
+function noop() {}
 
-    executor(function (value) {
-        _resolve(me, value);
-    }, function (reason) {
-        _reject(me, reason);
-    });
-};
-function fireCallbacks(promise, fn) {
-    var isAsync;
-    if (ui.core.type(promise.async) === "boolean") {
-        isAsync = promise.async;
-    } else {
-        isAsync = promise.async = true;
-    }
-    if (isAsync) {
-        window.setTimeout(fn, 0);
-    } else {
-        fn();
-    }
-}
-//返回一个已经处于`resolved`状态的Promise对象
-uiPromise.resolve = function (value) {
-    return new uiPromise(function (resolve) {
-        resolve(value);
-    });
-};
-//返回一个已经处于`rejected`状态的Promise对象
-uiPromise.reject = function (reason) {
-    return new uiPromise(function (resolve, reject) {
-        reject(reason);
-    });
-};
+function _finally(onFinally) {
+    var P;
+    onFinally = isFunction(onFinally) ? onFinally : noop;
 
-uiPromise.prototype = {
-    //一个Promise对象一共有3个状态：
-    //- `pending`：还处在等待状态，并没有明确最终结果
-    //- `resolved`：任务已经完成，处在成功状态
-    //- `rejected`：任务已经完成，处在失败状态
-    constructor: uiPromise,
-    _state: "pending",
-    _fired: false, //判定是否已经被触发
-    _fire: function (onSuccess, onFail) {
-        if (this._state === "rejected") {
-            if (typeof onFail === "function") {
-                onFail(this._value);
-            } else {
-                throw this._value;
-            }
-        } else {
-            if (typeof onSuccess === "function") {
-                onSuccess(this._value);
-            }
-        }
-    },
-    _then: function (onSuccess, onFail) {
-        if (this._fired) {//在已有Promise上添加回调
-            var me = this;
-            fireCallbacks(me, function () {
-                me._fire(onSuccess, onFail);
+    P = this.constructor;
+
+    return this.then(
+        function(value) {
+            P.resolve(onFinally()).then(function() {
+                return value;
             });
-        } else {
-            this._callbacks.push({onSuccess: onSuccess, onFail: onFail});
-        }
-    },
-    then: function (onSuccess, onFail) {
-        onSuccess = typeof onSuccess === "function" ? onSuccess : ok;
-        onFail = typeof onFail === "function" ? onFail : ng;
-        //在新的Promise上添加回调
-        var me = this;
-        var nextPromise = new uiPromise(function (resolve, reject) {
-            me._then(function (value) {
-                try {
-                    value = onSuccess(value);
-                } catch (e) {
-                    // https://promisesaplus.com/#point-55
-                    reject(e);
-                    return;
-                }
-                resolve(value);
-            }, function (value) {
-                try {
-                    value = onFail(value);
-                } catch (e) {
-                    reject(e);
-                    return;
-                }
-                resolve(value);
+        },
+        function (reason) {
+            P.resolve(onFinally()).then(function() {
+                throw reason;
             });
-        });
-        for (var i in me) {
-            if (!personal[i]) {
-                nextPromise[i] = me[i];
-            }
         }
-        return nextPromise;
-    },
-    "done": done,
-    "catch": fail,
-    "fail": fail
-};
-var personal = {
-    _state: 1,
-    _fired: 1,
-    _value: 1,
-    _callbacks: 1
-};
-function _resolve(promise, value) {
-    //触发成功回调
-    if (promise._state !== "pending")
-        return;
-    if (value && typeof value.then === "function") {
-        //thenable对象使用then，Promise实例使用_then
-        var method = value instanceof uiPromise ? "_then" : "then";
-        value[method](function (val) {
-            _transmit(promise, val, true);
-        }, function (reason) {
-            _transmit(promise, reason, false);
-        });
-    } else {
-        _transmit(promise, value, true);
+    );
+}
+
+// 提案，暂不实现
+function _try() {}
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // 原生支持Promise
+    if(!isFunction(Promise.prototype.finally)) {
+        Promise.prototype.finally = _finally;
+    }
+    if(!isFunction(Promise.prototype.try)) {
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = _try;
     }
 }
-function _reject(promise, value) {
-    //触发失败回调
-    if (promise._state !== "pending")
-        return;
-    _transmit(promise, value, false);
-}
-//改变Promise的_fired值，并保持用户传参，触发所有回调
-function _transmit(promise, value, isResolved) {
-    promise._fired = true;
-    promise._value = value;
+
+// 生成Promise垫片
+
+// 确定Promise对象的状态，并且执行回调函数
+function transmit(promise, value, isResolved) {
+    promise._result = value;
     promise._state = isResolved ? "fulfilled" : "rejected";
-    fireCallbacks(promise, function () {
-        var data;
-        for(var i = 0, len = promise._callbacks.length; i < len; i++) {
+    ui.setMicroTask(function() {
+        var data, i, len;
+        for(i = 0, len = promise._callbacks.length; i < len; i++) {
             data = promise._callbacks[i];
             promise._fire(data.onSuccess, data.onFail);
         }
     });
 }
-function _some(any, iterable) {
+
+function some(any, iterable) {
+    var n = 0, 
+        result = [], 
+        end,
+        i, len;
+    
     iterable = ui.core.type(iterable) === "array" ? iterable : [];
-    var n = 0, result = [], end;
-    return new uiPromise(function (resolve, reject) {
+    return new PromiseShim(function (resolve, reject) {
         // 空数组直接resolve
-        if (!iterable.length)
+        if (!iterable.length) {
             resolve();
-        function loop(a, index) {
-            a.then(function (ret) {
-                if (!end) {
-                    result[index] = ret;
-                    //保证回调的顺序
-                    n++;
-                    if (any || n >= iterable.length) {
-                        resolve(any ? ret : result);
-                        end = true;
-                    }
-                }
-            }, function (e) {
-                end = true;
-                reject(e);
-            });
         }
-        for (var i = 0, l = iterable.length; i < l; i++) {
+        function loop(promise, index) {
+            promise.then(
+                function (ret) {
+                    if (!end) {
+                        result[index] = ret;
+                        //保证回调的顺序
+                        n++;
+                        if (any || n >= iterable.length) {
+                            resolve(any ? ret : result);
+                            end = true;
+                        }
+                    }
+                }, 
+                function (e) {
+                    end = true;
+                    reject(e);
+                }
+            );
+        }
+        for (i = 0, len = iterable.length; i < len; i++) {
             loop(iterable[i], i);
         }
     });
 }
 
-uiPromise.all = function (iterable) {
-    return _some(false, iterable);
-};
-uiPromise.race = function (iterable) {
-    return _some(true, iterable);
-};
-uiPromise.defer = defer;
-
-ui.Promise = uiPromise;
-var nativePromise = window.Promise;
-if (/native code/.test(nativePromise)) {
-    nativePromise.prototype.done = done;
-    nativePromise.prototype.fail = fail;
-    if (!nativePromise.defer) { 
-        //chrome实现的私有方法
-        nativePromise.defer = defer;
-    }
+function success(value) {
+    return value;
 }
-window.Promise = nativePromise || uiPromise;
+
+function failed(reason) {
+    throw reason;
+}
+
+PromiseShim = function(executor) {
+    var promise;
+
+    if (typeof this !== "object") {
+        throw new TypeError("Promises must be constructed via new");
+    }
+    if (!isFunction(executor)) {
+        throw new TypeError("the executor is not a function");
+    }
+
+    // Promise共有三个状态
+    // 'pending' 还处在等待状态，并没有明确最终结果
+    // 'resolved' 任务已经完成，处在成功状态
+    // 'rejected' 任务已经完成，处在失败状态
+    this._state = "pending";
+    this._callbacks = [];
+
+    promise = this;
+    executor(
+    // resolve
+    function (value) {
+    var method;
+        if (promise._state !== "pending") {
+            return;
+        }
+        if (value && isFunction(value.then)) {
+            // thenable对象使用then，Promise实例使用_then
+            method = value instanceof PromiseShim ? "_then" : "then";
+            // 如果value是Promise对象则把callbacks转移到value的then当中
+            value[method](
+                function (val) {
+                    transmit(promise, val, true);
+            }, 
+            function (reason) {
+                transmit(promise, reason, false);
+            }
+            );
+        } else {
+            transmit(promise, value, true);
+        }
+        }, 
+        // reject
+        function (reason) {
+        if (promise._state !== "pending") {
+            return;
+        }
+        transmit(promise, reason, false);
+        }
+    );
+};
+PromiseShim.prototype = {
+    constructor: PromiseShim,
+    // 处理then方法的回调函数
+    _then: function(onSuccess, onFail) {
+    var that = this;
+    if (this._state !== "pending") {
+    // 如果Promise状态已经确定则异步触发回调
+    ui.setMicroTask(function() {
+                that._fire(onSuccess, onFail);
+            });
+        } else {
+            this._callbacks.push({
+                onSuccess: onSuccess, 
+                onFail: onFail
+            });
+        }
+    },
+    _fire: function(onSuccess, onFail) {
+    if (this._state === "rejected") {
+            if (typeof onFail === "function") {
+                onFail(this._result);
+            } else {
+                throw this._result;
+            }
+        } else {
+            if (typeof onSuccess === "function") {
+                onSuccess(this._result);
+            }
+        }
+    },
+    then: function(onSuccess, onFail) {
+    var that = this,
+        nextPromise;
+
+        onSuccess = isFunction(onSuccess) ? onSuccess : success;
+        onFail = isFunction(onFail) ? onFail : failed;
+
+        // 用于衔接then
+        nextPromise = new PromiseShim(function (resolve, reject) {
+            that._then(
+                function (value) {
+                    try {
+                        value = onSuccess(value);
+                    } catch (e) {
+                        // https://promisesaplus.com/#point-55
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }, 
+                function (value) {
+                    try {
+                        value = onFail(value);
+                    } catch (e) {
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }
+            );
+        });
+
+        return nextPromise;
+    },
+    catch: function(onFail) {
+        //添加出错回调
+        return this.then(success, onFail);
+    },
+    finally: _finally,
+    try: _try
+};
+
+PromiseShim.all = function(iterable) {
+    return some(false, iterable);
+};
+
+PromiseShim.race = function(iterable) {
+    return some(true, iterable);
+};
+
+PromiseShim.resolve = function(value) {
+    return new PromiseShim(function (resolve) {
+        resolve(value);
+    });
+};
+
+PromiseShim.reject = function(reason) {
+    return new PromiseShim(function (resolve, reject) {
+        reject(reason);
+    });
+};
+
+global = ui.core.global();
+global.Promise = PromiseShim;
+
 
 })(jQuery, ui);
 
@@ -1796,122 +1830,6 @@ ui.getLeftLocation = function (target, width, height) {
     location.top = top;
     location.left = left;
     return location;
-};
-
-//全局遮罩
-ui.mask = {
-    maskId: "#ui_mask_rectangle",
-    isOpen: function() {
-        return $(this.maskId).css("display") === "block";
-    },
-    open: function(target, option) {
-        var mask = $(this.maskId),
-            body = $(document.body),
-            offset;
-        if(ui.core.isPlainObject(target)) {
-            option = target;
-            target = null;
-        }
-        if(!target) {
-            target = option.target;
-        }
-        target = ui.getJQueryElement(target);
-        if(!target) {
-            target = body;
-        }
-        if(!option) {
-            option = {};
-        }
-        option.color = option.color || "#000000";
-        option.opacity = option.opacity || .6;
-        option.animate = option.animate !== false;
-        if (mask.length === 0) {
-            mask = $("<div class='mask-panel' />");
-            mask.prop("id", this.maskId.substring(1));
-            body.append(mask);
-            ui.page.resize(function (e, width, height) {
-                mask.css({
-                    "height": height + "px",
-                    "width": width + "px"
-                });
-            }, ui.eventPriority.ctrlResize);
-            this._mask_animator = ui.animator({
-                target: mask,
-                onChange: function (op) {
-                    this.target.css({
-                        "opacity": op / 100,
-                        "filter": "Alpha(opacity=" + op + ")"
-                    });
-                }
-            });
-            this._mask_animator.duration = 500;
-        }
-        mask.css("background-color", option.color);
-        this._mask_data = {
-            option: option,
-            target: target
-        };
-        if(target.nodeName() === "BODY") {
-            this._mask_data.overflow = body.css("overflow");
-            if(this._mask_data.overflow !== "hidden") {
-                body.css("overflow", "hidden");
-            }
-            mask.css({
-                top: "0",
-                left: "0",
-                width: document.documentElement.clientWidth + "px",
-                height: document.documentElement.clientHeight + "px"
-            });
-        } else {
-            offset = target.offset();
-            mask.css({
-                top: offset.top + "px",
-                left: offset.left + "px",
-                width: target.outerWidth() + "px",
-                height: target.outerHeight() + "px"
-            });
-        }
-        
-        if(option.animate) {
-            mask.css({
-                "display": "block",
-                "opacity": "0",
-                "filter": "Alpha(opacity=0)"
-            });
-            this._mask_animator[0].begin = 0;
-            this._mask_animator[0].end = option.opacity * 100;
-            this._mask_animator.start();
-        } else {
-            mask.css({
-                "display": "block",
-                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
-                "opacity": option.opacity
-            });
-        }
-        return mask;
-    },
-    close: function() {
-        var mask, data;
-
-        mask = $(this.maskId);
-        if (mask.length === 0) {
-            return;
-        }
-        data = this._mask_data;
-        this._mask_data = null;
-        if(data.target.nodeName() === "BODY") {
-            data.target.css("overflow", data.overflow);
-        }
-        if(data.option.animate) {
-            this._mask_animator[0].begin = 60;
-            this._mask_animator[0].end = 0;
-            this._mask_animator.start().done(function() {
-                mask.css("display", "none");
-            });
-        } else {
-            mask.css("display", "none");
-        }
-    }
 };
 
 
@@ -4799,6 +4717,128 @@ ui.ColumnStyle = {
 
 })(jQuery, ui);
 
+// Source: src/control/common/mask.js
+
+(function($, ui) {
+"use strict";
+//全局遮罩
+ui.mask = {
+    maskId: "#ui_mask_rectangle",
+    isOpen: function() {
+        return $(this.maskId).css("display") === "block";
+    },
+    open: function(target, option) {
+        var mask = $(this.maskId),
+            body = $(document.body),
+            offset;
+        if(ui.core.isPlainObject(target)) {
+            option = target;
+            target = null;
+        }
+        if(!target) {
+            target = option.target;
+        }
+        target = ui.getJQueryElement(target);
+        if(!target) {
+            target = body;
+        }
+        if(!option) {
+            option = {};
+        }
+        option.color = option.color || "#000000";
+        option.opacity = option.opacity || .6;
+        option.animate = option.animate !== false;
+        if (mask.length === 0) {
+            mask = $("<div class='mask-panel' />");
+            mask.prop("id", this.maskId.substring(1));
+            body.append(mask);
+            ui.page.resize(function (e, width, height) {
+                mask.css({
+                    "height": height + "px",
+                    "width": width + "px"
+                });
+            }, ui.eventPriority.ctrlResize);
+            this._mask_animator = ui.animator({
+                target: mask,
+                onChange: function (op) {
+                    this.target.css({
+                        "opacity": op / 100,
+                        "filter": "Alpha(opacity=" + op + ")"
+                    });
+                }
+            });
+            this._mask_animator.duration = 500;
+        }
+        mask.css("background-color", option.color);
+        this._mask_data = {
+            option: option,
+            target: target
+        };
+        if(target.nodeName() === "BODY") {
+            this._mask_data.overflow = body.css("overflow");
+            if(this._mask_data.overflow !== "hidden") {
+                body.css("overflow", "hidden");
+            }
+            mask.css({
+                top: "0",
+                left: "0",
+                width: document.documentElement.clientWidth + "px",
+                height: document.documentElement.clientHeight + "px"
+            });
+        } else {
+            offset = target.offset();
+            mask.css({
+                top: offset.top + "px",
+                left: offset.left + "px",
+                width: target.outerWidth() + "px",
+                height: target.outerHeight() + "px"
+            });
+        }
+        
+        if(option.animate) {
+            mask.css({
+                "display": "block",
+                "opacity": "0",
+                "filter": "Alpha(opacity=0)"
+            });
+            this._mask_animator[0].begin = 0;
+            this._mask_animator[0].end = option.opacity * 100;
+            this._mask_animator.start();
+        } else {
+            mask.css({
+                "display": "block",
+                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
+                "opacity": option.opacity
+            });
+        }
+        return mask;
+    },
+    close: function() {
+        var mask, data;
+
+        mask = $(this.maskId);
+        if (mask.length === 0) {
+            return;
+        }
+        data = this._mask_data;
+        this._mask_data = null;
+        if(data.target.nodeName() === "BODY") {
+            data.target.css("overflow", data.overflow);
+        }
+        if(data.option.animate) {
+            this._mask_animator[0].begin = 60;
+            this._mask_animator[0].end = 0;
+            this._mask_animator.start().then(function() {
+                mask.css("display", "none");
+            });
+        } else {
+            mask.css("display", "none");
+        }
+    }
+};
+
+})(jQuery, ui);
+
 // Source: src/control/common/pager.js
 
 (function($, ui) {
@@ -5524,11 +5564,11 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentPanel.css("height", this.contentHeight + "px");
     },
     _asyncCall: function(method, callback) {
-        var deferred = null;
+        var promise = null;
         if(ui.core.isFunction(this[method])) {
-            deferred = this[method].call(this);
-            if (deferred && ui.core.isFunction(callback)) {
-                deferred.done(callback);
+            promise = this[method].call(this);
+            if (promise && ui.core.isFunction(callback)) {
+                promise.then(callback);
             }
         }
     },
@@ -5960,7 +6000,7 @@ MessageBox.prototype = {
         option.begin = parseFloat(option.target.css("left")) || clientWidth;
         option.end = clientWidth - this.width;
         option.target.css("display", "block");
-        this.boxAnimator.start().done(completedHandler);
+        this.boxAnimator.start().then(completedHandler);
     },
     hide: function (flag) {
         var box,
@@ -5977,7 +6017,7 @@ MessageBox.prototype = {
         option = this.boxAnimator[0];
         option.begin = parseFloat(option.target.css("left")) || clientWidth - this.width;
         option.end = clientWidth;
-        this.boxAnimator.start().done(function() {
+        this.boxAnimator.start().then(function() {
             box.css("display", "none");
             that.isClosing = false;
             that.isStartHide = false;
@@ -8362,7 +8402,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         option.begin = parseFloat(option.target.css("top"));
         option.end = -option.target.height();
         option.ease = ui.AnimationStyle.easeFrom;
-        this.ymAnimator.start().done(function() {
+        this.ymAnimator.start().then(function() {
             option.target.css("display", "none");
         });
 
@@ -8414,7 +8454,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         
         daysPanel.addClass("click-disabled");
         that = this;
-        this.mcAnimator.start().done(function() {
+        this.mcAnimator.start().then(function() {
             var temp = that._currentDays;
             that._currentDays = that._nextDays;
             that._nextDays = temp;
@@ -16640,10 +16680,10 @@ ui.define("ui.ctrls.ListView", {
 
         this.removeFirstAnimator
             .start()
-            .done(function() {
+            .then(function() {
                 return that.removeSecondAnimator.start();
             })
-            .done(function() {
+            .then(function() {
                 doRemove.call(that);
             });
     },
@@ -19042,7 +19082,7 @@ Tab.prototype = {
             this.bodySet(index);
             tabView.fire("changed", index);
         } else {
-            this.bodyShow(index).done(function() {
+            this.bodyShow(index).then(function() {
                 tabView.fire("changed", index);
             });
         }
@@ -19926,7 +19966,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonPanelAnimator.start();
             this.buttonAnimator.delayHandler = setTimeout(function() {
                 that.buttonAnimator.delayHandler = null;
-                that.buttonAnimator.start().done(function() {
+                that.buttonAnimator.start().then(function() {
                     that.fire("showed");
                 });
             }, 100);
@@ -19950,7 +19990,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonAnimator.start();
             this.buttonPanelAnimator.delayHandler = setTimeout(function() {
                 that.buttonPanelAnimator.delayHandler = null;
-                that.buttonPanelAnimator.start().done(function() {
+                that.buttonPanelAnimator.start().then(function() {
                     that.buttonPanel.css("display", "none");
                     that.fire("hided");
                 });
@@ -21474,7 +21514,7 @@ ui.define("ui.ctrls.ImageViewer", {
         for(; i < images.length; i++) {
             promises.push(this._loadImage(images[i]));
         }
-        Promise.all(promises).done(function(result) {
+        Promise.all(promises).then(function(result) {
             var i = 0,
                 len = result.length,
                 image;
@@ -22143,7 +22183,7 @@ ui.define("ui.ctrls.ImageZoomer", {
         option.end = 0;
         
         that = this;
-        this.changeViewAnimator.start().done(function() {
+        this.changeViewAnimator.start().then(function() {
             that.nextView.css("display", "none");
         });
         
@@ -23050,7 +23090,7 @@ ui.CustomEvent = CustomEvent;
 JavaScript中分为MacroTask和MicroTask
 Promise\MutationObserver\Object.observer 属于MicroTask
 setImmediate\setTimeout\setInterval 属于MacroTask
-	另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
+    另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
 
 每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
 所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
@@ -23060,142 +23100,142 @@ setImmediate\setTimeout\setInterval 属于MacroTask
 */
 
 var callbacks,
-	pedding,
-	isFunction,
+    pedding,
+    isFunction,
 
-	channel, port,
-	resolvePromise,
-	MutationObserver, observer, textNode, counter,
+    channel, port,
+    resolvePromise,
+    MutationObserver, observer, textNode, counter,
 
-	task,
+    task,
     microTask;
 
 isFunction = ui.core.isFunction;
 
 function set(fn) {
-	var index;
-	if(isFunction(fn)) {
-		this.callbacks.push(fn);
-		index = this.callbacks.length - 1;
+    var index;
+    if(isFunction(fn)) {
+        this.callbacks.push(fn);
+        index = this.callbacks.length - 1;
 
-		if(!this.pedding) {
-			this.pedding = true;
-			this.run();
-		}
-		return index;
-	}
-	return -1;
+        if(!this.pedding) {
+            this.pedding = true;
+            this.run();
+        }
+        return index;
+    }
+    return -1;
 }
 
 function clear(index) {
-	if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
-		this.callbacks[index] = false;
-	}
+    if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
+        this.callbacks[index] = false;
+    }
 }
 
 function run() {
-	var copies,
-		i, len;
+    var copies,
+        i, len;
 
-	this.pedding = false;
-	copies = this.callbacks;
-	this.callbacks = [];
+    this.pedding = false;
+    copies = this.callbacks;
+    this.callbacks = [];
 
-	for(i = 0, len = copies.length; i < len; i++) {
-		if(copies[i]) {
-			try {
-				copies[i]();
-			} catch(e) {
-				ui.handleError(e);
-			}
-		}
-	}
+    for(i = 0, len = copies.length; i < len; i++) {
+        if(copies[i]) {
+            try {
+                copies[i]();
+            } catch(e) {
+                ui.handleError(e);
+            }
+        }
+    }
 }
 
 task = {
-	callbacks: [],
-	pedding: false,
-	run: null
+    callbacks: [],
+    pedding: false,
+    run: null
 };
 
 // 如果原生支持setImmediate
-if(window.setImmediate && ui.core.isNative(setImmediate)) {
-	// setImmediate
-	task.run = function() {
-		setImmediate(function() {
-			run.call(task);
-		});
-	};
+if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
+    // setImmediate
+    task.run = function() {
+        setImmediate(function() {
+            run.call(task);
+        });
+    };
 } else if(MessageChannel && 
-			(ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
-	// MessageChannel & postMessage
-	channel = new MessageChannel();
-	channel.port1.onmessage = function() {
-		run.call(task);
-	};
-	port = channel.port2;
-	task.run = function() {
-		port.postMessage(1);
-	};
+            (ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
+    // MessageChannel & postMessage
+    channel = new MessageChannel();
+    channel.port1.onmessage = function() {
+        run.call(task);
+    };
+    port = channel.port2;
+    task.run = function() {
+        port.postMessage(1);
+    };
 } else {
-	// setTimeout
-	task.run = function() {
-		setTimeout(function() {
-			run.call(task);
-		}, 0);
-	};
+    // setTimeout
+    task.run = function() {
+        setTimeout(function() {
+            run.call(task);
+        }, 0);
+    };
 }
 
 microTask = {
-	callbacks: [],
-	pedding: false,
-	run: null
+    callbacks: [],
+    pedding: false,
+    run: null
 };
 
-if(window.Promise && ui.core.isNative(Promise)) {
-	// Promise
-	resolvePromise = Promise.resolve();
-	microTask.run = function() {
-		resolvePromise.then(function() {
-			run.call(microTask);
-		});
-	};
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // Promise
+    resolvePromise = Promise.resolve();
+    microTask.run = function() {
+        resolvePromise.then(function() {
+            run.call(microTask);
+        });
+    };
 } else {
-	MutationObserver = window.MutationObserver || 
-						window.WebKitMutationObserver || 
-						window.MozMutationObserver || 
-						null;
+    MutationObserver = window.MutationObserver || 
+                        window.WebKitMutationObserver || 
+                        window.MozMutationObserver || 
+                        null;
 
-	if(MutationObserver && ui.core.isNative(MutationObserver)) {
-		// MutationObserver
-		counter = 1;
-		observer = new MutationObserver(function() {
-			run.call(microTask);
-		});
-		textNode = document.createElement(String(counter));
-		observer.observe(textNode, {
-			characterData: true
-		});
-		microTask.run = function() {
-			counter = (counter + 1) % 2;
-			textNode.data = String(counter);
-		};
-	} else {
-		microTask.run = task.run;
-	}
+    if(MutationObserver && ui.core.isNative(MutationObserver)) {
+        // MutationObserver
+        counter = 1;
+        observer = new MutationObserver(function() {
+            run.call(microTask);
+        });
+        textNode = document.createTextNode(String(counter));
+        observer.observe(textNode, {
+            characterData: true
+        });
+        microTask.run = function() {
+            counter = (counter + 1) % 2;
+            textNode.data = String(counter);
+        };
+    } else {
+        microTask.run = task.run;
+    }
 }
 
 ui.setTask = function(fn) {
-	return set.call(task, fn);
+    return set.call(task, fn);
 };
 ui.clearTask = function(index) {
-	clear.call(task, index);
+    clear.call(task, index);
 };
 ui.setMicroTask = function(fn) {
-	return set.call(microTask, fn);
+    return set.call(microTask, fn);
 };
 ui.clearMicroTask = function(index) {
-	clear.call(microTask, index);
+    clear.call(microTask, index);
 };
 
 
@@ -26240,7 +26280,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = false;
         });
     },
@@ -26278,7 +26318,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = true;
         });
     },
@@ -26531,7 +26571,7 @@ modernStyle = {
 
             that = this;
             animator.onEnd = endFn;
-            animator.start().done(function () {
+            animator.start().then(function () {
                 that.submenuList.html("");
             });
         }
@@ -27217,7 +27257,7 @@ SidebarManager.prototype = {
                 return null;
             }
             if(this.currentBar) {
-                return this.currentBar.hide().done(function() {
+                return this.currentBar.hide().then(function() {
                     that.currentBar = sidebar;
                     sidebar.show();
                 });
@@ -27346,7 +27386,7 @@ tileUpdater = {
                 this.link.css("display", "none");
             }
             that = this;
-            this.animator.start().done(function() {
+            this.animator.start().then(function() {
                 var temp;
                 temp = that.tileInnerBack;
                 that.tileInnerBack = that.tileInner;
@@ -28369,7 +28409,7 @@ function nextPicture(tile) {
         "display": "block"
     });
 
-    context.switchAnimator.start().done(function() {
+    context.switchAnimator.start().then(function() {
         context.nextImagePanel.css("display", "none");
         context.nextImage.removeClass("tile-picture-play");
         setTimeout(function() {
@@ -28644,7 +28684,7 @@ function onWeatherHandleClick(e) {
     option.end = 100;
 
     item = context.current.children(".weather-item");
-    context.changeDayAnimator.start().done(function() {
+    context.changeDayAnimator.start().then(function() {
         var op = this[0];
         item.addClass("active-dynamic");
     });
@@ -28892,7 +28932,7 @@ Toolbar.prototype = {
             option.begin = this.extendHeight;
             option.end = 0;
             
-            this.extendAnimator.start().done(function() {
+            this.extendAnimator.start().then(function() {
                 that.toolbarPanel.css("overflow", that._cssOverflow);
                 option.target.css("display", "none");
             });

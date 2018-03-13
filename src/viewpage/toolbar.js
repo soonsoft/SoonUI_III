@@ -176,7 +176,7 @@ Toolbar.prototype = {
             option.begin = this.extendHeight;
             option.end = 0;
             
-            this.extendAnimator.start().done(function() {
+            this.extendAnimator.start().then(function() {
                 that.toolbarPanel.css("overflow", that._cssOverflow);
                 option.target.css("display", "none");
             });

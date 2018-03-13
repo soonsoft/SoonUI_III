@@ -7,7 +7,7 @@ isFunction = ui.core.isFunction;
 
 function noop() {}
 
-function finally(onFinally) {
+function _finally(onFinally) {
     var P;
     onFinally = isFunction(onFinally) ? onFinally : noop;
 
@@ -28,16 +28,16 @@ function finally(onFinally) {
 }
 
 // 提案，暂不实现
-function try() {}
+function _try() {}
 
 if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
     // 原生支持Promise
     if(!isFunction(Promise.prototype.finally)) {
-        Promise.prototype.finally = finally;
+        Promise.prototype.finally = _finally;
     }
     if(!isFunction(Promise.prototype.try)) {
         // 增加Promise.try提案的方法
-        Promise.prototype.try = try;
+        Promise.prototype.try = _try;
     }
 }
 
@@ -107,7 +107,7 @@ PromiseShim = function(executor) {
     if (typeof this !== "object") {
         throw new TypeError("Promises must be constructed via new");
     }
-    if (isFunction(executor)) {
+    if (!isFunction(executor)) {
         throw new TypeError("the executor is not a function");
     }
 
@@ -181,11 +181,11 @@ PromiseShim.prototype = {
             }
         }
     },
-    then: function() {
+    then: function(onSuccess, onFail) {
     var that = this,
-    nextPromise;
+        nextPromise;
 
-    onSuccess = isFunction(onSuccess) ? onSuccess : success;
+        onSuccess = isFunction(onSuccess) ? onSuccess : success;
         onFail = isFunction(onFail) ? onFail : failed;
 
         // 用于衔接then
@@ -216,11 +216,11 @@ PromiseShim.prototype = {
         return nextPromise;
     },
     catch: function(onFail) {
-    //添加出错回调
+        //添加出错回调
         return this.then(success, onFail);
     },
-    finally: finally,
-    try: try
+    finally: _finally,
+    try: _try
 };
 
 PromiseShim.all = function(iterable) {

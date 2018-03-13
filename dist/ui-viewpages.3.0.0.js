@@ -452,7 +452,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = false;
         });
     },
@@ -490,7 +490,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = true;
         });
     },
@@ -743,7 +743,7 @@ modernStyle = {
 
             that = this;
             animator.onEnd = endFn;
-            animator.start().done(function () {
+            animator.start().then(function () {
                 that.submenuList.html("");
             });
         }
@@ -1429,7 +1429,7 @@ SidebarManager.prototype = {
                 return null;
             }
             if(this.currentBar) {
-                return this.currentBar.hide().done(function() {
+                return this.currentBar.hide().then(function() {
                     that.currentBar = sidebar;
                     sidebar.show();
                 });
@@ -1558,7 +1558,7 @@ tileUpdater = {
                 this.link.css("display", "none");
             }
             that = this;
-            this.animator.start().done(function() {
+            this.animator.start().then(function() {
                 var temp;
                 temp = that.tileInnerBack;
                 that.tileInnerBack = that.tileInner;
@@ -2581,7 +2581,7 @@ function nextPicture(tile) {
         "display": "block"
     });
 
-    context.switchAnimator.start().done(function() {
+    context.switchAnimator.start().then(function() {
         context.nextImagePanel.css("display", "none");
         context.nextImage.removeClass("tile-picture-play");
         setTimeout(function() {
@@ -2856,7 +2856,7 @@ function onWeatherHandleClick(e) {
     option.end = 100;
 
     item = context.current.children(".weather-item");
-    context.changeDayAnimator.start().done(function() {
+    context.changeDayAnimator.start().then(function() {
         var op = this[0];
         item.addClass("active-dynamic");
     });
@@ -3104,7 +3104,7 @@ Toolbar.prototype = {
             option.begin = this.extendHeight;
             option.end = 0;
             
-            this.extendAnimator.start().done(function() {
+            this.extendAnimator.start().then(function() {
                 that.toolbarPanel.css("overflow", that._cssOverflow);
                 option.target.css("display", "none");
             });

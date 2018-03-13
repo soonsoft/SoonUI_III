@@ -41,7 +41,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = false;
         });
     },
@@ -79,7 +79,7 @@ normalStyle = {
         }
 
         that = this;
-        animator.start().done(function () {
+        animator.start().then(function () {
             that.hideState = true;
         });
     },
@@ -332,7 +332,7 @@ modernStyle = {
 
             that = this;
             animator.onEnd = endFn;
-            animator.start().done(function () {
+            animator.start().then(function () {
                 that.submenuList.html("");
             });
         }

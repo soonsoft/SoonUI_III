@@ -151,7 +151,7 @@ function nextPicture(tile) {
         "display": "block"
     });
 
-    context.switchAnimator.start().done(function() {
+    context.switchAnimator.start().then(function() {
         context.nextImagePanel.css("display", "none");
         context.nextImage.removeClass("tile-picture-play");
         setTimeout(function() {

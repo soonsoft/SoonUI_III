@@ -499,11 +499,11 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentPanel.css("height", this.contentHeight + "px");
     },
     _asyncCall: function(method, callback) {
-        var deferred = null;
+        var promise = null;
         if(ui.core.isFunction(this[method])) {
-            deferred = this[method].call(this);
-            if (deferred && ui.core.isFunction(callback)) {
-                deferred.done(callback);
+            promise = this[method].call(this);
+            if (promise && ui.core.isFunction(callback)) {
+                promise.then(callback);
             }
         }
     },

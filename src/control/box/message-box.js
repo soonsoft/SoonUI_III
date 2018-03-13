@@ -128,7 +128,7 @@ MessageBox.prototype = {
         option.begin = parseFloat(option.target.css("left")) || clientWidth;
         option.end = clientWidth - this.width;
         option.target.css("display", "block");
-        this.boxAnimator.start().done(completedHandler);
+        this.boxAnimator.start().then(completedHandler);
     },
     hide: function (flag) {
         var box,
@@ -145,7 +145,7 @@ MessageBox.prototype = {
         option = this.boxAnimator[0];
         option.begin = parseFloat(option.target.css("left")) || clientWidth - this.width;
         option.end = clientWidth;
-        this.boxAnimator.start().done(function() {
+        this.boxAnimator.start().then(function() {
             box.css("display", "none");
             that.isClosing = false;
             that.isStartHide = false;

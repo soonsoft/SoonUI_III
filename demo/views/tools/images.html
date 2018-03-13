@@ -189,11 +189,11 @@
                     }
                 });
                 image1 = $("#imageZoomSource1");
-                image1.setImage("../../content/pictures/5.jpg", 192, 108).done(function(result) {
+                image1.setImage("../../content/pictures/5.jpg", 192, 108).then(function(result) {
                     image1.addImageZoomer(imageZoomer);
                 });
                 image2 = $("#imageZoomSource2");
-                image2.setImage("../../content/pictures/11.jpg", 192, 108).done(function(result) {
+                image2.setImage("../../content/pictures/11.jpg", 192, 108).then(function(result) {
                     image2.addImageZoomer(imageZoomer);
                 });
             }
@@ -202,12 +202,12 @@
                 var image1, image2;
 
                 image1 = $("#imageWatchSource1");
-                image1.setImage("../../content/pictures/2.jpg", 400, 300).done(function(data) {
+                image1.setImage("../../content/pictures/2.jpg", 400, 300).then(function(data) {
                     image1.parent().imageWatcher();
                 });
 
                 image2 = $("#imageWatchSource2");
-                image2.setImage("../../content/pictures/1.jpg", 300, 300, ui.ImageLoader.fitCenter).done(function(data) {
+                image2.setImage("../../content/pictures/1.jpg", 300, 300, ui.ImageLoader.fitCenter).then(function(data) {
                     image2.parent().imageWatcher({
                         position: "left",
                         zoomWidth: 400,
