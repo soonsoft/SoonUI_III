@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ui-core test</title>
+    <link type="text/css" href="../qunit/qunit.css" rel="stylesheet" />
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript" src="../qunit/qunit.js"></script>
+
+    <script type="text/javascript" src="../../jquery.js"></script>
+    <script type="text/javascript" src="../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript">
+        QUnit.test("ui.date.format 日期部分", function() {
+            var date = Date.parse("2018-02-24T23:17:00+08:00"),
+                date2 = Date.parse("2018-02-04T23:17:00+08:00");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd") === "2018-02-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yy-MM-dd") === "18-02-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "y-MM-dd") === "2018-02-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-M-dd") === "2018-2-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MMM-dd") === "2018-二月-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MMMM-dd") === "2018-二月-24", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "yyyy-M-d") === "2018-2-4", "Pass");
+        });
+
+        QUnit.test("ui.date.format 时间部分", function() {
+            var date = Date.parse("2018-02-24T23:17:23.789+08:00"),
+                date2 = Date.parse("2018-02-04T09:08:09+08:00");
+            QUnit.assert.ok(ui.date.format(date, "HH:mm:ss") === "23:17:23", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "HH:mm:ss.S") === "23:17:23.789", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "H:m:s") === "9:8:9", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "H:m:s.S") === "9:8:9.000", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "tt hh:mm:ss") === "AM 09:08:09", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "tt h:mm:ss") === "AM 9:08:09", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "t hh:mm:ss") === "A 09:08:09", "Pass");
+            QUnit.assert.ok(ui.date.format(date2, "t h:mm:ss") === "A 9:08:09", "Pass");
+        });
+
+        QUnit.test("ui.date.format", function() {
+            var date = Date.parse("2018-02-24T23:17:00+08:00");
+            QUnit.assert.ok(ui.date.format(date) === "2018-02-24 23:17:00", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd HH:mm:ss") === "2018-02-24 23:17:00", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd HH:mm") === "2018-02-24 23:17", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd HH:mm:ss EEE") === "2018-02-24 23:17:00 周六", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd HH:mm:ss EEEE") === "2018-02-24 23:17:00 星期六", "Pass");
+            QUnit.assert.ok(ui.date.format(date, "yyyy-MM-dd HH:mm:ssZ") === "2018-02-24 23:17:00+08:00", "Pass");
+        });
+
+        QUnit.test("ui.date.parse", function() {
+            var date,
+                dateStr,
+                dateFormat;
+            
+            dateStr = "2018-02-24 23:17:00";
+            date = ui.date.parse(dateStr);
+            QUnit.assert.ok(ui.date.format(date) === dateStr, "Pass");
+
+            dateStr = "2018/二月/24";
+            dateFormat = "yyyy/MMMM/dd";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018/一月/16";
+            dateFormat = "yyyy/MMM/dd";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018/1/1";
+            dateFormat = "yyyy/M/d";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018/1/16 AM 11:30:10.333";
+            dateFormat = "yyyy/M/dd tt hh:mm:ss.S";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018/1/16 9:3:1";
+            dateFormat = "yyyy/M/d h:m:s";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018-02-24 23:17:00 星期六";
+            dateFormat = "yyyy-MM-dd HH:mm:ss EEEE";
+            date = ui.date.parse(dateStr, dateFormat);
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === dateStr, "Pass");
+
+            dateStr = "2018-02-28 20:01:56.678Z";
+            dateFormat = "yyyy-MM-dd HH:mm:ss.SZ";
+            date = ui.date.parse(dateStr, dateFormat);
+            console.log(ui.date.format(date, dateFormat));
+            QUnit.assert.ok(ui.date.format(date, dateFormat) === "2018-02-28 20:01:56.678+08:00", "Pass");
+        });
+    </script>
+</head>
+<body>
+    <div id="qunit-header">ui.date test</div>
+    <div id="qunit-banner"></div>
+    <div id="qunit-tests"></div>
+</body>
+</html>
