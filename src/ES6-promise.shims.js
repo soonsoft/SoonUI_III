@@ -14,32 +14,30 @@ function finally(onFinally) {
     P = this.constructor;
 
     return this.then(
-    function(value) {
-    P.resolve(onFinally()).then(function() {
-    return value;
-    });
-    },
-    function (reason) {
-    P.resolve(onFinally()).then(function() {
-    throw reason;
-    });
-    }
+        function(value) {
+            P.resolve(onFinally()).then(function() {
+                return value;
+            });
+        },
+        function (reason) {
+            P.resolve(onFinally()).then(function() {
+                throw reason;
+            });
+        }
     );
 }
 
 // 提案，暂不实现
-function try() {
-
-}
+function try() {}
 
 if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
     // 原生支持Promise
     if(!isFunction(Promise.prototype.finally)) {
-    Promise.prototype.finally = finally;
+        Promise.prototype.finally = finally;
     }
     if(!isFunction(Promise.prototype.try)) {
-    // 增加Promise.try提案的方法
-    Promise.prototype.try = try;
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = try;
     }
 }
 
