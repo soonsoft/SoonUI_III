@@ -93,7 +93,7 @@ if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
 } else {
 	// setTimeout
 	task.run = function() {
-		global.setTimeout(function() {
+		setTimeout(function() {
 			run.call(task);
 		}, 0);
 	};
