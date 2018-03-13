@@ -1,0 +1,99 @@
+<partial id="title">列表视图</partial>
+<partial id="header">LIST VIEW</partial>
+
+<partial id="content">
+    <div id="toolbar" class="toolbar">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="addItem" class="tool-action-button" href="javascript:void(0)" title="添加">
+                    <i class="fa fa-plus-circle"></i>
+                </a>
+                <a id="removeItem" class="tool-action-button" href="javascript:void(0)" title="删除">
+                    <i class="fa fa-times-circle"></i>
+                </a>
+                <a id="insertItem" class="tool-action-button" href="javascript:void(0)" title="插入">
+                    <i class="fa fa-caret-square-o-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="listView" class="theme-panel"></div>
+</partial>
+
+<partial id="style">
+    <style type="text/css">
+        #listView {
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        createListView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            $("#listView").css("height", height - 80 + "px");
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+                        $("#addItem").click(function(e) {
+                            var viewData = pageLogic.listView.getViewData();
+                            if(viewData.indexOf("CEO") === -1) {
+                                pageLogic.listView.add("CEO");
+                            } else {
+                                ui.messageShow("已经添加了名为CEO的项目");
+                            }
+                        });
+                        $("#removeItem").click(function(e) {
+                            pageLogic.listView.remove("CEO");
+                        });
+                        $("#insertItem").click(function(e) {
+                            var viewData = pageLogic.listView.getViewData();
+                            if(viewData.indexOf("CTO") === -1) {
+                                pageLogic.listView.insert("CTO", 1);
+                            } else {
+                                ui.messageShow("已经插入了名为CTO的项目");
+                            }
+                        });
+                    },
+                    load: function() {
+                    }
+                }
+            };
+
+            function createListView() {
+                this.listView = $("#listView").listView({
+                    hasRemoveButton: true,
+                    animatable: true,
+                    viewData: [
+                        "前端工程师",
+                        "Java研发工程师",
+                        ".Net研发工程师",
+                        "数据库管理员",
+                        "运维工程师",
+                        "技术经理",
+                        "架构师",
+                        "项目经理",
+                        "产品经理",
+                        "视觉设计师",
+                        "交互设计师",
+                        "部门经理"
+                    ]
+                });
+            }
+        })();
+    </script>
+</partial>
