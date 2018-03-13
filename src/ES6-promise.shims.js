@@ -157,9 +157,11 @@ function _transmit(promise, value, isResolved) {
     promise._value = value;
     promise._state = isResolved ? "fulfilled" : "rejected";
     setTimeout(function() {
-        promise._callbacks.forEach(function(data) {
+        var data, i, len;
+        for(i = 0, len = promise._callbacks.length; i < len; i++) {
+            data = promise._callbacks[i];
             promise._fire(data.onSuccess, data.onFail);
-        });
+        }
     }, 0);
 }
 function _some(any, iterable) {
