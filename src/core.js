@@ -61,6 +61,19 @@ var core = ui.core,
     isSupportCanvas,
     typeStr = "Boolean Number String Function Array Date RegExp Object Error";
 
+core.global = function() {
+    if (typeof self !== "undefined") { 
+        return self; 
+    }
+    if (typeof window !== "undefined") { 
+        return window; 
+    }
+    if (typeof global !== "undefined") { 
+        return global; 
+    }
+    throw new TypeError('unable to locate global object');
+};
+
 // 简单的字符串遍历方法，通过[ ]或者[,]分割字符串
 core.each = function(text, fn) {
     text.replace(rword, fn);
