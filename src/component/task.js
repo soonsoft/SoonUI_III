@@ -72,7 +72,7 @@ task = {
 };
 
 // 如果原生支持setImmediate
-if(window.setImmediate && ui.core.isNative(setImmediate)) {
+if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
 	// setImmediate
 	task.run = function() {
 		setImmediate(function() {
@@ -93,7 +93,7 @@ if(window.setImmediate && ui.core.isNative(setImmediate)) {
 } else {
 	// setTimeout
 	task.run = function() {
-		setTimeout(function() {
+		global.setTimeout(function() {
 			run.call(task);
 		}, 0);
 	};
@@ -105,7 +105,7 @@ microTask = {
 	run: null
 };
 
-if(window.Promise && ui.core.isNative(Promise)) {
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
 	// Promise
 	resolvePromise = Promise.resolve();
 	microTask.run = function() {
