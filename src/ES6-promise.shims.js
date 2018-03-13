@@ -4,7 +4,6 @@
 //另还多了一个chain(onSuccess, onFail)原型方法，意义不明
 //目前，firefox24, opera19也支持原生Promise(chrome32就支持了，但需要打开开关，自36起直接可用)
 //本模块提供的Promise完整实现ECMA262v6 的Promise规范
-//2015.3.12 支持async属性
 function ok(val) {
     return val;
 }
@@ -43,19 +42,6 @@ var uiPromise = function (executor) {
         _reject(me, reason);
     });
 };
-function fireCallbacks(promise, fn) {
-    var isAsync;
-    if (ui.core.type(promise.async) === "boolean") {
-        isAsync = promise.async;
-    } else {
-        isAsync = promise.async = true;
-    }
-    if (isAsync) {
-        window.setTimeout(fn, 0);
-    } else {
-        fn();
-    }
-}
 //返回一个已经处于`resolved`状态的Promise对象
 uiPromise.resolve = function (value) {
     return new uiPromise(function (resolve) {
@@ -91,11 +77,12 @@ uiPromise.prototype = {
         }
     },
     _then: function (onSuccess, onFail) {
+        var self;
         if (this._fired) {//在已有Promise上添加回调
-            var me = this;
-            fireCallbacks(me, function () {
-                me._fire(onSuccess, onFail);
-            });
+            self = this;
+            setTimeout(function() {
+                self._fire(onSuccess, onFail);
+            }, 0);
         } else {
             this._callbacks.push({onSuccess: onSuccess, onFail: onFail});
         }
@@ -169,13 +156,11 @@ function _transmit(promise, value, isResolved) {
     promise._fired = true;
     promise._value = value;
     promise._state = isResolved ? "fulfilled" : "rejected";
-    fireCallbacks(promise, function () {
-        var data;
-        for(var i = 0, len = promise._callbacks.length; i < len; i++) {
-            data = promise._callbacks[i];
+    setTimeout(function() {
+        promise._callbacks.forEach(function(data) {
             promise._fire(data.onSuccess, data.onFail);
-        }
-    });
+        });
+    }, 0);
 }
 function _some(any, iterable) {
     iterable = ui.core.type(iterable) === "array" ? iterable : [];
