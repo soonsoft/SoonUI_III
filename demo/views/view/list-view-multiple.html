@@ -1,0 +1,97 @@
+@{layout:demo/views/shared/menu-layout.html}
+
+<partial id="title">多选列表</partial>
+<partial id="header">MULTIPLE LIST</partial>
+
+<partial id="content">
+    <div id="toolbar" class="toolbar">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="setSelection" class="tool-action-button" href="javascript:void(0)" title="选中项目">
+                    <i class="fa fa-hand-o-up"></i>
+                </a>
+                <a id="showSelection" class="tool-action-button" href="javascript:void(0)" title="显示选中的项目">
+                    <i class="fa fa-tv"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="listView" class="theme-panel border-highlight"></div>
+</partial>
+
+<partial id="style">
+    <style type="text/css">
+        #listView {
+            width: 300px;
+            margin: 20px auto;
+            border: solid 1px #fff;
+        }
+    </style>
+</partial>
+
+<partial id="script">
+    <script type="text/javascript" src="../../lib/menu/list-view-menus.js"></script>
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        createListView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            $("#listView").css("height", height - 82 + "px");
+                        });
+                    },
+                    after: function() {
+                    },
+                    events: function() {
+                        $("#setSelection").click(function(e) {
+                            pageLogic.listView.setSelection([0, 3]);
+                        });
+                        $("#showSelection").click(function(e) {
+                            var arr = pageLogic.listView.getSelection(),
+                                result;
+                            if(arr.length === 0) {
+                                ui.warnShow("还没有选中的项目");
+                            } else {
+                                result = [];
+                                arr.forEach(function (item) {
+                                    result.push(item.itemData);
+                                });
+                                ui.messageShow(result.toString());
+                            }
+                        });
+                    },
+                    load: function() {
+                    }
+                }
+            };
+
+            function createListView() {
+                this.listView = $("#listView").listView({
+                    hasRemoveButton: true,
+                    animatable: false,
+                    multiple: true,
+                    viewData: [
+                        "前端工程师",
+                        "Java研发工程师",
+                        ".Net研发工程师",
+                        "数据库管理员",
+                        "运维工程师",
+                        "技术经理",
+                        "架构师",
+                        "项目经理",
+                        "产品经理",
+                        "视觉设计师",
+                        "交互设计师",
+                        "部门经理"
+                    ]
+                });
+            }
+        })();
+    </script>
+</partial>
