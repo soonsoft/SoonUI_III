@@ -3481,7 +3481,7 @@ ui.cookie = {
     get: function(name) {
         var ret;
         try {
-            Cookie.forEach(function(key, value) {
+            this.forEach(function(key, value) {
                 if (key === name) {
                     ret = value;
                     throw "";
@@ -3493,7 +3493,7 @@ ui.cookie = {
     },
     getAll: function() {
         var obj = {};
-        Cookie.forEach(function(key, value) {
+        this.forEach(function(key, value) {
             if (!(key in obj)) {
                 obj[key] = value;
             }
@@ -3501,18 +3501,19 @@ ui.cookie = {
         return obj;
     },
     set: function(key, val, opts) {
-        document.cookie = Cookie.stringify.apply(0, arguments);
+        document.cookie = this.stringify.apply(0, arguments);
     },
     remove: function(key, opt) {
         opt = opt || {};
         if (!opt.expires) {
             opt.expires = new Date(1970, 0, 1);
         }
-        Cookie.set(key, '', opt);
+        this.set(key, '', opt);
     },
     clear: function() {
-        Cookie.forEach(function(key, value) {
-            Cookie.remove(key);
+        var that = this;
+        this.forEach(function(key, value) {
+            that.remove(key);
         });
     }
 };
@@ -16367,13 +16368,7 @@ function defaultItemFormatter(item, index) {
 function defaultSortFn(a, b) {
     var text1 = defaultItemFormatter(a),
         text2 = defaultItemFormatter(b);
-    if(text1 < text2) {
-        return -1;
-    } else if(text1 > text2) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return text1.localeCompare(text2);
 }
 // 点击事件处理函数
 function onListItemClick(e) {
@@ -16880,7 +16875,7 @@ ui.define("ui.ctrls.ListView", {
             result = [];
             for(i = 0; i < this._selectList.length; i++) {
                 result.push(
-                    this._getSelectionData(this._selectItem[i]));
+                    this._getSelectionData(this._selectList[i]));
             }
         } else {
             if(this._current) {
@@ -22327,6 +22322,11 @@ $.fn.addImageZoomer = function (image) {
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
+
+function isSortItems(items) {
+    return items && items.length;
+}
+
 function Introsort () {
     if(this instanceof Introsort) {
         this.initialize();
@@ -22361,13 +22361,13 @@ Introsort.prototype = {
                 this.comparer = arguments[1];
             }
         }
-        if (!Array.isArray(this.keys)) {
+        if (!isSortItems(this.keys)) {
             return;
         }
         if (this.keys.length < 2) {
             return;
         }
-        if (!Array.isArray(this.items)) {
+        if (!isSortItems(this.items)) {
             this.items = null;
         }
         this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));

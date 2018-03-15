@@ -50,7 +50,7 @@ ui.cookie = {
     get: function(name) {
         var ret;
         try {
-            Cookie.forEach(function(key, value) {
+            this.forEach(function(key, value) {
                 if (key === name) {
                     ret = value;
                     throw "";
@@ -62,7 +62,7 @@ ui.cookie = {
     },
     getAll: function() {
         var obj = {};
-        Cookie.forEach(function(key, value) {
+        this.forEach(function(key, value) {
             if (!(key in obj)) {
                 obj[key] = value;
             }
@@ -70,18 +70,19 @@ ui.cookie = {
         return obj;
     },
     set: function(key, val, opts) {
-        document.cookie = Cookie.stringify.apply(0, arguments);
+        document.cookie = this.stringify.apply(0, arguments);
     },
     remove: function(key, opt) {
         opt = opt || {};
         if (!opt.expires) {
             opt.expires = new Date(1970, 0, 1);
         }
-        Cookie.set(key, '', opt);
+        this.set(key, '', opt);
     },
     clear: function() {
-        Cookie.forEach(function(key, value) {
-            Cookie.remove(key);
+        var that = this;
+        this.forEach(function(key, value) {
+            that.remove(key);
         });
     }
 };

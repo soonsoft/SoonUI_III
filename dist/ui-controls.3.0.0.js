@@ -12677,13 +12677,7 @@ function defaultItemFormatter(item, index) {
 function defaultSortFn(a, b) {
     var text1 = defaultItemFormatter(a),
         text2 = defaultItemFormatter(b);
-    if(text1 < text2) {
-        return -1;
-    } else if(text1 > text2) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return text1.localeCompare(text2);
 }
 // 点击事件处理函数
 function onListItemClick(e) {
@@ -13190,7 +13184,7 @@ ui.define("ui.ctrls.ListView", {
             result = [];
             for(i = 0; i < this._selectList.length; i++) {
                 result.push(
-                    this._getSelectionData(this._selectItem[i]));
+                    this._getSelectionData(this._selectList[i]));
             }
         } else {
             if(this._current) {

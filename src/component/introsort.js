@@ -1,6 +1,11 @@
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
+
+function isSortItems(items) {
+    return items && items.length;
+}
+
 function Introsort () {
     if(this instanceof Introsort) {
         this.initialize();
@@ -35,13 +40,13 @@ Introsort.prototype = {
                 this.comparer = arguments[1];
             }
         }
-        if (!Array.isArray(this.keys)) {
+        if (!isSortItems(this.keys)) {
             return;
         }
         if (this.keys.length < 2) {
             return;
         }
-        if (!Array.isArray(this.items)) {
+        if (!isSortItems(this.items)) {
             this.items = null;
         }
         this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));

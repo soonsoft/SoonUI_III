@@ -1,3 +1,5 @@
+@{layout:demo/views/shared/menu-layout.html}
+
 <partial id="title">列表视图</partial>
 <partial id="header">LIST VIEW</partial>
 
@@ -14,10 +16,19 @@
                 <a id="insertItem" class="tool-action-button" href="javascript:void(0)" title="插入">
                     <i class="fa fa-caret-square-o-right"></i>
                 </a>
+                <a id="up" class="tool-action-button" href="javascript:void(0)" title="上移">
+                    <i class="fa fa-arrow-circle-up"></i>
+                </a>
+                <a id="down" class="tool-action-button" href="javascript:void(0)" title="下移">
+                    <i class="fa fa-arrow-circle-down"></i>
+                </a>
+                <a id="jump" class="tool-action-button" href="javascript:void(0)" title="移动 ">
+                    <i class="fa fa-hand-o-right"></i>
+                </a>
             </li>
         </ul>
     </div>
-    <div id="listView" class="theme-panel"></div>
+    <div id="listView" class="theme-panel border-highlight"></div>
 </partial>
 
 <partial id="style">
@@ -25,11 +36,13 @@
         #listView {
             width: 300px;
             margin: 20px auto;
+            border: solid 1px #fff;
         }
     </style>
 </partial>
 
 <partial id="script">
+    <script type="text/javascript" src="../../lib/menu/list-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
             window.pageLogic = {
@@ -42,11 +55,10 @@
                         ui.master.resize(function(e) {
                             var width = ui.master.contentBodyWidth, 
                                 height = ui.master.contentBodyHeight;
-                            $("#listView").css("height", height - 80 + "px");
+                            $("#listView").css("height", height - 82 + "px");
                         });
                     },
                     after: function() {
-
                     },
                     events: function() {
                         $("#addItem").click(function(e) {
@@ -66,6 +78,19 @@
                                 pageLogic.listView.insert("CTO", 1);
                             } else {
                                 ui.messageShow("已经插入了名为CTO的项目");
+                            }
+                        });
+                        $("#up").click(function(e) {
+                            pageLogic.listView.currentUp();
+                        });
+                        $("#down").click(function(e) {
+                            pageLogic.listView.currentDown();
+                            //pageLogic.listView.sort();
+                        });
+                        $("#jump").click(function(e) {
+                            var viewData = pageLogic.listView.getViewData();
+                            if(viewData.length > 2) {
+                                pageLogic.listView.moveTo(0, ui.random.getNum(1, viewData.length));
                             }
                         });
                     },
