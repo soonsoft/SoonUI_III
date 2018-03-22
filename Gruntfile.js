@@ -216,8 +216,8 @@ module.exports = function(grunt) {
                 // 将要被合并的文件
                 src: [
                     frameDestFile,
-                    controlDestFile,
                     componentDestFile,
+                    controlDestFile,
                     effectDestFile,
                     viewDestFile
                 ],

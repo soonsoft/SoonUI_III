@@ -3225,65 +3225,6 @@ $.fn.selectOption = function () {
     return option;
 };
 
-/** 动态设置图片的src并自动调整图片的尺寸和位置 */
-$.fn.setImage = function (src, width, height, fillMode) {
-    var option,
-        parent,
-        imageLoader,
-        image;
-    if (this.nodeName() != "IMG") {
-        return;
-    }
-    image = this;
-    if(ui.core.isPlainObject(src)) {
-        option = src;
-        src = option.src;
-        width = option.width;
-        height = option.height;
-        fillMode = option.fillMode;
-    }
-    parent = this.parent();
-    if (arguments.length < 2) {
-        if (parent.nodeName() == "BODY") {
-            width = root.clientWidth;
-            height = root.clientHeight;
-        } else {
-            width = parent.width();
-            height = parent.height();
-        }
-    } else {
-        if (!ui.core.isNumber(width) || !ui.core.isNumber(height)) {
-            width = 320;
-            height = 240;
-        }
-    }
-    if(!ui.core.isFunction(fillMode)) {
-        fillMode = ui.ImageLoader.fitCenter;
-    }
-
-    imageLoader = ui.ImageLoader();
-    return imageLoader
-        .load(src, width, height, fillMode)
-        .then(
-            function(loader) {
-                var style = {
-                    "vertical-align": "top"
-                };
-                style["width"] = loader.displayWidth + "px";
-                style["height"] = loader.displayHeight + "px";
-                style["margin-top"] = loader.marginTop + "px";
-                style["margin-left"] = loader.marginLeft + "px";
-                image.css(style);
-                image.prop("src", src);
-
-                return loader;
-            }, 
-            function(loader) {
-                image.prop("src", ui.text.empty);
-                return loader;
-            });
-};
-
 /** 为jquery添加鼠标滚轮事件 */
 $.fn.mousewheel = function (data, fn) {
     var mouseWheelEventName = eventSupported("mousewheel", this) ? "mousewheel" : "DOMMouseScroll";

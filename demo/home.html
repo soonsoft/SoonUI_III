@@ -59,10 +59,17 @@
             font-size: 2em;
         }
 
+        .container-item-bg-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
 
         /* Main Section */
         .main-panel {
-            background-color: #666;
             width: 50%;
             height: 100%;
             flex: 0 0 auto;
@@ -71,9 +78,30 @@
         }
 
         .main-header {
-            font-size: ;
         }
 
+        #bg2 {
+            -webkit-transform: scale(1.5, 1.5);
+            -ms-transform: scale(1.5, 1.5);
+            -o-transform: scale(1.5, 1.5);
+            -moz-transform: scale(1.5, 1.5);
+            transform: scale(1.5, 1.5);
+        }
+
+        #bg2.start-animation {
+            -webkit-transform: scale(1, 1);
+            -webkit-transition: -webkit-transform 20s linear 0s;
+            -ms-transform: scale(1, 1);
+            -ms-transition: -ms-transform 20s linear 0s;
+            -o-transform: scale(1, 1);
+            -o-transition: -o-transform 20s linear 0s;
+            -moz-transform: scale(1, 1);
+            -moz-transition: -moz-transform 20s linear 0s;
+            transform: scale(1, 1);
+            transition: transform 20s linear 0s;
+        }
+
+        /* Theme Section */
         .theme-container-item {
             width: 100%;
             overflow: hidden;
@@ -177,8 +205,8 @@
 </head>
 <body>
     <div class="heighter"></div>
-    <section class="container-item" style="background-color:#f1f1f1;z-index:10;">
-        <div class="container-panel" style="height:50%;top:25%;background-color:#aaa;flex-direction:row;justify-content:center;">
+    <section class="container-item" style="background-color:rgba(255, 255, 255, .2);z-index:10;">
+        <div class="container-panel" style="height:50%;top:25%;background-color:rgba(255, 255, 255, .5);flex-direction:row;justify-content:center;">
             <div class="main-panel">
                 <h1 class="head-title">
                     <span>SOON</span><span>.</span><span>UI</span>
@@ -192,7 +220,10 @@
             </div>
         </div>
     </section>
-    <section class="container-item" style="z-index:9;">
+    <section class="container-item" style="background-color:#99aacc;z-index:9;">
+        <img id="bg2" class="container-item-bg-image" src="" alt="" />
+    </section>
+    <section class="container-item" style="z-index:8;">
         <div class="theme-container-item" style="background-color:#fff;height:60%;"></div>
         <div class="theme-container-item" style="top:-18%;height:70%;">
             <div style="width:100%;height:100%;position:absolute;">
@@ -215,7 +246,7 @@
         </div>
         <div class="theme-box border-highlight theme-panel"></div>
     </section>
-    <section class="container-item" style="background-color:#fff;z-index:8;">
+    <section class="container-item" style="background-color:#fff;z-index:7;">
         <div class="demo-background">
             <canvas id="colorLines" style="width:100%;height:100%;"></canvas>
         </div>
@@ -232,22 +263,21 @@
             </dl>
         </div>
     </section>
-    <section class="container-item" style="background-color:#ccc;z-index:7;">
+    <section class="container-item" style="background-color:#ccc;z-index:6;">
         <h1>4</h1>
     </section>
-    <section class="container-item" style="background-color:#f1f1f1;z-index:6;">
+    <section class="container-item" style="background-color:#f1f1f1;z-index:5;">
         <h1>5</h1>
     </section>
-    <section class="container-item" style="background-color:#ccc;z-index:5;">
+    <section class="container-item" style="background-color:#ccc;z-index:4;">
         <h1>6</h1>
     </section>
-    <section class="container-item" style="background-color:#f1f1f1;z-index:4;">
+    <section class="container-item" style="background-color:#f1f1f1;z-index:3;">
         <h1>7</h1>
     </section>
 
     <script type="text/javascript" src="../jquery.js"></script>
-    <script type="text/javascript" src="../dist/ui-core.3.0.0.js"></script>
-    <script type="text/javascript" src="../dist/ui-effects.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/SOON.UI.3.0.0.all.js"></script>
     <script type="text/javascript">
         (function() {
             var sections,
@@ -263,6 +293,7 @@
 
             function resetFixedItems() {
                 var scrollTop,
+                    section,
                     i, len, 
                     operator,
                     index;
@@ -279,9 +310,15 @@
                     return;
                 }
 
-                sections.removeClass("container-item-fixed");
-                for(i = index + 1, len = sections.length; i < len; i++) {
-                    $(sections[i]).addClass("container-item-fixed");
+                for(i = 0, len = sections.length; i < len; i++) {
+                    section = $(sections[i]);
+                    if(i <= index) {
+                        section.removeClass("container-item-fixed");
+                    } else {
+                        if(!section.hasClass("container-item-fixed")) {
+                            section.addClass("container-item-fixed");
+                        }
+                    }
                 }
 
                 /*
@@ -320,9 +357,13 @@
                     resetFixedItems();
                 });
 
+                loadBackgroundImages();
+
+                /**
                 setTimeout(function() {
                     demoSection();
                 });
+                */
             });
 
             requestAnimationFrame = ui.getRequestAnimationFrame();
@@ -340,6 +381,32 @@
                         wave.stop();
                     }
                 };
+            }
+
+            function loadBackgroundImages() {
+                var width, 
+                    height, 
+                    loader;
+                width = document.documentElement.clientWidth;
+                height = document.documentElement.clientHeight;
+
+                loader = ui.ImageLoader();
+                loader
+                    .load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop)
+                    .then(function(loader) {
+                        var img = $("#bg2");
+                        img.css({
+                                width: loader.displayWidth + "px",
+                                height: loader.displayHeight + "px",
+                                top: loader.marginTop + "px",
+                                left: loader.marginLeft + "px"
+                            })
+                            .prop("src", loader.src)
+                        setTimeout(function() {
+                            img.addClass("start-animation");
+                        }, 16);
+                            
+                    });
             }
 
             function initWave() {
