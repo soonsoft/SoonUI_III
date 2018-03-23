@@ -11,39 +11,30 @@
         html {
             overflow: auto;
         }
-
         body {
             height: auto;
         }
-
         .heighter {
             position: absolute;
             width: 1px;
             top: 0;
             left: 0;
         }
-
         .container-item {
             width: 100%;
             height: auto;
             position: relative;
             overflow: hidden;
         }
-
         .container-item-fixed {
             position: fixed;
             top: 0px;
             left: 0px;
         }
-
         .container-item-fixed .container-background {
-
         }
-
         .container-background {
-
         }
-
         .container-panel {
             width: 100%;
             height: 100%;
@@ -54,11 +45,9 @@
             flex-flow: column nowrap;
             overflow: hidden;
         }
-
         .head-title {
             font-size: 2em;
         }
-
         .container-item-bg-image {
             position: absolute;
             width: 100%;
@@ -66,8 +55,6 @@
             top: 0;
             left: 0;
         }
-
-
         /* Main Section */
         .main-panel {
             width: 50%;
@@ -76,10 +63,8 @@
             display: flex;
             flex-flow: column nowrap;
         }
-
         .main-header {
         }
-
         #bg2 {
             -webkit-transform: scale(1.5, 1.5);
             -ms-transform: scale(1.5, 1.5);
@@ -87,7 +72,6 @@
             -moz-transform: scale(1.5, 1.5);
             transform: scale(1.5, 1.5);
         }
-
         #bg2.start-animation {
             -webkit-transform: scale(1, 1);
             -webkit-transition: -webkit-transform 20s linear 0s;
@@ -100,14 +84,12 @@
             transform: scale(1, 1);
             transition: transform 20s linear 0s;
         }
-
         /* Theme Section */
         .theme-container-item {
             width: 100%;
             overflow: hidden;
             position: relative;
         }
-
         .theme-box {
             width: 240px;
             height: 240px;
@@ -119,13 +101,11 @@
             margin-left: -121px;
             border-radius: 10px;
         }
-
         .demo-background {
             position: absolute;
             width: 100%;
             height: 100%;
         }
-
         .demo-box {
             position: absolute;
             width: 100%;
@@ -134,15 +114,10 @@
             display: flex;
             flex-direction: column;
         }
-
         .demo-group {
-
         }
-
         .demo-title {
-
         }
-
         .demo-item {
             display: inline-block;
             vertical-align: top;
@@ -153,11 +128,9 @@
             border-radius: 16px;
             overflow: hidden;
         }
-
         .demo-item:hover {
             text-decoration: none;
         }
-
         .demo-item-icon {
             display: inline-block;
             vertical-align: top;
@@ -166,12 +139,10 @@
             background-color: #ccc;
             border-radius: 50%;
         }
-
         .demo-item-text {
             font-size: 1.1em;
             margin-right: 16px;
         }
-
         .h1 {
             width: 100px;
             height: 100px;
@@ -186,19 +157,14 @@
     <style type="text/css">
         @media screen and (min-width:1200px) {
         }
-
         @media screen and (min-width: 960px) and (max-width: 1199px) {
         }
-
         @media screen and (min-width: 768px) and (max-width: 959px) {
         }
-
         @media only screen and (min-width: 480px) and (max-width: 767px) {
         }
-
         @media only screen and (max-width: 767px) {
         }
-
         @media only screen and (max-width: 479px) {
         }
     </style>
@@ -222,6 +188,7 @@
     </section>
     <section class="container-item" style="background-color:#99aacc;z-index:9;">
         <img id="bg2" class="container-item-bg-image" src="" alt="" />
+        <div class="container-panel" style="opacity:0;background-color:#000;"></div>
     </section>
     <section class="container-item" style="z-index:8;">
         <div class="theme-container-item" style="background-color:#fff;height:60%;"></div>
@@ -280,85 +247,28 @@
     <script type="text/javascript" src="../dist/SOON.UI.3.0.0.all.js"></script>
     <script type="text/javascript">
         (function() {
-            var sections,
-                sectionOperators = [],
-                heighter,
-                itemHeight,
-                currentIndex,
-                direction,
-                lastScrollTop,
-                wave,
-                requestAnimationFrame,
-                cancelAnimationFrame;
+            var 
+                layer,
+                backgroundImage,
+                wave;
 
-            function resetFixedItems() {
-                var scrollTop,
-                    section,
-                    i, len, 
-                    operator,
-                    index;
-
-                scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                if(scrollTop > lastScrollTop) {
-                    direction = "down";
-                } else {
-                    direction = "up";
-                }
-                lastScrollTop = scrollTop;
-                index = Math.floor((scrollTop + itemHeight) / itemHeight) - 1;
-                if(currentIndex === index) {
-                    return;
-                }
-
-                for(i = 0, len = sections.length; i < len; i++) {
-                    section = $(sections[i]);
-                    if(i <= index) {
-                        section.removeClass("container-item-fixed");
-                    } else {
-                        if(!section.hasClass("container-item-fixed")) {
-                            section.addClass("container-item-fixed");
-                        }
-                    }
-                }
-
-                /*
-                currentIndex = index;
-                operator = sectionOperators[currentIndex];
-                if(operator) {
-                    operator.stop();
-                }
-                operator = sectionOperators[index];
-                if(operator) {
-                    operator.start();
-                }
-                */
-            }
             $(document).ready(function(e) {
-                sections = $(".container-item");
-                heighter = $(".heighter");
+                layer.init();
 
                 function onResize() {
-                    var sections = $(".container-item"),
+                    var width = document.documentElement.clientWidth,
                         height = document.documentElement.clientHeight;
-                    sections.css("height", height + "px");
-                    heighter.css("height", height * sections.length + "px");
-                    itemHeight = document.documentElement.clientHeight;
 
-                    if(wave) {
-                        wave.resize();
-                    }
-                    resetFixedItems();
+                    layer.resize(width, height);
+                    backgroundImage.resize(width, height);
                 };
-
                 ui.page.resize(onResize);
                 onResize();
                 
                 $(document).on("scroll", function() {
-                    resetFixedItems();
+                    layer.setFixedItems();
                 });
-
-                loadBackgroundImages();
-
+                backgroundImage.load();
                 /**
                 setTimeout(function() {
                     demoSection();
@@ -366,9 +276,132 @@
                 */
             });
 
-            requestAnimationFrame = ui.getRequestAnimationFrame();
-            cancelAnimationFrame = ui.getCancelAnimationFrame();
+            layer = {
+                heighter: null,
+                sections: null,
+                sectionOperators: [],
+                currentIndex: -1,
+                lastScrollTop: 0,
+                direction: null,
+                init: function() {
+                    this.sections = $(".container-item");
+                    this.heighter = $(".heighter");
 
+                    this.events = new ui.CustomEvent(this);
+                    this.events.initEvents(["move", "change"]);
+                },
+                setFixedItems: function() {
+                    var scrollTop,
+                        section,
+                        i, len, 
+                        operator,
+                        lastIndex,
+                        index;
+
+                    scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                    if(scrollTop > this.lastScrollTop) {
+                        this.direction = "down";
+                    } else {
+                        this.direction = "up";
+                    }
+                    this.lastScrollTop = scrollTop;
+                    index = Math.floor((scrollTop + this.itemHeight) / this.itemHeight) - 1;
+
+                    this.fire("move", index, scrollTop, this.itemHeight);
+                    if(this.currentIndex === index) {
+                        return;
+                    }
+
+                    // 停止当前的特效
+                    /*
+                    operator = this.sectionOperators[this.currentIndex];
+                    if(operator) {
+                        operator.stop();
+                    }
+                    */
+
+                    for(i = 0, len = this.sections.length; i < len; i++) {
+                        section = $(this.sections[i]);
+                        if(i <= index) {
+                            section.removeClass("container-item-fixed");
+                        } else {
+                            if(!section.hasClass("container-item-fixed")) {
+                                section.addClass("container-item-fixed");
+                            }
+                        }
+                    }
+                    lastIndex = this.currentIndex;
+                    this.currentIndex = index;
+
+                    this.fire("change", lastIndex, index);
+
+                    // 开始新的节点特效
+                    /*
+                    operator = this.sectionOperators[index];
+                    if(operator) {
+                        operator.start();
+                    }
+                    */
+                    
+                },
+                resize: function(width, height) {
+                    this.sections.css("height", height + "px");
+                    this.heighter.css("height", height * this.sections.length + "px");
+
+                    this.itemHeight = height;
+                    this.setFixedItems();
+                }
+            };
+
+            backgroundImage = {
+                images: [],
+                load: function() {
+                    var width = document.documentElement.clientWidth,
+                        height = document.documentElement.clientHeight,
+                        loader,
+                        that;
+                    
+                    that = this;
+                    loader = ui.ImageLoader();
+                    loader
+                        .load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop)
+                        .then(function(loader) {
+                            var img = $("#bg2");
+                            img.css({
+                                "width": loader.displayWidth + "px",
+                                "height": loader.displayHeight + "px",
+                                "top": loader.marginTop + "px",
+                                "left": loader.marginLeft + "px"
+                            });
+                            that.images.push({
+                                imgElem: img,
+                                imgInfo: loader
+                            });
+                            img.prop("src", loader.src);
+                            // chrome会不执行动画效果，需要一个MacroTask做延迟
+                            setTimeout(function() {
+                                img.addClass("start-animation");
+                            }, 16);
+                        });
+                },
+                resize: function(width, height) {
+                    this.images.forEach(function(item) {
+                        item.imgInfo.width = width;
+                        item.imgInfo.height = height;
+                        ui.ImageLoader.centerCrop.call(item.imgInfo);
+                        item.imgElem.css({
+                            "width": item.imgInfo.displayWidth + "px",
+                            "height": item.imgInfo.displayHeight + "px",
+                            "top": item.imgInfo.marginTop + "px",
+                            "left": item.imgInfo.marginLeft + "px"
+                        });
+                    });
+                }
+            };
+
+
+            var requestAnimationFrame = ui.getRequestAnimationFrame();
+            var cancelAnimationFrame = ui.getCancelAnimationFrame();
             function demoSection() {
                 initWave();
                 wave.resize();
@@ -383,38 +416,11 @@
                 };
             }
 
-            function loadBackgroundImages() {
-                var width, 
-                    height, 
-                    loader;
-                width = document.documentElement.clientWidth;
-                height = document.documentElement.clientHeight;
-
-                loader = ui.ImageLoader();
-                loader
-                    .load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop)
-                    .then(function(loader) {
-                        var img = $("#bg2");
-                        img.css({
-                                width: loader.displayWidth + "px",
-                                height: loader.displayHeight + "px",
-                                top: loader.marginTop + "px",
-                                left: loader.marginLeft + "px"
-                            })
-                            .prop("src", loader.src)
-                        setTimeout(function() {
-                            img.addClass("start-animation");
-                        }, 16);
-                            
-                    });
-            }
-
             function initWave() {
                 var canvas = $("#colorLines"),
                     width = canvas.width(),
                     height = canvas.height(),
                     resize;
-
                 wave = ui.effect.Wave(canvas.get(0), width, height);
                 resize = wave.resize;
                 wave.resize = function() {
@@ -422,15 +428,12 @@
                         section,
                         width, height,
                         top, left;
-
                     div = canvas.parent();
                     section = div.parent();
                     width = section.width();
                     height = section.height();
-
                     left = width - (width * Math.sin(75 * Math.PI / 180));
                     top = height - (width * Math.sin(15 * Math.PI / 180));
-
                     div.css("transform", "rotate(-30deg) translate(" + left + "px, " + top + "px)");
                 };
                 wave.push(
@@ -466,7 +469,6 @@
                     })
                 );
             }
-
         })();
     </script>
 </body>
