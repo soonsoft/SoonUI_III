@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
     <link type="text/css" href="../dist/theme/light/site.Light.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/light/metro-light.all.css" rel="stylesheet" />
     <link id="theme" type="text/css" href="../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
     <style type="text/css">
         html {
@@ -44,6 +45,8 @@
             display: flex;
             flex-flow: column nowrap;
             overflow: hidden;
+            align-items: center;
+            justify-content: center;
         }
         .head-title {
             font-size: 2em;
@@ -59,12 +62,14 @@
         .main-panel {
             width: 50%;
             height: 100%;
-            flex: 0 0 auto;
+            flex: none;
             display: flex;
             flex-flow: column nowrap;
         }
         .main-header {
         }
+
+        /* Second Setion */
         #bg2 {
             -webkit-transform: scale(1.5, 1.5);
             -ms-transform: scale(1.5, 1.5);
@@ -84,7 +89,28 @@
             transform: scale(1, 1);
             transition: transform 20s linear 0s;
         }
+        .feature-panel {
+            width: 50%;
+            height: 50%;
+            overflow: hidden;
+            display: flex;
+            flex: none;
+            flex-flow: column nowrap;
+            transform: scale(1.5, 1.5);
+            color: #fff;
+        }
+
         /* Theme Section */
+        .demo-arrow {
+            display: block;
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: 50%;
+            margin-top: -32px;
+            border-width: 32px;
+            cursor: pointer;
+        }
         .theme-container-item {
             width: 100%;
             overflow: hidden;
@@ -172,7 +198,7 @@
 <body>
     <div class="heighter"></div>
     <section class="container-item" style="background-color:rgba(255, 255, 255, .2);z-index:10;">
-        <div class="container-panel" style="height:50%;top:25%;background-color:rgba(255, 255, 255, .5);flex-direction:row;justify-content:center;">
+        <div class="container-panel" style="height:50%;top:25%;background-color:rgba(255, 255, 255, .7);flex-direction:row;">
             <div class="main-panel">
                 <h1 class="head-title">
                     <span>SOON</span><span>.</span><span>UI</span>
@@ -188,7 +214,16 @@
     </section>
     <section class="container-item" style="background-color:#99aacc;z-index:9;">
         <img id="bg2" class="container-item-bg-image" src="" alt="" />
-        <div class="container-panel" style="opacity:0;background-color:#000;"></div>
+        <div class="container-panel" style="opacity:0;background-color:rgba(0, 0, 0, .5);">
+            <div class="feature-panel">
+                <h1 class="head-title">
+                    <span>特色</span>
+                </h1>
+                <p>
+                    我是描述文本，我是描述文本
+                </p>
+            </div>
+        </div>
     </section>
     <section class="container-item" style="z-index:8;">
         <div class="theme-container-item" style="background-color:#fff;height:60%;"></div>
@@ -231,7 +266,15 @@
         </div>
     </section>
     <section class="container-item" style="background-color:#ccc;z-index:6;">
-        <h1>4</h1>
+        <img id="bg3" class="container-item-bg-image" src="" alt="" />
+        <div id="demoTabPanel" class="container-panel">
+            <div class="ui-tab-body" style="background-color:rgba(255, 255, 255, .5)">
+                <i id="toDark" class="demo-arrow" style="right:0;border-color:transparent rgba(0, 0, 0, .5) transparent transparent;border-style:dashed solid dashed dashed;"></i>
+            </div>
+            <div class="ui-tab-body" style="background-color:rgba(0, 0, 0, .5)">
+                <i id="toLight" class="demo-arrow" style="left:0;border-color:transparent transparent transparent rgba(255, 255, 255, .5);border-style:dashed dashed dashed solid;"></i>
+            </div>
+        </div>
     </section>
     <section class="container-item" style="background-color:#f1f1f1;z-index:5;">
         <h1>5</h1>
@@ -268,6 +311,7 @@
                 $(document).on("scroll", function() {
                     layer.setFixedItems();
                 });
+
                 backgroundImage.load();
                 /**
                 setTimeout(function() {
@@ -289,6 +333,15 @@
 
                     this.events = new ui.CustomEvent(this);
                     this.events.initEvents(["move", "change"]);
+
+                    this.resizeHandler = [];
+                    this.onResize = function(fn) {
+                        if(this.resizeHandler.indexOf(fn) === -1) {
+                            this.resizeHandler.push(fn);
+                        }
+                    };
+                    featureSection.call(this);
+                    demoSection.call(this);
                 },
                 setFixedItems: function() {
                     var scrollTop,
@@ -350,6 +403,14 @@
 
                     this.itemHeight = height;
                     this.setFixedItems();
+
+                    this.resizeHandler.forEach(function (item) {
+                        try {
+                            item.call(null, width, height);
+                        } catch(e) {
+                            ui.handleError(e);
+                        }
+                    });
                 }
             };
 
@@ -360,6 +421,20 @@
                         height = document.documentElement.clientHeight,
                         loader,
                         that;
+
+                    function setImageSize(img, imgInfo) {
+                        img.css({
+                            "width": imgInfo.displayWidth + "px",
+                            "height": imgInfo.displayHeight + "px",
+                            "top": imgInfo.marginTop + "px",
+                            "left": imgInfo.marginLeft + "px"
+                        });
+                        that.images.push({
+                            imgElem: img,
+                            imgInfo: imgInfo
+                        });
+                        img.prop("src", imgInfo.src);
+                    }
                     
                     that = this;
                     loader = ui.ImageLoader();
@@ -367,21 +442,19 @@
                         .load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop)
                         .then(function(loader) {
                             var img = $("#bg2");
-                            img.css({
-                                "width": loader.displayWidth + "px",
-                                "height": loader.displayHeight + "px",
-                                "top": loader.marginTop + "px",
-                                "left": loader.marginLeft + "px"
-                            });
-                            that.images.push({
-                                imgElem: img,
-                                imgInfo: loader
-                            });
-                            img.prop("src", loader.src);
+                            setImageSize(img, loader);
                             // chrome会不执行动画效果，需要一个MacroTask做延迟
                             setTimeout(function() {
                                 img.addClass("start-animation");
                             }, 16);
+                        });
+
+                    loader = ui.ImageLoader();
+                    loader
+                        .load("./content/pictures/4.jpg", width, height, ui.ImageLoader.centerCrop)
+                        .then(function(loader) {
+                            var img = $("#bg3");
+                            setImageSize(img, loader);
                         });
                 },
                 resize: function(width, height) {
@@ -399,10 +472,69 @@
                 }
             };
 
+            function featureSection() {
+                var content = $(".feature-panel"),
+                    panel = content.parent();
+                this.move(function(e, index, scrollTop) {
+                    if(index !== 0) {
+                        return;
+                    }
+                    var percent = scrollTop / layer.itemHeight,
+                        scale;
+                    if(percent > 1) {
+                        percent = 1;
+                    }
+                    scale = 1.5 - (.5 * percent);
+                    panel.css("opacity", percent);
+                    content.css("transform", "scale(" + scale + "," + scale + ")");
+                });
+            }
+
+            function demoSection() {
+                var tab,
+                    flag,
+                    demos;
+
+                demos = [
+                    {
+                        title: "对话框",
+                        items: []
+                    },
+                    {
+                        title: "控件",
+                        items: []
+                    },
+                    {
+                        title: "视图",
+                        items: []
+                    }
+                ];
+
+                tab = ui.ctrls.TabView({
+                    bodyPanel: "demoTabPanel"
+                });
+
+                layer.onResize(function(width, height) {
+                    tab.putBodies(width, height);
+                    tab.restore();
+                    if(!flag) {
+                        flag = true;
+                        tab.showIndex(0, false);
+                    }
+                });
+
+                $("#toDark").click(function(e) {
+                    tab.showIndex(1);
+                });
+                $("#toLight").click(function(e) {
+                    tab.showIndex(0);
+                });
+            }
+
 
             var requestAnimationFrame = ui.getRequestAnimationFrame();
             var cancelAnimationFrame = ui.getCancelAnimationFrame();
-            function demoSection() {
+            function demoSection1() {
                 initWave();
                 wave.resize();
                 wave.start();
