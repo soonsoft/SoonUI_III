@@ -268,12 +268,8 @@
     <section class="container-item" style="background-color:#ccc;z-index:6;">
         <img id="bg3" class="container-item-bg-image" src="" alt="" />
         <div id="demoTabPanel" class="container-panel">
-            <div class="ui-tab-body" style="background-color:rgba(255, 255, 255, .5)">
-                <i id="toDark" class="demo-arrow" style="right:0;border-color:transparent rgba(0, 0, 0, .5) transparent transparent;border-style:dashed solid dashed dashed;"></i>
-            </div>
-            <div class="ui-tab-body" style="background-color:rgba(0, 0, 0, .5)">
-                <i id="toLight" class="demo-arrow" style="left:0;border-color:transparent transparent transparent rgba(255, 255, 255, .5);border-style:dashed dashed dashed solid;"></i>
-            </div>
+            <div class="ui-tab-body" style="background-color:rgba(255, 255, 255, .5)"></div>
+            <div class="ui-tab-body" style="background-color:rgba(0, 0, 0, .5)"></div>
         </div>
     </section>
     <section class="container-item" style="background-color:#f1f1f1;z-index:5;">
@@ -498,7 +494,9 @@
                 demos = [
                     {
                         title: "对话框",
-                        items: []
+                        items: [
+                            { name: "", src: "" }
+                        ]
                     },
                     {
                         title: "控件",
@@ -523,11 +521,43 @@
                     }
                 });
 
-                $("#toDark").click(function(e) {
-                    tab.showIndex(1);
-                });
-                $("#toLight").click(function(e) {
-                    tab.showIndex(0);
+                function createDemoItems(panel, theme) {
+                    var group,
+                        i, j, items,
+                        html = [];
+
+                    html.push("<dl>");
+                    for(i = 0; i < demos.length; i++) {
+                        group = demos[i];
+                        html.push("<dt>", group.title, "</dt>");
+                        html.push("<dd>", "<ul>");
+                        for(j = 0; j < group.items.length; j++) {
+                            item = group.items[j];
+                            html.push("<li>");
+                            html.push("<a href='", ui.str.format(item.src, theme), "'>", item.name, "</a>");
+                            html.push("</li>");
+                        }
+                        html.push("</ul>", "</dd>");
+                    }
+                    html.push("</dl>");
+                    if(theme === "light") {
+                        html.push("<i id='toDark' class='demo-arrow' style='right:0;border-color:transparent rgba(0, 0, 0, .5) transparent transparent;border-style:dashed solid dashed dashed;'></i>");
+                    } else {
+                        html.push("<i id='toLight' class='demo-arrow' style='left:0;border-color:transparent transparent transparent rgba(255, 255, 255, .5);border-style:dashed dashed dashed solid;'></i>")
+                    }
+
+                    panel.html(html.join(""));
+                }
+                createDemoItems($(tab.bodies[0]), "light");
+                createDemoItems($(tab.bodies[1]), "dark");
+
+                ui.setTask(function() {
+                    $("#toDark").click(function(e) {
+                        tab.showIndex(1);
+                    });
+                    $("#toLight").click(function(e) {
+                        tab.showIndex(0);
+                    });
                 });
             }
 
