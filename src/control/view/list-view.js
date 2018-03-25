@@ -565,6 +565,7 @@ ui.define("ui.ctrls.ListView", {
                 li = $(this._selectList[i]);
                 li.removeClass(selectedClass);
             }
+            this._selectList = [];
         } else {
             if(this._current) {
                 this._current

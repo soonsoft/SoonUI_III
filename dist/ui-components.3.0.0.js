@@ -3362,12 +3362,10 @@ $(document)
 $(window)
     //注册全局resize事件
     .on("resize", function (e) {
-        console.log("resize");
         if(page._resizeTimeoutHandler) {
             clearTimeout(page._resizeTimeoutHandler);
         }
         page._resizeTimeoutHandler = setTimeout(function() {
-            console.log("do");
             page._resizeTimeoutHandler = null;
             page.fire("resize", 
                 document.documentElement.clientWidth, 
