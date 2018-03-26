@@ -65,8 +65,8 @@
         }
         /* Main Section */
         .main-panel {
-            width: 50%;
-            height: 100%;
+            width: 60%;
+            height: auto;
             flex: none;
             display: flex;
             flex-flow: column nowrap;
@@ -93,6 +93,7 @@
             justify-content: center;
             height: 40px;
             margin-top: 20px;
+            margin-bottom: 48px;
         }
         .main-link {
             flex: none;
@@ -109,7 +110,6 @@
             background-color: rgba(15, 128, 193, .9);
             text-decoration: none;
         }
-
         /* Feature Setion */
         #bg2 {
             -webkit-transform: scale(1.5, 1.5);
@@ -132,7 +132,6 @@
         }
         .feature-panel {
             width: 50%;
-            height: 50%;
             overflow: hidden;
             display: flex;
             flex: none;
@@ -140,7 +139,6 @@
             transform: scale(1.5, 1.5);
             color: #fff;
         }
-
         /* Demo Section */
         .demo-arrow {
             display: block;
@@ -216,8 +214,7 @@
             font-size: 0.813em;
             color: #fff;
         }
-
-        /* Last Section */
+        /* End Section */
         #bg4 {
             -webkit-transform: scale(1, 1);
             -ms-transform: scale(1, 1);
@@ -235,6 +232,14 @@
             -moz-transition: -moz-transform 20s linear 0s;
             transform: scale(1.5, 1.5);
             transition: transform 20s linear 0s;
+        }
+        .end-panel {
+            width: 50%;
+            overflow: hidden;
+            display: flex;
+            flex: none;
+            flex-flow: column nowrap;
+            color: #fff;
         }
     </style>
     <style type="text/css">
@@ -254,8 +259,8 @@
 </head>
 <body>
     <div class="heighter"></div>
-    <section class="container-item" style="background-color:rgba(255, 255, 255, .2);z-index:10;">
-        <div class="container-panel" style="height:50%;top:25%;background-color:rgba(255, 255, 255, .4);flex-direction:column;">
+    <section class="container-item" style="background-color:rgba(255, 255, 255, .2);z-index:10;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;">
+        <div class="container-panel" style="height:auto;background-color:rgba(255, 255, 255, .4);top:auto;">
             <div class="main-panel">
                 <h1 class="head-title main-header">
                     <span style='opacity:.8'>SOON.UI</span>
@@ -265,7 +270,7 @@
                     代号: OCEAN
                 </h3>
                 <p class="description-text">
-                    用于桌面Web浏览器的UI框架，基于jQuery。这是UI库的3.0版本，本次的版本升级会对整个库进行一次重构，使其更加模块化，分层更清晰。分散的构建形式也使得大家可以很容易的从中分离出一部分用于构建现有的项目，甚至项目中正好需要某一个控件，而不用为了这一个控件引入整个SoonUI，保持前端的整洁和轻巧。
+                    SOON.UI是用于桌面Web浏览器的UI框架，基于jQuery开发。SOON.UI 3.0版本重写了所有代码，使其更加模块化，分层也更清晰。在逻辑上分为ui-core(核心)，ui-components(组件)，ui-controls(控件)，ui-effects(特效)，ui-viewpages(视图)五个组件。松散的构建形式使其可以很容易的从中分离出一部分用于构建现有的项目，不用为了一部分功能而不得不引入整个SOON.UI库；对于新项目直接引入SOON.UI.3.0.0.all.js就可以使用完整的功能了。
                 </p>
                 <div class="link-panel">
                     <a class="main-link" style="margin-right:20px;" href="https://github.com/soonsoft/SoonUI_III">GitHub</a>
@@ -282,7 +287,10 @@
                     <span style="opacity:.7">FEATURE</span>
                 </h1>
                 <p class="description-text" style="opacity:.8">
-                    我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，我是描述文本，
+                    SOON.UI采用微软(Microsoft)的METRO设计语言作为蓝本，同时也融入了Google的Material Design设计语言的部分元素。在风格上注重内容而非形式，移除了高光、阴影这些装饰元素。通过灰阶和主题色的搭配，大量的撞色设计元素加上精雕细琢的动画效果，让整体UI界面呈现一种轻盈灵动的特点。系统通过第一时间对用户的操作做出响应，并且配合上符合用户预期的动画效果，为用户提供极致的交互体验。
+                </p>
+                <p class="description-text" style="opacity:.8">
+                    SOON.UI提供了Light和Dark两种内置主题风格，并且搭配28种精心挑选的主题色，可以组合出有个性的界面配色，使得系统UI不在显得沉闷乏味和千篇一律。在实现上，做到样式和交互逻辑完整分离，主题样式和高亮色样式互不干扰，配合SOON.UI中精心设计的主题引擎，可以非常容易的对UI样式进行扩展和调整。甚至通过简单的开发可以为用户提供完整的主题自定义功能，像如今的Windows 10一样。
                 </p>
             </div>
         </div>
@@ -296,6 +304,22 @@
     </section>
     <section class="container-item" style="background-color:#f1f1f1;z-index:7;">
         <img id="bg4" class="container-item-bg-image" src="" alt="" />
+        <div class="container-panel" style="opacity:0;background-color:rgba(0, 0, 0, .7);">
+            <div class="end-panel">
+                <h1 class="head-title">
+                    <span style="opacity:.7">后记</span>
+                </h1>
+                <p class="description-text" style="opacity:.8">
+                    SOON.UI源自我的一次“叛逆”，在从事了多年各种“信息系统”开发工作以后，我见过了太多凑合的，缺乏良好的设计的各类信息系统，被各种商业名词包装后高价销售给政府或是企事业单位。随着一个又一个的项目的完结和开始，似乎没有人在乎真正用户的使用体验。在3个月或者半年左右的工期内，人们也很难有精力去关注交互体验这个看上去是锦上添花的功能。但我一直很在乎软件系统的UI，我无法忍受自己参与开发的系统有着那样丑陋的外表和可笑的交互逻辑。
+                </p>
+                <p class="description-text" style="opacity:.8">
+                    最早的想法产生于2010年，当我第一次看到2010年微软发布的Windows Phone 7的UI设计后，METRO设计令我印象深刻。于是在一个用于公司内部的工作量管理系统(<a href="http://teamwork.yzgit.com" target="_blank">Team Work</a>)上，我开始尝试构建一套使用METRO设计语言的UI。意外的是，系统很成功，UI风格在公司内部大量推广，当时这套简陋的UI框架被使用到其它商业项目上。在很长一段时间的迭代后，最终定格在<a href="https://github.com/soonsoft/soonUI" target="_blank">SOON.UI 2.5</a>。
+                </p>
+                <p class="description-text" style="opacity:.8">
+                    由于缺乏设计和良好的规划，所以我决定重写。断断续续一年的时间，终于SOON.UI 3.0重写完成，而此时Web前端界也已经发生了翻天覆地的变化，各种MVVM的框架层出不穷，UI界面正在变得越来越好，我也期待着SOON.UI的成长和蜕变。
+                </p>
+            </div>
+        </div>
     </section>
 
     <script type="text/javascript" src="../jquery.js"></script>
@@ -306,14 +330,11 @@
                 layer,
                 backgroundImage,
                 wave;
-
             $(document).ready(function(e) {
                 layer.init();
-
                 function onResize() {
                     var width = document.documentElement.clientWidth,
                         height = document.documentElement.clientHeight;
-
                     layer.resize(width, height);
                     backgroundImage.resize(width, height);
                 };
@@ -323,10 +344,8 @@
                 $(document).on("scroll", function() {
                     layer.setFixedItems();
                 });
-
                 backgroundImage.load();
             });
-
             layer = {
                 heighter: null,
                 sections: null,
@@ -337,10 +356,8 @@
                 init: function() {
                     this.sections = $(".container-item");
                     this.heighter = $(".heighter");
-
                     this.events = new ui.CustomEvent(this);
                     this.events.initEvents(["move", "change"]);
-
                     this.resizeHandler = [];
                     this.onResize = function(fn) {
                         if(this.resizeHandler.indexOf(fn) === -1) {
@@ -358,7 +375,6 @@
                         operator,
                         lastIndex,
                         index;
-
                     scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                     if(scrollTop > this.lastScrollTop) {
                         this.direction = "down";
@@ -367,7 +383,6 @@
                     }
                     this.lastScrollTop = scrollTop;
                     index = Math.floor((scrollTop + this.itemHeight) / this.itemHeight) - 1;
-
                     this.fire("move", index, scrollTop, this.itemHeight);
                     if(this.currentIndex === index) {
                         return;
@@ -384,16 +399,13 @@
                     }
                     lastIndex = this.currentIndex;
                     this.currentIndex = index;
-
                     this.fire("change", lastIndex, index);
                 },
                 resize: function(width, height) {
                     this.sections.css("height", height + "px");
                     this.heighter.css("height", height * this.sections.length + "px");
-
                     this.itemHeight = height;
                     this.setFixedItems();
-
                     this.resizeHandler.forEach(function (item) {
                         try {
                             item.call(null, width, height);
@@ -403,14 +415,12 @@
                     });
                 }
             };
-
             backgroundImage = {
                 images: [],
                 load: function() {
                     var width = document.documentElement.clientWidth,
                         height = document.documentElement.clientHeight,
                         that;
-
                     function setImageSize(img, imgInfo) {
                         img.css({
                             "width": imgInfo.displayWidth + "px",
@@ -463,7 +473,6 @@
                     });
                 }
             };
-
             function featureSection() {
                 var content = $(".feature-panel"),
                     panel = content.parent();
@@ -481,12 +490,10 @@
                     content.css("transform", "scale(" + scale + "," + scale + ")");
                 });
             }
-
             function demoSection() {
                 var tab,
                     flag,
                     demos;
-
                 demos = [
                     {
                         title: "对话框",
@@ -519,11 +526,9 @@
                         ]
                     }
                 ];
-
                 tab = ui.ctrls.TabView({
                     bodyPanel: "demoTabPanel"
                 });
-
                 this.onResize(function(width, height) {
                     tab.putBodies(width, height);
                     tab.restore();
@@ -532,20 +537,17 @@
                         tab.showIndex(0, false);
                     }
                 });
-
                 function createDemoItems(panel, theme) {
                     var group,
                         i, j, items,
                         html = [];
-
                     html.push("<h1 class='head-title'>");
                     if(theme === "light") {
-                        html.push("<span style='opacity:.8'>DEMO.</span><span style='opacity:.4'>日间</span>");
+                        html.push("<span style='opacity:.8'>DEMO.</span><span style='opacity:.4'>LIGHT</span>");
                     } else {
-                        html.push("<span style='opacity:.8'>DEMO.</span><span style='opacity:.4'>夜间</span>");
+                        html.push("<span style='opacity:.8'>DEMO.</span><span style='opacity:.4'>DARK</span>");
                     }
                     html.push("</h1>");
-
                     html.push("<dl class='demo-group-list'>");
                     for(i = 0; i < demos.length; i++) {
                         group = demos[i];
@@ -565,12 +567,10 @@
                     } else {
                         html.push("<i id='toLight' class='demo-arrow' style='left:0;border-color:transparent transparent transparent rgba(255, 255, 255, .5);border-style:dashed dashed dashed solid;'></i>")
                     }
-
                     panel.html(html.join(""));
                 }
                 createDemoItems($(tab.bodies[0]), "light");
                 createDemoItems($(tab.bodies[1]), "dark");
-
                 ui.setTask(function() {
                     $("#toDark").click(function(e) {
                         tab.showIndex(1);
@@ -579,7 +579,6 @@
                         tab.showIndex(0);
                     });
                 });
-
                 this.move(function(e, index, scrollTop) {
                     if(index !== 1) {
                         return;
@@ -591,14 +590,15 @@
                     $("#demoTabPanel").css("opacity", percent);
                 });
             }
-
             function pagerFootSection() {
                 this.move(function(e, index, scrollTop) {
                     if(index !== 2) {
                         return;
                     }
                     var percent = (scrollTop - (layer.itemHeight * index)) / layer.itemHeight,
-                        img = $("#bg4");
+                        img = $("#bg4"),
+                        panel = img.next();
+                    panel.css("opacity", percent);
                     if(percent > 0 && !img.hasClass("start-animation")) {
                         img.addClass("start-animation");
                     }
