@@ -274,7 +274,7 @@
                 </p>
                 <div class="link-panel">
                     <a class="main-link" style="margin-right:20px;" href="https://github.com/soonsoft/SoonUI_III">GitHub</a>
-                    <a class="main-link" href="javascript:void(0)">下载</a>
+                    <a class="main-link" href="./SOON.UI.zip">下载</a>
                 </div>
             </div>
         </div>
@@ -453,7 +453,7 @@
                             setImageSize(img, loader);
                         });
                     ui.ImageLoader()
-                        .load("./content/pictures/30.jpg", width, height, ui.ImageLoader.centerCrop)
+                        .load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
                         .then(function(loader) {
                             var img = $("#bg4");
                             setImageSize(img, loader);
@@ -599,7 +599,7 @@
                         img = $("#bg4"),
                         panel = img.next();
                     panel.css("opacity", percent);
-                    if(percent > 0 && !img.hasClass("start-animation")) {
+                    if(percent > .333 && !img.hasClass("start-animation")) {
                         img.addClass("start-animation");
                     }
                 });
