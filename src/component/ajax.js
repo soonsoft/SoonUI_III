@@ -62,7 +62,7 @@ function errorHandler(context, xhr, textStatus, errorThrown) {
     } else {
         try {
             result = JSON.parse(xhr.responseText);
-            context.error.message = result.Message;
+            context.error.message = result.message || result.Message || "Unknown Error";
         } catch(e) {
             context.error.message = xhr.responseText;
         }

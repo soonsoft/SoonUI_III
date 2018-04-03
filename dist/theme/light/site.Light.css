@@ -527,6 +527,7 @@ select {
   padding: 0 24px 0 1px;
   height: 24px;
   line-height: 24px;
+  background-color: #ffffff;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjNjY2NjY2IiBkPSJNIDkyNy44MDQgMzUyLjE5MyBsIC00MTUuODA0IDQxNS42MzIgbCAtNDE1LjgwMyAtNDE1LjYzMiBsIDYzLjYxNiAtNjMuNDQ1IGwgMzUyLjIwOSAzNTIuMDE3IGwgMzUyLjEwMiAtMzUyLjAxNyBaIiBwLWlkPSIxNjQwIiAvPjwvc3ZnPg==");
   background-repeat: no-repeat;
   background-position: right;
