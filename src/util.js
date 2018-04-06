@@ -80,65 +80,65 @@ ui.param = function(obj) {
 /** 对象扩展 param[0]: deep, param[1]: target param[2]... */
 ui.extend = function() {
     var options, name, src, copy, copyIsArray, clone,
-		target = arguments[0] || {},
-		i = 1,
-		length = arguments.length,
-		deep = false;
+        target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
 
-	// 是否深拷贝
-	if (ui.core.isBoolean(target)) {
-		deep = target;
-		target = arguments[i] || {};
-		i++;
-	}
+    // 是否深拷贝
+    if (ui.core.isBoolean(target)) {
+        deep = target;
+        target = arguments[i] || {};
+        i++;
+    }
 
-	// 如果target不是一个可以扩展的对象则设置为object
-	if (!ui.core.isObject(target) && !ui.core.isFunction(target)) {
-		target = {};
-	}
+    // 如果target不是一个可以扩展的对象则设置为object
+    if (!ui.core.isObject(target) && !ui.core.isFunction(target)) {
+        target = {};
+    }
 
-	// 如果只有被扩展对象本身则直接返回
-	if (i === length) {
-		return target;
-	}
+    // 如果只有被扩展对象本身则直接返回
+    if (i === length) {
+        return target;
+    }
 
-	for (; i < length; i++) {
-		// 避开 null/undefined
-		if ((options = arguments[i]) != null) {
-			for (name in options) {
+    for (; i < length; i++) {
+        // 避开 null/undefined
+        if ((options = arguments[i]) != null) {
+            for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
                 }
 
                 copyIsArray = false;
-				src = target[name];
-				copy = options[name];
+                src = target[name];
+                copy = options[name];
 
-				if ( target === copy ) {
-					continue;
-				}
+                if ( target === copy ) {
+                    continue;
+                }
 
                 if (deep && copy 
                     && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
                     // 如果是对象或者是数组，并且是深拷贝
-					if (copyIsArray) {
-						clone = src && Array.isArray(src) ? src : [];
-					} else {
-						clone = src && ui.core.isPlainObject(src) ? src : {};
-					}
+                    if (copyIsArray) {
+                        clone = src && Array.isArray(src) ? src : [];
+                    } else {
+                        clone = src && ui.core.isPlainObject(src) ? src : {};
+                    }
 
-					// 深拷贝
-					target[name] = ui.extend(deep, clone, copy);
-				} else if (copy !== undefined && copy !== null) {
+                    // 深拷贝
+                    target[name] = ui.extend(deep, clone, copy);
+                } else if (copy !== undefined && copy !== null) {
                     // 直接设置值
                     target[name] = copy;
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	// Return the modified object
-	return target;
+    // Return the modified object
+    return target;
 };
 
 /**
