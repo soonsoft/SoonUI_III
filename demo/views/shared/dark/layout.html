@@ -38,13 +38,14 @@
     <script type="text/javascript">
         ui.theme.currentTheme = "Dark";
         ui.theme.backgroundColor = "#1d1f21";
-        ui.master.config("userSettings", {
-            changeHighlightUrl: function(highlight) {
-                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-                ui.theme.setHighlight(highlight);
-            }
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
         });
-        ui.master.init();
     </script>
     @{script}
 </body>

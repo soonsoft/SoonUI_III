@@ -39,6 +39,7 @@ if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
         // 增加Promise.try提案的方法
         Promise.prototype.try = _try;
     }
+    return;
 }
 
 // 生成Promise垫片
@@ -120,34 +121,34 @@ PromiseShim = function(executor) {
 
     promise = this;
     executor(
-    // resolve
-    function (value) {
-    var method;
-        if (promise._state !== "pending") {
-            return;
-        }
-        if (value && isFunction(value.then)) {
-            // thenable对象使用then，Promise实例使用_then
-            method = value instanceof PromiseShim ? "_then" : "then";
-            // 如果value是Promise对象则把callbacks转移到value的then当中
-            value[method](
-                function (val) {
-                    transmit(promise, val, true);
-            }, 
-            function (reason) {
-                transmit(promise, reason, false);
+        // resolve
+        function (value) {
+            var method;
+            if (promise._state !== "pending") {
+                return;
             }
-            );
-        } else {
-            transmit(promise, value, true);
-        }
+            if (value && isFunction(value.then)) {
+                // thenable对象使用then，Promise实例使用_then
+                method = value instanceof PromiseShim ? "_then" : "then";
+                // 如果value是Promise对象则把callbacks转移到value的then当中
+                value[method](
+                    function (val) {
+                        transmit(promise, val, true);
+                }, 
+                function (reason) {
+                    transmit(promise, reason, false);
+                }
+                );
+            } else {
+                transmit(promise, value, true);
+            }
         }, 
         // reject
         function (reason) {
-        if (promise._state !== "pending") {
-            return;
-        }
-        transmit(promise, reason, false);
+            if (promise._state !== "pending") {
+                return;
+            }
+            transmit(promise, reason, false);
         }
     );
 };
@@ -155,10 +156,10 @@ PromiseShim.prototype = {
     constructor: PromiseShim,
     // 处理then方法的回调函数
     _then: function(onSuccess, onFail) {
-    var that = this;
-    if (this._state !== "pending") {
-    // 如果Promise状态已经确定则异步触发回调
-    ui.setMicroTask(function() {
+        var that = this;
+        if (this._state !== "pending") {
+            // 如果Promise状态已经确定则异步触发回调
+            ui.setMicroTask(function() {
                 that._fire(onSuccess, onFail);
             });
         } else {
@@ -169,7 +170,7 @@ PromiseShim.prototype = {
         }
     },
     _fire: function(onSuccess, onFail) {
-    if (this._state === "rejected") {
+        if (this._state === "rejected") {
             if (typeof onFail === "function") {
                 onFail(this._result);
             } else {
@@ -182,8 +183,8 @@ PromiseShim.prototype = {
         }
     },
     then: function(onSuccess, onFail) {
-    var that = this,
-        nextPromise;
+        var that = this,
+            nextPromise;
 
         onSuccess = isFunction(onSuccess) ? onSuccess : success;
         onFail = isFunction(onFail) ? onFail : failed;

@@ -1158,7 +1158,7 @@ function unauthorized(xhr, context) {
         return forbiddenHandler(context);
     } else if(xhr.status == 200) {
         json = xhr.getResponseHeader(responsedJson);
-        if(!ui.str.isNullOrEmpty(json)) {
+        if(!ui.str.isEmpty(json)) {
             try {
                 json = JSON.parse(json);
             } catch(e) {
@@ -1360,7 +1360,7 @@ ui.ajax = {
         if(btn.isNodeName("input")) {
             text = btn.val();
             if(text.length > 0) {
-                btn.val(ui.str.fFormat(textFormat, text));
+                btn.val(ui.str.format(textFormat, text));
             } else {
                 btn.val(ui.str.format(textFormat, "处理"));
             }

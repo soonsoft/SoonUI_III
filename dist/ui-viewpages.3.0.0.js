@@ -103,13 +103,13 @@ function userSettings() {
         config,
         that;
 
-    config = getConfig.call(this, "userSettings");
     userProtrait = $("#user");
-    if(userProtrait.length === 0) {
+    if(!this.userSettingsConfig || userProtrait.length === 0) {
         return;
     }
 
     that = this;
+    config = this.userSettingsConfig;
 
     sidebarElement = $("<section class='user-settings' />");
     userInfo = $("<div class='user-info' />");
@@ -241,15 +241,6 @@ function userSettings() {
     userProtrait.click(function(e) {
         that.sidebarManager.show("userSidebar");
     });
-}
-
-function getConfig(name) {
-    var optionName;
-    if(ui.str.isEmpty(name)) {
-        return;
-    }
-    optionName = name + "Config";
-    return this[optionName] || defaultConfig[optionName];
 }
 
 var defaultConfig = {

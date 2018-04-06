@@ -36,13 +36,14 @@
     <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
     <script type="text/javascript" src="../../lib/data/highlights.js"></script>
     <script type="text/javascript">
-        ui.master.config("userSettings", {
-            changeHighlightUrl: function(highlight) {
-                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-                ui.theme.setHighlight(highlight);
-            }
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
         });
-        ui.master.init();
     </script>
     @{script}
 </body>

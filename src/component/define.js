@@ -123,33 +123,6 @@ CtrlBase.prototype = {
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
-    option: {},
-    extend: function(target) {
-        var input = Array.prototype.slice.call(arguments, 1),
-            i = 0, len = input.length,
-            option, key, value;
-        for (; i < len; i++) {
-            option = input[i];
-            for (key in option) {
-                value = option[key];
-                if (option.hasOwnProperty(key) && value !== undefined) {
-                    // Clone objects
-                    if (ui.core.isPlainObject(value)) {
-                        target[key] = ui.core.isPlainObject(target[key]) 
-                            ? this.extend({}, target[key], value) 
-                            // Don't extend strings, arrays, etc. with objects
-                            : this.extend({}, value);
-                    // Copy everything else by reference
-                    } else {
-                        if (value !== null && value !== undefined) {
-                            target[key] = value;
-                        }
-                    }
-                }
-            }
-        }
-        return target;
-    },
     mergeEvents: function(originEvents, newEvents) {
         var temp,
             i;
@@ -189,11 +162,8 @@ CtrlBase.prototype = {
         this.window = window;
         this.element = element || null;
 
-        // 配置项初始化
-        this.option = this.extend({}, 
-            this.option,
-            this._defineOption(),
-            option);
+        // 配置项初始化 deep copy
+        this.option = ui.extend(true, {}, this._defineOption(), option) || {};
         // 事件初始化
         events = this._defineEvents();
         if(Array.isArray(events) && events.length > 0) {

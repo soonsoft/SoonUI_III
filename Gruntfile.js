@@ -89,6 +89,7 @@ module.exports = function(grunt) {
         "src/ES5-String-shims.js",
         "src/ES6-String-shims.js",
         "src/ES5-Function-shims.js",
+        "src/ES5-JSON-shims.js",
         "src/ES6-Number-shims.js",
         "src/ES5-Object-shims.js",
         "src/ES6-Promise.shims.js",
@@ -104,9 +105,11 @@ module.exports = function(grunt) {
         "src/util-structure-transform.js",
         "src/util-random.js",
 
+        "src/task.js",
         "src/jquery-extends.js",
         "src/cookie.js",
-        "src/style-sheet.js"
+        "src/style-sheet.js",
+        "src/i18n.js",
     ];
     let frameDestFile = "dist/ui-core.<%= pkg.version %>.js";
 
@@ -115,8 +118,6 @@ module.exports = function(grunt) {
         "src/component/introsort.js",
         "src/component/animation.js",
         "src/component/custom-event.js",
-        "src/component/task.js",
-        "src/component/json.js",
         "src/component/ajax.js",
         "src/component/color.js",
         "src/component/browser.js",
