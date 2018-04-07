@@ -105,6 +105,7 @@ module.exports = function(grunt) {
         "src/util-structure-transform.js",
         "src/util-random.js",
 
+        "src/parser.js",
         "src/task.js",
         "src/jquery-extends.js",
         "src/cookie.js",

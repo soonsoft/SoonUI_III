@@ -20,6 +20,18 @@ ui.handleError = function(e) {
     console.log(e);
 };
 
+/** jQuery 全局Eval函数 */
+ui.globalEval = function(data) {
+    if (data && ui.str.trim(data)) {
+        // We use execScript on Internet Explorer
+        // We use an anonymous function so that context is window
+        // rather than jQuery in Firefox
+        (window.execScript || function(data) {
+            window["eval"].call(window, data); // jscs:ignore requireDotNotation
+        })(data);
+    }
+};
+
 /**
  * 修复javascript中四舍五入方法的bug
  */ 
