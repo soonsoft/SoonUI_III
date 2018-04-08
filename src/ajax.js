@@ -2,10 +2,12 @@
 
 var msie = 0,
     useOnload,
-    // Cross-Origin Resource Sharing(CORS)是允许来自浏览器的跨域通信的W3C规范。
-    // 通过设置XMLHttpRequest的头部，CORS允许开发者使用类似同域中请求惯用的方法
-    // https://www.cnblogs.com/linda586586/p/4351452.html
-    // http://www.w3.org/TR/cors/
+    /**
+     * Cross-Origin Resource Sharing(CORS)是允许来自浏览器的跨域通信的W3C规范。
+     * 通过设置XMLHttpRequest的头部，CORS允许开发者使用类似同域中请求惯用的方法
+     * https://www.cnblogs.com/linda586586/p/4351452.html
+     * http://www.w3.org/TR/cors/
+     */
     supportCORS = false,
     // 是否为本地模式
     isLocal = false,
@@ -20,8 +22,11 @@ var msie = 0,
     ajaxConverter,
     
     accepts,
+    rquery = /\?/,
     rjsonp = /(=)\?(?=&|$)|\?\?/,
-    rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
+    rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg,
+    requestIDSeed = parseInt((Math.random() + "").substring(2), 10),
+    jsonpCallbackSeed = parseInt((Math.random() + "").substring(2), 10);
 
 head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
 // 检测IE的版本
@@ -208,12 +213,50 @@ httpRequestProcessor = {
     },
     jsonp: {
         preprocess: function() {
+            var callbackName,
+                names,
+                name, 
+                i, len,
+                callback;
+            
+            callbackName = this.option.jsonpCallback || "ui.jsonp_callback_" + (jsonpCallbackSeed--);
+            if(rjsonp.test(this.option.url)) {
+                this.option.url = this.option.url.replace(rjsonp, "$1" + callbackName);
+            } else {
+                this.option.url = this.option.url 
+                    + (rquery.test(this.option.url) ? "&" : "?") 
+                    + this.option.jsonp + "=" + callbackName;
+            }
 
+            names = callbackName.split(".");
+            callback = global;
+            for(i = 0, len = names.length - 1; i < len; i++) {
+                callback = callback[name];
+                if(!callback) {
+                    callback = callback[name] = {};
+                }
+            }
+
+            name = names[len];
+            callback[name] = function(data) {
+                callback[name] = data;
+            };
         }
     },
     script: {
         request: function() {
+            var that;
 
+            this.xhr = document.createElement("script");
+            if(this.option.charset) {
+                this.xhr.charset = this.option.charset;
+            }
+            that = this;
+            this.xhr.onerror = this.xhr[useOnload ? "onload" : "onreadystatechange"] = function() {
+                that.respond();
+            };
+            this.xhr.src = this.option.url;
+            head.insertBefore(this.xhr, head.firstChild);
         },
         respond: function(event, forceAbort) {
 
@@ -268,10 +311,14 @@ ajaxConverter = {
 
         names = text.split(".");
         callback = global;
-        names.forEach(function(name) {
-            callback = callback[name];
-        });
-
+        try {
+            names.forEach(function(name) {
+                callback = callback[name];
+            });
+        } catch(e) {
+            callback = undefined;
+            ui.handleError("the jsonp callback is undefined.");
+        }
         return callback;
     }
 };
@@ -487,7 +534,7 @@ ensureOption = (function() {
         option.hasContent = !rnoContent.test(option.type);
         if(!option.hasContent) {
             // 请求没有requestBody，把参数放到url上
-            appendChar = option.url.indexOf("?") > -1 ? "&" : "?";
+            appendChar = rquery.test(option.url) ? "&" : "?";
             if(option.querystring) {
                 option.url += appendChar + option.querystring;
             }
@@ -515,7 +562,7 @@ function ajax(option) {
         requestHeaders: {},
         querystring: option.querystring,
         readyState: 0,
-        uniqueID: ("" + Math.random()).replace(/0\./, ""),
+        uniqueID: requestIDSeed--,
         status: 0
     };
 
@@ -523,20 +570,23 @@ function ajax(option) {
         _resolve = resolve;
         _resolve = reject;
     });
-    promise.option = option;
     promise._resolve = _resolve;
     promise._reject = _reject;
 
-    promise.async = !(option.async === false);
     ajaxRequest = ui.extend(promise, ajaxRequest, httpRequestMethods);
+    ajaxRequest.option = option;
+    ajaxRequest.async = !(option.async === false);
 
     if((option.crossDomain && !supportCORS || rjsonp.test(option.url))
-        && option.dataType === "jsonp"
+        && option.dataType === "json"
         && option.type === "GET") {
         // 貌似可以不要这个
         option.dataType = "jsonp";
     }
     ui.extend(ajaxRequest, (httpRequestProcessor[option.dataType] || httpRequestProcessor.ajax));
+    if(ajaxRequest.preprocess) {
+        ajaxRequest.preprocess();
+    }
 
     // 1. Content-Type RequestBody的类型
     if(option.contentType) {

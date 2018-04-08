@@ -24,8 +24,8 @@ function parseXML(data) {
 	return xml;
 }
 
-function parseHTML() {
-
+function parseHTML(html) {
+    return html;
 }
 
 ui.parseXML = parseXML;

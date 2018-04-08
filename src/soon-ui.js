@@ -1,7 +1,7 @@
 /*
     SoonUI 主命名空间声明
  */
-( function( global, factory ) {
+(function(global, factory) {
 	/**
 	 * 严格模式
 	 * 变量必须声明后再使用
@@ -22,7 +22,7 @@
 	 */
 	"use strict";
 
-	if ( typeof module === "object" && typeof module.exports === "object" ) {
+	if (typeof module === "object" && typeof module.exports === "object") {
 
 		// For CommonJS and CommonJS-like environments where a proper `window`
 		// is present, execute the factory and get SoonUI.
@@ -32,24 +32,24 @@
 		// e.g. var ui = require("ui")(window);
 		// See ticket #14549 for more info.
 		module.exports = global.document ?
-			factory( global, true ) :
-			function( w ) {
-				if ( !w.document ) {
-					throw new Error( "SoonUI requires a window with a document" );
+			factory(global, true) :
+			function(w) {
+				if (!w.document) {
+					throw new Error("SoonUI requires a window with a document");
 				}
-				return factory( w );
+				return factory(w);
 			};
 	} else {
-		factory( global, true );
+		factory(global, true);
 	}
 
 // Pass this if window is not defined yet
-} )( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
+})(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
 
     var ui = {};
     if(noGlobal) {
         window.ui = ui;
-        window.soonUI = ui;
+        window.SOONUI = ui;
     }
     return ui;
-} );
+});
