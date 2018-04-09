@@ -475,7 +475,6 @@ function getBezierFn() {
 
     return function(t) {
         var i, p, num, value;
-
         if(t < 0) {
             t = 0;
         }
