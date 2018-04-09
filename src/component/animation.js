@@ -6,7 +6,7 @@
 var requestAnimationFrame,
     cancelAnimationFrame,
     prefix = ["ms", "moz", "webkit", "o"],
-    i;
+    i, styleMapper;
     
 requestAnimationFrame = window.requestAnimationFrame;
 cancelAnimationFrame = window.cancelAnimationFrame;
@@ -35,6 +35,14 @@ ui.getRequestAnimationFrame = function() {
 };
 ui.getCancelAnimationFrame = function() {
     return cancelAnimationFrame;
+};
+
+styleMapper = {
+    "ease": getBezierFn(.25, .1, .25, 1),
+    "linear": getBezierFn(0, 0, 1, 1),
+    "ease-in": getBezierFn(.42, 0, 1, 1),
+    "ease-out": getBezierFn(0, 0, .58, 1),
+    "ease-in-out": getBezierFn(.42, 0, .58, 1)
 };
 
 //动画效果
