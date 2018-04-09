@@ -1,7 +1,8 @@
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
-var arrayInstance = [];
+var arrayInstance = [],
+    base = ui.ArrayFaker.prototype;
 function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
@@ -23,25 +24,15 @@ function KeyArray () {
         return new KeyArray();
     }
 };
-KeyArray.prototype = $.extend({
-    constructor: KeyArray
-}, ui.ArrayFaker.prototype);
-delete KeyArray.prototype.shift;
-delete KeyArray.prototype.push;
-delete KeyArray.prototype.sort;
-delete KeyArray.prototype.pop;
-delete KeyArray.prototype.splice;
-delete KeyArray.prototype.concat;
-delete KeyArray.prototype.slice;
-delete KeyArray.prototype.forEach;
-delete KeyArray.prototype.map;
-delete KeyArray.prototype.filter;
-delete KeyArray.prototype.every;
-delete KeyArray.prototype.some;
-delete KeyArray.prototype.reduce;
-delete KeyArray.prototype.reduceRight;
-delete KeyArray.prototype.indexOf;
-delete KeyArray.prototype.lastIndexOf;
+KeyArray.prototype = {
+    constructor: KeyArray,
+    isArray: base.isArray,
+    setArray: base.setArray,
+    makeArray: base.makeArray,
+    toArray: base.toArray,
+    toString: base.toString,
+    valueOf: base.valueOf
+};
 
 // 初始化
 KeyArray.prototype.initialize = function() {

@@ -1,7 +1,6 @@
 // Source: src/effect/0.js
 
 (function($, ui) {
-"use strict";
 ui.effect = {};
 
 })(jQuery, ui);
@@ -9,7 +8,6 @@ ui.effect = {};
 // Source: src/effect/wave.js
 
 (function($, ui) {
-"use strict";
 function globalAttenuation(x, k) {
     return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
 }

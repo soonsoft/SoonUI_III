@@ -1,7 +1,6 @@
 // Source: src/viewpage/master.js
 
 (function($, ui) {
-"use strict";
 /*
     Master 模板页
  */
@@ -399,7 +398,6 @@ ui.master = master;
 // Source: src/viewpage/menu.js
 
 (function($, ui) {
-"use strict";
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     lightClass = "head-color",
@@ -1350,7 +1348,6 @@ ui.define("ui.ctrls.Menu", {
 // Source: src/viewpage/sidebar-manager.js
 
 (function($, ui) {
-"use strict";
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -1457,7 +1454,6 @@ ui.SidebarManager = SidebarManager;
 // Source: src/viewpage/tile-view.js
 
 (function($, ui) {
-"use strict";
 // 动态磁贴
 
 ///磁贴组
@@ -2240,7 +2236,6 @@ ui.TileContainer = TileContainer;
 // Source: src/viewpage/tiles/tile-calendar.js
 
 (function($, ui) {
-"use strict";
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -2327,7 +2322,6 @@ ui.tiles.calendar = function(tile) {
 // Source: src/viewpage/tiles/tile-clock.js
 
 (function($, ui) {
-"use strict";
 // 时钟动态磁贴
 var clockStyle;
 
@@ -2418,7 +2412,6 @@ ui.tiles.clock = function(tile) {
 // Source: src/viewpage/tiles/tile-picture.js
 
 (function($, ui) {
-"use strict";
 // 图片动态磁贴
 
 if(!ui.tiles) {
@@ -2605,7 +2598,6 @@ function moveNext(tile) {
 // Source: src/viewpage/tiles/tile-weather.js
 
 (function($, ui) {
-"use strict";
 // 天气可交互磁贴
 /*
     cityName: 城市名称
@@ -2916,7 +2908,6 @@ ui.tiles.weather = function(tile, weatherData) {
 // Source: src/viewpage/toolbar.js
 
 (function($, ui) {
-"use strict";
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {

@@ -1,28 +1,8 @@
 /*
     SoonUI 主命名空间声明
  */
-( function( global, factory ) {
-	/**
-	 * 严格模式
-	 * 变量必须声明后再使用
-	 * 函数的参数不能有同名属性，否则报错
-	 * 不能使用with语句
-	 * 不能对只读属性赋值，否则报错
-	 * 不能使用前缀0表示八进制数，否则报错
-	 * 不能删除不可删除的属性，否则报错
-	 * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
-	 * eval不会在它的外层作用域引入变量
-	 * eval和arguments不能被重新赋值
-	 * arguments不会自动反映函数参数的变化
-	 * 不能使用arguments.callee
-	 * 不能使用arguments.caller
-	 * 禁止this指向全局对象
-	 * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
-	 * 增加了保留字（比如protected、static和interface）
-	 */
-	"use strict";
-
-	if ( typeof module === "object" && typeof module.exports === "object" ) {
+(function(global, factory) {
+	if (typeof module === "object" && typeof module.exports === "object") {
 
 		// For CommonJS and CommonJS-like environments where a proper `window`
 		// is present, execute the factory and get SoonUI.
@@ -32,32 +12,44 @@
 		// e.g. var ui = require("ui")(window);
 		// See ticket #14549 for more info.
 		module.exports = global.document ?
-			factory( global, true ) :
-			function( w ) {
-				if ( !w.document ) {
-					throw new Error( "SoonUI requires a window with a document" );
+			factory(global, true) :
+			function(w) {
+				if (!w.document) {
+					throw new Error("SoonUI requires a window with a document");
 				}
-				return factory( w );
+				return factory(w);
 			};
 	} else {
-		factory( global, true );
+		factory(global, true);
 	}
-
 // Pass this if window is not defined yet
-} )( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
+})(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
 
-    var ui = {};
-    if(noGlobal) {
-        window.ui = ui;
-        window.soonUI = ui;
-    }
-    return ui;
-} );
-
-// Source: src/core.js
-
-(function($, ui) {
+/**
+ * 严格模式
+ * 变量必须声明后再使用
+ * 函数的参数不能有同名属性，否则报错
+ * 不能使用with语句
+ * 不能对只读属性赋值，否则报错
+ * 不能使用前缀0表示八进制数，否则报错
+ * 不能删除不可删除的属性，否则报错
+ * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
+ * eval不会在它的外层作用域引入变量
+ * eval和arguments不能被重新赋值
+ * arguments不会自动反映函数参数的变化
+ * 不能使用arguments.callee
+ * 不能使用arguments.caller
+ * 禁止this指向全局对象
+ * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
+ * 增加了保留字（比如protected、static和interface）
+ */
 "use strict";
+var ui = {};
+if(noGlobal) {
+	window.ui = ui;
+	window.SOONUI = ui;
+}
+
 // core
 
 /*
@@ -248,13 +240,9 @@ core.isTouchAvailable = function() {
 };
 
 
-
-})(jQuery, ui);
-
 // Source: src/ES5-Array-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -463,7 +451,6 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 // Source: src/ES6-Array-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -554,7 +541,6 @@ if(!isFunction(Array.of)) {
 // Source: src/ES5-String-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -576,7 +562,6 @@ if(!isFunction(String.prototype.trim)) {
 // Source: src/ES6-String-shims.js
 
 (function($, ui) {
-"use strict";
 // 为String对象添加ES6的一些方法
 
 var toString = Object.prototype.toString;
@@ -699,7 +684,6 @@ if(!isFunction(String.prototype.endsWith)) {
 // Source: src/ES5-Function-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -729,10 +713,228 @@ if(!isFunction(Function.prototype.bind)) {
 
 })(jQuery, ui);
 
+// Source: src/ES5-JSON-shims.js
+
+(function($, ui) {
+// json2
+
+// 判断浏览器是否原生支持JSON对象
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
+        && ui.core.isFunction(window.JSON.parse) 
+        && ui.core.isFunction(window.JSON.stringify));
+if (hasJSON) {
+    return;
+}
+
+var JSON = {
+    fake: true
+};
+
+"use strict";
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+function f(n) {
+    return n < 10 ? "0" + n : n;
+}
+function this_value() {
+    return this.valueOf();
+}
+if (typeof Date.prototype.toJSON !== "function") {
+    Date.prototype.toJSON = function () {
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" 
+                    + f(this.getUTCMonth() + 1) + "-" 
+                    + f(this.getUTCDate()) + "T" 
+                    + f(this.getUTCHours()) + ":" 
+                    + f(this.getUTCMinutes()) + ":" 
+                    + f(this.getUTCSeconds()) + "Z") : null);
+    };
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+}
+
+var gap;
+var indent;
+var meta;
+var rep;
+
+function quote(string) {
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string) ? 
+        ("\"" + string.replace(rx_escapable, function (a) {
+            var c = meta[a];
+            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
+        }) + "\"") : 
+        ("\"" + string + "\"");
+}
+function str(key, holder) {
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+    if (value && typeof value === "object" &&
+            typeof value.toJSON === "function") {
+        value = value.toJSON(key);
+    }
+    if (typeof rep === "function") {
+        value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+            return isFinite(value) ? String(value) : "null";
+
+        case "boolean":
+
+        case "null":
+            return String(value);
+
+        case "object":
+            if (!value) {
+                return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+                v = partial.length === 0
+                    ? "[]"
+                    : gap
+                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                        : "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            }
+            v = partial.length === 0
+                ? "{}"
+                : gap
+                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+                    : "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+    }
+}
+
+// JSON.stringify & JSON.parse
+meta = {
+    "\b": "\\b",
+    "\t": "\\t",
+    "\n": "\\n",
+    "\f": "\\f",
+    "\r": "\\r",
+    "\"": "\\\"",
+    "\\": "\\\\"
+};
+JSON.stringify = function (value, replacer, space) {
+    var i;
+    gap = "";
+    indent = "";
+    if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+            indent += " ";
+        }
+    } else if (typeof space === "string") {
+        indent = space;
+    }
+    rep = replacer;
+    if (replacer && typeof replacer !== "function" &&
+            (typeof replacer !== "object" ||
+            typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+    }
+    return str("", {"": value});
+};
+JSON.parse = function (text, reviver) {
+    var j;
+    function walk(holder, key) {
+        var k;
+        var v;
+        var value = holder[key];
+        if (value && typeof value === "object") {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }
+    text = String(text);
+    rx_dangerous.lastIndex = 0;
+    if (rx_dangerous.test(text)) {
+        text = text.replace(rx_dangerous, function (a) {
+            return "\\u" +
+                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        });
+    }
+    if (
+        rx_one.test(
+            text
+                .replace(rx_two, "@")
+                .replace(rx_three, "]")
+                .replace(rx_four, "")
+        )
+    ) {
+        j = eval("(" + text + ")");
+        return (typeof reviver === "function")
+            ? walk({"": j}, "")
+            : j;
+    }
+    throw new SyntaxError("JSON.parse");
+};
+
+})(jQuery, ui);
+
 // Source: src/ES6-Number-shims.js
 
 (function($, ui) {
-"use strict";
 // 为Number对象添加ES6的一些方法
 
 function isFunction(fn) {
@@ -771,7 +973,6 @@ if(!isFunction(Number.parseFloat)) {
 // Source: src/ES5-Object-shims.js
 
 (function($, ui) {
-"use strict";
 // 为String对象添加ES6的一些方法
 
 var prototypeOfObject = Object.prototype,
@@ -1165,7 +1366,6 @@ if(!isFunction(Object.create)) {
 // Source: src/ES6-Promise.shims.js
 
 (function($, ui) {
-"use strict";
 
 var PromiseShim = null,
     isFunction,
@@ -1421,7 +1621,6 @@ global.Promise = PromiseShim;
 // Source: src/array-faker.js
 
 (function($, ui) {
-"use strict";
 // Array Faker
 
 var arrayInstance = [];
@@ -1505,11 +1704,11 @@ ui.ArrayFaker = ArrayFaker;
 // Source: src/keyarray.js
 
 (function($, ui) {
-"use strict";
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
-var arrayInstance = [];
+var arrayInstance = [],
+    base = ui.ArrayFaker.prototype;
 function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
@@ -1531,25 +1730,15 @@ function KeyArray () {
         return new KeyArray();
     }
 };
-KeyArray.prototype = $.extend({
-    constructor: KeyArray
-}, ui.ArrayFaker.prototype);
-delete KeyArray.prototype.shift;
-delete KeyArray.prototype.push;
-delete KeyArray.prototype.sort;
-delete KeyArray.prototype.pop;
-delete KeyArray.prototype.splice;
-delete KeyArray.prototype.concat;
-delete KeyArray.prototype.slice;
-delete KeyArray.prototype.forEach;
-delete KeyArray.prototype.map;
-delete KeyArray.prototype.filter;
-delete KeyArray.prototype.every;
-delete KeyArray.prototype.some;
-delete KeyArray.prototype.reduce;
-delete KeyArray.prototype.reduceRight;
-delete KeyArray.prototype.indexOf;
-delete KeyArray.prototype.lastIndexOf;
+KeyArray.prototype = {
+    constructor: KeyArray,
+    isArray: base.isArray,
+    setArray: base.setArray,
+    makeArray: base.makeArray,
+    toArray: base.toArray,
+    toString: base.toString,
+    valueOf: base.valueOf
+};
 
 // 初始化
 KeyArray.prototype.initialize = function() {
@@ -1627,7 +1816,6 @@ ui.KeyArray = KeyArray;
 // Source: src/util.js
 
 (function($, ui) {
-"use strict";
 // util
 
 //获取浏览器滚动条的宽度
@@ -1650,6 +1838,18 @@ ui.handleError = function(e) {
     console.log(e);
 };
 
+/** jQuery 全局Eval函数 */
+ui.globalEval = function(data) {
+    if (data && ui.str.trim(data)) {
+        // We use execScript on Internet Explorer
+        // We use an anonymous function so that context is window
+        // rather than jQuery in Firefox
+        (window.execScript || function(data) {
+            window["eval"].call(window, data); // jscs:ignore requireDotNotation
+        })(data);
+    }
+};
+
 /**
  * 修复javascript中四舍五入方法的bug
  */ 
@@ -1662,6 +1862,113 @@ ui.fixedNumber = function (number, precision) {
     
     multiplier = Math.pow(10, precision);
     return Math.round(Math.abs(number) * multiplier) / multiplier * b;
+};
+
+var rbracket = /\[\]$/;
+function buildParams(prefix, obj, add) {
+    if(Array.isArray(obj)) {
+        obj.forEach(function(item, index) {
+            if(rbracket.test(prefix)) {
+                add(prefix, item);
+            } else {
+                buildParams(
+                    prefix + "[" + (typeof item === "object" ? index : "") + "]", 
+                    item, 
+                    add);
+            }
+        });
+    } else if(ui.core.isPlainObject(obj)) {
+        Object.keys(obj).forEach(function(key) {
+            buildParams(prefix + "[" + key + "]", obj[key], add);
+        });
+    } else {
+        add(prefix, obj);
+    }
+}
+/** 将对象转换为[key=value&key=value]格式 */
+ui.param = function(obj) {
+    var 
+        strBuilder = [],
+        add = function(key, valueOrFunction) {
+            if(!key) return;
+            var value = (ui.core.isFunction(valueOrFunction) ? valueOrFunction() : valueOrFunction);
+            strBuilder.push(encodeURIComponent(key) + "=" + encodeURIComponent(value === null ? "" : value));
+        };
+    if(Array.isArray(obj)) {
+        obj.forEach(function(item) {
+            add(item.name, item.value);
+        });
+    } else {
+        Object.keys(obj).forEach(function(key) {
+            buildParams(key, obj[key], add);
+        });
+    }
+
+    return strBuilder.join("&");
+};
+
+/** 对象扩展 param[0]: deep, param[1]: target param[2]... */
+ui.extend = function() {
+    var options, name, src, copy, copyIsArray, clone,
+        target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
+
+    // 是否深拷贝
+    if (ui.core.isBoolean(target)) {
+        deep = target;
+        target = arguments[i] || {};
+        i++;
+    }
+
+    // 如果target不是一个可以扩展的对象(Object/Array/Function)则设置为object
+    if (typeof target !== "object" && !ui.core.isFunction(target)) {
+        target = {};
+    }
+
+    // 如果只有被扩展对象本身则直接返回
+    if (i === length) {
+        return target;
+    }
+
+    for (; i < length; i++) {
+        // 避开 null/undefined
+        if ((options = arguments[i]) != null) {
+            for (name in options) {
+                if(!options.hasOwnProperty(name))  {
+                    continue;
+                }
+
+                copyIsArray = false;
+                src = target[name];
+                copy = options[name];
+
+                if ( target === copy ) {
+                    continue;
+                }
+
+                if (deep && copy 
+                    && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                    // 如果是对象或者是数组，并且是深拷贝
+                    if (copyIsArray) {
+                        clone = src && Array.isArray(src) ? src : [];
+                    } else {
+                        clone = src && ui.core.isPlainObject(src) ? src : {};
+                    }
+
+                    // 深拷贝
+                    target[name] = ui.extend(deep, clone, copy);
+                } else if (copy !== undefined && copy !== null) {
+                    // 直接设置值
+                    target[name] = copy;
+                }
+            }
+        }
+    }
+
+    // Return the modified object
+    return target;
 };
 
 /**
@@ -1839,7 +2146,6 @@ ui.getLeftLocation = function (target, width, height) {
 // Source: src/util-string.js
 
 (function($, ui) {
-"use strict";
 // string util
 
 var textEmpty = "";
@@ -2140,7 +2446,6 @@ ui.str = {
 // Source: src/util-date.js
 
 (function($, ui) {
-"use strict";
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
@@ -2630,7 +2935,6 @@ ui.date = {
 // Source: src/util-object.js
 
 (function($, ui) {
-"use strict";
 //object
 
 function _ignore(ignore) {
@@ -2720,7 +3024,6 @@ ui.obj = {
 // Source: src/util-url.js
 
 (function($, ui) {
-"use strict";
 //url
 
 var url_rquery = /\?/,
@@ -2834,7 +3137,6 @@ ui.url = {
 // Source: src/util-structure-transform.js
 
 (function($, ui) {
-"use strict";
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -2958,7 +3260,6 @@ ui.trans = {
 // Source: src/util-random.js
 
 (function($, ui) {
-"use strict";
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -3099,10 +3400,207 @@ ui.random = random;
 
 })(jQuery, ui);
 
+// Source: src/parser.js
+
+(function($, ui) {
+
+function parseXML(data) {
+    var xml, tmp;
+	if (!data || typeof data !== "string") {
+		return null;
+	}
+	try {
+		if (window.DOMParser) { 
+            // Standard
+			tmp = new DOMParser();
+			xml = tmp.parseFromString(data, "text/xml");
+		} else { 
+            // IE
+			xml = new ActiveXObject("Microsoft.XMLDOM");
+			xml.async = "false";
+			xml.loadXML(data);
+		}
+	} catch(e) {
+		xml = undefined;
+	}
+	if (!xml || !xml.documentElement || xml.getElementsByTagName("parsererror").length) {
+		throw new TypeError("Invalid XML: " + data);
+	}
+	return xml;
+}
+
+function parseHTML(html) {
+    return html;
+}
+
+ui.parseXML = parseXML;
+ui.parseHTML = parseHTML;
+ui.parseJSON = JSON.parse;
+
+})(jQuery, ui);
+
+// Source: src/task.js
+
+(function($, ui) {
+/*
+
+JavaScript中分为MacroTask和MicroTask
+Promise\MutationObserver\Object.observer 属于MicroTask
+setImmediate\setTimeout\setInterval 属于MacroTask
+    另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
+
+每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
+所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
+另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
+而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
+
+*/
+
+var callbacks,
+    pedding,
+    isFunction,
+
+    channel, port,
+    resolvePromise,
+    MutationObserver, observer, textNode, counter,
+
+    task,
+    microTask;
+
+isFunction = ui.core.isFunction;
+
+function set(fn) {
+    var index;
+    if(isFunction(fn)) {
+        this.callbacks.push(fn);
+        index = this.callbacks.length - 1;
+
+        if(!this.pedding) {
+            this.pedding = true;
+            this.run();
+        }
+        return index;
+    }
+    return -1;
+}
+
+function clear(index) {
+    if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
+        this.callbacks[index] = false;
+    }
+}
+
+function run() {
+    var copies,
+        i, len;
+
+    this.pedding = false;
+    copies = this.callbacks;
+    this.callbacks = [];
+
+    for(i = 0, len = copies.length; i < len; i++) {
+        if(copies[i]) {
+            try {
+                copies[i]();
+            } catch(e) {
+                ui.handleError(e);
+            }
+        }
+    }
+}
+
+task = {
+    callbacks: [],
+    pedding: false,
+    run: null
+};
+
+// 如果原生支持setImmediate
+if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
+    // setImmediate
+    task.run = function() {
+        setImmediate(function() {
+            run.call(task);
+        });
+    };
+} else if(MessageChannel && 
+            (ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
+    // MessageChannel & postMessage
+    channel = new MessageChannel();
+    channel.port1.onmessage = function() {
+        run.call(task);
+    };
+    port = channel.port2;
+    task.run = function() {
+        port.postMessage(1);
+    };
+} else {
+    // setTimeout
+    task.run = function() {
+        setTimeout(function() {
+            run.call(task);
+        }, 0);
+    };
+}
+
+microTask = {
+    callbacks: [],
+    pedding: false,
+    run: null
+};
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // Promise
+    resolvePromise = Promise.resolve();
+    microTask.run = function() {
+        resolvePromise.then(function() {
+            run.call(microTask);
+        });
+    };
+} else {
+    MutationObserver = window.MutationObserver || 
+                        window.WebKitMutationObserver || 
+                        window.MozMutationObserver || 
+                        null;
+
+    if(MutationObserver && ui.core.isNative(MutationObserver)) {
+        // MutationObserver
+        counter = 1;
+        observer = new MutationObserver(function() {
+            run.call(microTask);
+        });
+        textNode = document.createTextNode(String(counter));
+        observer.observe(textNode, {
+            characterData: true
+        });
+        microTask.run = function() {
+            counter = (counter + 1) % 2;
+            textNode.data = String(counter);
+        };
+    } else {
+        microTask.run = task.run;
+    }
+}
+
+ui.setTask = function(fn) {
+    return set.call(task, fn);
+};
+ui.clearTask = function(index) {
+    clear.call(task, index);
+};
+ui.setMicroTask = function(fn) {
+    return set.call(microTask, fn);
+};
+ui.clearMicroTask = function(index) {
+    clear.call(microTask, index);
+};
+
+
+})(jQuery, ui);
+
 // Source: src/jquery-extends.js
 
 (function($, ui) {
-"use strict";
 // jquery extends
 
 var rword = /[^, ]+/g,
@@ -3370,7 +3868,6 @@ $.fn.textinput = function(data, fn) {
 // Source: src/cookie.js
 
 (function($, ui) {
-"use strict";
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -3465,7 +3962,6 @@ ui.cookie = {
 // Source: src/style-sheet.js
 
 (function($, ui) {
-"use strict";
 
 // 样式表操作
 function getRules() {
@@ -3630,3 +4126,22 @@ ui.StyleSheet = StyleSheet;
 
 
 })(jQuery, ui);
+
+// Source: src/i18n.js
+
+(function($, ui) {
+// Internationalization
+
+ui.i18n = function() {
+
+};
+
+ui.i18n.locale = "zh-CN";
+ui.i18n.language = {};
+
+})(jQuery, ui);
+
+
+return ui;
+
+});

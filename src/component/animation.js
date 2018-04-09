@@ -6,7 +6,9 @@
 var requestAnimationFrame,
     cancelAnimationFrame,
     prefix = ["ms", "moz", "webkit", "o"],
-    i, styleMapper;
+    animationEaseStyle,
+    bezierStyleMapper,
+    i;
     
 requestAnimationFrame = window.requestAnimationFrame;
 cancelAnimationFrame = window.cancelAnimationFrame;
@@ -30,14 +32,7 @@ if (!cancelAnimationFrame) {
 
 function noop() { }
 
-ui.getRequestAnimationFrame = function() {
-    return requestAnimationFrame;
-};
-ui.getCancelAnimationFrame = function() {
-    return cancelAnimationFrame;
-};
-
-styleMapper = {
+bezierStyleMapper = {
     "ease": getBezierFn(.25, .1, .25, 1),
     "linear": getBezierFn(0, 0, 1, 1),
     "ease-in": getBezierFn(.42, 0, 1, 1),
@@ -45,8 +40,63 @@ styleMapper = {
     "ease-in-out": getBezierFn(.42, 0, .58, 1)
 };
 
+// https://blog.csdn.net/backspace110/article/details/72747886
+// bezier缓动函数
+function getBezierFn() {
+    var points, 
+        numbers, 
+        i, j, len, n;
+
+    len = arguments.length;
+    if(len % 2) {
+        throw new TypeError("arguments length error");
+    }
+
+    //起点
+    points = [{ x: 0,  y: 0 }];
+    for(i = 0; i < len; i += 2) {
+        points.push({
+            x: parseFloat(arguments[i]),
+            y: parseFloat(arguments[i + 1])
+        });
+    }
+    //终点
+    points.push({ x: 1, y: 1 });
+
+    numbers = [];
+    n = points.length - 1;
+    for (i = 1; i <= n; i++) {  
+        numbers[i] = 1;  
+        for (j = i - 1; j >= 1; j--) {
+            numbers[j] += numbers[j - 1];  
+        }
+        numbers[0] = 1;  
+    }
+
+    return function(t) {
+        var i, p, num, value;
+        if(t < 0) {
+            t = 0;
+        }
+        if(t > 1) {
+            t = 1;
+        }
+        value = {
+            x: 0,
+            y: 0
+        };
+        for(i = 0; i <= n; i++) {
+            p = points[i];
+            num = numbers[i];
+            value.x += num * p.x * Math.pow(1 - t, n - i) * Math.pow(t, i);
+            value.y += num * p.y * Math.pow(1 - t, n - i) * Math.pow(t, i);
+        }
+        return value.y;
+    };
+}
+
 //动画效果
-ui.AnimationStyle = {
+animationEaseStyle = {
     easeInQuad: function (pos) {
         return Math.pow(pos, 2);
     },
@@ -372,7 +422,9 @@ Animator.prototype._prepare = function () {
         //必须指定，基本上对top,left,width,height这个属性进行设置
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
-        option.ease = option.ease || ui.AnimationStyle.easeFromTo;
+        option.ease = 
+            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) 
+                || animationEaseStyle.easeFromTo;
         //动画持续时间
         option.duration = option.duration || 0;
         //延迟时间
@@ -440,65 +492,42 @@ Animator.prototype.stop = function () {
     }
 };
 
+/**
+ * 创建一个动画对象
+ * @param {动画目标} target 
+ * @param {动画参数} option 
+ */
 ui.animator = function (target, option) {
     var list = new Animator();
     list.addTarget.apply(list, arguments);
     return list;
 };
 
-// https://blog.csdn.net/backspace110/article/details/72747886
-// bezier缓动函数
-function getBezierFn() {
-    var points, numbers, 
-        i, j, len, n;
+/** 动画缓函数 */
+ui.AnimationStyle = animationEaseStyle;
+/** 创建一个基于bezier的缓动函数 */
+ui.transitionTiming = function() {
+    var args,
+        name;
 
-    len = arguments.length;
-    if(len % 2) {
-        throw new TypeError("arguments length error");
+    args = [].slice.call(arguments);
+    name = args[0];
+    if(!ui.core.isString(name)) {
+        name = args.join(",");
     }
-    points = [{
-        x: 0,
-        y: 0
-    }];
-    for(i = 0; i < len; i += 2) {
-        points.push({
-            x: parseFloat(arguments[i]),
-            y: parseFloat(arguments[i + 1])
-        });
-    }
-    points.push({
-        x: 1,
-        y: 1
-    });
-
-    numbers = [];
-    n = points.length - 1;
-    for (i = 1; i <= n; i++) {  
-        numbers[i] = 1;  
-        for (j = i - 1; j >= 1; j--) {
-            numbers[j] += numbers[j - 1];  
-        }
-        numbers[0] = 1;  
+    if(bezierStyleMapper.hasOwnProperty(name)) {
+        return bezierStyleMapper[name];
     }
 
-    return function(t) {
-        var i, p, num, value;
-        if(t < 0) {
-            t = 0;
-        }
-        if(t > 1) {
-            t = 1;
-        }
-        value = {
-            x: 0,
-            y: 0
-        };
-        for(i = 0; i <= n; i++) {
-            p = points[i];
-            num = numbers[i];
-            value.x += num * p.x * Math.pow(1 - t, n - i) * Math.pow(t, i);
-            value.y += num * p.y * Math.pow(1 - t, n - i) * Math.pow(t, i);
-        }
-        return value.y / 1;
-    };
-}
+    bezierStyleMapper[name] = getBezierFn.call(this, args);
+    return bezierStyleMapper[name];
+};
+
+/** 获取当前浏览器支持的动画函数 */
+ui.getRequestAnimationFrame = function() {
+    return requestAnimationFrame;
+};
+/** 获取当前浏览器支持的动画函数 */
+ui.getCancelAnimationFrame = function() {
+    return cancelAnimationFrame;
+};

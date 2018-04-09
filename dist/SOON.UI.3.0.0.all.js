@@ -1,28 +1,8 @@
 /*
     SoonUI 主命名空间声明
  */
-( function( global, factory ) {
-	/**
-	 * 严格模式
-	 * 变量必须声明后再使用
-	 * 函数的参数不能有同名属性，否则报错
-	 * 不能使用with语句
-	 * 不能对只读属性赋值，否则报错
-	 * 不能使用前缀0表示八进制数，否则报错
-	 * 不能删除不可删除的属性，否则报错
-	 * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
-	 * eval不会在它的外层作用域引入变量
-	 * eval和arguments不能被重新赋值
-	 * arguments不会自动反映函数参数的变化
-	 * 不能使用arguments.callee
-	 * 不能使用arguments.caller
-	 * 禁止this指向全局对象
-	 * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
-	 * 增加了保留字（比如protected、static和interface）
-	 */
-	"use strict";
-
-	if ( typeof module === "object" && typeof module.exports === "object" ) {
+(function(global, factory) {
+	if (typeof module === "object" && typeof module.exports === "object") {
 
 		// For CommonJS and CommonJS-like environments where a proper `window`
 		// is present, execute the factory and get SoonUI.
@@ -32,32 +12,96 @@
 		// e.g. var ui = require("ui")(window);
 		// See ticket #14549 for more info.
 		module.exports = global.document ?
-			factory( global, true ) :
-			function( w ) {
-				if ( !w.document ) {
-					throw new Error( "SoonUI requires a window with a document" );
+			factory(global, true) :
+			function(w) {
+				if (!w.document) {
+					throw new Error("SoonUI requires a window with a document");
 				}
-				return factory( w );
+				return factory(w);
 			};
 	} else {
-		factory( global, true );
+		factory(global, true);
 	}
-
 // Pass this if window is not defined yet
-} )( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
+})(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
 
-    var ui = {};
-    if(noGlobal) {
-        window.ui = ui;
-        window.soonUI = ui;
-    }
-    return ui;
-} );
-
-// Source: src/core.js
-
-(function($, ui) {
+/**
+ * 严格模式
+ * 变量必须声明后再使用
+ * 函数的参数不能有同名属性，否则报错
+ * 不能使用with语句
+ * 不能对只读属性赋值，否则报错
+ * 不能使用前缀0表示八进制数，否则报错
+ * 不能删除不可删除的属性，否则报错
+ * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
+ * eval不会在它的外层作用域引入变量
+ * eval和arguments不能被重新赋值
+ * arguments不会自动反映函数参数的变化
+ * 不能使用arguments.callee
+ * 不能使用arguments.caller
+ * 禁止this指向全局对象
+ * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
+ * 增加了保留字（比如protected、static和interface）
+ */
 "use strict";
+var ui = {};
+if(noGlobal) {
+	window.ui = ui;
+	window.SOONUI = ui;
+}
+
+/*
+    SoonUI 主命名空间声明
+ */
+(function(global, factory) {
+	if (typeof module === "object" && typeof module.exports === "object") {
+
+		// For CommonJS and CommonJS-like environments where a proper `window`
+		// is present, execute the factory and get SoonUI.
+		// For environments that do not have a `window` with a `document`
+		// (such as Node.js), expose a factory as module.exports.
+		// This accentuates the need for the creation of a real `window`.
+		// e.g. var ui = require("ui")(window);
+		// See ticket #14549 for more info.
+		module.exports = global.document ?
+			factory(global, true) :
+			function(w) {
+				if (!w.document) {
+					throw new Error("SoonUI requires a window with a document");
+				}
+				return factory(w);
+			};
+	} else {
+		factory(global, true);
+	}
+// Pass this if window is not defined yet
+})(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
+
+/**
+ * 严格模式
+ * 变量必须声明后再使用
+ * 函数的参数不能有同名属性，否则报错
+ * 不能使用with语句
+ * 不能对只读属性赋值，否则报错
+ * 不能使用前缀0表示八进制数，否则报错
+ * 不能删除不可删除的属性，否则报错
+ * 不能删除变量delete prop，会报错，只能删除属性delete global[prop]
+ * eval不会在它的外层作用域引入变量
+ * eval和arguments不能被重新赋值
+ * arguments不会自动反映函数参数的变化
+ * 不能使用arguments.callee
+ * 不能使用arguments.caller
+ * 禁止this指向全局对象
+ * 不能使用fn.caller和fn.arguments获取函数调用的堆栈
+ * 增加了保留字（比如protected、static和interface）
+ */
+"use strict";
+var ui = {};
+if(noGlobal) {
+	window.ui = ui;
+	window.SOONUI = ui;
+}
+
 // core
 
 /*
@@ -248,13 +292,9 @@ core.isTouchAvailable = function() {
 };
 
 
-
-})(jQuery, ui);
-
 // Source: src/ES5-Array-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -463,7 +503,6 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 // Source: src/ES6-Array-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -554,7 +593,6 @@ if(!isFunction(Array.of)) {
 // Source: src/ES5-String-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -576,7 +614,6 @@ if(!isFunction(String.prototype.trim)) {
 // Source: src/ES6-String-shims.js
 
 (function($, ui) {
-"use strict";
 // 为String对象添加ES6的一些方法
 
 var toString = Object.prototype.toString;
@@ -699,7 +736,6 @@ if(!isFunction(String.prototype.endsWith)) {
 // Source: src/ES5-Function-shims.js
 
 (function($, ui) {
-"use strict";
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -729,10 +765,228 @@ if(!isFunction(Function.prototype.bind)) {
 
 })(jQuery, ui);
 
+// Source: src/ES5-JSON-shims.js
+
+(function($, ui) {
+// json2
+
+// 判断浏览器是否原生支持JSON对象
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
+        && ui.core.isFunction(window.JSON.parse) 
+        && ui.core.isFunction(window.JSON.stringify));
+if (hasJSON) {
+    return;
+}
+
+var JSON = {
+    fake: true
+};
+
+"use strict";
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+function f(n) {
+    return n < 10 ? "0" + n : n;
+}
+function this_value() {
+    return this.valueOf();
+}
+if (typeof Date.prototype.toJSON !== "function") {
+    Date.prototype.toJSON = function () {
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" 
+                    + f(this.getUTCMonth() + 1) + "-" 
+                    + f(this.getUTCDate()) + "T" 
+                    + f(this.getUTCHours()) + ":" 
+                    + f(this.getUTCMinutes()) + ":" 
+                    + f(this.getUTCSeconds()) + "Z") : null);
+    };
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+}
+
+var gap;
+var indent;
+var meta;
+var rep;
+
+function quote(string) {
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string) ? 
+        ("\"" + string.replace(rx_escapable, function (a) {
+            var c = meta[a];
+            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
+        }) + "\"") : 
+        ("\"" + string + "\"");
+}
+function str(key, holder) {
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+    if (value && typeof value === "object" &&
+            typeof value.toJSON === "function") {
+        value = value.toJSON(key);
+    }
+    if (typeof rep === "function") {
+        value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+            return isFinite(value) ? String(value) : "null";
+
+        case "boolean":
+
+        case "null":
+            return String(value);
+
+        case "object":
+            if (!value) {
+                return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+                v = partial.length === 0
+                    ? "[]"
+                    : gap
+                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                        : "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            }
+            v = partial.length === 0
+                ? "{}"
+                : gap
+                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+                    : "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+    }
+}
+
+// JSON.stringify & JSON.parse
+meta = {
+    "\b": "\\b",
+    "\t": "\\t",
+    "\n": "\\n",
+    "\f": "\\f",
+    "\r": "\\r",
+    "\"": "\\\"",
+    "\\": "\\\\"
+};
+JSON.stringify = function (value, replacer, space) {
+    var i;
+    gap = "";
+    indent = "";
+    if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+            indent += " ";
+        }
+    } else if (typeof space === "string") {
+        indent = space;
+    }
+    rep = replacer;
+    if (replacer && typeof replacer !== "function" &&
+            (typeof replacer !== "object" ||
+            typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+    }
+    return str("", {"": value});
+};
+JSON.parse = function (text, reviver) {
+    var j;
+    function walk(holder, key) {
+        var k;
+        var v;
+        var value = holder[key];
+        if (value && typeof value === "object") {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }
+    text = String(text);
+    rx_dangerous.lastIndex = 0;
+    if (rx_dangerous.test(text)) {
+        text = text.replace(rx_dangerous, function (a) {
+            return "\\u" +
+                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        });
+    }
+    if (
+        rx_one.test(
+            text
+                .replace(rx_two, "@")
+                .replace(rx_three, "]")
+                .replace(rx_four, "")
+        )
+    ) {
+        j = eval("(" + text + ")");
+        return (typeof reviver === "function")
+            ? walk({"": j}, "")
+            : j;
+    }
+    throw new SyntaxError("JSON.parse");
+};
+
+})(jQuery, ui);
+
 // Source: src/ES6-Number-shims.js
 
 (function($, ui) {
-"use strict";
 // 为Number对象添加ES6的一些方法
 
 function isFunction(fn) {
@@ -771,7 +1025,6 @@ if(!isFunction(Number.parseFloat)) {
 // Source: src/ES5-Object-shims.js
 
 (function($, ui) {
-"use strict";
 // 为String对象添加ES6的一些方法
 
 var prototypeOfObject = Object.prototype,
@@ -1165,7 +1418,6 @@ if(!isFunction(Object.create)) {
 // Source: src/ES6-Promise.shims.js
 
 (function($, ui) {
-"use strict";
 
 var PromiseShim = null,
     isFunction,
@@ -1421,7 +1673,6 @@ global.Promise = PromiseShim;
 // Source: src/array-faker.js
 
 (function($, ui) {
-"use strict";
 // Array Faker
 
 var arrayInstance = [];
@@ -1505,11 +1756,11 @@ ui.ArrayFaker = ArrayFaker;
 // Source: src/keyarray.js
 
 (function($, ui) {
-"use strict";
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
-var arrayInstance = [];
+var arrayInstance = [],
+    base = ui.ArrayFaker.prototype;
 function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
@@ -1531,25 +1782,15 @@ function KeyArray () {
         return new KeyArray();
     }
 };
-KeyArray.prototype = $.extend({
-    constructor: KeyArray
-}, ui.ArrayFaker.prototype);
-delete KeyArray.prototype.shift;
-delete KeyArray.prototype.push;
-delete KeyArray.prototype.sort;
-delete KeyArray.prototype.pop;
-delete KeyArray.prototype.splice;
-delete KeyArray.prototype.concat;
-delete KeyArray.prototype.slice;
-delete KeyArray.prototype.forEach;
-delete KeyArray.prototype.map;
-delete KeyArray.prototype.filter;
-delete KeyArray.prototype.every;
-delete KeyArray.prototype.some;
-delete KeyArray.prototype.reduce;
-delete KeyArray.prototype.reduceRight;
-delete KeyArray.prototype.indexOf;
-delete KeyArray.prototype.lastIndexOf;
+KeyArray.prototype = {
+    constructor: KeyArray,
+    isArray: base.isArray,
+    setArray: base.setArray,
+    makeArray: base.makeArray,
+    toArray: base.toArray,
+    toString: base.toString,
+    valueOf: base.valueOf
+};
 
 // 初始化
 KeyArray.prototype.initialize = function() {
@@ -1627,7 +1868,6 @@ ui.KeyArray = KeyArray;
 // Source: src/util.js
 
 (function($, ui) {
-"use strict";
 // util
 
 //获取浏览器滚动条的宽度
@@ -1650,6 +1890,18 @@ ui.handleError = function(e) {
     console.log(e);
 };
 
+/** jQuery 全局Eval函数 */
+ui.globalEval = function(data) {
+    if (data && ui.str.trim(data)) {
+        // We use execScript on Internet Explorer
+        // We use an anonymous function so that context is window
+        // rather than jQuery in Firefox
+        (window.execScript || function(data) {
+            window["eval"].call(window, data); // jscs:ignore requireDotNotation
+        })(data);
+    }
+};
+
 /**
  * 修复javascript中四舍五入方法的bug
  */ 
@@ -1662,6 +1914,113 @@ ui.fixedNumber = function (number, precision) {
     
     multiplier = Math.pow(10, precision);
     return Math.round(Math.abs(number) * multiplier) / multiplier * b;
+};
+
+var rbracket = /\[\]$/;
+function buildParams(prefix, obj, add) {
+    if(Array.isArray(obj)) {
+        obj.forEach(function(item, index) {
+            if(rbracket.test(prefix)) {
+                add(prefix, item);
+            } else {
+                buildParams(
+                    prefix + "[" + (typeof item === "object" ? index : "") + "]", 
+                    item, 
+                    add);
+            }
+        });
+    } else if(ui.core.isPlainObject(obj)) {
+        Object.keys(obj).forEach(function(key) {
+            buildParams(prefix + "[" + key + "]", obj[key], add);
+        });
+    } else {
+        add(prefix, obj);
+    }
+}
+/** 将对象转换为[key=value&key=value]格式 */
+ui.param = function(obj) {
+    var 
+        strBuilder = [],
+        add = function(key, valueOrFunction) {
+            if(!key) return;
+            var value = (ui.core.isFunction(valueOrFunction) ? valueOrFunction() : valueOrFunction);
+            strBuilder.push(encodeURIComponent(key) + "=" + encodeURIComponent(value === null ? "" : value));
+        };
+    if(Array.isArray(obj)) {
+        obj.forEach(function(item) {
+            add(item.name, item.value);
+        });
+    } else {
+        Object.keys(obj).forEach(function(key) {
+            buildParams(key, obj[key], add);
+        });
+    }
+
+    return strBuilder.join("&");
+};
+
+/** 对象扩展 param[0]: deep, param[1]: target param[2]... */
+ui.extend = function() {
+    var options, name, src, copy, copyIsArray, clone,
+        target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
+
+    // 是否深拷贝
+    if (ui.core.isBoolean(target)) {
+        deep = target;
+        target = arguments[i] || {};
+        i++;
+    }
+
+    // 如果target不是一个可以扩展的对象(Object/Array/Function)则设置为object
+    if (typeof target !== "object" && !ui.core.isFunction(target)) {
+        target = {};
+    }
+
+    // 如果只有被扩展对象本身则直接返回
+    if (i === length) {
+        return target;
+    }
+
+    for (; i < length; i++) {
+        // 避开 null/undefined
+        if ((options = arguments[i]) != null) {
+            for (name in options) {
+                if(!options.hasOwnProperty(name))  {
+                    continue;
+                }
+
+                copyIsArray = false;
+                src = target[name];
+                copy = options[name];
+
+                if ( target === copy ) {
+                    continue;
+                }
+
+                if (deep && copy 
+                    && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                    // 如果是对象或者是数组，并且是深拷贝
+                    if (copyIsArray) {
+                        clone = src && Array.isArray(src) ? src : [];
+                    } else {
+                        clone = src && ui.core.isPlainObject(src) ? src : {};
+                    }
+
+                    // 深拷贝
+                    target[name] = ui.extend(deep, clone, copy);
+                } else if (copy !== undefined && copy !== null) {
+                    // 直接设置值
+                    target[name] = copy;
+                }
+            }
+        }
+    }
+
+    // Return the modified object
+    return target;
 };
 
 /**
@@ -1839,7 +2198,6 @@ ui.getLeftLocation = function (target, width, height) {
 // Source: src/util-string.js
 
 (function($, ui) {
-"use strict";
 // string util
 
 var textEmpty = "";
@@ -2140,7 +2498,6 @@ ui.str = {
 // Source: src/util-date.js
 
 (function($, ui) {
-"use strict";
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
@@ -2630,7 +2987,6 @@ ui.date = {
 // Source: src/util-object.js
 
 (function($, ui) {
-"use strict";
 //object
 
 function _ignore(ignore) {
@@ -2720,7 +3076,6 @@ ui.obj = {
 // Source: src/util-url.js
 
 (function($, ui) {
-"use strict";
 //url
 
 var url_rquery = /\?/,
@@ -2834,7 +3189,6 @@ ui.url = {
 // Source: src/util-structure-transform.js
 
 (function($, ui) {
-"use strict";
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -2958,7 +3312,6 @@ ui.trans = {
 // Source: src/util-random.js
 
 (function($, ui) {
-"use strict";
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -3099,10 +3452,207 @@ ui.random = random;
 
 })(jQuery, ui);
 
+// Source: src/parser.js
+
+(function($, ui) {
+
+function parseXML(data) {
+    var xml, tmp;
+	if (!data || typeof data !== "string") {
+		return null;
+	}
+	try {
+		if (window.DOMParser) { 
+            // Standard
+			tmp = new DOMParser();
+			xml = tmp.parseFromString(data, "text/xml");
+		} else { 
+            // IE
+			xml = new ActiveXObject("Microsoft.XMLDOM");
+			xml.async = "false";
+			xml.loadXML(data);
+		}
+	} catch(e) {
+		xml = undefined;
+	}
+	if (!xml || !xml.documentElement || xml.getElementsByTagName("parsererror").length) {
+		throw new TypeError("Invalid XML: " + data);
+	}
+	return xml;
+}
+
+function parseHTML(html) {
+    return html;
+}
+
+ui.parseXML = parseXML;
+ui.parseHTML = parseHTML;
+ui.parseJSON = JSON.parse;
+
+})(jQuery, ui);
+
+// Source: src/task.js
+
+(function($, ui) {
+/*
+
+JavaScript中分为MacroTask和MicroTask
+Promise\MutationObserver\Object.observer 属于MicroTask
+setImmediate\setTimeout\setInterval 属于MacroTask
+    另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
+
+每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
+所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
+另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
+而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
+
+*/
+
+var callbacks,
+    pedding,
+    isFunction,
+
+    channel, port,
+    resolvePromise,
+    MutationObserver, observer, textNode, counter,
+
+    task,
+    microTask;
+
+isFunction = ui.core.isFunction;
+
+function set(fn) {
+    var index;
+    if(isFunction(fn)) {
+        this.callbacks.push(fn);
+        index = this.callbacks.length - 1;
+
+        if(!this.pedding) {
+            this.pedding = true;
+            this.run();
+        }
+        return index;
+    }
+    return -1;
+}
+
+function clear(index) {
+    if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
+        this.callbacks[index] = false;
+    }
+}
+
+function run() {
+    var copies,
+        i, len;
+
+    this.pedding = false;
+    copies = this.callbacks;
+    this.callbacks = [];
+
+    for(i = 0, len = copies.length; i < len; i++) {
+        if(copies[i]) {
+            try {
+                copies[i]();
+            } catch(e) {
+                ui.handleError(e);
+            }
+        }
+    }
+}
+
+task = {
+    callbacks: [],
+    pedding: false,
+    run: null
+};
+
+// 如果原生支持setImmediate
+if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
+    // setImmediate
+    task.run = function() {
+        setImmediate(function() {
+            run.call(task);
+        });
+    };
+} else if(MessageChannel && 
+            (ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
+    // MessageChannel & postMessage
+    channel = new MessageChannel();
+    channel.port1.onmessage = function() {
+        run.call(task);
+    };
+    port = channel.port2;
+    task.run = function() {
+        port.postMessage(1);
+    };
+} else {
+    // setTimeout
+    task.run = function() {
+        setTimeout(function() {
+            run.call(task);
+        }, 0);
+    };
+}
+
+microTask = {
+    callbacks: [],
+    pedding: false,
+    run: null
+};
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // Promise
+    resolvePromise = Promise.resolve();
+    microTask.run = function() {
+        resolvePromise.then(function() {
+            run.call(microTask);
+        });
+    };
+} else {
+    MutationObserver = window.MutationObserver || 
+                        window.WebKitMutationObserver || 
+                        window.MozMutationObserver || 
+                        null;
+
+    if(MutationObserver && ui.core.isNative(MutationObserver)) {
+        // MutationObserver
+        counter = 1;
+        observer = new MutationObserver(function() {
+            run.call(microTask);
+        });
+        textNode = document.createTextNode(String(counter));
+        observer.observe(textNode, {
+            characterData: true
+        });
+        microTask.run = function() {
+            counter = (counter + 1) % 2;
+            textNode.data = String(counter);
+        };
+    } else {
+        microTask.run = task.run;
+    }
+}
+
+ui.setTask = function(fn) {
+    return set.call(task, fn);
+};
+ui.clearTask = function(index) {
+    clear.call(task, index);
+};
+ui.setMicroTask = function(fn) {
+    return set.call(microTask, fn);
+};
+ui.clearMicroTask = function(index) {
+    clear.call(microTask, index);
+};
+
+
+})(jQuery, ui);
+
 // Source: src/jquery-extends.js
 
 (function($, ui) {
-"use strict";
 // jquery extends
 
 var rword = /[^, ]+/g,
@@ -3370,7 +3920,6 @@ $.fn.textinput = function(data, fn) {
 // Source: src/cookie.js
 
 (function($, ui) {
-"use strict";
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -3465,7 +4014,6 @@ ui.cookie = {
 // Source: src/style-sheet.js
 
 (function($, ui) {
-"use strict";
 
 // 样式表操作
 function getRules() {
@@ -3631,10 +4179,28 @@ ui.StyleSheet = StyleSheet;
 
 })(jQuery, ui);
 
+// Source: src/i18n.js
+
+(function($, ui) {
+// Internationalization
+
+ui.i18n = function() {
+
+};
+
+ui.i18n.locale = "zh-CN";
+ui.i18n.language = {};
+
+})(jQuery, ui);
+
+
+return ui;
+
+});
+
 // Source: src/component/introsort.js
 
 (function($, ui) {
-"use strict";
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
@@ -3835,7 +4401,6 @@ ui.Introsort = Introsort;
 // Source: src/component/animation.js
 
 (function($, ui) {
-"use strict";
 /*
     animation javascript 动画引擎
  */
@@ -3844,6 +4409,8 @@ ui.Introsort = Introsort;
 var requestAnimationFrame,
     cancelAnimationFrame,
     prefix = ["ms", "moz", "webkit", "o"],
+    animationEaseStyle,
+    bezierStyleMapper,
     i;
     
 requestAnimationFrame = window.requestAnimationFrame;
@@ -3868,15 +4435,71 @@ if (!cancelAnimationFrame) {
 
 function noop() { }
 
-ui.getRequestAnimationFrame = function() {
-    return requestAnimationFrame;
-};
-ui.getCancelAnimationFrame = function() {
-    return cancelAnimationFrame;
+bezierStyleMapper = {
+    "ease": getBezierFn(.25, .1, .25, 1),
+    "linear": getBezierFn(0, 0, 1, 1),
+    "ease-in": getBezierFn(.42, 0, 1, 1),
+    "ease-out": getBezierFn(0, 0, .58, 1),
+    "ease-in-out": getBezierFn(.42, 0, .58, 1)
 };
 
+// https://blog.csdn.net/backspace110/article/details/72747886
+// bezier缓动函数
+function getBezierFn() {
+    var points, 
+        numbers, 
+        i, j, len, n;
+
+    len = arguments.length;
+    if(len % 2) {
+        throw new TypeError("arguments length error");
+    }
+
+    //起点
+    points = [{ x: 0,  y: 0 }];
+    for(i = 0; i < len; i += 2) {
+        points.push({
+            x: parseFloat(arguments[i]),
+            y: parseFloat(arguments[i + 1])
+        });
+    }
+    //终点
+    points.push({ x: 1, y: 1 });
+
+    numbers = [];
+    n = points.length - 1;
+    for (i = 1; i <= n; i++) {  
+        numbers[i] = 1;  
+        for (j = i - 1; j >= 1; j--) {
+            numbers[j] += numbers[j - 1];  
+        }
+        numbers[0] = 1;  
+    }
+
+    return function(t) {
+        var i, p, num, value;
+        if(t < 0) {
+            t = 0;
+        }
+        if(t > 1) {
+            t = 1;
+        }
+        value = {
+            x: 0,
+            y: 0
+        };
+        for(i = 0; i <= n; i++) {
+            p = points[i];
+            num = numbers[i];
+            value.x += num * p.x * Math.pow(1 - t, n - i) * Math.pow(t, i);
+            value.y += num * p.y * Math.pow(1 - t, n - i) * Math.pow(t, i);
+        }
+        return value.y;
+    };
+}
+
 //动画效果
-ui.AnimationStyle = {
+animationEaseStyle = {
     easeInQuad: function (pos) {
         return Math.pow(pos, 2);
     },
@@ -4202,7 +4825,9 @@ Animator.prototype._prepare = function () {
         //必须指定，基本上对top,left,width,height这个属性进行设置
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
-        option.ease = option.ease || ui.AnimationStyle.easeFromTo;
+        option.ease = 
+            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) 
+                || animationEaseStyle.easeFromTo;
         //动画持续时间
         option.duration = option.duration || 0;
         //延迟时间
@@ -4270,10 +4895,44 @@ Animator.prototype.stop = function () {
     }
 };
 
+/**
+ * 创建一个动画对象
+ * @param {动画目标} target 
+ * @param {动画参数} option 
+ */
 ui.animator = function (target, option) {
     var list = new Animator();
     list.addTarget.apply(list, arguments);
     return list;
+};
+
+/** 动画缓函数 */
+ui.AnimationStyle = animationEaseStyle;
+/** 创建一个基于bezier的缓动函数 */
+ui.transitionTiming = function() {
+    var args,
+        name;
+
+    args = [].slice.call(arguments);
+    name = args[0];
+    if(!ui.core.isString(name)) {
+        name = args.join(",");
+    }
+    if(bezierStyleMapper.hasOwnProperty(name)) {
+        return bezierStyleMapper[name];
+    }
+
+    bezierStyleMapper[name] = getBezierFn.call(this, args);
+    return bezierStyleMapper[name];
+};
+
+/** 获取当前浏览器支持的动画函数 */
+ui.getRequestAnimationFrame = function() {
+    return requestAnimationFrame;
+};
+/** 获取当前浏览器支持的动画函数 */
+ui.getCancelAnimationFrame = function() {
+    return cancelAnimationFrame;
 };
 
 
@@ -4282,7 +4941,6 @@ ui.animator = function (target, option) {
 // Source: src/component/custom-event.js
 
 (function($, ui) {
-"use strict";
 // custom event
 function CustomEvent (target) {
     this._listeners = {};
@@ -4397,390 +5055,9 @@ ui.CustomEvent = CustomEvent;
 
 })(jQuery, ui);
 
-// Source: src/component/task.js
-
-(function($, ui) {
-"use strict";
-/*
-
-JavaScript中分为MacroTask和MicroTask
-Promise\MutationObserver\Object.observer 属于MicroTask
-setImmediate\setTimeout\setInterval 属于MacroTask
-    另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
-
-每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
-所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
-另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
-而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
-
-*/
-
-var callbacks,
-    pedding,
-    isFunction,
-
-    channel, port,
-    resolvePromise,
-    MutationObserver, observer, textNode, counter,
-
-    task,
-    microTask;
-
-isFunction = ui.core.isFunction;
-
-function set(fn) {
-    var index;
-    if(isFunction(fn)) {
-        this.callbacks.push(fn);
-        index = this.callbacks.length - 1;
-
-        if(!this.pedding) {
-            this.pedding = true;
-            this.run();
-        }
-        return index;
-    }
-    return -1;
-}
-
-function clear(index) {
-    if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
-        this.callbacks[index] = false;
-    }
-}
-
-function run() {
-    var copies,
-        i, len;
-
-    this.pedding = false;
-    copies = this.callbacks;
-    this.callbacks = [];
-
-    for(i = 0, len = copies.length; i < len; i++) {
-        if(copies[i]) {
-            try {
-                copies[i]();
-            } catch(e) {
-                ui.handleError(e);
-            }
-        }
-    }
-}
-
-task = {
-    callbacks: [],
-    pedding: false,
-    run: null
-};
-
-// 如果原生支持setImmediate
-if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
-    // setImmediate
-    task.run = function() {
-        setImmediate(function() {
-            run.call(task);
-        });
-    };
-} else if(MessageChannel && 
-            (ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
-    // MessageChannel & postMessage
-    channel = new MessageChannel();
-    channel.port1.onmessage = function() {
-        run.call(task);
-    };
-    port = channel.port2;
-    task.run = function() {
-        port.postMessage(1);
-    };
-} else {
-    // setTimeout
-    task.run = function() {
-        setTimeout(function() {
-            run.call(task);
-        }, 0);
-    };
-}
-
-microTask = {
-    callbacks: [],
-    pedding: false,
-    run: null
-};
-
-if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
-    // Promise
-    resolvePromise = Promise.resolve();
-    microTask.run = function() {
-        resolvePromise.then(function() {
-            run.call(microTask);
-        });
-    };
-} else {
-    MutationObserver = window.MutationObserver || 
-                        window.WebKitMutationObserver || 
-                        window.MozMutationObserver || 
-                        null;
-
-    if(MutationObserver && ui.core.isNative(MutationObserver)) {
-        // MutationObserver
-        counter = 1;
-        observer = new MutationObserver(function() {
-            run.call(microTask);
-        });
-        textNode = document.createTextNode(String(counter));
-        observer.observe(textNode, {
-            characterData: true
-        });
-        microTask.run = function() {
-            counter = (counter + 1) % 2;
-            textNode.data = String(counter);
-        };
-    } else {
-        microTask.run = task.run;
-    }
-}
-
-ui.setTask = function(fn) {
-    return set.call(task, fn);
-};
-ui.clearTask = function(index) {
-    clear.call(task, index);
-};
-ui.setMicroTask = function(fn) {
-    return set.call(microTask, fn);
-};
-ui.clearMicroTask = function(index) {
-    clear.call(microTask, index);
-};
-
-
-})(jQuery, ui);
-
-// Source: src/component/json.js
-
-(function($, ui) {
-"use strict";
-// json2
-
-// 判断浏览器是否原生支持JSON对象
-var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
-        && ui.core.isFunction(window.JSON.parse) 
-        && ui.core.isFunction(window.JSON.stringify));
-if (hasJSON) {
-    return;
-}
-
-var JSON = {
-    fake: true
-};
-
-"use strict";
-var rx_one = /^[\],:{}\s]*$/;
-var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
-var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-
-function f(n) {
-    return n < 10 ? "0" + n : n;
-}
-function this_value() {
-    return this.valueOf();
-}
-if (typeof Date.prototype.toJSON !== "function") {
-    Date.prototype.toJSON = function () {
-        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" 
-                    + f(this.getUTCMonth() + 1) + "-" 
-                    + f(this.getUTCDate()) + "T" 
-                    + f(this.getUTCHours()) + ":" 
-                    + f(this.getUTCMinutes()) + ":" 
-                    + f(this.getUTCSeconds()) + "Z") : null);
-    };
-    Boolean.prototype.toJSON = this_value;
-    Number.prototype.toJSON = this_value;
-    String.prototype.toJSON = this_value;
-}
-
-var gap;
-var indent;
-var meta;
-var rep;
-
-function quote(string) {
-    rx_escapable.lastIndex = 0;
-    return rx_escapable.test(string) ? 
-        ("\"" + string.replace(rx_escapable, function (a) {
-            var c = meta[a];
-            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
-        }) + "\"") : 
-        ("\"" + string + "\"");
-}
-function str(key, holder) {
-    var i;          // The loop counter.
-    var k;          // The member key.
-    var v;          // The member value.
-    var length;
-    var mind = gap;
-    var partial;
-    var value = holder[key];
-    if (value && typeof value === "object" &&
-            typeof value.toJSON === "function") {
-        value = value.toJSON(key);
-    }
-    if (typeof rep === "function") {
-        value = rep.call(holder, key, value);
-    }
-    switch (typeof value) {
-        case "string":
-            return quote(value);
-
-        case "number":
-            return isFinite(value) ? String(value) : "null";
-
-        case "boolean":
-
-        case "null":
-            return String(value);
-
-        case "object":
-            if (!value) {
-                return "null";
-            }
-            gap += indent;
-            partial = [];
-            if (Object.prototype.toString.apply(value) === "[object Array]") {
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || "null";
-                }
-                v = partial.length === 0
-                    ? "[]"
-                    : gap
-                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-                        : "[" + partial.join(",") + "]";
-                gap = mind;
-                return v;
-            }
-            if (rep && typeof rep === "object") {
-                length = rep.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof rep[i] === "string") {
-                        k = rep[i];
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
-                        }
-                    }
-                }
-            } else {
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
-                        }
-                    }
-                }
-            }
-            v = partial.length === 0
-                ? "{}"
-                : gap
-                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-                    : "{" + partial.join(",") + "}";
-            gap = mind;
-            return v;
-    }
-}
-
-// JSON.stringify & JSON.parse
-meta = {
-    "\b": "\\b",
-    "\t": "\\t",
-    "\n": "\\n",
-    "\f": "\\f",
-    "\r": "\\r",
-    "\"": "\\\"",
-    "\\": "\\\\"
-};
-JSON.stringify = function (value, replacer, space) {
-    var i;
-    gap = "";
-    indent = "";
-    if (typeof space === "number") {
-        for (i = 0; i < space; i += 1) {
-            indent += " ";
-        }
-    } else if (typeof space === "string") {
-        indent = space;
-    }
-    rep = replacer;
-    if (replacer && typeof replacer !== "function" &&
-            (typeof replacer !== "object" ||
-            typeof replacer.length !== "number")) {
-        throw new Error("JSON.stringify");
-    }
-    return str("", {"": value});
-};
-JSON.parse = function (text, reviver) {
-    var j;
-    function walk(holder, key) {
-        var k;
-        var v;
-        var value = holder[key];
-        if (value && typeof value === "object") {
-            for (k in value) {
-                if (Object.prototype.hasOwnProperty.call(value, k)) {
-                    v = walk(value, k);
-                    if (v !== undefined) {
-                        value[k] = v;
-                    } else {
-                        delete value[k];
-                    }
-                }
-            }
-        }
-        return reviver.call(holder, key, value);
-    }
-    text = String(text);
-    rx_dangerous.lastIndex = 0;
-    if (rx_dangerous.test(text)) {
-        text = text.replace(rx_dangerous, function (a) {
-            return "\\u" +
-                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-        });
-    }
-    if (
-        rx_one.test(
-            text
-                .replace(rx_two, "@")
-                .replace(rx_three, "]")
-                .replace(rx_four, "")
-        )
-    ) {
-        j = eval("(" + text + ")");
-        return (typeof reviver === "function")
-            ? walk({"": j}, "")
-            : j;
-    }
-    throw new SyntaxError("JSON.parse");
-};
-
-})(jQuery, ui);
-
 // Source: src/component/ajax.js
 
 (function($, ui) {
-"use strict";
 // ajax
 var responsedJson = "X-Responded-JSON";
 function unauthorized(xhr, context) {
@@ -5051,7 +5328,6 @@ ui.ajax = {
 // Source: src/component/color.js
 
 (function($, ui) {
-"use strict";
 // color
 
 // 各种颜色格式的正则表达式
@@ -5192,7 +5468,6 @@ ui.color = {
 // Source: src/component/browser.js
 
 (function($, ui) {
-"use strict";
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -5320,7 +5595,6 @@ ui.engine = engine;
 // Source: src/component/image-loader.js
 
 (function($, ui) {
-"use strict";
 // image loader
 
 function ImageLoader() {
@@ -5513,7 +5787,6 @@ $.fn.setImage = function (src, width, height, fillMode) {
 // Source: src/component/view-model.js
 
 (function($, ui) {
-"use strict";
 // ViewModel 模型
 
 var arrayObserverPrototype = [],
@@ -5984,7 +6257,6 @@ ui.ViewModel.bindTwoWay = function(option) {
 // Source: src/component/define.js
 
 (function($, ui) {
-"use strict";
 function noop() {
 }
 function getNamespace(namespace) {
@@ -6110,33 +6382,6 @@ CtrlBase.prototype = {
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
-    option: {},
-    extend: function(target) {
-        var input = Array.prototype.slice.call(arguments, 1),
-            i = 0, len = input.length,
-            option, key, value;
-        for (; i < len; i++) {
-            option = input[i];
-            for (key in option) {
-                value = option[key];
-                if (option.hasOwnProperty(key) && value !== undefined) {
-                    // Clone objects
-                    if (ui.core.isPlainObject(value)) {
-                        target[key] = ui.core.isPlainObject(target[key]) 
-                            ? this.extend({}, target[key], value) 
-                            // Don't extend strings, arrays, etc. with objects
-                            : this.extend({}, value);
-                    // Copy everything else by reference
-                    } else {
-                        if (value !== null && value !== undefined) {
-                            target[key] = value;
-                        }
-                    }
-                }
-            }
-        }
-        return target;
-    },
     mergeEvents: function(originEvents, newEvents) {
         var temp,
             i;
@@ -6176,11 +6421,8 @@ CtrlBase.prototype = {
         this.window = window;
         this.element = element || null;
 
-        // 配置项初始化
-        this.option = this.extend({}, 
-            this.option,
-            this._defineOption(),
-            option);
+        // 配置项初始化 deep copy
+        this.option = ui.extend(true, {}, this._defineOption(), option) || {};
         // 事件初始化
         events = this._defineEvents();
         if(Array.isArray(events) && events.length > 0) {
@@ -6273,7 +6515,6 @@ ui.define = function(name, base, prototype) {
 // Source: src/component/draggable.js
 
 (function($, ui) {
-"use strict";
 
 var doc = $(document),
     body = $(document.body),
@@ -6534,7 +6775,6 @@ $.fn.undraggable = function() {
 // Source: src/component/uploader.js
 
 (function($, ui) {
-"use strict";
 // uploader
 /**
  * HTML上传工具，提供ajax和iframe两种机制，自动根据当前浏览器特性进行切换
@@ -6867,7 +7107,6 @@ $.fn.uploader = function(option) {
 // Source: src/component/theme.js
 
 (function($, ui) {
-"use strict";
 
 function setHighlight(highlight) {
     var sheet,
@@ -6954,7 +7193,6 @@ ui.theme = {
 // Source: src/component/page.js
 
 (function($, ui) {
-"use strict";
 
 // 事件优先级
 ui.eventPriority = {
@@ -7020,7 +7258,6 @@ $(window)
 // Source: src/control/base/dropdown-base.js
 
 (function($, ui) {
-"use strict";
 var htmlClickHideHandler = [],
     dropdownPanelBorderWidth = 2;
 
@@ -7320,7 +7557,6 @@ ui.define("ui.ctrls.DropDownBase", {
 // Source: src/control/base/sidebar-base.js
 
 (function($, ui) {
-"use strict";
 //侧滑面板基类
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
@@ -7523,7 +7759,6 @@ ui.define("ui.ctrls.SidebarBase", {
 // Source: src/control/common/column-style.js
 
 (function($, ui) {
-"use strict";
 // column style 默认提供的GridView和ReportView的格式化器
 var spanKey = "_RowspanContext",
     hoverViewKey = "_HoverView";
@@ -8049,7 +8284,6 @@ ui.ColumnStyle = {
 // Source: src/control/common/mask.js
 
 (function($, ui) {
-"use strict";
 //全局遮罩
 ui.mask = {
     maskId: "#ui_mask_rectangle",
@@ -8171,7 +8405,6 @@ ui.mask = {
 // Source: src/control/common/pager.js
 
 (function($, ui) {
-"use strict";
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
@@ -8391,7 +8624,6 @@ ui.ctrls.Pager = Pager;
 // Source: src/control/box/dialog-box.js
 
 (function($, ui) {
-"use strict";
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
@@ -9114,7 +9346,6 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 // Source: src/control/box/loading-box.js
 
 (function($, ui) {
-"use strict";
 // 加载提示框
 var loadingBox,
     loadingClass = "c_dotsPlaying";
@@ -9198,7 +9429,6 @@ ui.loadingHide = function() {
 // Source: src/control/box/message-box.js
 
 (function($, ui) {
-"use strict";
 // MessageBox
 var MessageType = {
         message: 0,
@@ -9413,7 +9643,6 @@ ui.failedShow = function(text) {
 // Source: src/control/box/option-box.js
 
 (function($, ui) {
-"use strict";
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
@@ -9537,7 +9766,6 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 // Source: src/control/select/chooser.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 选择器
@@ -10216,7 +10444,6 @@ $.fn.chooser = function(option) {
 // Source: src/control/select/color-picker.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * Farbtastic Color Picker 1.2
@@ -10629,7 +10856,6 @@ $.fn.colorPicker = function (option) {
 // Source: src/control/select/date-chooser.js
 
 (function($, ui) {
-"use strict";
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
@@ -12058,7 +12284,6 @@ $.fn.dateChooser = function(option) {
 // Source: src/control/select/selection-list.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 自定义下拉列表
@@ -12485,7 +12710,6 @@ $.fn.selectionList = function (option) {
 // Source: src/control/select/selection-tree.js
 
 (function($, ui) {
-"use strict";
 /**
  * 树形下拉列表，可以完美的解决多级联动下拉列表的各种弊端
  * 支持单项选择和多项选择
@@ -13317,7 +13541,6 @@ $.fn.selectionTree = function (option) {
 // Source: src/control/select/selection-tree4autocomplete.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 支持自动完成的下拉树
@@ -13600,7 +13823,6 @@ $.fn.autocompleteSelectionTree = function(option) {
 // Source: src/control/view/calendar-view.js
 
 (function($, ui) {
-"use strict";
 // CalendarView
 var timeTitleWidth = 80,
     hourHeight = 25,
@@ -16697,7 +16919,6 @@ ui.page.hlchanged(function(e, colorInfo) {
 // Source: src/control/view/card-view.js
 
 (function($, ui) {
-"use strict";
 // CardView
 
 var selectedClass = "ui-card-view-selection",
@@ -17705,7 +17926,6 @@ $.fn.cardView = function(option) {
 // Source: src/control/view/fold-view.js
 
 (function($, ui) {
-"use strict";
 // 折叠视图
 function onFoldTitleClick(e) {
     var elem,
@@ -17800,7 +18020,6 @@ $.fn.foldView = function() {
 // Source: src/control/view/grid-view-group.js
 
 (function($, ui) {
-"use strict";
 // GridViewGroup
 
 function defaultCreateGroupItem(groupKey) {
@@ -17962,7 +18181,6 @@ ui.ctrls.GridViewGroup = GridViewGroup;
 // Source: src/control/view/grid-view-tree.js
 
 (function($, ui) {
-"use strict";
 // GridViewTree
 
 var childrenField = "_children",
@@ -18369,7 +18587,6 @@ ui.ctrls.GridViewTree = GridViewTree;
 // Source: src/control/view/grid-view.js
 
 (function($, ui) {
-"use strict";
 // grid view
 
 var cellCheckbox = "grid-checkbox",
@@ -19683,7 +19900,6 @@ $.fn.gridView = function(option) {
 // Source: src/control/view/list-view.js
 
 (function($, ui) {
-"use strict";
 //list view
 
 var indexAttr = "data-index";
@@ -20327,7 +20543,6 @@ $.fn.listView = function(option) {
 // Source: src/control/view/report-view.js
 
 (function($, ui) {
-"use strict";
 // Report View
 
 var cellCheckbox = "grid-checkbox",
@@ -22127,7 +22342,6 @@ $.fn.reportView = function(option) {
 // Source: src/control/view/tab-view.js
 
 (function($, ui) {
-"use strict";
 // TabView
 
 var selectedClass = "ui-tab-selection";
@@ -22687,7 +22901,6 @@ ui.ctrls.TabView.TabManager = TabManager;
 // Source: src/control/view/tree-view.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 树形列表
@@ -22725,7 +22938,6 @@ $.fn.treeView = function(option) {
 // Source: src/control/tools/confirm-button.js
 
 (function($, ui) {
-"use strict";
 /* 确认按钮 */
 
 function noop() {}
@@ -22929,7 +23141,6 @@ $.fn.confirmClick = function(option) {
 // Source: src/control/tools/extend-button.js
 
 (function($, ui) {
-"use strict";
 /* 扩展按钮 */
 ui.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
@@ -23336,7 +23547,6 @@ $.fn.extendButton = function(option) {
 // Source: src/control/tools/filter-tool.js
 
 (function($, ui) {
-"use strict";
 /* 内容过滤选择器 */
 var prefix = "filter_tool",
     filterCount = 0;
@@ -23574,7 +23784,6 @@ $.fn.filterTool = function (option) {
 // Source: src/control/tools/hover-view.js
 
 (function($, ui) {
-"use strict";
 /* 悬停视图 */
 var guid = 1;
 // 鼠标移动处理事件
@@ -23826,7 +24035,6 @@ $.fn.addHoverView = function (view) {
 // Source: src/control/tools/slidebar.js
 
 (function($, ui) {
-"use strict";
 // Slidebar
 
 function prepareMove(arg) {
@@ -24076,7 +24284,6 @@ $.fn.slidebar = function(option) {
 // Source: src/control/tools/switch-button.js
 
 (function($, ui) {
-"use strict";
 /* 开关按钮 */
 
 var normalStyle,
@@ -24343,7 +24550,6 @@ $.fn.switchButton = function(option) {
 // Source: src/control/images/image-preview.js
 
 (function($, ui) {
-"use strict";
 //图片预览视图
 
 function onChooserItemClick(e) {
@@ -24709,7 +24915,6 @@ $.fn.imagePreview = function(option) {
 // Source: src/control/images/image-viewer.js
 
 (function($, ui) {
-"use strict";
 //图片轮播视图
 ui.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
@@ -25034,7 +25239,6 @@ $.fn.imageViewer = function(option) {
 // Source: src/control/images/image-watcher.js
 
 (function($, ui) {
-"use strict";
 //图片局部放大查看器
 ui.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
@@ -25199,7 +25403,6 @@ $.fn.imageWatcher = function(option) {
 // Source: src/control/images/image-zoomer.js
 
 (function($, ui) {
-"use strict";
 function getLargeImageSrc(img) {
     var src = img.attr("data-large-src");
     if(!src) {
@@ -25647,7 +25850,6 @@ $.fn.addImageZoomer = function (image) {
 // Source: src/effect/0.js
 
 (function($, ui) {
-"use strict";
 ui.effect = {};
 
 })(jQuery, ui);
@@ -25655,7 +25857,6 @@ ui.effect = {};
 // Source: src/effect/wave.js
 
 (function($, ui) {
-"use strict";
 function globalAttenuation(x, k) {
     return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
 }
@@ -25829,7 +26030,6 @@ ui.effect.Wave = Wave;
 // Source: src/viewpage/master.js
 
 (function($, ui) {
-"use strict";
 /*
     Master 模板页
  */
@@ -26227,7 +26427,6 @@ ui.master = master;
 // Source: src/viewpage/menu.js
 
 (function($, ui) {
-"use strict";
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     lightClass = "head-color",
@@ -27178,7 +27377,6 @@ ui.define("ui.ctrls.Menu", {
 // Source: src/viewpage/sidebar-manager.js
 
 (function($, ui) {
-"use strict";
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -27285,7 +27483,6 @@ ui.SidebarManager = SidebarManager;
 // Source: src/viewpage/tile-view.js
 
 (function($, ui) {
-"use strict";
 // 动态磁贴
 
 ///磁贴组
@@ -28068,7 +28265,6 @@ ui.TileContainer = TileContainer;
 // Source: src/viewpage/tiles/tile-calendar.js
 
 (function($, ui) {
-"use strict";
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -28155,7 +28351,6 @@ ui.tiles.calendar = function(tile) {
 // Source: src/viewpage/tiles/tile-clock.js
 
 (function($, ui) {
-"use strict";
 // 时钟动态磁贴
 var clockStyle;
 
@@ -28246,7 +28441,6 @@ ui.tiles.clock = function(tile) {
 // Source: src/viewpage/tiles/tile-picture.js
 
 (function($, ui) {
-"use strict";
 // 图片动态磁贴
 
 if(!ui.tiles) {
@@ -28433,7 +28627,6 @@ function moveNext(tile) {
 // Source: src/viewpage/tiles/tile-weather.js
 
 (function($, ui) {
-"use strict";
 // 天气可交互磁贴
 /*
     cityName: 城市名称
@@ -28744,7 +28937,6 @@ ui.tiles.weather = function(tile, weatherData) {
 // Source: src/viewpage/toolbar.js
 
 (function($, ui) {
-"use strict";
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {
@@ -28964,3 +29156,8 @@ ui.Toolbar = Toolbar;
 
 
 })(jQuery, ui);
+
+
+return ui;
+
+});

@@ -1,7 +1,6 @@
 // Source: src/control/base/dropdown-base.js
 
 (function($, ui) {
-"use strict";
 var htmlClickHideHandler = [],
     dropdownPanelBorderWidth = 2;
 
@@ -301,7 +300,6 @@ ui.define("ui.ctrls.DropDownBase", {
 // Source: src/control/base/sidebar-base.js
 
 (function($, ui) {
-"use strict";
 //侧滑面板基类
 ui.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
@@ -504,7 +502,6 @@ ui.define("ui.ctrls.SidebarBase", {
 // Source: src/control/common/column-style.js
 
 (function($, ui) {
-"use strict";
 // column style 默认提供的GridView和ReportView的格式化器
 var spanKey = "_RowspanContext",
     hoverViewKey = "_HoverView";
@@ -1030,7 +1027,6 @@ ui.ColumnStyle = {
 // Source: src/control/common/mask.js
 
 (function($, ui) {
-"use strict";
 //全局遮罩
 ui.mask = {
     maskId: "#ui_mask_rectangle",
@@ -1152,7 +1148,6 @@ ui.mask = {
 // Source: src/control/common/pager.js
 
 (function($, ui) {
-"use strict";
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
@@ -1372,7 +1367,6 @@ ui.ctrls.Pager = Pager;
 // Source: src/control/box/dialog-box.js
 
 (function($, ui) {
-"use strict";
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
@@ -2095,7 +2089,6 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 // Source: src/control/box/loading-box.js
 
 (function($, ui) {
-"use strict";
 // 加载提示框
 var loadingBox,
     loadingClass = "c_dotsPlaying";
@@ -2179,7 +2172,6 @@ ui.loadingHide = function() {
 // Source: src/control/box/message-box.js
 
 (function($, ui) {
-"use strict";
 // MessageBox
 var MessageType = {
         message: 0,
@@ -2394,7 +2386,6 @@ ui.failedShow = function(text) {
 // Source: src/control/box/option-box.js
 
 (function($, ui) {
-"use strict";
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
@@ -2518,7 +2509,6 @@ ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 // Source: src/control/select/chooser.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 选择器
@@ -3197,7 +3187,6 @@ $.fn.chooser = function(option) {
 // Source: src/control/select/color-picker.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * Farbtastic Color Picker 1.2
@@ -3610,7 +3599,6 @@ $.fn.colorPicker = function (option) {
 // Source: src/control/select/date-chooser.js
 
 (function($, ui) {
-"use strict";
 var language,
     selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
@@ -5039,7 +5027,6 @@ $.fn.dateChooser = function(option) {
 // Source: src/control/select/selection-list.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 自定义下拉列表
@@ -5466,7 +5453,6 @@ $.fn.selectionList = function (option) {
 // Source: src/control/select/selection-tree.js
 
 (function($, ui) {
-"use strict";
 /**
  * 树形下拉列表，可以完美的解决多级联动下拉列表的各种弊端
  * 支持单项选择和多项选择
@@ -6298,7 +6284,6 @@ $.fn.selectionTree = function (option) {
 // Source: src/control/select/selection-tree4autocomplete.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 支持自动完成的下拉树
@@ -6581,7 +6566,6 @@ $.fn.autocompleteSelectionTree = function(option) {
 // Source: src/control/view/calendar-view.js
 
 (function($, ui) {
-"use strict";
 // CalendarView
 var timeTitleWidth = 80,
     hourHeight = 25,
@@ -9678,7 +9662,6 @@ ui.page.hlchanged(function(e, colorInfo) {
 // Source: src/control/view/card-view.js
 
 (function($, ui) {
-"use strict";
 // CardView
 
 var selectedClass = "ui-card-view-selection",
@@ -10686,7 +10669,6 @@ $.fn.cardView = function(option) {
 // Source: src/control/view/fold-view.js
 
 (function($, ui) {
-"use strict";
 // 折叠视图
 function onFoldTitleClick(e) {
     var elem,
@@ -10781,7 +10763,6 @@ $.fn.foldView = function() {
 // Source: src/control/view/grid-view-group.js
 
 (function($, ui) {
-"use strict";
 // GridViewGroup
 
 function defaultCreateGroupItem(groupKey) {
@@ -10943,7 +10924,6 @@ ui.ctrls.GridViewGroup = GridViewGroup;
 // Source: src/control/view/grid-view-tree.js
 
 (function($, ui) {
-"use strict";
 // GridViewTree
 
 var childrenField = "_children",
@@ -11350,7 +11330,6 @@ ui.ctrls.GridViewTree = GridViewTree;
 // Source: src/control/view/grid-view.js
 
 (function($, ui) {
-"use strict";
 // grid view
 
 var cellCheckbox = "grid-checkbox",
@@ -12664,7 +12643,6 @@ $.fn.gridView = function(option) {
 // Source: src/control/view/list-view.js
 
 (function($, ui) {
-"use strict";
 //list view
 
 var indexAttr = "data-index";
@@ -13308,7 +13286,6 @@ $.fn.listView = function(option) {
 // Source: src/control/view/report-view.js
 
 (function($, ui) {
-"use strict";
 // Report View
 
 var cellCheckbox = "grid-checkbox",
@@ -15108,7 +15085,6 @@ $.fn.reportView = function(option) {
 // Source: src/control/view/tab-view.js
 
 (function($, ui) {
-"use strict";
 // TabView
 
 var selectedClass = "ui-tab-selection";
@@ -15668,7 +15644,6 @@ ui.ctrls.TabView.TabManager = TabManager;
 // Source: src/control/view/tree-view.js
 
 (function($, ui) {
-"use strict";
 
 /**
  * 树形列表
@@ -15706,7 +15681,6 @@ $.fn.treeView = function(option) {
 // Source: src/control/tools/confirm-button.js
 
 (function($, ui) {
-"use strict";
 /* 确认按钮 */
 
 function noop() {}
@@ -15910,7 +15884,6 @@ $.fn.confirmClick = function(option) {
 // Source: src/control/tools/extend-button.js
 
 (function($, ui) {
-"use strict";
 /* 扩展按钮 */
 ui.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
@@ -16317,7 +16290,6 @@ $.fn.extendButton = function(option) {
 // Source: src/control/tools/filter-tool.js
 
 (function($, ui) {
-"use strict";
 /* 内容过滤选择器 */
 var prefix = "filter_tool",
     filterCount = 0;
@@ -16555,7 +16527,6 @@ $.fn.filterTool = function (option) {
 // Source: src/control/tools/hover-view.js
 
 (function($, ui) {
-"use strict";
 /* 悬停视图 */
 var guid = 1;
 // 鼠标移动处理事件
@@ -16807,7 +16778,6 @@ $.fn.addHoverView = function (view) {
 // Source: src/control/tools/slidebar.js
 
 (function($, ui) {
-"use strict";
 // Slidebar
 
 function prepareMove(arg) {
@@ -17057,7 +17027,6 @@ $.fn.slidebar = function(option) {
 // Source: src/control/tools/switch-button.js
 
 (function($, ui) {
-"use strict";
 /* 开关按钮 */
 
 var normalStyle,
@@ -17324,7 +17293,6 @@ $.fn.switchButton = function(option) {
 // Source: src/control/images/image-preview.js
 
 (function($, ui) {
-"use strict";
 //图片预览视图
 
 function onChooserItemClick(e) {
@@ -17690,7 +17658,6 @@ $.fn.imagePreview = function(option) {
 // Source: src/control/images/image-viewer.js
 
 (function($, ui) {
-"use strict";
 //图片轮播视图
 ui.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
@@ -18015,7 +17982,6 @@ $.fn.imageViewer = function(option) {
 // Source: src/control/images/image-watcher.js
 
 (function($, ui) {
-"use strict";
 //图片局部放大查看器
 ui.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
@@ -18180,7 +18146,6 @@ $.fn.imageWatcher = function(option) {
 // Source: src/control/images/image-zoomer.js
 
 (function($, ui) {
-"use strict";
 function getLargeImageSrc(img) {
     var src = img.attr("data-large-src");
     if(!src) {

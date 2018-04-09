@@ -1,7 +1,6 @@
 // Source: src/component/introsort.js
 
 (function($, ui) {
-"use strict";
 // sorter introsort
 var core = ui.core,
     size_threshold = 16;
@@ -202,7 +201,6 @@ ui.Introsort = Introsort;
 // Source: src/component/animation.js
 
 (function($, ui) {
-"use strict";
 /*
     animation javascript 动画引擎
  */
@@ -211,6 +209,8 @@ ui.Introsort = Introsort;
 var requestAnimationFrame,
     cancelAnimationFrame,
     prefix = ["ms", "moz", "webkit", "o"],
+    animationEaseStyle,
+    bezierStyleMapper,
     i;
     
 requestAnimationFrame = window.requestAnimationFrame;
@@ -235,15 +235,71 @@ if (!cancelAnimationFrame) {
 
 function noop() { }
 
-ui.getRequestAnimationFrame = function() {
-    return requestAnimationFrame;
-};
-ui.getCancelAnimationFrame = function() {
-    return cancelAnimationFrame;
+bezierStyleMapper = {
+    "ease": getBezierFn(.25, .1, .25, 1),
+    "linear": getBezierFn(0, 0, 1, 1),
+    "ease-in": getBezierFn(.42, 0, 1, 1),
+    "ease-out": getBezierFn(0, 0, .58, 1),
+    "ease-in-out": getBezierFn(.42, 0, .58, 1)
 };
 
+// https://blog.csdn.net/backspace110/article/details/72747886
+// bezier缓动函数
+function getBezierFn() {
+    var points, 
+        numbers, 
+        i, j, len, n;
+
+    len = arguments.length;
+    if(len % 2) {
+        throw new TypeError("arguments length error");
+    }
+
+    //起点
+    points = [{ x: 0,  y: 0 }];
+    for(i = 0; i < len; i += 2) {
+        points.push({
+            x: parseFloat(arguments[i]),
+            y: parseFloat(arguments[i + 1])
+        });
+    }
+    //终点
+    points.push({ x: 1, y: 1 });
+
+    numbers = [];
+    n = points.length - 1;
+    for (i = 1; i <= n; i++) {  
+        numbers[i] = 1;  
+        for (j = i - 1; j >= 1; j--) {
+            numbers[j] += numbers[j - 1];  
+        }
+        numbers[0] = 1;  
+    }
+
+    return function(t) {
+        var i, p, num, value;
+        if(t < 0) {
+            t = 0;
+        }
+        if(t > 1) {
+            t = 1;
+        }
+        value = {
+            x: 0,
+            y: 0
+        };
+        for(i = 0; i <= n; i++) {
+            p = points[i];
+            num = numbers[i];
+            value.x += num * p.x * Math.pow(1 - t, n - i) * Math.pow(t, i);
+            value.y += num * p.y * Math.pow(1 - t, n - i) * Math.pow(t, i);
+        }
+        return value.y;
+    };
+}
+
 //动画效果
-ui.AnimationStyle = {
+animationEaseStyle = {
     easeInQuad: function (pos) {
         return Math.pow(pos, 2);
     },
@@ -569,7 +625,9 @@ Animator.prototype._prepare = function () {
         //必须指定，基本上对top,left,width,height这个属性进行设置
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
-        option.ease = option.ease || ui.AnimationStyle.easeFromTo;
+        option.ease = 
+            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) 
+                || animationEaseStyle.easeFromTo;
         //动画持续时间
         option.duration = option.duration || 0;
         //延迟时间
@@ -637,10 +695,44 @@ Animator.prototype.stop = function () {
     }
 };
 
+/**
+ * 创建一个动画对象
+ * @param {动画目标} target 
+ * @param {动画参数} option 
+ */
 ui.animator = function (target, option) {
     var list = new Animator();
     list.addTarget.apply(list, arguments);
     return list;
+};
+
+/** 动画缓函数 */
+ui.AnimationStyle = animationEaseStyle;
+/** 创建一个基于bezier的缓动函数 */
+ui.transitionTiming = function() {
+    var args,
+        name;
+
+    args = [].slice.call(arguments);
+    name = args[0];
+    if(!ui.core.isString(name)) {
+        name = args.join(",");
+    }
+    if(bezierStyleMapper.hasOwnProperty(name)) {
+        return bezierStyleMapper[name];
+    }
+
+    bezierStyleMapper[name] = getBezierFn.call(this, args);
+    return bezierStyleMapper[name];
+};
+
+/** 获取当前浏览器支持的动画函数 */
+ui.getRequestAnimationFrame = function() {
+    return requestAnimationFrame;
+};
+/** 获取当前浏览器支持的动画函数 */
+ui.getCancelAnimationFrame = function() {
+    return cancelAnimationFrame;
 };
 
 
@@ -649,7 +741,6 @@ ui.animator = function (target, option) {
 // Source: src/component/custom-event.js
 
 (function($, ui) {
-"use strict";
 // custom event
 function CustomEvent (target) {
     this._listeners = {};
@@ -764,390 +855,9 @@ ui.CustomEvent = CustomEvent;
 
 })(jQuery, ui);
 
-// Source: src/component/task.js
-
-(function($, ui) {
-"use strict";
-/*
-
-JavaScript中分为MacroTask和MicroTask
-Promise\MutationObserver\Object.observer 属于MicroTask
-setImmediate\setTimeout\setInterval 属于MacroTask
-    另外：requestAnimationFrame\I/O\UI Rander 也属于MacroTask，但会优先执行
-
-每次Tick时都是一个MacroTask，在当前MacroTask执行完毕后都会检查MicroTask的队列，并执行MicroTask。
-所以MicroTask可以保证在同一个Tick执行，而setImmediate\setTimeout\setInterval会创建成新的MacroTask，下一次执行。
-另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
-而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
-
-*/
-
-var callbacks,
-    pedding,
-    isFunction,
-
-    channel, port,
-    resolvePromise,
-    MutationObserver, observer, textNode, counter,
-
-    task,
-    microTask;
-
-isFunction = ui.core.isFunction;
-
-function set(fn) {
-    var index;
-    if(isFunction(fn)) {
-        this.callbacks.push(fn);
-        index = this.callbacks.length - 1;
-
-        if(!this.pedding) {
-            this.pedding = true;
-            this.run();
-        }
-        return index;
-    }
-    return -1;
-}
-
-function clear(index) {
-    if(typeof index === "number" && index >= 0 && index < this.callbacks.length) {
-        this.callbacks[index] = false;
-    }
-}
-
-function run() {
-    var copies,
-        i, len;
-
-    this.pedding = false;
-    copies = this.callbacks;
-    this.callbacks = [];
-
-    for(i = 0, len = copies.length; i < len; i++) {
-        if(copies[i]) {
-            try {
-                copies[i]();
-            } catch(e) {
-                ui.handleError(e);
-            }
-        }
-    }
-}
-
-task = {
-    callbacks: [],
-    pedding: false,
-    run: null
-};
-
-// 如果原生支持setImmediate
-if(typeof setImmediate !== "undefined" && ui.core.isNative(setImmediate)) {
-    // setImmediate
-    task.run = function() {
-        setImmediate(function() {
-            run.call(task);
-        });
-    };
-} else if(MessageChannel && 
-            (ui.core.isNative(MessageChannel) || MessageChannel.toString() === "[object MessageChannelConstructor]")) {
-    // MessageChannel & postMessage
-    channel = new MessageChannel();
-    channel.port1.onmessage = function() {
-        run.call(task);
-    };
-    port = channel.port2;
-    task.run = function() {
-        port.postMessage(1);
-    };
-} else {
-    // setTimeout
-    task.run = function() {
-        setTimeout(function() {
-            run.call(task);
-        }, 0);
-    };
-}
-
-microTask = {
-    callbacks: [],
-    pedding: false,
-    run: null
-};
-
-if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
-    // Promise
-    resolvePromise = Promise.resolve();
-    microTask.run = function() {
-        resolvePromise.then(function() {
-            run.call(microTask);
-        });
-    };
-} else {
-    MutationObserver = window.MutationObserver || 
-                        window.WebKitMutationObserver || 
-                        window.MozMutationObserver || 
-                        null;
-
-    if(MutationObserver && ui.core.isNative(MutationObserver)) {
-        // MutationObserver
-        counter = 1;
-        observer = new MutationObserver(function() {
-            run.call(microTask);
-        });
-        textNode = document.createTextNode(String(counter));
-        observer.observe(textNode, {
-            characterData: true
-        });
-        microTask.run = function() {
-            counter = (counter + 1) % 2;
-            textNode.data = String(counter);
-        };
-    } else {
-        microTask.run = task.run;
-    }
-}
-
-ui.setTask = function(fn) {
-    return set.call(task, fn);
-};
-ui.clearTask = function(index) {
-    clear.call(task, index);
-};
-ui.setMicroTask = function(fn) {
-    return set.call(microTask, fn);
-};
-ui.clearMicroTask = function(index) {
-    clear.call(microTask, index);
-};
-
-
-})(jQuery, ui);
-
-// Source: src/component/json.js
-
-(function($, ui) {
-"use strict";
-// json2
-
-// 判断浏览器是否原生支持JSON对象
-var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
-        && ui.core.isFunction(window.JSON.parse) 
-        && ui.core.isFunction(window.JSON.stringify));
-if (hasJSON) {
-    return;
-}
-
-var JSON = {
-    fake: true
-};
-
-"use strict";
-var rx_one = /^[\],:{}\s]*$/;
-var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
-var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-
-function f(n) {
-    return n < 10 ? "0" + n : n;
-}
-function this_value() {
-    return this.valueOf();
-}
-if (typeof Date.prototype.toJSON !== "function") {
-    Date.prototype.toJSON = function () {
-        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" 
-                    + f(this.getUTCMonth() + 1) + "-" 
-                    + f(this.getUTCDate()) + "T" 
-                    + f(this.getUTCHours()) + ":" 
-                    + f(this.getUTCMinutes()) + ":" 
-                    + f(this.getUTCSeconds()) + "Z") : null);
-    };
-    Boolean.prototype.toJSON = this_value;
-    Number.prototype.toJSON = this_value;
-    String.prototype.toJSON = this_value;
-}
-
-var gap;
-var indent;
-var meta;
-var rep;
-
-function quote(string) {
-    rx_escapable.lastIndex = 0;
-    return rx_escapable.test(string) ? 
-        ("\"" + string.replace(rx_escapable, function (a) {
-            var c = meta[a];
-            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
-        }) + "\"") : 
-        ("\"" + string + "\"");
-}
-function str(key, holder) {
-    var i;          // The loop counter.
-    var k;          // The member key.
-    var v;          // The member value.
-    var length;
-    var mind = gap;
-    var partial;
-    var value = holder[key];
-    if (value && typeof value === "object" &&
-            typeof value.toJSON === "function") {
-        value = value.toJSON(key);
-    }
-    if (typeof rep === "function") {
-        value = rep.call(holder, key, value);
-    }
-    switch (typeof value) {
-        case "string":
-            return quote(value);
-
-        case "number":
-            return isFinite(value) ? String(value) : "null";
-
-        case "boolean":
-
-        case "null":
-            return String(value);
-
-        case "object":
-            if (!value) {
-                return "null";
-            }
-            gap += indent;
-            partial = [];
-            if (Object.prototype.toString.apply(value) === "[object Array]") {
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || "null";
-                }
-                v = partial.length === 0
-                    ? "[]"
-                    : gap
-                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-                        : "[" + partial.join(",") + "]";
-                gap = mind;
-                return v;
-            }
-            if (rep && typeof rep === "object") {
-                length = rep.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof rep[i] === "string") {
-                        k = rep[i];
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
-                        }
-                    }
-                }
-            } else {
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
-                        }
-                    }
-                }
-            }
-            v = partial.length === 0
-                ? "{}"
-                : gap
-                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-                    : "{" + partial.join(",") + "}";
-            gap = mind;
-            return v;
-    }
-}
-
-// JSON.stringify & JSON.parse
-meta = {
-    "\b": "\\b",
-    "\t": "\\t",
-    "\n": "\\n",
-    "\f": "\\f",
-    "\r": "\\r",
-    "\"": "\\\"",
-    "\\": "\\\\"
-};
-JSON.stringify = function (value, replacer, space) {
-    var i;
-    gap = "";
-    indent = "";
-    if (typeof space === "number") {
-        for (i = 0; i < space; i += 1) {
-            indent += " ";
-        }
-    } else if (typeof space === "string") {
-        indent = space;
-    }
-    rep = replacer;
-    if (replacer && typeof replacer !== "function" &&
-            (typeof replacer !== "object" ||
-            typeof replacer.length !== "number")) {
-        throw new Error("JSON.stringify");
-    }
-    return str("", {"": value});
-};
-JSON.parse = function (text, reviver) {
-    var j;
-    function walk(holder, key) {
-        var k;
-        var v;
-        var value = holder[key];
-        if (value && typeof value === "object") {
-            for (k in value) {
-                if (Object.prototype.hasOwnProperty.call(value, k)) {
-                    v = walk(value, k);
-                    if (v !== undefined) {
-                        value[k] = v;
-                    } else {
-                        delete value[k];
-                    }
-                }
-            }
-        }
-        return reviver.call(holder, key, value);
-    }
-    text = String(text);
-    rx_dangerous.lastIndex = 0;
-    if (rx_dangerous.test(text)) {
-        text = text.replace(rx_dangerous, function (a) {
-            return "\\u" +
-                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-        });
-    }
-    if (
-        rx_one.test(
-            text
-                .replace(rx_two, "@")
-                .replace(rx_three, "]")
-                .replace(rx_four, "")
-        )
-    ) {
-        j = eval("(" + text + ")");
-        return (typeof reviver === "function")
-            ? walk({"": j}, "")
-            : j;
-    }
-    throw new SyntaxError("JSON.parse");
-};
-
-})(jQuery, ui);
-
 // Source: src/component/ajax.js
 
 (function($, ui) {
-"use strict";
 // ajax
 var responsedJson = "X-Responded-JSON";
 function unauthorized(xhr, context) {
@@ -1418,7 +1128,6 @@ ui.ajax = {
 // Source: src/component/color.js
 
 (function($, ui) {
-"use strict";
 // color
 
 // 各种颜色格式的正则表达式
@@ -1559,7 +1268,6 @@ ui.color = {
 // Source: src/component/browser.js
 
 (function($, ui) {
-"use strict";
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -1687,7 +1395,6 @@ ui.engine = engine;
 // Source: src/component/image-loader.js
 
 (function($, ui) {
-"use strict";
 // image loader
 
 function ImageLoader() {
@@ -1880,7 +1587,6 @@ $.fn.setImage = function (src, width, height, fillMode) {
 // Source: src/component/view-model.js
 
 (function($, ui) {
-"use strict";
 // ViewModel 模型
 
 var arrayObserverPrototype = [],
@@ -2351,7 +2057,6 @@ ui.ViewModel.bindTwoWay = function(option) {
 // Source: src/component/define.js
 
 (function($, ui) {
-"use strict";
 function noop() {
 }
 function getNamespace(namespace) {
@@ -2477,33 +2182,6 @@ CtrlBase.prototype = {
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
-    option: {},
-    extend: function(target) {
-        var input = Array.prototype.slice.call(arguments, 1),
-            i = 0, len = input.length,
-            option, key, value;
-        for (; i < len; i++) {
-            option = input[i];
-            for (key in option) {
-                value = option[key];
-                if (option.hasOwnProperty(key) && value !== undefined) {
-                    // Clone objects
-                    if (ui.core.isPlainObject(value)) {
-                        target[key] = ui.core.isPlainObject(target[key]) 
-                            ? this.extend({}, target[key], value) 
-                            // Don't extend strings, arrays, etc. with objects
-                            : this.extend({}, value);
-                    // Copy everything else by reference
-                    } else {
-                        if (value !== null && value !== undefined) {
-                            target[key] = value;
-                        }
-                    }
-                }
-            }
-        }
-        return target;
-    },
     mergeEvents: function(originEvents, newEvents) {
         var temp,
             i;
@@ -2543,11 +2221,8 @@ CtrlBase.prototype = {
         this.window = window;
         this.element = element || null;
 
-        // 配置项初始化
-        this.option = this.extend({}, 
-            this.option,
-            this._defineOption(),
-            option);
+        // 配置项初始化 deep copy
+        this.option = ui.extend(true, {}, this._defineOption(), option) || {};
         // 事件初始化
         events = this._defineEvents();
         if(Array.isArray(events) && events.length > 0) {
@@ -2640,7 +2315,6 @@ ui.define = function(name, base, prototype) {
 // Source: src/component/draggable.js
 
 (function($, ui) {
-"use strict";
 
 var doc = $(document),
     body = $(document.body),
@@ -2901,7 +2575,6 @@ $.fn.undraggable = function() {
 // Source: src/component/uploader.js
 
 (function($, ui) {
-"use strict";
 // uploader
 /**
  * HTML上传工具，提供ajax和iframe两种机制，自动根据当前浏览器特性进行切换
@@ -3234,7 +2907,6 @@ $.fn.uploader = function(option) {
 // Source: src/component/theme.js
 
 (function($, ui) {
-"use strict";
 
 function setHighlight(highlight) {
     var sheet,
@@ -3321,7 +2993,6 @@ ui.theme = {
 // Source: src/component/page.js
 
 (function($, ui) {
-"use strict";
 
 // 事件优先级
 ui.eventPriority = {

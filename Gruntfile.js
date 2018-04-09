@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 
     "use strict";
+    const rsrcHolder = /\/\/\$\|\$/;
 
     // 主题色
     let themeColor = [
@@ -81,7 +82,6 @@ module.exports = function(grunt) {
 
     // UI库主框架文件
     let frameFiles = [
-        "src/soon-ui.js",
         "src/core.js",
 
         "src/ES5-Array-shims.js",
@@ -156,19 +156,22 @@ module.exports = function(grunt) {
     ];
     let viewDestFile = "dist/ui-viewpages.<%= pkg.version %>.js";
     
-    let wrapper = grunt.file.read("src/wrapper.js").split(/\/\/\$\|\$/),
-        option = function(src, filepath) {
+    // 内容合并
+    let wrapper = grunt.file.read("src/wrapper.js").split(rsrcHolder);
+    let wrapFn = function(src, filepath) {
             if(filepath === frameFiles[0]) {
                 return src;
             }
             return [
                 "// Source: ", filepath, "\r\n",
                 wrapper[0], 
-                "\"use strict\";\r\n",
+                //"\"use strict\";\r\n",
                 src, "\r\n", 
                 wrapper[1], "\r\n"
             ].join("");
         };
+
+    let shell = grunt.file.read("src/soon-ui.js").split(rsrcHolder);
 
     grunt.initConfig({
         // 从package.json 文件读入项目配置信息
@@ -181,40 +184,50 @@ module.exports = function(grunt) {
             },
             frame: {
                 options: {
-                    process: option
+                    // 只执行一次
+                    banner: shell[0],
+                    process: wrapFn,
+                    // 只执行一次
+                    footer: shell[1]
                 },
                 src: frameFiles,
                 dest: frameDestFile
             },
             components: {
                 options: {
-                    process: option
+                    process: wrapFn
                 },
                 src: componentFiles,
                 dest: componentDestFile
             },
             controls: {
                 options: {
-                    process: option
+                    process: wrapFn
                 },
                 src: controlFiles,
                 dest: controlDestFile
             },
             effects: {
                 options: {
-                    process: option
+                    process: wrapFn
                 },
                 src: effectFiles,
                 dest: effectDestFile
             },
             viewpages: {
                 options: {
-                    process: option
+                    process: wrapFn
                 },
                 src: viewFiles,
                 dest: viewDestFile
             },
             dist: {
+                options: {
+                    // 只执行一次
+                    banner: shell[0],
+                    // 只执行一次
+                    footer: shell[1]
+                },
                 // 将要被合并的文件
                 src: [
                     frameDestFile,

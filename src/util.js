@@ -104,8 +104,8 @@ ui.extend = function() {
         i++;
     }
 
-    // 如果target不是一个可以扩展的对象则设置为object
-    if (!ui.core.isObject(target) && !ui.core.isFunction(target)) {
+    // 如果target不是一个可以扩展的对象(Object/Array/Function)则设置为object
+    if (typeof target !== "object" && !ui.core.isFunction(target)) {
         target = {};
     }
 
