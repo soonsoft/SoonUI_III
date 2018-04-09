@@ -437,3 +437,61 @@ ui.animator = function (target, option) {
     list.addTarget.apply(list, arguments);
     return list;
 };
+
+// https://blog.csdn.net/backspace110/article/details/72747886
+// bezier缓动函数
+function getBezierFn() {
+    var points, numbers, 
+        i, j, len, n;
+
+    len = arguments.length;
+    if(len % 2) {
+        throw new TypeError("arguments length error");
+    }
+    points = [{
+        x: 0,
+        y: 0
+    }];
+    for(i = 0; i < len; i += 2) {
+        points.push({
+            x: parseFloat(arguments[i]),
+            y: parseFloat(arguments[i + 1])
+        });
+    }
+    points.push({
+        x: 1,
+        y: 1
+    });
+
+    numbers = [];
+    n = points.length - 1;
+    for (i = 1; i <= n; i++) {  
+        numbers[i] = 1;  
+        for (j = i - 1; j >= 1; j--) {
+            numbers[j] += numbers[j - 1];  
+        }
+        numbers[0] = 1;  
+    }
+
+    return function(t) {
+        var i, p, num, value;
+
+        if(t < 0) {
+            t = 0;
+        }
+        if(t > 1) {
+            t = 1;
+        }
+        value = {
+            x: 0,
+            y: 0
+        };
+        for(i = 0; i <= n; i++) {
+            p = points[i];
+            num = numbers[i];
+            value.x += num * p.x * Math.pow(1 - t, n - i) * Math.pow(t, i);
+            value.y += num * p.y * Math.pow(1 - t, n - i) * Math.pow(t, i);
+        }
+        return value.y / 1;
+    };
+}
