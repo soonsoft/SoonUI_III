@@ -43,6 +43,9 @@ normalStyle = {
         that = this;
         animator.start().then(function () {
             that.hideState = false;
+            if(animator.length === 1) {
+                that.fire("showed");
+            }
         });
     },
     hide: function(animation) {
@@ -81,6 +84,9 @@ normalStyle = {
         that = this;
         animator.start().then(function () {
             that.hideState = true;
+            if(animator.length === 1) {
+                that.fire("hided");
+            }
         });
     },
     subShow: function(elem, animation) {
@@ -190,14 +196,14 @@ normalStyle = {
                     "left": this.menuWidth + "px"
                 });
             }
-            this.option.menuPanel.css("left", "0px");
+            this.option.menuPanel.css("left", "0");
             this.fire("showed");
         } else {
             //隐藏菜单
             if(this.isExtrusion()) {
                 this.option.contentContainer.css({
                     "width": "100%",
-                    "left": "0px"
+                    "left": "0"
                 });
             }
             this.option.menuPanel.css({
@@ -411,7 +417,7 @@ function onMenuItemNormalClick(e) {
             subElem
                 .addClass(currentClass)
                 .addClass(lightClass);
-            this.subShow(subElem, this.hasAnimation);
+            this.subShow(subElem, this.hasAnimation());
         }
     }).bind(this);
     closeFn = (function () {
@@ -477,7 +483,7 @@ function onMenuItemModernClick(e) {
         submenuPanel
             .addClass(currentClass)
             .addClass(lightClass);
-        this.subShow(submenuPanel, this.hasAnimation);
+        this.subShow(submenuPanel, this.hasAnimation());
     }).bind(this);
     closeFn = (function () {
         var subElem;
@@ -538,7 +544,9 @@ ui.define("ui.ctrls.Menu", {
         this.menuWidth = 240;
         this.menuNarrowWidth = 48;
         this._menuButtonBg = null;
-        if(this.option.menuButton) {
+
+        this.hasMenuButton = this.option.menuButton && this.option.menuButton.length;
+        if(this.hasMenuButton) {
             this._menuButtonBg = $("<b class='menu-button-background title-color'></b>");
             this.option.menuButton.append(this._menuButtonBg);
             this.option.menuButton
@@ -590,13 +598,17 @@ ui.define("ui.ctrls.Menu", {
         this.option.menuPanel.css("width", this.menuWidth + "px");
         this.option.menuPanel.append(this.menuList);
 
-        this.option.menuButton.addClass(this.hamburgButton);
+        if(this.hasMenuButton) {
+            this.option.menuButton.addClass(this.hamburgButton);
+        }
         
         this._initMenuList();
         if (this.defaultShow()) {
-            this.option.menuButton
-                    .addClass(showClass)
-                    .addClass(this.hamburgCloseButton);
+            if(this.hasMenuButton) {
+                this.option.menuButton
+                        .addClass(showClass)
+                        .addClass(this.hamburgCloseButton);
+            }
         } else {
             this.hide(false);
         }
@@ -692,16 +704,18 @@ ui.define("ui.ctrls.Menu", {
         });
         
         //菜单汉堡按钮点击事件
-        menuButton = this.option.menuButton;
-        menuButton.click(function (e) {
-            if (menuButton.hasClass(showClass)) {
-                menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);;
-                that.hide(that.hasAnimation);
-            } else {
-                menuButton.addClass(showClass).addClass(that.hamburgCloseButton);;
-                that.show(that.hasAnimation);
-            }
-        });
+        if(this.hasMenuButton) {
+            menuButton = this.option.menuButton;
+            menuButton.click(function (e) {
+                if (menuButton.hasClass(showClass)) {
+                    menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);;
+                    that.hide(that.hasAnimation());
+                } else {
+                    menuButton.addClass(showClass).addClass(that.hamburgCloseButton);;
+                    that.show(that.hasAnimation());
+                }
+            });
+        }
     },
 
     _updateMenuSelectedStatus: function() {
@@ -930,7 +944,7 @@ ui.define("ui.ctrls.Menu", {
         return this.option.style === "modern";
     },
     isShow: function () {
-        return this.option.menuButton.hasClass(showClass);
+        return this.hasMenuButton ? this.option.menuButton.hasClass(showClass) : true;
     },
     defaultShow: function() {
         return !!this.option.defaultShow;

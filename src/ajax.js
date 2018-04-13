@@ -220,6 +220,7 @@ httpRequestProcessor = {
                 callback;
             
             callbackName = this.option.jsonpCallback || "ui.jsonp_callback_" + (jsonpCallbackSeed--);
+            this.jsonpCallbackName = callbackName;
             if(rjsonp.test(this.option.url)) {
                 this.option.url = this.option.url.replace(rjsonp, "$1" + callbackName);
             } else {
@@ -259,7 +260,34 @@ httpRequestProcessor = {
             head.insertBefore(this.xhr, head.firstChild);
         },
         respond: function(event, forceAbort) {
+            var isCompleted,
+                parent,
+                callbackName,
+                args;
+            if(!this.xhr) {
+                return;
+            }
 
+            isCompleted = /loaded|complete|undefined/i.test(this.xhr.readyState);
+            if(forceAbort || isCompleted) {
+                this.xhr.onerror = 
+                    this.xhr.onload = 
+                        this.xhr.onreadystatechange = null;
+                
+                parent = this.xhr.parentNode;
+                if(parent) {
+                    parent.removeChild(this.xhr);
+                }
+                if(!forceAbort) {
+                    callbackName = this.jsonpCallbackName;
+                    if(callbackName) {
+                        
+                    } else {
+                        args = [200, "success"];
+                    }
+                    this.dispatch.apply(this, args);
+                }
+            }
         }
     },
     upload: {

@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 
     "use strict";
     const rsrcHolder = /\/\/\$\|\$/;
+    const tempPrefix = "_temp_";
 
     // 主题色
     let themeColor = [
@@ -81,7 +82,7 @@ module.exports = function(grunt) {
     }
 
     // UI库主框架文件
-    let frameFiles = [
+    let coreFiles = [
         "src/core.js",
 
         "src/ES5-Array-shims.js",
@@ -112,7 +113,10 @@ module.exports = function(grunt) {
         "src/style-sheet.js",
         "src/i18n.js",
     ];
-    let frameDestFile = "dist/ui-core.<%= pkg.version %>.js";
+    // 单独的ui.core.js
+    let coreDestFile = "dist/ui-core.<%= pkg.version %>.js";
+    // 用于生产SOON.UI.all.js的部分，临时文件
+    let coreTempFile = "dist/ui-core" + tempPrefix + ".js";
 
     // 组件文件
     let componentFiles = [
@@ -159,17 +163,20 @@ module.exports = function(grunt) {
     // 内容合并
     let wrapper = grunt.file.read("src/wrapper.js").split(rsrcHolder);
     let wrapFn = function(src, filepath) {
-            if(filepath === frameFiles[0]) {
-                return src;
-            }
-            return [
-                "// Source: ", filepath, "\r\n",
-                wrapper[0], 
-                //"\"use strict\";\r\n",
-                src, "\r\n", 
-                wrapper[1], "\r\n"
-            ].join("");
-        };
+        return [
+            "// Source: ", filepath, "\r\n",
+            wrapper[0], 
+            src, "\r\n", 
+            wrapper[1], "\r\n"
+        ].join("");
+    };
+
+    let tempFiles = [];
+    let removeTempFn = function(src, filepath) {
+        if(filepath.indexOf(tempPrefix) > -1) {
+            tempFiles.push(filepath);
+        }
+    };
 
     let shell = grunt.file.read("src/soon-ui.js").split(rsrcHolder);
 
@@ -180,9 +187,9 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 // 定义一个用于插入合并输出文件之间的字符
-                separator: "\n"
+                separator: "\r\n"
             },
-            frame: {
+            core: {
                 options: {
                     // 只执行一次
                     banner: shell[0],
@@ -190,8 +197,15 @@ module.exports = function(grunt) {
                     // 只执行一次
                     footer: shell[1]
                 },
-                src: frameFiles,
-                dest: frameDestFile
+                src: coreFiles,
+                dest: coreDestFile
+            },
+            coreSource: {
+                options: {
+                    process: wrapFn
+                },
+                src: coreFiles,
+                dest: coreTempFile
             },
             components: {
                 options: {
@@ -225,12 +239,13 @@ module.exports = function(grunt) {
                 options: {
                     // 只执行一次
                     banner: shell[0],
+                    process: removeTempFn,
                     // 只执行一次
                     footer: shell[1]
                 },
                 // 将要被合并的文件
                 src: [
-                    frameDestFile,
+                    coreTempFile,
                     componentDestFile,
                     controlDestFile,
                     effectDestFile,
@@ -249,7 +264,7 @@ module.exports = function(grunt) {
             dist: {
                 files: {
                     // ui.core.min.js
-                    "dist/ui.core.<%= pkg.version %>.min.js": ["<%= concat.frame.dest %>"],
+                    "dist/ui.core.<%= pkg.version %>.min.js": ["<%= concat.core.dest %>"],
                     // ui.components.min.js
                     "dist/ui.components.<%= pkg.version %>.min.js": ["<%= concat.components.dest %>"],
                     // ui.controls.min.js
@@ -305,6 +320,9 @@ module.exports = function(grunt) {
             files: ["<%= jshint.files %>"],
             tasks: ["jshint", "qunit"]
         },
+        "temp-remove": {
+            files: tempFiles
+        },
         "theme-create": {
             theme: {
                 colors: themeColor,
@@ -330,10 +348,12 @@ module.exports = function(grunt) {
         }
     });
 
+    //临时文件删除器
+    grunt.loadTasks("command/temp_remove");
     //加载自定义命令，用于创建主题样式文件
-    grunt.loadTasks( "command/theme_factory" );
+    grunt.loadTasks("command/theme_factory");
     //加载html合并命令
-    grunt.loadTasks( "command/html_builder" );
+    grunt.loadTasks("command/html_builder");
     //注册其它命令
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-concat");
@@ -352,7 +372,7 @@ module.exports = function(grunt) {
     // 在命令行上输入"grunt test"，test task就会被执行。
     grunt.registerTask("test", ["jshint", "qunit"]);
     // 在命令行上输入"grunt"，就会执行default task
-    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat"]);
+    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat", "temp-remove"]);
     // 在命令行上输入"grunt release，就会执行"
-    grunt.registerTask("release", ["clean", "prestyle", "less:devlopment", "concat", "uglify"]);
+    grunt.registerTask("release", ["clean", "prestyle", "less:devlopment", "concat", "temp-remove", "uglify"]);
 };

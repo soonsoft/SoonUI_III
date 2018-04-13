@@ -50,6 +50,9 @@ if(noGlobal) {
 	window.SOONUI = ui;
 }
 
+// Source: src/core.js
+
+(function($, ui) {
 // core
 
 /*
@@ -239,6 +242,9 @@ core.isTouchAvailable = function() {
     return isTouchAvailable;
 };
 
+
+
+})(jQuery, ui);
 
 // Source: src/ES5-Array-shims.js
 
@@ -543,6 +549,8 @@ if(!isFunction(Array.of)) {
 (function($, ui) {
 // 为ECMAScript3 添加ECMAScript5的方法
 
+var rtrim;
+
 function isFunction(fn) {
     return ui.core.isFunction(fn);
 }
@@ -550,8 +558,11 @@ function isFunction(fn) {
 // String.prototype
 // trim
 if(!isFunction(String.prototype.trim)) {
+    // Support: Android<4.1, IE<9
+    // Make sure we trim BOM and NBSP
+    rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
     String.protocol.trim = function() {
-        return ui.str.trim(this);
+        return text == null ? "" : (text + "").replace(rtrim, "");
     };
 }
 
@@ -3403,6 +3414,63 @@ ui.random = random;
 // Source: src/parser.js
 
 (function($, ui) {
+var open = "{",
+	close = "}";
+function parseTemplate(template) {
+    var index, 
+        openIndex,
+        closeIndex,
+        builder,
+        parts;
+    parts = [];
+    builder = {
+        parts: parts,
+        braceIndexes: [],
+        statusText: ""
+    };
+    if(typeof template !== "string" || template.length === 0) {
+        parts.push(template);
+        builder.statusText = "template error";
+        return {
+            parts: parts
+        };
+    }
+    index = 0;
+    while(true) {
+        openIndex = template.indexOf(open, index);
+        closeIndex = template.indexOf(close, (openIndex > -1 ? openIndex : index));
+        // 没有占位符
+        if(openIndex < 0 && closeIndex < 0) {
+            parts.push(template);
+            break;
+        }
+        // 可是要输出'}'标记符
+        if(closeIndex > -1 && (closeIndex < openIndex || openIndex === -1)) {
+            if(template.charAt(closeIndex + 1) !== close) {
+                throw new TypeError("字符'}'， index:" + closeIndex + "， 标记符输出格式错误，应为}}");
+            }
+            parts.push(template.substring(index, closeIndex + 1));
+            i = closeIndex + 2;
+            continue;
+        }
+        // 处理占位符
+        parts.push(template.substring(index, openIndex));
+        index = openIndex + 1;
+        if(template.charAt(index) === open) {
+            // 说明要输出'{'标记符
+            parts.push(template.charAt(index));
+            index += 1;
+            continue;
+        }
+        if(closeIndex === -1) {
+            throw new TypeError("缺少闭合标记，正确的占位符应为{text}");
+        }
+        parts.push(template.substring(index, closeIndex).trim());
+        builder.braceIndexes.push(parts.length - 1);
+        index = closeIndex + 1;
+    }
+    return builder;
+}
 
 function parseXML(data) {
     var xml, tmp;
@@ -3433,6 +3501,8 @@ function parseHTML(html) {
     return html;
 }
 
+
+ui.parseTemplate = parseTemplate;
 ui.parseXML = parseXML;
 ui.parseHTML = parseHTML;
 ui.parseJSON = JSON.parse;
