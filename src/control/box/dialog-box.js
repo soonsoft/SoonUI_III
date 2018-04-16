@@ -298,7 +298,7 @@ ui.define("ui.ctrls.DialogBox", {
         this.contentHeight = 0;
 
         that = this;
-        ui.core.each("show,hide,done", function(name) {
+        ui.core.each("show, hide, done", function(name) {
             that[name + "Async"] = function(callback) {
                 this._asyncCall(name, callback);
             };
@@ -604,7 +604,7 @@ ui.define("ui.ctrls.DialogBox", {
             return;
         }
 
-        if(this.fire("hiding") === false) {
+        if(this.fire("closing") === false) {
             return;
         }
         if(!ui.core.isFunction(hideFn)) {
@@ -637,6 +637,7 @@ ui.define("ui.ctrls.DialogBox", {
             $(document.body).css("overflow", this._oldBodyOverflow);
             this.mask.css("display", "none");
         }
+        this.fire("closed");
     },
     /** 显示遮罩层，显示动画用 */
     openMask: function() {

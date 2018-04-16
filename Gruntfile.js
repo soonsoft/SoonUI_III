@@ -176,6 +176,7 @@ module.exports = function(grunt) {
         if(filepath.indexOf(tempPrefix) > -1) {
             tempFiles.push(filepath);
         }
+        return src;
     };
 
     let shell = grunt.file.read("src/soon-ui.js").split(rsrcHolder);

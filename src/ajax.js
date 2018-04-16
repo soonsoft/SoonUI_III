@@ -21,6 +21,7 @@ var msie = 0,
     ensureOption,
     ajaxConverter,
     
+    acceptsAll,
     accepts,
     rquery = /\?/,
     rjsonp = /(=)\?(?=&|$)|\?\?/,
@@ -37,7 +38,7 @@ if(global.VBArray) {
 useOnload = ie === 0 || ie > 8;
 // 检查IE是否支持跨域
 if(msie >= 9) {
-    supportCross = typeof (new XMLHttpRequest()).withCredentials === "boolean";
+    supportCORS = typeof (new XMLHttpRequest()).withCredentials === "boolean";
 }
 
 try {
@@ -68,6 +69,8 @@ try {
 })();
 
 // 定义HTTP Header中Accept的类型
+// Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
+acceptsAll = "*/".concat( "*" );
 accepts = {
     xml: "application/xml, text/xml",
     html: "text/html",
@@ -229,6 +232,7 @@ httpRequestProcessor = {
                     + this.option.jsonp + "=" + callbackName;
             }
 
+            // 把jsonp的结果处理成为全局变量
             names = callbackName.split(".");
             callback = global;
             for(i = 0, len = names.length - 1; i < len; i++) {
@@ -242,6 +246,19 @@ httpRequestProcessor = {
             callback[name] = function(data) {
                 callback[name] = data;
             };
+            this.getJsonpCallBack = function() {
+                return callback[name];
+            };
+
+            this.complete((function() {
+                // 移除jsonp的全局回调函数
+                delete callback[name];
+                delete this.jsonpCallbackName;
+                delete this.getJsonpCallBack;
+            }).bind(this));
+
+            // jsonp 类型替换为script
+            return "script";
         }
     },
     script: {
@@ -262,7 +279,7 @@ httpRequestProcessor = {
         respond: function(event, forceAbort) {
             var isCompleted,
                 parent,
-                callbackName,
+                callback,
                 args;
             if(!this.xhr) {
                 return;
@@ -279,12 +296,15 @@ httpRequestProcessor = {
                     parent.removeChild(this.xhr);
                 }
                 if(!forceAbort) {
-                    callbackName = this.jsonpCallbackName;
-                    if(callbackName) {
-                        
+                    callback = this.jsonpCallbackName;
+                    if(callback) {
+                        callback = this.getJsonpCallBack();
+                        // 此时回调函数应该已经变成了jsonp的数据，如果还是函数，则说明jsonp调用失败了
+                        args = ui.core.isFunction(callback) ? [500, "error"] : [200, "success"];
                     } else {
                         args = [200, "success"];
                     }
+
                     this.dispatch.apply(this, args);
                 }
             }
@@ -328,26 +348,17 @@ ajaxConverter = {
         ui.globalEval(text);
         return text;
     },
-    jsonp: function(text) {
-        var names,
+    jsonp: function() {
+        var jsonpData,
             callback;
-        text += "";
-        text = text.trim();
-        if(!text) {
-            return undefined;
-        }
-
-        names = text.split(".");
-        callback = global;
         try {
-            names.forEach(function(name) {
-                callback = callback[name];
-            });
+            jsonpData = this.getJsonpCallBack();
         } catch(e) {
-            callback = undefined;
+            jsonpData = undefined;
             ui.handleError("the jsonp callback is undefined.");
         }
-        return callback;
+
+        return jsonpData;
     }
 };
 
@@ -577,7 +588,7 @@ ensureOption = (function() {
 function ajax(option) {
     var ajaxRequest,
         promise, _resolve, _reject,
-        i;
+        i, dataType;
 
     if(!option || !option.url) {
         throw new TypeError("参数必须为Object并且拥有url属性");
@@ -611,9 +622,14 @@ function ajax(option) {
         // 貌似可以不要这个
         option.dataType = "jsonp";
     }
-    ui.extend(ajaxRequest, (httpRequestProcessor[option.dataType] || httpRequestProcessor.ajax));
+    dataType = option.dataType;
+    ui.extend(
+        ajaxRequest, 
+        (httpRequestProcessor[option.form ? "upload" : dataType] 
+            || httpRequestProcessor.ajax));
+
     if(ajaxRequest.preprocess) {
-        ajaxRequest.preprocess();
+        dataType = ajaxRequest.preprocess() || dataType;
     }
 
     // 1. Content-Type RequestBody的类型
@@ -622,7 +638,7 @@ function ajax(option) {
     }
     // 2. Accept 客户端希望接受的类型
     ajaxRequest.setRequestHeader(
-        "Accept", accepts[option.dataType] ? accepts[option.dataType] + ", */*; q=0.01" : "*/*");
+        "Accept", accepts[dataType] ? accepts[dataType] + ", " + acceptsAll + "; q=0.01" : acceptsAll);
     // 3. 设置参数中的其它headers
     if(option.headers) {
         for(i in option.headers) {
