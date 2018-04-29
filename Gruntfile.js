@@ -306,7 +306,7 @@ module.exports = function(grunt) {
         // javaScript语法和风格的检查工具
         jshint: {
             // define the files to lint
-            files: ["gruntfile.js", "src/**/*.js", "test/**/*.js"],
+            files: ["gruntfile.js", "src/**/*.js"],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 // more options here if you want to override JSHint defaults

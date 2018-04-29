@@ -500,7 +500,7 @@ function Animator () {
     this.loop = false;
     //动画是否开始
     this.isStarted = false;
-};
+}
 Animator.prototype = new ui.ArrayFaker();
 Animator.prototype.addTarget = function (target, option) {
     if (arguments.length === 1) {
@@ -1004,7 +1004,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         context.errorFn = errorFn;
         ajaxOption.error = function(r, s, t) {
             errorHandler(context, r, s, t);
-        }
+        };
     }
     return $.ajax(ajaxOption);
 }
@@ -1240,7 +1240,7 @@ ui.color = {
             } else {
                 return c;
             }
-        }
+        };
 
         color1 = getColor.call(this, color1);
         color2 = getColor.call(this, color2);

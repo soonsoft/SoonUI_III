@@ -27,12 +27,12 @@ function this_value() {
 }
 if (typeof Date.prototype.toJSON !== "function") {
     Date.prototype.toJSON = function () {
-        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" 
-                    + f(this.getUTCMonth() + 1) + "-" 
-                    + f(this.getUTCDate()) + "T" 
-                    + f(this.getUTCHours()) + ":" 
-                    + f(this.getUTCMinutes()) + ":" 
-                    + f(this.getUTCSeconds()) + "Z") : null);
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" + 
+                    f(this.getUTCMonth() + 1) + "-" + 
+                    f(this.getUTCDate()) + "T" + 
+                    f(this.getUTCHours()) + ":" + 
+                    f(this.getUTCMinutes()) + ":" + 
+                    f(this.getUTCSeconds()) + "Z") : null);
     };
     Boolean.prototype.toJSON = this_value;
     Number.prototype.toJSON = this_value;
@@ -104,11 +104,7 @@ function str(key, holder) {
                         k = rep[i];
                         v = str(k, value);
                         if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
                         }
                     }
                 }
@@ -117,11 +113,7 @@ function str(key, holder) {
                     if (Object.prototype.hasOwnProperty.call(value, k)) {
                         v = str(k, value);
                         if (v) {
-                            partial.push(quote(k) + (
-                                gap
-                                    ? ": "
-                                    : ":"
-                            ) + v);
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
                         }
                     }
                 }

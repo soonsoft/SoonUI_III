@@ -8351,9 +8351,8 @@ DayView.prototype = {
     },
     _createDay: function () {
         this.dayTitle = $("<div class='ui-calendar-day-title' />");
-        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" 
-                + this._formatDayText(this.calendar.currentDate) 
-                + "</span>");
+        this.dayTitle.html("<span class='ui-calendar-day-title-text'>" + 
+                this._formatDayText(this.calendar.currentDate) + "</span>");
         this.dayPanel.append(this.dayTitle);
 
         this.dayTitle.click(this.onDayHeadItemClickHandler);

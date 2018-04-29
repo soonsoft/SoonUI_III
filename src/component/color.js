@@ -111,7 +111,7 @@ ui.color = {
             } else {
                 return c;
             }
-        }
+        };
 
         color1 = getColor.call(this, color1);
         color2 = getColor.call(this, color2);

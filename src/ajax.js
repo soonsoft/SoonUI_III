@@ -175,9 +175,7 @@ httpRequestProcessor = {
                     } else {
                         status = this.xhr.status;
                         this.responseText = 
-                            ui.core.isString(this.xhr.responseText)
-                                ? this.xhr.responseText
-                                : "";
+                            ui.core.isString(this.xhr.responseText) ? this.xhr.responseText : "";
                         // 设置responseXML
                         try {
                             this.responseXML = this.xhr.responseXML.documentElement;
@@ -227,9 +225,9 @@ httpRequestProcessor = {
             if(rjsonp.test(this.option.url)) {
                 this.option.url = this.option.url.replace(rjsonp, "$1" + callbackName);
             } else {
-                this.option.url = this.option.url 
-                    + (rquery.test(this.option.url) ? "&" : "?") 
-                    + this.option.jsonp + "=" + callbackName;
+                this.option.url = this.option.url + 
+                    (rquery.test(this.option.url) ? "&" : "?") + 
+                    this.option.jsonp + "=" + callbackName;
             }
 
             // 把jsonp的结果处理成为全局变量
@@ -522,10 +520,10 @@ ensureOption = (function() {
     originAnchor.href = location.href;
 
     function isJsonContent(contentType) {
-        return contentType.startsWith("application/json")
-                || contentType.startsWith("text/javascript")
-                || contentType.startsWith("text/json")
-                || contentType.startsWith("application/javascript");
+        return contentType.startsWith("application/json") || 
+                contentType.startsWith("text/javascript") || 
+                contentType.startsWith("text/json") || 
+                contentType.startsWith("application/javascript");
     }
     return function(option) {
         var dataType,
@@ -617,17 +615,14 @@ function ajax(option) {
     ajaxRequest.option = option;
     ajaxRequest.async = !(option.async === false);
 
-    if((option.crossDomain && !supportCORS || rjsonp.test(option.url))
-        && option.dataType === "json"
-        && option.type === "GET") {
-        // 貌似可以不要这个
+    if((option.crossDomain && !supportCORS || rjsonp.test(option.url)) && 
+        option.dataType === "json" && option.type === "GET") {
         option.dataType = "jsonp";
     }
     dataType = option.dataType;
-    ui.extend(
-        ajaxRequest, 
-        (httpRequestProcessor[option.form ? "upload" : dataType] 
-            || httpRequestProcessor.ajax));
+    ui.extend(ajaxRequest, 
+        (httpRequestProcessor[option.form ? "upload" : dataType] || 
+            httpRequestProcessor.ajax));
 
     if(ajaxRequest.preprocess) {
         dataType = ajaxRequest.preprocess() || dataType;

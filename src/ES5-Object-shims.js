@@ -240,8 +240,8 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 			}
 		});
 		return obj;
-	}
-};
+	};
+}
 
 // 检查isExtensible是否需要修复
 if(!isFunction(Object.isExtensible)) {

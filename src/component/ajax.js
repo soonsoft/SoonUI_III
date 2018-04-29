@@ -145,7 +145,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         context.errorFn = errorFn;
         ajaxOption.error = function(r, s, t) {
             errorHandler(context, r, s, t);
-        }
+        };
     }
     return $.ajax(ajaxOption);
 }
