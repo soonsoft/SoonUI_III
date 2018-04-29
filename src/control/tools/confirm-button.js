@@ -164,7 +164,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         if(this.option.disabled) {
             this.element.attr("disabled", "disabled");
         } else {
-            this.element.removeAttr("disabled")
+            this.element.removeAttr("disabled");
         }
     },
     getText: function() {

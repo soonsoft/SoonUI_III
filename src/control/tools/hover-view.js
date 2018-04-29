@@ -185,7 +185,7 @@ ui.define("ui.ctrls.HoverView", {
             opacity = parseFloat(this.viewPanel.css("opacity"));
             if (opacity < 1) {
                 css["opacity"] = 1;
-                css["filter"] = "Alpha(opacity=100)"
+                css["filter"] = "Alpha(opacity=100)";
             }
         } else {
             this.viewPanel.css({

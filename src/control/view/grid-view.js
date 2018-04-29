@@ -763,9 +763,9 @@ ui.define("ui.ctrls.GridView", {
                 if(!checkbox) {
                     colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
                     if(colIndex > -1) {
-                        checkbox = this.option.selection.type === "cell"
-                            ? $(elem.parent()[0].cells[colIndex])
-                            : $(elem[0].cells[colIndex]);
+                        checkbox = this.option.selection.type === "cell" ? 
+                            $(elem.parent()[0].cells[colIndex]) : 
+                            $(elem[0].cells[colIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -789,8 +789,7 @@ ui.define("ui.ctrls.GridView", {
         }
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -971,9 +970,9 @@ ui.define("ui.ctrls.GridView", {
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
-                    checkbox = this.option.selection.type === "cell"
-                        ? $(elem.parent()[0].cells[columnIndex])
-                        : $(elem[0].cells[columnIndex]);
+                    checkbox = this.option.selection.type === "cell" ? 
+                        $(elem.parent()[0].cells[columnIndex]) : 
+                        $(elem[0].cells[columnIndex]);
                     checkbox = checkbox.find(checkboxClass);
                     setChecked(checkbox, false);
                 }
@@ -1235,15 +1234,11 @@ ui.define("ui.ctrls.GridView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {

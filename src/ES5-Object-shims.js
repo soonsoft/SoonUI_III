@@ -24,7 +24,7 @@ function isFunction(fn) {
 }
 
 function isPrimitive(obj) {
-	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
 }
 
 // 返回一个由一个给定对象的自身可枚举属性组成的数组
@@ -99,7 +99,9 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallb
 	Object.getOwnPropertyDescriptor = function(obj, property) {
 		var descriptor,
 			originalPrototype,
-			notPrototypeOfObject;
+			notPrototypeOfObject,
+			getter,
+			setter;
 
 		if(isPrimitive(obj)) {
 			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
@@ -232,14 +234,14 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 			}
 		}
 
-		Object.keys(obj).forEash(function(prop) {
+		Object.keys(obj).forEach(function(prop) {
 			if(prop !== "__proto__") {
 				Object.defineProperty(obj, prop);
 			}
 		});
 		return obj;
 	}
-}
+};
 
 // 检查isExtensible是否需要修复
 if(!isFunction(Object.isExtensible)) {

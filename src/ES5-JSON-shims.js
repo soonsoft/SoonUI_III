@@ -1,9 +1,9 @@
 // json2
 
 // 判断浏览器是否原生支持JSON对象
-var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
-        && ui.core.isFunction(window.JSON.parse) 
-        && ui.core.isFunction(window.JSON.stringify));
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
 if (hasJSON) {
     return;
 }
@@ -12,7 +12,6 @@ var JSON = {
     fake: true
 };
 
-"use strict";
 var rx_one = /^[\],:{}\s]*$/;
 var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
 var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
@@ -92,11 +91,9 @@ function str(key, holder) {
                 for (i = 0; i < length; i += 1) {
                     partial[i] = str(i, value) || "null";
                 }
-                v = partial.length === 0
-                    ? "[]"
-                    : gap
-                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-                        : "[" + partial.join(",") + "]";
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
                 gap = mind;
                 return v;
             }
@@ -129,11 +126,9 @@ function str(key, holder) {
                     }
                 }
             }
-            v = partial.length === 0
-                ? "{}"
-                : gap
-                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-                    : "{" + partial.join(",") + "}";
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
             gap = mind;
             return v;
     }
@@ -205,9 +200,7 @@ JSON.parse = function (text, reviver) {
         )
     ) {
         j = eval("(" + text + ")");
-        return (typeof reviver === "function")
-            ? walk({"": j}, "")
-            : j;
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
     }
     throw new SyntaxError("JSON.parse");
 };

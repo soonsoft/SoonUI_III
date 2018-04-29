@@ -607,9 +607,7 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {

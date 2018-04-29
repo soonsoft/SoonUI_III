@@ -63,7 +63,7 @@ function layoutSize() {
     clientWidth = document.documentElement.clientWidth;
     clientHeight = document.documentElement.clientHeight;
 
-    if(this.head.length > 0) {
+    if(this.head && this.head.length > 0) {
         clientHeight -= this.head.height();
     } else {
         this.head = null;
@@ -72,7 +72,7 @@ function layoutSize() {
         clientHeight -= this.foot.height();
     }
     bodyMinHeight = clientHeight;
-    if(this.body.length > 0) {
+    if(this.body && this.body.length > 0) {
         this.body.css("height", bodyMinHeight + "px");
     } else {
         this.body = null;
@@ -257,9 +257,9 @@ var defaultConfig = {
         changeHighlightUrl: "",
         // 用户操作菜单 [{text: "修改密码", url: "/Account/Password"}, {text: "退出", url: "/Account/LogOff"}]
         operateList: [
-            { text: "个性化", url: "javascript:void(0)" },
-            { text: "修改密码", url: "javascript:void(0)" }, 
-            { text: "退出", url: "javascript:void(0)" }
+            { text: "个性化", url: "###" },
+            { text: "修改密码", url: "###" }, 
+            { text: "退出", url: "###" }
         ]
     }
 };

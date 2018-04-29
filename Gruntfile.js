@@ -127,7 +127,7 @@ module.exports = function(grunt) {
         "src/component/color.js",
         "src/component/browser.js",
         "src/component/image-loader.js",
-        "src/component/view-model.js",
+        //"src/component/view-model.js",
         "src/component/define.js",
         "src/component/draggable.js",
         "src/component/uploader.js",

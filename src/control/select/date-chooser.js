@@ -910,8 +910,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             for(j = 0; j < 5; j++) {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
-                if((this.startDay && value < this.startDay.year) 
-                    || (this.endDay && value > this.endDay.year)) {
+                if((this.startDay && value < this.startDay.year) || (this.endDay && value > this.endDay.year)) {
                     td.addClass("disabled-year");
                 } else {
                     td.html(value);

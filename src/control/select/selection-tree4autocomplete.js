@@ -23,8 +23,8 @@ function onMouseover(e) {
     var elem = $(e.target),
         nodeName;
 
-    while((nodeName = elem.nodeName()) !== "DT" 
-            && !elem.hasClass("autocomplete-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("autocomplete-dt")) {
         
         if(elem.hasClass("autocomplete-dl")) {
             return;

@@ -657,7 +657,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 70;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 隐藏遮罩层，隐藏动画用 */
@@ -669,7 +669,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 0;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 设置大小并居中显示 */

@@ -95,7 +95,7 @@ MessageBox.prototype = {
             messageItem,
             htmlBuilder = [];
         
-        messageItem = $("<div class='message-item' />")
+        messageItem = $("<div class='message-item' />");
         htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
         htmlBuilder.push("<div class='message-content'>");
         if(ui.core.isFunction(text)) {

@@ -611,7 +611,7 @@ if(!isFunction(String.prototype.at)) {
 			return "";
 		}
 
-		first = str.charCodeAt(index);
+		firstChar = str.charCodeAt(index);
 		endIndex = index + 1;
 		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
 			secondChar = str.charCodeAt(endIndex);
@@ -730,9 +730,9 @@ if(!isFunction(Function.prototype.bind)) {
 // json2
 
 // 判断浏览器是否原生支持JSON对象
-var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
-        && ui.core.isFunction(window.JSON.parse) 
-        && ui.core.isFunction(window.JSON.stringify));
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
 if (hasJSON) {
     return;
 }
@@ -741,7 +741,6 @@ var JSON = {
     fake: true
 };
 
-"use strict";
 var rx_one = /^[\],:{}\s]*$/;
 var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
 var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
@@ -821,11 +820,9 @@ function str(key, holder) {
                 for (i = 0; i < length; i += 1) {
                     partial[i] = str(i, value) || "null";
                 }
-                v = partial.length === 0
-                    ? "[]"
-                    : gap
-                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-                        : "[" + partial.join(",") + "]";
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
                 gap = mind;
                 return v;
             }
@@ -858,11 +855,9 @@ function str(key, holder) {
                     }
                 }
             }
-            v = partial.length === 0
-                ? "{}"
-                : gap
-                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-                    : "{" + partial.join(",") + "}";
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
             gap = mind;
             return v;
     }
@@ -934,9 +929,7 @@ JSON.parse = function (text, reviver) {
         )
     ) {
         j = eval("(" + text + ")");
-        return (typeof reviver === "function")
-            ? walk({"": j}, "")
-            : j;
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
     }
     throw new SyntaxError("JSON.parse");
 };
@@ -1010,7 +1003,7 @@ function isFunction(fn) {
 }
 
 function isPrimitive(obj) {
-	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
 }
 
 // 返回一个由一个给定对象的自身可枚举属性组成的数组
@@ -1085,7 +1078,9 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallb
 	Object.getOwnPropertyDescriptor = function(obj, property) {
 		var descriptor,
 			originalPrototype,
-			notPrototypeOfObject;
+			notPrototypeOfObject,
+			getter,
+			setter;
 
 		if(isPrimitive(obj)) {
 			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
@@ -1218,14 +1213,14 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 			}
 		}
 
-		Object.keys(obj).forEash(function(prop) {
+		Object.keys(obj).forEach(function(prop) {
 			if(prop !== "__proto__") {
 				Object.defineProperty(obj, prop);
 			}
 		});
 		return obj;
 	}
-}
+};
 
 // 检查isExtensible是否需要修复
 if(!isFunction(Object.isExtensible)) {
@@ -1740,7 +1735,7 @@ function KeyArray () {
     } else {
         return new KeyArray();
     }
-};
+}
 KeyArray.prototype = {
     constructor: KeyArray,
     isArray: base.isArray,
@@ -1945,7 +1940,7 @@ ui.extend = function() {
 
     for (; i < length; i++) {
         // 避开 null/undefined
-        if ((options = arguments[i]) != null) {
+        if ((options = arguments[i]) !== null) {
             for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
@@ -1959,8 +1954,8 @@ ui.extend = function() {
                     continue;
                 }
 
-                if (deep && copy 
-                    && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                if (deep && copy && 
+                        (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
                     // 如果是对象或者是数组，并且是深拷贝
                     if (copyIsArray) {
                         clone = src && Array.isArray(src) ? src : [];
@@ -2253,8 +2248,8 @@ ui.str = {
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
-        return str === undefined || str === null
-            || (typeof str === "string" && str.length === 0);
+        return str === undefined || str === null || 
+                (typeof str === "string" && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
     isBlank: function(str) {
@@ -2536,7 +2531,7 @@ function dateGetter(name, len, offset, isTrim) {
             // 如果是0点，并且是12个小时制，则将0点改为12点
             value = 12;
         }
-        return padNumber(value, len, isTrim)
+        return padNumber(value, len, isTrim);
     };
 }
 
@@ -2998,7 +2993,7 @@ ui.obj = {
     deepClone: function (source, ignore) {
         var result,
             type,
-            cope,
+            copy,
             key;
 
         type = ui.core.type(source);
@@ -3019,7 +3014,7 @@ ui.obj = {
             if (result === copy)
                 continue;
             type = ui.core.type(copy);
-            if (type === "object" || type === "array") {
+            if ((type === "object" && ui.core.isPlainObject(copy)) || type === "array") {
                 result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;
@@ -3110,9 +3105,7 @@ ui.url = {
     appendParams: function (url, data) {
         var s = [],
             add = function (key, value) {
-                value = ui.core.isFunction(value) 
-                            ? value() 
-                            : (value === null ? "" : value);
+                value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
                 s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
             },
             i, t, key;
@@ -3180,9 +3173,7 @@ ui.trans = {
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
-                    : "children";
+        childrenField = ui.core.isString(childrenField) ? childrenField : "children";
 
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];
@@ -3234,9 +3225,7 @@ ui.trans = {
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        itemsField = ui.core.isString(itemsField) 
-                    ? itemsField 
-                    : "children";
+        itemsField = ui.core.isString(itemsField) ? itemsField : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];
@@ -3450,7 +3439,7 @@ function parseTemplate(template) {
                 throw new TypeError("字符'}'， index:" + closeIndex + "， 标记符输出格式错误，应为}}");
             }
             parts.push(template.substring(index, closeIndex + 1));
-            i = closeIndex + 2;
+            index = closeIndex + 2;
             continue;
         }
         // 处理占位符
@@ -4775,7 +4764,7 @@ Animator.prototype.doAnimation = function () {
             //当前帧开始的时间
             newTime = new Date().getTime();
             //逝去时间
-            timestamp = newTime - startTime
+            timestamp = newTime - startTime;
     
             for (i = 0; i < len; i++) {
                 option = that[i];
@@ -4839,8 +4828,7 @@ Animator.prototype._prepare = function () {
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
         option.ease = 
-            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) 
-                || animationEaseStyle.easeFromTo;
+            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) || animationEaseStyle.easeFromTo;
         //动画持续时间
         option.duration = option.duration || 0;
         //延迟时间
@@ -5797,476 +5785,6 @@ $.fn.setImage = function (src, width, height, fillMode) {
 
 })(jQuery, ui);
 
-// Source: src/component/view-model.js
-
-(function($, ui) {
-// ViewModel 模型
-
-var arrayObserverPrototype = [],
-    overrideMethods = ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"],
-    hasProto = '__proto__' in {},
-    updatePrototype,
-    binderQueue,
-    binderId = 0;
-
-// 劫持修改数组的API方法
-overrideMethods.forEach(function(methodName) {
-    var originalMethod = arrayObserverPrototype[methodName];
-
-    arrayObserverPrototype[methodName] = function() {
-        var result,
-            insertedItems,
-            args = arrayObserverPrototype.slice.call(arguments, 0),
-            notice;
-
-        result = originalMethod.apply(this, args);
-
-        switch(methodName) {
-            case "push":
-            case "unshift":
-                insertedItems = args;
-                break;
-            case "splice":
-                insertedItems = args.slice(2);
-                break;
-        }
-
-        notice = this.__notice__;
-        if(insertedItems) {
-            notice.arrayNotify(insertedItems);
-        }
-        notice.dependency.notify();
-        return result;
-    };
-});
-
-if(hasProto) {
-    updatePrototype = function(target, prototype, keys) {
-        target.__proto__ = prototype;
-    };
-} else {
-    updatePrototype = function(target, prototype, keys) {
-        var i, len, key;
-        for(i = 0, len = keys.length; i < len; i++) {
-            key = keys[i];
-            target[key] = prototype[key];
-        }
-    }
-}
-
-// 数据绑定执行队列
-binderQueue = {
-    queue: [],
-    queueElementMap: {},
-    // 是否正在执行队列中
-    isRunning: false,
-    // 是否已经注册了nextTick Task
-    isWaiting: false,
-    // 当前执行的队列索引
-    runIndex: 0,
-
-    enqueue: function(binder) {
-        var id = binder.id,
-            index;
-        if(this.queueElementMap[id]) {
-            return;
-        }
-
-        this.queueElementMap[id] = true;
-        if(this.isRunning) {
-            // 从后往前插入队列
-            index = this.queue.length - 1;
-            while(index > this.runIndex && this.queue[index].id > binder.id) {
-                index--;
-            }
-            this.queue.splice(index + 1, 0, binder);
-        } else {
-            this.queue.push(binder);
-        }
-
-        if(!this.isWaiting) {
-            this.isWaiting = true;
-            ui.setTask((function () {
-                this.run();
-            }).bind(this));
-        }
-    },
-    run: function() {
-        var i,
-            binder;
-        this.isRunning = true;
-
-        // 排序，让视图更新按照声明的顺序执行
-        this.queue.sort(function(a, b) {
-            return a.id - b.id;
-        });
-
-        // 这里的queue.length可能发生变化，不能缓存
-        for(i = 0; i < this.queue.length; i++) {
-            this.runIndex = i;
-            binder = this.queue[i];
-            this.queueElementMap[binder.id] = null;
-            binder.execute();
-        }
-
-        // 重置队列
-        this.reset();
-    },
-    reset: function() {
-        this.runIndex = 0;
-        this.queue.length = 0;
-        this.queueElementMap = {};
-        this.isRunning = this.isWaiting = false;
-    }
-}
-
-function noop() {}
-
-function defineNotifyProperty(obj, propertyName, val, shallow, path) {
-    var descriptor,
-        getter,
-        setter,
-        notice,
-        childNotice;
-
-    descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-    if (descriptor && descriptor.configurable === false) {
-        return;
-    }
-
-    getter = descriptor.get;
-    setter = descriptor.set;
-
-    // 如果深度引用，则将子属性也转换为通知对象
-    if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
-        childNotice = new NotifyObject(val);
-    }
-
-    notice = obj.__notice__;
-    Object.defineProperty(obj, propertyName, {
-        enumerable: true,
-        configurable: true,
-        get: function () {
-            return getter ? getter.call(obj) : val;
-        },
-        set: function(newVal) {
-            var oldVal = getter ? getter.call(obj) : val,
-                notice;
-            if(oldVal === newVal || (newVal !== newVal && val !== val)) {
-                return;
-            }
-
-            if(setter) {
-                setter.call(obj, newVal);
-            } else {
-                val = newVal;
-            }
-
-            if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
-                notice = new NotifyObject(newVal);
-                notice.dependency.depMap = childNotice.dependency.depMap;
-                // 更新通知对象
-                childNotice = notice;
-            }
-            notice.dependency.notify(propertyName);
-        }
-    });
-}
-
-function createNotifyObject(obj) {
-    var isObject,
-        isArray,
-        notice;
-
-    isObject = ui.core.isObject(obj);
-    isArray = Array.isArray(obj);
-
-    if(!isObject && !isArray) {
-        return obj;
-    }
-    if(isObject && ui.core.isEmptyObject(obj)) {
-        return obj;
-    }
-
-    if(obj.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
-        notice = obj.__notice__;
-        // TODO notice.count++;
-    } else if((isArray || isObject) && Object.isExtensible(obj)) {
-        notice = new NotifyObject(obj);
-    }
-    // 添加一个手动刷新方法
-    obj.refresh = refresh;
-
-    return obj;
-}
-
-function refresh() {
-    notifyAll(this);
-}
-
-function notifyAll(viewModel) {
-    var keys = Object.keys(viewModel),
-        i, len,
-        propertyName,
-        value,
-        notice,
-        notifyProperties = [];
-
-    for(i = 0, len = keys.length; i < len; i++) {
-        propertyName = keys[i];
-        value = viewModel[propertyName];
-        if((ui.core.isObject(value) || Array.isArray(value)) 
-            && value.__notice__ instanceof NotifyObject) {
-            notifyAll(value);
-        } else {
-            notifyProperties.push(propertyName);
-        }
-    }
-
-    notice = viewModel.__notice__;
-    notice.dependency.notify.apply(notice.dependency, notifyProperties);
-}
-
-function NotifyObject(value) {
-    this.value = value;
-    this.dependency = new Dependency();
-    Object.defineProperty(value, "__notice__", {
-        value: this,
-        enumerable: false,
-        writable: true,
-        configurable: true
-    });
-    if(Array.isArray(value)) {
-        updatePrototype(value, arrayObserverPrototype, overrideMethods);
-        this.arrayNotify(value);
-    } else {
-        this.objectNotify(value);
-    }
-}
-NotifyObject.prototype = {
-    constructor: NotifyObject,
-    arrayNotify: function(array) {
-        var i, len;
-        for(i = 0, len = array.length; i < len; i++) {
-            createNotifyObject(array[i]);
-        }
-    },
-    objectNotify: function(obj) {
-        var keys = Object.keys(obj),
-            i, len;
-
-        for(i = 0, len = keys.length; i < len; i++) {
-            defineNotifyProperty(obj, keys[i], obj[keys[i]]);
-        }
-    }
-};
-
-// 依赖属性
-function Dependency() {
-    this.depMap = {};
-}
-Dependency.prototype = {
-    constructor: Dependency,
-    // 添加依赖处理
-    add: function(binder) {
-        var propertyName;
-        if(binder instanceof Binder) {
-            propertyName = binder.propertyName;
-            if(!this.depMap.hasOwnProperty(binder.propertyName)) {
-                this.depMap[propertyName] = [];
-            }
-            this.depMap[propertyName].push(binder);
-        }
-    },
-    // 移除依赖处理
-    remove: function(binder) {
-        var propertyName;
-        if(binder instanceof Binder) {
-            var propertyName,
-                binderList,
-                i, len;
-            propertyName = binder.propertyName;
-            binderList = this.depMap[propertyName];
-
-            if(Array.isArray(binderList)) {
-                for(i = binderList.length - 1; i >= 0; i--) {
-                    if(binderList[i] === binder) {
-                        binderList.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
-    },
-    depend: function() {
-    },
-    // 变化通知
-    notify: function() {
-        var keys,
-            propertyName,
-            delegate,
-            errors,
-            i, len;
-        
-        if(arguments.length === 0) {
-            keys = Object.keys(this.depMap);
-        } else {
-            keys = [];
-            for(i = 0, len = arguments.length; i < len; i++) {
-                propertyName = arguments[i];
-                if(ui.core.isString(propertyName) 
-                    && propertyName.length > 0 
-                    && this.depMap.hasOwnProperty(propertyName)) {
-                    keys.push(propertyName);
-                }
-            }
-        }
-
-        errors = [];
-        for(i = 0, len = keys.length; i < len; i++) {
-            delegate = this.depMap[keys[i]];
-            delegate.forEach(function(binder) {
-                try {
-                    binder.update();
-                } catch(e) {
-                    errors.push(e);
-                }
-            });
-        }
-        if(errors.length > 0) {
-            throw errors.toString();
-        }
-    }
-};
-
-function Binder(option) {
-    var propertyName = null; 
-
-    this.id = ++binderId;
-    this.viewModel = null;
-    this.isActive = true;
-
-    if(option) {
-        this.sync = !!option.sync;
-        this.lazy = !!option.lazy;
-    } else {
-        this.sync = this.lazy = false;
-    }
-    this.value = this.lazy ? null : this.get();
-
-    Object.defineProperty(this, "propertyName", {
-        configurable: false,
-        enumerable: true,
-        get: function() {
-            if(!propertyName) {
-                return "_";
-            }
-            return propertyName;
-        },
-        set: function(val) {
-            propertyName = val;
-        }
-    });
-}
-Binder.prototype = {
-    constructor: Binder,
-    update: function() {
-        if(!this.isActive) {
-            return;
-        }
-
-        if(this.sync) {
-            this.execute();
-        } else {
-            binderQueue.enqueue(this);
-        }
-    },
-    execute: function() {
-        var oldValue,
-            value;
-
-        oldValue = this.value;
-        value = this.get();
-
-        if(value !== oldValue) {
-            this.value = value;
-            try {
-                this.action(value, oldValue);
-            } catch(e) {
-                ui.handleError(e);
-            }
-        }
-    },
-    get: function() {
-        var value = null;
-
-        if(this.viewModel && this.viewModel.hasOwnProperty(this.propertyName)) {
-            value = this.viewModel[this.propertyName];
-        }
-
-        return value;
-    }
-};
-
-function createBinder(viewModel, propertyName, bindData, handler, option) {
-    var binder;
-    if(!viewModel || !viewModel.__notice__) {
-        throw new TypeError("the arguments 'viewModel' is invalid.");
-    }
-    if(!viewModel.hasOwnProperty(propertyName)) {
-        throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
-    }
-    if(ui.core.isFunction(bindData)) {
-        handler = bindData;
-        bindData = null;
-    }
-    if(!ui.core.isFunction(handler)) {
-        return null;
-    }
-
-    binder = new Binder(option);
-    binder.propertyName = propertyName;
-    binder.viewModel = viewModel;
-    binder.action = function(value, oldValue) {
-        handler.call(viewModel, value, oldValue, bindData);
-    };
-
-    return binder;
-}
-
-ui.ViewModel = createNotifyObject;
-ui.ViewModel.bindOnce = function(viewModel, propertyName, bindData, fn) {
-    var binder = createBinder(viewModel, propertyName, bindData, fn);
-};
-ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
-    var binder,
-        option,
-        notice,
-        value;
-
-    option = {
-        sync: !!isSync
-    };
-    binder = createBinder(viewModel, propertyName, bindData, fn, option);
-    if(binder) {
-        notice = viewModel.__notice__;
-        notice.dependency.add(binder);
-        value = viewModel[propertyName];
-        if(Array.isArray(value)) {
-            notice = value.__notice__;
-            if(notice) {
-                notice.dependency.add(binder);
-            }
-        }
-    }
-};
-ui.ViewModel.bindTwoWay = function(option) {
-    // TODO: 双向绑定实际上只有在做表单的时候才有优势
-};
-
-
-})(jQuery, ui);
-
 // Source: src/component/define.js
 
 (function($, ui) {
@@ -6397,7 +5915,7 @@ CtrlBase.prototype = {
     version: ui.version,
     mergeEvents: function(originEvents, newEvents) {
         var temp,
-            i;
+            i, len;
         if(!Array.isArray(originEvents)) {
             return newEvents;
         }
@@ -6872,7 +6390,7 @@ function ajaxUpload() {
             total: total
         };
         xhr.onload = function() {
-            completed.call(arguments.callee.caller, xhr, context);
+            completed.call(that, xhr, context);
         };
         xhr.open("POST", that.option.url, true);
         xhr.setRequestHeader("X-Request-With", "XMLHttpRequest");
@@ -7059,9 +6577,9 @@ ui.define("ui.ctrls.Uploader", {
         ui.core.each("", function(rule) {
             wrapperCss[rule] = upBtn.css(rule);
         });
-        if(wrapperCss.position !== "absolute" 
-            && wrapperCss.position !== "relative" 
-            && wrapperCss.position !== "fixed") {
+        if(wrapperCss.position !== "absolute" && 
+            wrapperCss.position !== "relative" && 
+            wrapperCss.position !== "fixed") {
             
             wrapperCss.position = "relative";
         }
@@ -9296,7 +8814,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 70;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 隐藏遮罩层，隐藏动画用 */
@@ -9308,7 +8826,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 0;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 设置大小并居中显示 */
@@ -9540,7 +9058,7 @@ MessageBox.prototype = {
             messageItem,
             htmlBuilder = [];
         
-        messageItem = $("<div class='message-item' />")
+        messageItem = $("<div class='message-item' />");
         htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
         htmlBuilder.push("<div class='message-content'>");
         if(ui.core.isFunction(text)) {
@@ -11782,8 +11300,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             for(j = 0; j < 5; j++) {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
-                if((this.startDay && value < this.startDay.year) 
-                    || (this.endDay && value > this.endDay.year)) {
+                if((this.startDay && value < this.startDay.year) || (this.endDay && value > this.endDay.year)) {
                     td.addClass("disabled-year");
                 } else {
                     td.html(value);
@@ -12690,9 +12207,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -12815,8 +12330,8 @@ function onTreeItemClick(e) {
         return;
     }
 
-    while((nodeName = elem.nodeName()) !== "DT"
-            && !elem.hasClass("ui-selection-tree-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("ui-selection-tree-dt")) {
         
         if(elem.hasClass("ui-selection-tree-panel")) {
             return;
@@ -12925,9 +12440,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         } else {
             if(ui.core.isNumber(this.option.defaultExpandLevel)) {
                 this.expandLevel = 
-                    this.option.defaultExpandLevel <= 0
-                        ? 0 
-                        : this.option.defaultExpandLevel;
+                    this.option.defaultExpandLevel <= 0 ? 0 : this.option.defaultExpandLevel;
             } else {
                 // 设置到最大展开1000层
                 this.expandLevel = 1000;
@@ -13122,7 +12635,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         var children,
             dl;
         
-        children = this._getChildren(nodeData)
+        children = this._getChildren(nodeData);
         if(Array.isArray(children) && children.length > 0) {
             dl = $("<dl />");
             this._renderTree(
@@ -13290,7 +12803,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
     },
     _selectNodeByValue: function(nodeData, path) {
-        var dt, tempId, needAppendElements, athArray,
+        var dt, tempId, needAppendElements, pathArray,
             i, treeNodeDT, treeNodeDD;
         
         if(this.option.lazy) {
@@ -13322,8 +12835,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
 
         treeNodeDD = dt.parent().parent();
-        while (treeNodeDD.nodeName() === "DD" 
-                && treeNodeDD.hasClass("ui-selection-tree-dd")) {
+        while (treeNodeDD.nodeName() === "DD" && 
+                treeNodeDD.hasClass("ui-selection-tree-dd")) {
 
             treeNodeDT = treeNodeDD.prev();
             if (treeNodeDD.css("display") === "none") {
@@ -13428,7 +12941,9 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
 
         this.cancelSelection();
         if(this.isMultiple()) {
-            if(!Array.isArray(values)) {
+            if(Array.isArray(values)) {
+                values = Array.from(values);
+            } else {
                 values = [values];
             }
         } else {
@@ -13448,6 +12963,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
+            eventData.isSelection = true;
             this.fire("changed", eventData);
         }
     },
@@ -13520,9 +13036,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -13580,8 +13094,8 @@ function onMouseover(e) {
     var elem = $(e.target),
         nodeName;
 
-    while((nodeName = elem.nodeName()) !== "DT" 
-            && !elem.hasClass("autocomplete-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("autocomplete-dt")) {
         
         if(elem.hasClass("autocomplete-dl")) {
             return;
@@ -13918,11 +13432,11 @@ function onWeekHeadItemClick(e) {
             return;
         }
         th = th.parent();
-    };
+    }
     eventData = {
         view: this,
         index: th[0].cellIndex
-    }
+    };
     this.calendar.fire("weekTitleClick", eventData);
 }
 // 日视图标题点击事件
@@ -15641,9 +15155,8 @@ DayView.prototype = {
         this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
         tbody = $("<tbody />");
         count = this.calendar._getTimeCellCount();
-        len = 24 * count, i;
-
-        for (i = 0; i < len; i++) {
+        
+        for (i = 0, len = 24 * count; i < len; i++) {
             tr = $("<tr />");
             td = $("<td class='week-hour-cell' style='width:100%' />");
             if ((i + 1) % count) {
@@ -15854,7 +15367,9 @@ Selector.prototype = {
         this.cellWidth = 1;
         this.cellHeight = 25;
 
-        this.grid[0].onselectstart = function () { return false; }
+        this.grid[0].onselectstart = function () { 
+            return false; 
+        };
 
         this.selectionBox = $("<div class='ui-calendar-selector unselectable click-enabled border-highlight' />");
         this.selectionBox.boxTextSpan = $("<span class='ui-calendar-selector-time click-enabled' />");
@@ -16379,7 +15894,7 @@ Selector.prototype = {
         }
         $(document).off("mousedown", this.mouseLeftButtonDownHandler);
     }
-}
+};
 
 viewTypes = {
     "YEARVIEW": YearView,
@@ -16875,7 +16390,7 @@ function initCalendarViewTheme(colorInfo) {
     isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
-        if (themeStyle.length == 0) {
+        if (themeStyle.length === 0) {
             styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
             themeStyle = styleHelper.styleSheet;
         } else {
@@ -16951,7 +16466,7 @@ function prepareGroup(option) {
             groupListHandler: defaultGroupListHandler,
             headFormatter: defaultGroupHeadFormatter,
             headRearrangeHandler: defaultHeadRearrangeHandler
-        }
+        };
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
             option.groupListHandler = defaultGroupListHandler;
@@ -17396,7 +16911,7 @@ ui.define("ui.ctrls.CardView", {
     _rearrangeItems: function() {
         var i, len,
             childrenList;
-        if(!this._itemBodyList.length === 0)
+        if(this._itemBodyList.length === 0)
             return;
         
         childrenList = [];
@@ -17536,8 +17051,7 @@ ui.define("ui.ctrls.CardView", {
         itemBody.remove();
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -17619,7 +17133,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var i, len;
+        var i, len, elem;
         if(!this.isSelectable()) {
             return;
         }
@@ -17845,9 +17359,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
@@ -17859,9 +17371,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -17947,8 +17457,8 @@ function onFoldTitleClick(e) {
         dd, icon;
     
     elem = $(e.target);
-    while((nodeName = elem.nodeName()) !== "DT" 
-        || !elem.hasClass("ui-fold-view-title")) {
+    while((nodeName = elem.nodeName()) !== "DT" || 
+            !elem.hasClass("ui-fold-view-title")) {
 
         if(elem.hasClass("ui-fold-view")) {
             return;
@@ -19366,9 +18876,9 @@ ui.define("ui.ctrls.GridView", {
                 if(!checkbox) {
                     colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
                     if(colIndex > -1) {
-                        checkbox = this.option.selection.type === "cell"
-                            ? $(elem.parent()[0].cells[colIndex])
-                            : $(elem[0].cells[colIndex]);
+                        checkbox = this.option.selection.type === "cell" ? 
+                            $(elem.parent()[0].cells[colIndex]) : 
+                            $(elem[0].cells[colIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -19392,8 +18902,7 @@ ui.define("ui.ctrls.GridView", {
         }
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -19574,9 +19083,9 @@ ui.define("ui.ctrls.GridView", {
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
-                    checkbox = this.option.selection.type === "cell"
-                        ? $(elem.parent()[0].cells[columnIndex])
-                        : $(elem[0].cells[columnIndex]);
+                    checkbox = this.option.selection.type === "cell" ? 
+                        $(elem.parent()[0].cells[columnIndex]) : 
+                        $(elem[0].cells[columnIndex]);
                     checkbox = checkbox.find(checkboxClass);
                     setChecked(checkbox, false);
                 }
@@ -19838,15 +19347,11 @@ ui.define("ui.ctrls.GridView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -20523,9 +20028,7 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -21836,9 +21339,9 @@ ui.define("ui.ctrls.ReportView", {
                 if(!checkbox) {
                     columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
                     if(columnInfo) {
-                        checkbox = this.option.selection.type === "cell"
-                            ? $(elem.parent()[0].cells[colIndex])
-                            : $(elem[0].cells[colIndex]);
+                        checkbox = this.option.selection.type === "cell" ? 
+                            $(elem.parent()[0].cells[colIndex]) : 
+                            $(elem[0].cells[colIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -21862,8 +21365,7 @@ ui.define("ui.ctrls.ReportView", {
         }
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -21977,9 +21479,7 @@ ui.define("ui.ctrls.ReportView", {
                     rowIndex,
                     tr;
                 if(columnInfo) {
-                    rowIndex = this.option.selection.type === "cell"
-                        ? elem.parent()[0].rowIndex
-                        : elem[0].rowIndex;
+                    rowIndex = this.option.selection.type === "cell" ? elem.parent()[0].rowIndex : elem[0].rowIndex;
                     tr = $(columnInfo.bodyTable[0].tBodies[0].rows[rowIndex]);
                     checkbox = $(tr[0].cells[columnInfo.columnIndex]);
                     checkbox = checkbox.find(checkboxClass);
@@ -22287,15 +21787,11 @@ ui.define("ui.ctrls.ReportView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? 0
-            : this.option.viewData.length;
+        return Array.isArray(this.option.viewData) ? 0 : this.option.viewData.length;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -23118,7 +22614,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         if(this.option.disabled) {
             this.element.attr("disabled", "disabled");
         } else {
-            this.element.removeAttr("disabled")
+            this.element.removeAttr("disabled");
         }
     },
     getText: function() {
@@ -23315,9 +22811,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside 
-            ? this.element.offset()
-            : this.element.position();
+        var position = this.isBodyInside ? this.element.offset() : this.element.position();
         position.left = position.left + this.element.outerWidth() / 2;
         position.top = position.top + this.element.outerHeight()/ 2;
         return position;
@@ -23695,7 +23189,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!ui.core.isNumber(index)) {
@@ -23734,9 +23228,7 @@ ui.define("ui.ctrls.FilterTool", {
         }
     },
     getViewData: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     getSelection: function () {
         if (this._current) {
@@ -23749,7 +23241,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!$.isNumeric(index)) {
@@ -23985,7 +23477,7 @@ ui.define("ui.ctrls.HoverView", {
             opacity = parseFloat(this.viewPanel.css("opacity"));
             if (opacity < 1) {
                 css["opacity"] = 1;
-                css["filter"] = "Alpha(opacity=100)"
+                css["filter"] = "Alpha(opacity=100)";
             }
         } else {
             this.viewPanel.css({
@@ -24483,7 +23975,7 @@ ui.define("ui.ctrls.SwitchButton", {
             target: this.thumb,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
-                var color = color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
+                var color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
                 color = ui.color.rgb2hex(color.red, color.green, color.blue);
                 this.target.css("background-color", color);
             }
@@ -26109,7 +25601,7 @@ function layoutSize() {
     clientWidth = document.documentElement.clientWidth;
     clientHeight = document.documentElement.clientHeight;
 
-    if(this.head.length > 0) {
+    if(this.head && this.head.length > 0) {
         clientHeight -= this.head.height();
     } else {
         this.head = null;
@@ -26118,7 +25610,7 @@ function layoutSize() {
         clientHeight -= this.foot.height();
     }
     bodyMinHeight = clientHeight;
-    if(this.body.length > 0) {
+    if(this.body && this.body.length > 0) {
         this.body.css("height", bodyMinHeight + "px");
     } else {
         this.body = null;
@@ -26303,9 +25795,9 @@ var defaultConfig = {
         changeHighlightUrl: "",
         // 用户操作菜单 [{text: "修改密码", url: "/Account/Password"}, {text: "退出", url: "/Account/LogOff"}]
         operateList: [
-            { text: "个性化", url: "javascript:void(0)" },
-            { text: "修改密码", url: "javascript:void(0)" }, 
-            { text: "退出", url: "javascript:void(0)" }
+            { text: "个性化", url: "###" },
+            { text: "修改密码", url: "###" }, 
+            { text: "退出", url: "###" }
         ]
     }
 };
@@ -26760,6 +26252,7 @@ modernStyle = {
     },
     subHide: function(elem, animation, endFn) {
         var animator,
+            option,
             that;
         if (this.isShow()) {
             normalStyle.subHide.apply(this, arguments);
@@ -27127,7 +26620,7 @@ ui.define("ui.ctrls.Menu", {
             target: this.submenuList,
             ease: ui.AnimationStyle.easeTo,
             onChange: function (val) {
-                this.target.css("left", val + "px")
+                this.target.css("left", val + "px");
             }
         });
         this.submenuListAnimator.duration = 100;
@@ -27151,10 +26644,10 @@ ui.define("ui.ctrls.Menu", {
             menuButton = this.option.menuButton;
             menuButton.click(function (e) {
                 if (menuButton.hasClass(showClass)) {
-                    menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);;
+                    menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);
                     that.hide(that.hasAnimation());
                 } else {
-                    menuButton.addClass(showClass).addClass(that.hamburgCloseButton);;
+                    menuButton.addClass(showClass).addClass(that.hamburgCloseButton);
                     that.show(that.hasAnimation());
                 }
             });
@@ -27168,7 +26661,7 @@ ui.define("ui.ctrls.Menu", {
             this._currentMenu = null;
         }
         if (this._isCloseStatus()) {
-            this.option.menuButton.removeClass(showClass).removeClass(this.hamburgCloseButton);;
+            this.option.menuButton.removeClass(showClass).removeClass(this.hamburgCloseButton);
             this.hide(false);
         } else if(this._currentMenu) {
             nextdd = this._currentMenu.next();
@@ -27186,7 +26679,7 @@ ui.define("ui.ctrls.Menu", {
             subElement = this.submenuPanel;
         } else {
             subElement = this._currentMenu.next();
-            if(subElement.lenght == 0 || subElement.nodeName() !== "DD") {
+            if(subElement.lenght === 0 || subElement.nodeName() !== "DD") {
                 subElement = null;
             }
         }
@@ -27214,7 +26707,7 @@ ui.define("ui.ctrls.Menu", {
         if (ui.str.isEmpty(url)) {
             return "";
         }
-        if (url.indexOf("javascript:") == 0) {
+        if (url.indexOf("javascript:") === 0) {
             return url;
         }
 
@@ -27227,7 +26720,7 @@ ui.define("ui.ctrls.Menu", {
     },
     _addMenuCodeToSrc: function (url, code) {
         var result = this._getUrl(url);
-        if (result.indexOf("javascript:") == 0) {
+        if (result.indexOf("javascript:") === 0) {
             return result;
         }
         if (ui.str.isEmpty(result)) {
@@ -27393,9 +26886,9 @@ ui.define("ui.ctrls.Menu", {
         return !!this.option.defaultShow;
     },
     isExtrusion: function() {
-        return this.option.extendMethod === "extrusion" 
-                && this.option.contentContainer
-                && this.option.contentContainer.length > 0;
+        return this.option.extendMethod === "extrusion" && 
+                this.option.contentContainer && 
+                this.option.contentContainer.length > 0;
     }
 });
 
@@ -27777,15 +27270,11 @@ Tile.prototype = {
         }
 
         this.updateFn = 
-            ui.core.isFunction(this.tileInfo.updateFn) 
-                ? this.tileInfo.updateFn 
-                : null;
+            ui.core.isFunction(this.tileInfo.updateFn) ? this.tileInfo.updateFn : null;
         if(this.updateFn) {
             this.isDynamic = true;
             this.interval = 
-                ui.core.isNumber(this.tileInfo.interval)
-                    ? this.tileInfo.interval
-                    : 60;
+                ui.core.isNumber(this.tileInfo.interval) ? this.tileInfo.interval : 60;
             if(this.interval <= 0) {
                 this.interval = 60;
             }
@@ -28691,9 +28180,9 @@ function findToday(days) {
             if(!weatherDay.date) {
                 continue;
             }
-            if(weatherDay.date.getFullYear() === today.getFullYear()
-                && weatherDay.date.getMonth() === today.getMonth()
-                && weatherDay.date.getDate() === today.getDate()) {
+            if(weatherDay.date.getFullYear() === today.getFullYear() && 
+                weatherDay.date.getMonth() === today.getMonth() && 
+                weatherDay.date.getDate() === today.getDate()) {
                 result = weatherDay;
             }
         }

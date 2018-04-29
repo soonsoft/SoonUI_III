@@ -317,6 +317,7 @@ modernStyle = {
     },
     subHide: function(elem, animation, endFn) {
         var animator,
+            option,
             that;
         if (this.isShow()) {
             normalStyle.subHide.apply(this, arguments);
@@ -684,7 +685,7 @@ ui.define("ui.ctrls.Menu", {
             target: this.submenuList,
             ease: ui.AnimationStyle.easeTo,
             onChange: function (val) {
-                this.target.css("left", val + "px")
+                this.target.css("left", val + "px");
             }
         });
         this.submenuListAnimator.duration = 100;
@@ -708,10 +709,10 @@ ui.define("ui.ctrls.Menu", {
             menuButton = this.option.menuButton;
             menuButton.click(function (e) {
                 if (menuButton.hasClass(showClass)) {
-                    menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);;
+                    menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);
                     that.hide(that.hasAnimation());
                 } else {
-                    menuButton.addClass(showClass).addClass(that.hamburgCloseButton);;
+                    menuButton.addClass(showClass).addClass(that.hamburgCloseButton);
                     that.show(that.hasAnimation());
                 }
             });
@@ -725,7 +726,7 @@ ui.define("ui.ctrls.Menu", {
             this._currentMenu = null;
         }
         if (this._isCloseStatus()) {
-            this.option.menuButton.removeClass(showClass).removeClass(this.hamburgCloseButton);;
+            this.option.menuButton.removeClass(showClass).removeClass(this.hamburgCloseButton);
             this.hide(false);
         } else if(this._currentMenu) {
             nextdd = this._currentMenu.next();
@@ -743,7 +744,7 @@ ui.define("ui.ctrls.Menu", {
             subElement = this.submenuPanel;
         } else {
             subElement = this._currentMenu.next();
-            if(subElement.lenght == 0 || subElement.nodeName() !== "DD") {
+            if(subElement.lenght === 0 || subElement.nodeName() !== "DD") {
                 subElement = null;
             }
         }
@@ -771,7 +772,7 @@ ui.define("ui.ctrls.Menu", {
         if (ui.str.isEmpty(url)) {
             return "";
         }
-        if (url.indexOf("javascript:") == 0) {
+        if (url.indexOf("javascript:") === 0) {
             return url;
         }
 
@@ -784,7 +785,7 @@ ui.define("ui.ctrls.Menu", {
     },
     _addMenuCodeToSrc: function (url, code) {
         var result = this._getUrl(url);
-        if (result.indexOf("javascript:") == 0) {
+        if (result.indexOf("javascript:") === 0) {
             return result;
         }
         if (ui.str.isEmpty(result)) {
@@ -950,8 +951,8 @@ ui.define("ui.ctrls.Menu", {
         return !!this.option.defaultShow;
     },
     isExtrusion: function() {
-        return this.option.extendMethod === "extrusion" 
-                && this.option.contentContainer
-                && this.option.contentContainer.length > 0;
+        return this.option.extendMethod === "extrusion" && 
+                this.option.contentContainer && 
+                this.option.contentContainer.length > 0;
     }
 });

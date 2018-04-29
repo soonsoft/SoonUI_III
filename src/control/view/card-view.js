@@ -16,7 +16,7 @@ function prepareGroup(option) {
             groupListHandler: defaultGroupListHandler,
             headFormatter: defaultGroupHeadFormatter,
             headRearrangeHandler: defaultHeadRearrangeHandler
-        }
+        };
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
             option.groupListHandler = defaultGroupListHandler;
@@ -461,7 +461,7 @@ ui.define("ui.ctrls.CardView", {
     _rearrangeItems: function() {
         var i, len,
             childrenList;
-        if(!this._itemBodyList.length === 0)
+        if(this._itemBodyList.length === 0)
             return;
         
         childrenList = [];
@@ -601,8 +601,7 @@ ui.define("ui.ctrls.CardView", {
         itemBody.remove();
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -684,7 +683,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var i, len;
+        var i, len, elem;
         if(!this.isSelectable()) {
             return;
         }
@@ -910,9 +909,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
@@ -924,9 +921,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {

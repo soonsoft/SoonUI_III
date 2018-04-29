@@ -158,9 +158,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside 
-            ? this.element.offset()
-            : this.element.position();
+        var position = this.isBodyInside ? this.element.offset() : this.element.position();
         position.left = position.left + this.element.outerWidth() / 2;
         position.top = position.top + this.element.outerHeight()/ 2;
         return position;

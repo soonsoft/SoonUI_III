@@ -89,8 +89,8 @@ function onTreeItemClick(e) {
         return;
     }
 
-    while((nodeName = elem.nodeName()) !== "DT"
-            && !elem.hasClass("ui-selection-tree-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("ui-selection-tree-dt")) {
         
         if(elem.hasClass("ui-selection-tree-panel")) {
             return;
@@ -199,9 +199,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         } else {
             if(ui.core.isNumber(this.option.defaultExpandLevel)) {
                 this.expandLevel = 
-                    this.option.defaultExpandLevel <= 0
-                        ? 0 
-                        : this.option.defaultExpandLevel;
+                    this.option.defaultExpandLevel <= 0 ? 0 : this.option.defaultExpandLevel;
             } else {
                 // 设置到最大展开1000层
                 this.expandLevel = 1000;
@@ -396,7 +394,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         var children,
             dl;
         
-        children = this._getChildren(nodeData)
+        children = this._getChildren(nodeData);
         if(Array.isArray(children) && children.length > 0) {
             dl = $("<dl />");
             this._renderTree(
@@ -564,7 +562,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
     },
     _selectNodeByValue: function(nodeData, path) {
-        var dt, tempId, needAppendElements, athArray,
+        var dt, tempId, needAppendElements, pathArray,
             i, treeNodeDT, treeNodeDD;
         
         if(this.option.lazy) {
@@ -596,8 +594,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
 
         treeNodeDD = dt.parent().parent();
-        while (treeNodeDD.nodeName() === "DD" 
-                && treeNodeDD.hasClass("ui-selection-tree-dd")) {
+        while (treeNodeDD.nodeName() === "DD" && 
+                treeNodeDD.hasClass("ui-selection-tree-dd")) {
 
             treeNodeDT = treeNodeDD.prev();
             if (treeNodeDD.css("display") === "none") {
@@ -702,7 +700,9 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
 
         this.cancelSelection();
         if(this.isMultiple()) {
-            if(!Array.isArray(values)) {
+            if(Array.isArray(values)) {
+                values = Array.from(values);
+            } else {
                 values = [values];
             }
         } else {
@@ -722,6 +722,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
+            eventData.isSelection = true;
             this.fire("changed", eventData);
         }
     },
@@ -794,9 +795,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {

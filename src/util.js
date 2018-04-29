@@ -116,7 +116,7 @@ ui.extend = function() {
 
     for (; i < length; i++) {
         // 避开 null/undefined
-        if ((options = arguments[i]) != null) {
+        if ((options = arguments[i]) !== null) {
             for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
@@ -130,8 +130,8 @@ ui.extend = function() {
                     continue;
                 }
 
-                if (deep && copy 
-                    && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                if (deep && copy && 
+                        (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
                     // 如果是对象或者是数组，并且是深拷贝
                     if (copyIsArray) {
                         clone = src && Array.isArray(src) ? src : [];

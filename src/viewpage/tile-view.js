@@ -264,15 +264,11 @@ Tile.prototype = {
         }
 
         this.updateFn = 
-            ui.core.isFunction(this.tileInfo.updateFn) 
-                ? this.tileInfo.updateFn 
-                : null;
+            ui.core.isFunction(this.tileInfo.updateFn) ? this.tileInfo.updateFn : null;
         if(this.updateFn) {
             this.isDynamic = true;
             this.interval = 
-                ui.core.isNumber(this.tileInfo.interval)
-                    ? this.tileInfo.interval
-                    : 60;
+                ui.core.isNumber(this.tileInfo.interval) ? this.tileInfo.interval : 60;
             if(this.interval <= 0) {
                 this.interval = 60;
             }

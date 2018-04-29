@@ -183,7 +183,7 @@ ui.define("ui.ctrls.SwitchButton", {
             target: this.thumb,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
-                var color = color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
+                var color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
                 color = ui.color.rgb2hex(color.red, color.green, color.blue);
                 this.target.css("background-color", color);
             }

@@ -94,8 +94,8 @@ ui.str = {
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
-        return str === undefined || str === null
-            || (typeof str === "string" && str.length === 0);
+        return str === undefined || str === null || 
+                (typeof str === "string" && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
     isBlank: function(str) {

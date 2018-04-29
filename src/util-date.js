@@ -77,7 +77,7 @@ function dateGetter(name, len, offset, isTrim) {
             // 如果是0点，并且是12个小时制，则将0点改为12点
             value = 12;
         }
-        return padNumber(value, len, isTrim)
+        return padNumber(value, len, isTrim);
     };
 }
 

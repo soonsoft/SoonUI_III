@@ -50,7 +50,7 @@ ui.obj = {
     deepClone: function (source, ignore) {
         var result,
             type,
-            cope,
+            copy,
             key;
 
         type = ui.core.type(source);
@@ -71,7 +71,7 @@ ui.obj = {
             if (result === copy)
                 continue;
             type = ui.core.type(copy);
-            if (type === "object" || type === "array") {
+            if ((type === "object" && ui.core.isPlainObject(copy)) || type === "array") {
                 result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;

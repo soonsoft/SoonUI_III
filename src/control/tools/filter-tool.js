@@ -132,7 +132,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!ui.core.isNumber(index)) {
@@ -171,9 +171,7 @@ ui.define("ui.ctrls.FilterTool", {
         }
     },
     getViewData: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     getSelection: function () {
         if (this._current) {
@@ -186,7 +184,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!$.isNumeric(index)) {

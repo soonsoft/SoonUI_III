@@ -36,7 +36,7 @@ if(!isFunction(String.prototype.at)) {
 			return "";
 		}
 
-		first = str.charCodeAt(index);
+		firstChar = str.charCodeAt(index);
 		endIndex = index + 1;
 		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
 			secondChar = str.charCodeAt(endIndex);

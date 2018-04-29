@@ -611,7 +611,7 @@ if(!isFunction(String.prototype.at)) {
 			return "";
 		}
 
-		first = str.charCodeAt(index);
+		firstChar = str.charCodeAt(index);
 		endIndex = index + 1;
 		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
 			secondChar = str.charCodeAt(endIndex);
@@ -730,9 +730,9 @@ if(!isFunction(Function.prototype.bind)) {
 // json2
 
 // 判断浏览器是否原生支持JSON对象
-var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" 
-        && ui.core.isFunction(window.JSON.parse) 
-        && ui.core.isFunction(window.JSON.stringify));
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
 if (hasJSON) {
     return;
 }
@@ -741,7 +741,6 @@ var JSON = {
     fake: true
 };
 
-"use strict";
 var rx_one = /^[\],:{}\s]*$/;
 var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
 var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
@@ -821,11 +820,9 @@ function str(key, holder) {
                 for (i = 0; i < length; i += 1) {
                     partial[i] = str(i, value) || "null";
                 }
-                v = partial.length === 0
-                    ? "[]"
-                    : gap
-                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-                        : "[" + partial.join(",") + "]";
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
                 gap = mind;
                 return v;
             }
@@ -858,11 +855,9 @@ function str(key, holder) {
                     }
                 }
             }
-            v = partial.length === 0
-                ? "{}"
-                : gap
-                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-                    : "{" + partial.join(",") + "}";
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
             gap = mind;
             return v;
     }
@@ -934,9 +929,7 @@ JSON.parse = function (text, reviver) {
         )
     ) {
         j = eval("(" + text + ")");
-        return (typeof reviver === "function")
-            ? walk({"": j}, "")
-            : j;
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
     }
     throw new SyntaxError("JSON.parse");
 };
@@ -1010,7 +1003,7 @@ function isFunction(fn) {
 }
 
 function isPrimitive(obj) {
-	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
 }
 
 // 返回一个由一个给定对象的自身可枚举属性组成的数组
@@ -1085,7 +1078,9 @@ if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallb
 	Object.getOwnPropertyDescriptor = function(obj, property) {
 		var descriptor,
 			originalPrototype,
-			notPrototypeOfObject;
+			notPrototypeOfObject,
+			getter,
+			setter;
 
 		if(isPrimitive(obj)) {
 			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
@@ -1218,14 +1213,14 @@ if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
 			}
 		}
 
-		Object.keys(obj).forEash(function(prop) {
+		Object.keys(obj).forEach(function(prop) {
 			if(prop !== "__proto__") {
 				Object.defineProperty(obj, prop);
 			}
 		});
 		return obj;
 	}
-}
+};
 
 // 检查isExtensible是否需要修复
 if(!isFunction(Object.isExtensible)) {
@@ -1740,7 +1735,7 @@ function KeyArray () {
     } else {
         return new KeyArray();
     }
-};
+}
 KeyArray.prototype = {
     constructor: KeyArray,
     isArray: base.isArray,
@@ -1945,7 +1940,7 @@ ui.extend = function() {
 
     for (; i < length; i++) {
         // 避开 null/undefined
-        if ((options = arguments[i]) != null) {
+        if ((options = arguments[i]) !== null) {
             for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
@@ -1959,8 +1954,8 @@ ui.extend = function() {
                     continue;
                 }
 
-                if (deep && copy 
-                    && (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                if (deep && copy && 
+                        (ui.core.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
                     // 如果是对象或者是数组，并且是深拷贝
                     if (copyIsArray) {
                         clone = src && Array.isArray(src) ? src : [];
@@ -2253,8 +2248,8 @@ ui.str = {
     },
     /** 判断是否为空 null, undefined, empty return true */
     isEmpty: function (str) {
-        return str === undefined || str === null
-            || (typeof str === "string" && str.length === 0);
+        return str === undefined || str === null || 
+                (typeof str === "string" && str.length === 0);
     },
     /** 判断是否全是空白 null, undefined, empty, blank return true */
     isBlank: function(str) {
@@ -2536,7 +2531,7 @@ function dateGetter(name, len, offset, isTrim) {
             // 如果是0点，并且是12个小时制，则将0点改为12点
             value = 12;
         }
-        return padNumber(value, len, isTrim)
+        return padNumber(value, len, isTrim);
     };
 }
 
@@ -2998,7 +2993,7 @@ ui.obj = {
     deepClone: function (source, ignore) {
         var result,
             type,
-            cope,
+            copy,
             key;
 
         type = ui.core.type(source);
@@ -3019,7 +3014,7 @@ ui.obj = {
             if (result === copy)
                 continue;
             type = ui.core.type(copy);
-            if (type === "object" || type === "array") {
+            if ((type === "object" && ui.core.isPlainObject(copy)) || type === "array") {
                 result[key] = this.deepClone(copy, ignore);
             } else {
                 result[key] = copy;
@@ -3110,9 +3105,7 @@ ui.url = {
     appendParams: function (url, data) {
         var s = [],
             add = function (key, value) {
-                value = ui.core.isFunction(value) 
-                            ? value() 
-                            : (value === null ? "" : value);
+                value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
                 s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
             },
             i, t, key;
@@ -3180,9 +3173,7 @@ ui.trans = {
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
-                    : "children";
+        childrenField = ui.core.isString(childrenField) ? childrenField : "children";
 
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];
@@ -3234,9 +3225,7 @@ ui.trans = {
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        itemsField = ui.core.isString(itemsField) 
-                    ? itemsField 
-                    : "children";
+        itemsField = ui.core.isString(itemsField) ? itemsField : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];
@@ -3450,7 +3439,7 @@ function parseTemplate(template) {
                 throw new TypeError("字符'}'， index:" + closeIndex + "， 标记符输出格式错误，应为}}");
             }
             parts.push(template.substring(index, closeIndex + 1));
-            i = closeIndex + 2;
+            index = closeIndex + 2;
             continue;
         }
         // 处理占位符

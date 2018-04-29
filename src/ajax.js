@@ -131,7 +131,7 @@ httpRequestProcessor = {
 
             //必须要支持 FormData 和 file.fileList 的浏览器 才能用 xhr 发送
             //标准规定的 multipart/form-data 发送必须用 utf-8 格式， 记得 ie 会受到 document.charset 的影响
-            this.xhr.send(this.oiption.hasContent && (this.formdata || this.querystring) || null);
+            this.xhr.send(this.option.hasRequestBody && (this.formdata || this.querystring) || null);
             
             //在同步模式中,IE6,7可能会直接从缓存中读取数据而不会发出请求,因此我们需要手动发出请求
             if(!this.option.async || this.xhr.readyState === 4) {
@@ -312,7 +312,7 @@ httpRequestProcessor = {
     },
     upload: {
         preprocess: function() {
-
+            // TODO 处理上传
         }
     }
 };
@@ -570,8 +570,9 @@ ensureOption = (function() {
             }
         }
 
-        option.hasContent = !rnoContent.test(option.type);
-        if(!option.hasContent) {
+        // HTTP Method GET和HEAD没有RequestBody
+        option.hasRequestBody = !rnoContent.test(option.type);
+        if(!option.hasRequestBody) {
             // 请求没有requestBody，把参数放到url上
             appendChar = rquery.test(option.url) ? "&" : "?";
             if(option.querystring) {

@@ -30,9 +30,7 @@ ui.trans = {
 
         parentField = getFieldMethod(parentField, "parentField");
         valueField = getFieldMethod(valueField, "valueField");
-        childrenField = ui.core.isString(childrenField) 
-                    ? childrenField 
-                    : "children";
+        childrenField = ui.core.isString(childrenField) ? childrenField : "children";
 
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];
@@ -84,9 +82,7 @@ ui.trans = {
         
         groupKey = ui.core.isString(groupField) ? groupField : "text";
         groupField = getFieldMethod(groupField, "groupField");
-        itemsField = ui.core.isString(itemsField) 
-                    ? itemsField 
-                    : "children";
+        itemsField = ui.core.isString(itemsField) ? itemsField : "children";
         
         for (i = 0, len = list.length; i < len; i++) {
             item = list[i];

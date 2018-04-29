@@ -359,7 +359,7 @@ Animator.prototype.doAnimation = function () {
             //当前帧开始的时间
             newTime = new Date().getTime();
             //逝去时间
-            timestamp = newTime - startTime
+            timestamp = newTime - startTime;
     
             for (i = 0; i < len; i++) {
                 option = that[i];
@@ -423,8 +423,7 @@ Animator.prototype._prepare = function () {
         option.onChange = option.onChange || noop;
         //要使用的缓动公式
         option.ease = 
-            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) 
-                || animationEaseStyle.easeFromTo;
+            (ui.core.isString(option.ease) ? bezierStyleMapper[option.ease] : option.ease) || animationEaseStyle.easeFromTo;
         //动画持续时间
         option.duration = option.duration || 0;
         //延迟时间

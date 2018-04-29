@@ -125,7 +125,7 @@ CtrlBase.prototype = {
     version: ui.version,
     mergeEvents: function(originEvents, newEvents) {
         var temp,
-            i;
+            i, len;
         if(!Array.isArray(originEvents)) {
             return newEvents;
         }

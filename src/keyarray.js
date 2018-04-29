@@ -23,7 +23,7 @@ function KeyArray () {
     } else {
         return new KeyArray();
     }
-};
+}
 KeyArray.prototype = {
     constructor: KeyArray,
     isArray: base.isArray,

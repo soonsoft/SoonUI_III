@@ -79,11 +79,11 @@ function onWeekHeadItemClick(e) {
             return;
         }
         th = th.parent();
-    };
+    }
     eventData = {
         view: this,
         index: th[0].cellIndex
-    }
+    };
     this.calendar.fire("weekTitleClick", eventData);
 }
 // 日视图标题点击事件
@@ -1802,9 +1802,8 @@ DayView.prototype = {
         this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
         tbody = $("<tbody />");
         count = this.calendar._getTimeCellCount();
-        len = 24 * count, i;
-
-        for (i = 0; i < len; i++) {
+        
+        for (i = 0, len = 24 * count; i < len; i++) {
             tr = $("<tr />");
             td = $("<td class='week-hour-cell' style='width:100%' />");
             if ((i + 1) % count) {
@@ -2015,7 +2014,9 @@ Selector.prototype = {
         this.cellWidth = 1;
         this.cellHeight = 25;
 
-        this.grid[0].onselectstart = function () { return false; }
+        this.grid[0].onselectstart = function () { 
+            return false; 
+        };
 
         this.selectionBox = $("<div class='ui-calendar-selector unselectable click-enabled border-highlight' />");
         this.selectionBox.boxTextSpan = $("<span class='ui-calendar-selector-time click-enabled' />");
@@ -2540,7 +2541,7 @@ Selector.prototype = {
         }
         $(document).off("mousedown", this.mouseLeftButtonDownHandler);
     }
-}
+};
 
 viewTypes = {
     "YEARVIEW": YearView,
@@ -3036,7 +3037,7 @@ function initCalendarViewTheme(colorInfo) {
     isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
-        if (themeStyle.length == 0) {
+        if (themeStyle.length === 0) {
             styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
             themeStyle = styleHelper.styleSheet;
         } else {

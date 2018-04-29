@@ -82,7 +82,7 @@ function ajaxUpload() {
             total: total
         };
         xhr.onload = function() {
-            completed.call(arguments.callee.caller, xhr, context);
+            completed.call(that, xhr, context);
         };
         xhr.open("POST", that.option.url, true);
         xhr.setRequestHeader("X-Request-With", "XMLHttpRequest");
@@ -269,9 +269,9 @@ ui.define("ui.ctrls.Uploader", {
         ui.core.each("", function(rule) {
             wrapperCss[rule] = upBtn.css(rule);
         });
-        if(wrapperCss.position !== "absolute" 
-            && wrapperCss.position !== "relative" 
-            && wrapperCss.position !== "fixed") {
+        if(wrapperCss.position !== "absolute" && 
+            wrapperCss.position !== "relative" && 
+            wrapperCss.position !== "fixed") {
             
             wrapperCss.position = "relative";
         }

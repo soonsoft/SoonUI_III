@@ -34,7 +34,7 @@ function parseTemplate(template) {
                 throw new TypeError("字符'}'， index:" + closeIndex + "， 标记符输出格式错误，应为}}");
             }
             parts.push(template.substring(index, closeIndex + 1));
-            i = closeIndex + 2;
+            index = closeIndex + 2;
             continue;
         }
         // 处理占位符

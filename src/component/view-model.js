@@ -49,7 +49,7 @@ if(hasProto) {
             key = keys[i];
             target[key] = prototype[key];
         }
-    }
+    };
 }
 
 // 数据绑定执行队列
@@ -116,7 +116,7 @@ binderQueue = {
         this.queueElementMap = {};
         this.isRunning = this.isWaiting = false;
     }
-}
+};
 
 function noop() {}
 
@@ -213,8 +213,8 @@ function notifyAll(viewModel) {
     for(i = 0, len = keys.length; i < len; i++) {
         propertyName = keys[i];
         value = viewModel[propertyName];
-        if((ui.core.isObject(value) || Array.isArray(value)) 
-            && value.__notice__ instanceof NotifyObject) {
+        if((ui.core.isObject(value) || Array.isArray(value)) && 
+                value.__notice__ instanceof NotifyObject) {
             notifyAll(value);
         } else {
             notifyProperties.push(propertyName);
@@ -278,11 +278,10 @@ Dependency.prototype = {
     },
     // 移除依赖处理
     remove: function(binder) {
-        var propertyName;
+        var propertyName,
+            binderList,
+            i, len;
         if(binder instanceof Binder) {
-            var propertyName,
-                binderList,
-                i, len;
             propertyName = binder.propertyName;
             binderList = this.depMap[propertyName];
 
@@ -312,9 +311,10 @@ Dependency.prototype = {
             keys = [];
             for(i = 0, len = arguments.length; i < len; i++) {
                 propertyName = arguments[i];
-                if(ui.core.isString(propertyName) 
-                    && propertyName.length > 0 
-                    && this.depMap.hasOwnProperty(propertyName)) {
+                if(ui.core.isString(propertyName) && 
+                    propertyName.length > 0 && 
+                    this.depMap.hasOwnProperty(propertyName)) {
+                        
                     keys.push(propertyName);
                 }
             }

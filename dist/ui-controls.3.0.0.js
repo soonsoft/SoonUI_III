@@ -2026,7 +2026,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 70;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 隐藏遮罩层，隐藏动画用 */
@@ -2038,7 +2038,7 @@ ui.define("ui.ctrls.DialogBox", {
             option.end = 0;
             option.onChange = function (op) {
                 this.target.css("opacity", op / 100);
-            }
+            };
         }
     },
     /** 设置大小并居中显示 */
@@ -2270,7 +2270,7 @@ MessageBox.prototype = {
             messageItem,
             htmlBuilder = [];
         
-        messageItem = $("<div class='message-item' />")
+        messageItem = $("<div class='message-item' />");
         htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
         htmlBuilder.push("<div class='message-content'>");
         if(ui.core.isFunction(text)) {
@@ -4512,8 +4512,7 @@ ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             for(j = 0; j < 5; j++) {
                 td = $(rows[i].cells[j]);
                 value = startYear + (i * 5 + j);
-                if((this.startDay && value < this.startDay.year) 
-                    || (this.endDay && value > this.endDay.year)) {
+                if((this.startDay && value < this.startDay.year) || (this.endDay && value > this.endDay.year)) {
                     td.addClass("disabled-year");
                 } else {
                     td.html(value);
@@ -5420,9 +5419,7 @@ ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -5545,8 +5542,8 @@ function onTreeItemClick(e) {
         return;
     }
 
-    while((nodeName = elem.nodeName()) !== "DT"
-            && !elem.hasClass("ui-selection-tree-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("ui-selection-tree-dt")) {
         
         if(elem.hasClass("ui-selection-tree-panel")) {
             return;
@@ -5655,9 +5652,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         } else {
             if(ui.core.isNumber(this.option.defaultExpandLevel)) {
                 this.expandLevel = 
-                    this.option.defaultExpandLevel <= 0
-                        ? 0 
-                        : this.option.defaultExpandLevel;
+                    this.option.defaultExpandLevel <= 0 ? 0 : this.option.defaultExpandLevel;
             } else {
                 // 设置到最大展开1000层
                 this.expandLevel = 1000;
@@ -5852,7 +5847,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         var children,
             dl;
         
-        children = this._getChildren(nodeData)
+        children = this._getChildren(nodeData);
         if(Array.isArray(children) && children.length > 0) {
             dl = $("<dl />");
             this._renderTree(
@@ -6020,7 +6015,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
     },
     _selectNodeByValue: function(nodeData, path) {
-        var dt, tempId, needAppendElements, athArray,
+        var dt, tempId, needAppendElements, pathArray,
             i, treeNodeDT, treeNodeDD;
         
         if(this.option.lazy) {
@@ -6052,8 +6047,8 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
 
         treeNodeDD = dt.parent().parent();
-        while (treeNodeDD.nodeName() === "DD" 
-                && treeNodeDD.hasClass("ui-selection-tree-dd")) {
+        while (treeNodeDD.nodeName() === "DD" && 
+                treeNodeDD.hasClass("ui-selection-tree-dd")) {
 
             treeNodeDT = treeNodeDD.prev();
             if (treeNodeDD.css("display") === "none") {
@@ -6158,7 +6153,9 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
 
         this.cancelSelection();
         if(this.isMultiple()) {
-            if(!Array.isArray(values)) {
+            if(Array.isArray(values)) {
+                values = Array.from(values);
+            } else {
                 values = [values];
             }
         } else {
@@ -6178,6 +6175,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             eventData = this._getSelectionData(outArguments.elem);
             eventData.element = outArguments.elem;
             eventData.originElement = null;
+            eventData.isSelection = true;
             this.fire("changed", eventData);
         }
     },
@@ -6250,9 +6248,7 @@ ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -6310,8 +6306,8 @@ function onMouseover(e) {
     var elem = $(e.target),
         nodeName;
 
-    while((nodeName = elem.nodeName()) !== "DT" 
-            && !elem.hasClass("autocomplete-dt")) {
+    while((nodeName = elem.nodeName()) !== "DT" && 
+            !elem.hasClass("autocomplete-dt")) {
         
         if(elem.hasClass("autocomplete-dl")) {
             return;
@@ -6648,11 +6644,11 @@ function onWeekHeadItemClick(e) {
             return;
         }
         th = th.parent();
-    };
+    }
     eventData = {
         view: this,
         index: th[0].cellIndex
-    }
+    };
     this.calendar.fire("weekTitleClick", eventData);
 }
 // 日视图标题点击事件
@@ -8371,9 +8367,8 @@ DayView.prototype = {
         this.hourTable = $("<table class='week-hour-table unselectable' cellspacing='0' cellpadding='0' />");
         tbody = $("<tbody />");
         count = this.calendar._getTimeCellCount();
-        len = 24 * count, i;
-
-        for (i = 0; i < len; i++) {
+        
+        for (i = 0, len = 24 * count; i < len; i++) {
             tr = $("<tr />");
             td = $("<td class='week-hour-cell' style='width:100%' />");
             if ((i + 1) % count) {
@@ -8584,7 +8579,9 @@ Selector.prototype = {
         this.cellWidth = 1;
         this.cellHeight = 25;
 
-        this.grid[0].onselectstart = function () { return false; }
+        this.grid[0].onselectstart = function () { 
+            return false; 
+        };
 
         this.selectionBox = $("<div class='ui-calendar-selector unselectable click-enabled border-highlight' />");
         this.selectionBox.boxTextSpan = $("<span class='ui-calendar-selector-time click-enabled' />");
@@ -9109,7 +9106,7 @@ Selector.prototype = {
         }
         $(document).off("mousedown", this.mouseLeftButtonDownHandler);
     }
-}
+};
 
 viewTypes = {
     "YEARVIEW": YearView,
@@ -9605,7 +9602,7 @@ function initCalendarViewTheme(colorInfo) {
     isCalendarViewThemeInitialized = true;
     if(!themeStyle) {
         themeStyle = $("#GlobalThemeChangeStyle");
-        if (themeStyle.length == 0) {
+        if (themeStyle.length === 0) {
             styleHelper = ui.StyleSheet.createStyleSheet("GlobalThemeChangeStyle");
             themeStyle = styleHelper.styleSheet;
         } else {
@@ -9681,7 +9678,7 @@ function prepareGroup(option) {
             groupListHandler: defaultGroupListHandler,
             headFormatter: defaultGroupHeadFormatter,
             headRearrangeHandler: defaultHeadRearrangeHandler
-        }
+        };
     } else if(type === "object") {
         if(!ui.core.isFunction(option.groupListHandler)) {
             option.groupListHandler = defaultGroupListHandler;
@@ -10126,7 +10123,7 @@ ui.define("ui.ctrls.CardView", {
     _rearrangeItems: function() {
         var i, len,
             childrenList;
-        if(!this._itemBodyList.length === 0)
+        if(this._itemBodyList.length === 0)
             return;
         
         childrenList = [];
@@ -10266,8 +10263,7 @@ ui.define("ui.ctrls.CardView", {
         itemBody.remove();
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -10349,7 +10345,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 取消选中项 */
     cancelSelection: function() {
-        var i, len;
+        var i, len, elem;
         if(!this.isSelectable()) {
             return;
         }
@@ -10575,9 +10571,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取当前尺寸下一行能显示多少个元素 */
     getColumnCount: function() {
@@ -10589,9 +10583,7 @@ ui.define("ui.ctrls.CardView", {
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -10677,8 +10669,8 @@ function onFoldTitleClick(e) {
         dd, icon;
     
     elem = $(e.target);
-    while((nodeName = elem.nodeName()) !== "DT" 
-        || !elem.hasClass("ui-fold-view-title")) {
+    while((nodeName = elem.nodeName()) !== "DT" || 
+            !elem.hasClass("ui-fold-view-title")) {
 
         if(elem.hasClass("ui-fold-view")) {
             return;
@@ -12096,9 +12088,9 @@ ui.define("ui.ctrls.GridView", {
                 if(!checkbox) {
                     colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
                     if(colIndex > -1) {
-                        checkbox = this.option.selection.type === "cell"
-                            ? $(elem.parent()[0].cells[colIndex])
-                            : $(elem[0].cells[colIndex]);
+                        checkbox = this.option.selection.type === "cell" ? 
+                            $(elem.parent()[0].cells[colIndex]) : 
+                            $(elem[0].cells[colIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -12122,8 +12114,7 @@ ui.define("ui.ctrls.GridView", {
         }
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -12304,9 +12295,9 @@ ui.define("ui.ctrls.GridView", {
             fn = function(elem) {
                 var checkbox;
                 if(columnIndex !== -1) {
-                    checkbox = this.option.selection.type === "cell"
-                        ? $(elem.parent()[0].cells[columnIndex])
-                        : $(elem[0].cells[columnIndex]);
+                    checkbox = this.option.selection.type === "cell" ? 
+                        $(elem.parent()[0].cells[columnIndex]) : 
+                        $(elem[0].cells[columnIndex]);
                     checkbox = checkbox.find(checkboxClass);
                     setChecked(checkbox, false);
                 }
@@ -12568,15 +12559,11 @@ ui.define("ui.ctrls.GridView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData.length
-            : 0;
+        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -13253,9 +13240,7 @@ ui.define("ui.ctrls.ListView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
@@ -14566,9 +14551,9 @@ ui.define("ui.ctrls.ReportView", {
                 if(!checkbox) {
                     columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
                     if(columnInfo) {
-                        checkbox = this.option.selection.type === "cell"
-                            ? $(elem.parent()[0].cells[colIndex])
-                            : $(elem[0].cells[colIndex]);
+                        checkbox = this.option.selection.type === "cell" ? 
+                            $(elem.parent()[0].cells[colIndex]) : 
+                            $(elem[0].cells[colIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -14592,8 +14577,7 @@ ui.define("ui.ctrls.ReportView", {
         }
     },
     _promptIsShow: function() {
-        return this._hasPrompt 
-            && this._dataPrompt.css("display") === "block";
+        return this._hasPrompt && this._dataPrompt.css("display") === "block";
     },
     _setPromptLocation: function() {
         var height = this._dataPrompt.height();
@@ -14707,9 +14691,7 @@ ui.define("ui.ctrls.ReportView", {
                     rowIndex,
                     tr;
                 if(columnInfo) {
-                    rowIndex = this.option.selection.type === "cell"
-                        ? elem.parent()[0].rowIndex
-                        : elem[0].rowIndex;
+                    rowIndex = this.option.selection.type === "cell" ? elem.parent()[0].rowIndex : elem[0].rowIndex;
                     tr = $(columnInfo.bodyTable[0].tBodies[0].rows[rowIndex]);
                     checkbox = $(tr[0].cells[columnInfo.columnIndex]);
                     checkbox = checkbox.find(checkboxClass);
@@ -15017,15 +14999,11 @@ ui.define("ui.ctrls.ReportView", {
     },
     /** 获取视图数据 */
     getViewData: function() {
-        return Array.isArray(this.option.viewData) 
-            ? this.option.viewData 
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData)
-            ? 0
-            : this.option.viewData.length;
+        return Array.isArray(this.option.viewData) ? 0 : this.option.viewData.length;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -15848,7 +15826,7 @@ ui.define("ui.ctrls.ConfirmButton", {
         if(this.option.disabled) {
             this.element.attr("disabled", "disabled");
         } else {
-            this.element.removeAttr("disabled")
+            this.element.removeAttr("disabled");
         }
     },
     getText: function() {
@@ -16045,9 +16023,7 @@ ui.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside 
-            ? this.element.offset()
-            : this.element.position();
+        var position = this.isBodyInside ? this.element.offset() : this.element.position();
         position.left = position.left + this.element.outerWidth() / 2;
         position.top = position.top + this.element.outerHeight()/ 2;
         return position;
@@ -16425,7 +16401,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!ui.core.isNumber(index)) {
@@ -16464,9 +16440,7 @@ ui.define("ui.ctrls.FilterTool", {
         }
     },
     getViewData: function() {
-        return Array.isArray(this.option.viewData)
-            ? this.option.viewData
-            : [];
+        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
     },
     getSelection: function () {
         if (this._current) {
@@ -16479,7 +16453,7 @@ ui.define("ui.ctrls.FilterTool", {
             label;
 
         viewData = this.getViewData();
-        if (!viewData.length === 0) {
+        if (viewData.length === 0) {
             return;
         }
         if (!$.isNumeric(index)) {
@@ -16715,7 +16689,7 @@ ui.define("ui.ctrls.HoverView", {
             opacity = parseFloat(this.viewPanel.css("opacity"));
             if (opacity < 1) {
                 css["opacity"] = 1;
-                css["filter"] = "Alpha(opacity=100)"
+                css["filter"] = "Alpha(opacity=100)";
             }
         } else {
             this.viewPanel.css({
@@ -17213,7 +17187,7 @@ ui.define("ui.ctrls.SwitchButton", {
             target: this.thumb,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
-                var color = color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
+                var color = ui.color.overlay(this.beginColor, this.endColor, val / 100);
                 color = ui.color.rgb2hex(color.red, color.green, color.blue);
                 this.target.css("background-color", color);
             }

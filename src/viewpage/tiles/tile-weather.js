@@ -34,9 +34,9 @@ function findToday(days) {
             if(!weatherDay.date) {
                 continue;
             }
-            if(weatherDay.date.getFullYear() === today.getFullYear()
-                && weatherDay.date.getMonth() === today.getMonth()
-                && weatherDay.date.getDate() === today.getDate()) {
+            if(weatherDay.date.getFullYear() === today.getFullYear() && 
+                weatherDay.date.getMonth() === today.getMonth() && 
+                weatherDay.date.getDate() === today.getDate()) {
                 result = weatherDay;
             }
         }

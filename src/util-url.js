@@ -73,9 +73,7 @@ ui.url = {
     appendParams: function (url, data) {
         var s = [],
             add = function (key, value) {
-                value = ui.core.isFunction(value) 
-                            ? value() 
-                            : (value === null ? "" : value);
+                value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
                 s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
             },
             i, t, key;
