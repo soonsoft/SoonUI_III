@@ -15,7 +15,7 @@
 			factory(global, true) :
 			function(w) {
 				if (!w.document) {
-					throw new Error("SoonUI requires a window with a document");
+					throw new Error("SOON.UI requires a window with a document");
 				}
 				return factory(w);
 			};
@@ -3151,7 +3151,7 @@ function getFieldMethod(field, fieldName) {
 }
 
 ui.trans = {
-    // Array结构转Tree结构
+    /** Array结构转Tree结构 */
     listToTree: function (list, parentField, valueField, childrenField) {
         var tempList = {}, 
             temp, root,
@@ -3205,7 +3205,7 @@ ui.trans = {
         }
         return root[childrenField];
     },
-    // Array结构转分组结构(两级树结构)
+    /** Array结构转分组结构(两级树结构) */
     listToGroup: function(list, groupField, createGroupItemFn, itemsField) {
         var temp = {},
             i, len, key, 
@@ -3243,6 +3243,33 @@ ui.trans = {
             }
         }
         return result;
+    },
+    /** 遍历树结构 */
+    treeEach: function(list, childrenField, fn) {
+        var i, len,
+            node,
+            isNodeFn;
+
+        if(!Array.isArray(list)) {
+            return;
+        }
+        if(!ui.core.isFunction(fn)) {
+            return;
+        }
+        childrenField = ui.core.isString(childrenField) ? childrenField : "children";
+        isNodeFn = function() {
+            return Array.isArray(this[childrenField]) && this[childrenField].length > 0;
+        };
+        
+        for(i = 0, len = list.length; i < len; i++) {
+            node = list[i];
+            node.isNode = isNodeFn;
+            fn.call(null, node);
+            delete node.isNode;
+            if(isNodeFn.call(node)) {
+                ui.trans.treeEach(node[childrenField], childrenField, fn);
+            }
+        }
     }
 };
 

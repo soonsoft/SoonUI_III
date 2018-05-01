@@ -15,7 +15,7 @@
 			factory(global, true) :
 			function(w) {
 				if (!w.document) {
-					throw new Error("SoonUI requires a window with a document");
+					throw new Error("SOON.UI requires a window with a document");
 				}
 				return factory(w);
 			};
