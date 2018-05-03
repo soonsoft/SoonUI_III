@@ -352,6 +352,8 @@ ui.define("ui.ctrls.GridView", {
             height: false,
             // 宽度
             width: false,
+            // 默认格式化器
+            textFormatter: null,
             // 分页参数
             pager: {
                 // 当前页码，默认从第1页开始
@@ -533,7 +535,12 @@ ui.define("ui.ctrls.GridView", {
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.option.columns[i];
             formatter = c.formatter;
+            // 自定义格式化器
             if (!ui.core.isFunction(c.formatter)) {
+                formatter = this.option.textFormatter;
+            }
+            // option默认格式化器
+            if(!ui.core.isFunction(formatter)) {
                 formatter = textFormatter;
             }
             cval = this._prepareValue(rowData, c);

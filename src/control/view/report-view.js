@@ -456,6 +456,8 @@ ui.define("ui.ctrls.ReportView", {
             width: false,
             // 调节列宽
             suitable: true,
+            // 默认格式化器
+            textFormatter: null,
             // 分页参数
             pager: {
                 // 当前页码，默认从第1页开始
@@ -981,7 +983,12 @@ ui.define("ui.ctrls.ReportView", {
         for (i = 0; i < columnLength; i++) {
             c = columns[i];
             formatter = c.formatter;
-            if (!ui.core.isFunction(formatter)) {
+            // 自定义格式化器
+            if (!ui.core.isFunction(c.formatter)) {
+                formatter = this.option.textFormatter;
+            }
+            // option默认格式化器
+            if(!ui.core.isFunction(formatter)) {
                 formatter = textFormatter;
             }
             cval = this._prepareValue(rowData, c);

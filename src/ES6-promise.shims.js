@@ -30,6 +30,11 @@ function _finally(onFinally) {
 // 提案，暂不实现
 function _try() {}
 
+ui.PromiseEmpty = {
+    then: noop,
+    catch: noop
+};
+
 if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
     // 原生支持Promise
     if(!isFunction(Promise.prototype.finally)) {

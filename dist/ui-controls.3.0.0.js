@@ -460,7 +460,7 @@ ui.define("ui.ctrls.SidebarBase", {
             };
             return this.animator.start();
         }
-        return null;
+        return ui.PromiseEmpty;;
     },
     hide: function() {
         var op,
@@ -492,7 +492,7 @@ ui.define("ui.ctrls.SidebarBase", {
             };
             return this.animator.start();
         }
-        return null;
+        return ui.PromiseEmpty;;
     }
 });
 
@@ -1952,16 +1952,16 @@ ui.define("ui.ctrls.DialogBox", {
     /** 显示 */
     show: function(showFn) {
         if(this.animator.isStarted || this.isShow()) {
-            return;
+            return ui.PromiseEmpty;
         }
 
         if(this.fire("showing") === false) {
-            return;
+            return ui.PromiseEmpty;
         }
         if(!ui.core.isFunction(showFn)) {
             showFn = showStyles[this.option.show];
             if(!ui.core.isFunction(showFn)) {
-                return;
+                return ui.PromiseEmpty;
             }
         }
         showFn.call(this);
@@ -1970,16 +1970,16 @@ ui.define("ui.ctrls.DialogBox", {
     /** 取消并隐藏 */
     hide: function(hideFn) {
         if(this.animator.isStarted || !this.isShow()) {
-            return;
+            return ui.PromiseEmpty;
         }
 
         if(this.fire("closing") === false) {
-            return;
+            return ui.PromiseEmpty;
         }
         if(!ui.core.isFunction(hideFn)) {
             hideFn = hideStyles[this.option.hide];
             if(!ui.core.isFunction(hideFn)) {
-                return;
+                return ui.PromiseEmpty;
             }
         }
         hideFn.call(this);
@@ -1990,7 +1990,7 @@ ui.define("ui.ctrls.DialogBox", {
         if(!ui.core.isFunction(doneFn)) {
             doneFn = hideStyles[this.option.done];
             if(!ui.core.isFunction(doneFn)) {
-                return;
+                return ui.PromiseEmpty;
             }
         }
         return this.hide(doneFn);
@@ -11676,6 +11676,8 @@ ui.define("ui.ctrls.GridView", {
             height: false,
             // 宽度
             width: false,
+            // 默认格式化器
+            textFormatter: null,
             // 分页参数
             pager: {
                 // 当前页码，默认从第1页开始
@@ -11857,7 +11859,12 @@ ui.define("ui.ctrls.GridView", {
         for (i = 0, len = this.option.columns.length; i < len; i++) {
             c = this.option.columns[i];
             formatter = c.formatter;
+            // 自定义格式化器
             if (!ui.core.isFunction(c.formatter)) {
+                formatter = this.option.textFormatter;
+            }
+            // option默认格式化器
+            if(!ui.core.isFunction(formatter)) {
                 formatter = textFormatter;
             }
             cval = this._prepareValue(rowData, c);
@@ -13729,6 +13736,8 @@ ui.define("ui.ctrls.ReportView", {
             width: false,
             // 调节列宽
             suitable: true,
+            // 默认格式化器
+            textFormatter: null,
             // 分页参数
             pager: {
                 // 当前页码，默认从第1页开始
@@ -14254,7 +14263,12 @@ ui.define("ui.ctrls.ReportView", {
         for (i = 0; i < columnLength; i++) {
             c = columns[i];
             formatter = c.formatter;
-            if (!ui.core.isFunction(formatter)) {
+            // 自定义格式化器
+            if (!ui.core.isFunction(c.formatter)) {
+                formatter = this.option.textFormatter;
+            }
+            // option默认格式化器
+            if(!ui.core.isFunction(formatter)) {
                 formatter = textFormatter;
             }
             cval = this._prepareValue(rowData, c);

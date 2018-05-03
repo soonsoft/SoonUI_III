@@ -1396,6 +1396,11 @@ function _finally(onFinally) {
 // 提案，暂不实现
 function _try() {}
 
+ui.PromiseEmpty = {
+    then: noop,
+    catch: noop
+};
+
 if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
     // 原生支持Promise
     if(!isFunction(Promise.prototype.finally)) {
@@ -3449,7 +3454,6 @@ function parseTemplate(template) {
         closeIndex = template.indexOf(close, (openIndex > -1 ? openIndex : index));
         // 没有占位符
         if(openIndex < 0 && closeIndex < 0) {
-            parts.push(template);
             break;
         }
         // 可是要输出'}'标记符

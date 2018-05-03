@@ -158,7 +158,7 @@ ui.define("ui.ctrls.SidebarBase", {
             };
             return this.animator.start();
         }
-        return null;
+        return ui.PromiseEmpty;;
     },
     hide: function() {
         var op,
@@ -190,6 +190,6 @@ ui.define("ui.ctrls.SidebarBase", {
             };
             return this.animator.start();
         }
-        return null;
+        return ui.PromiseEmpty;;
     }
 });

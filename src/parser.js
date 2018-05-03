@@ -25,7 +25,6 @@ function parseTemplate(template) {
         closeIndex = template.indexOf(close, (openIndex > -1 ? openIndex : index));
         // 没有占位符
         if(openIndex < 0 && closeIndex < 0) {
-            parts.push(template);
             break;
         }
         // 可是要输出'}'标记符
