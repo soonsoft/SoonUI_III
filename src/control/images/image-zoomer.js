@@ -411,27 +411,27 @@ ui.define("ui.ctrls.ImageZoomer", {
     }
 });
 
-$.fn.addImageZoomer = function (image) {
+$.fn.addImageZoomer = function (zoomer) {
     if (this.length === 0) {
         return;
     }
-    if (image instanceof ui.ctrls.ImageZoomer) {
+    if (zoomer instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
             var target = $(e.target);
             var largeSize = target.data("LargeSize");
             if(largeSize) {
-                image.show(target);
+                zoomer.show(target);
             } else {
-                loadImageSize(image._getLargeImageSrc(target))
+                loadImageSize(zoomer._getLargeImageSrc(target))
                     .then(
                         //success
                         function(size) {
                             target.data("LargeSize", size);
-                            image.show(target);
+                            zoomer.show(target);
                         },
                         //failed
                         function(size) {
-                            image.show(target);
+                            zoomer.show(target);
                         }
                     );
             }

@@ -38,10 +38,10 @@ ui.define("ui.ctrls.ImagePreview", {
         this.chooser = this.element.children(".image-preview-chooser");
         
         if(this.viewer.length === 0) {
-            throw new Error("需要设置一个class为image-view-panel的元素");
+            throw new TypeError("需要设置一个class为image-view-panel的元素");
         }
         if(this.chooser.length === 0) {
-            throw new Error("需要设置一个class为image-preview-chooser的元素");
+            throw new TypeError("需要设置一个class为image-preview-chooser的元素");
         }
         
         this.isHorizontal = this.option.direction === "horizontal";

@@ -1828,9 +1828,7 @@ ui.define = function(name, base, prototype) {
 
     constructor = define(name, base, prototype, function(option, element) {
         if (this instanceof ui.ctrls.CtrlBase) {
-            if (arguments.length) {
-                this._initialize(option, element);
-            }
+            this._initialize(option, element);
         } else {
             return new constructor(option, element);
         }

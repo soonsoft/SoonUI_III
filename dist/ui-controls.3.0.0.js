@@ -17321,10 +17321,10 @@ ui.define("ui.ctrls.ImagePreview", {
         this.chooser = this.element.children(".image-preview-chooser");
         
         if(this.viewer.length === 0) {
-            throw new Error("需要设置一个class为image-view-panel的元素");
+            throw new TypeError("需要设置一个class为image-view-panel的元素");
         }
         if(this.chooser.length === 0) {
-            throw new Error("需要设置一个class为image-preview-chooser的元素");
+            throw new TypeError("需要设置一个class为image-preview-chooser的元素");
         }
         
         this.isHorizontal = this.option.direction === "horizontal";
@@ -18547,27 +18547,27 @@ ui.define("ui.ctrls.ImageZoomer", {
     }
 });
 
-$.fn.addImageZoomer = function (image) {
+$.fn.addImageZoomer = function (zoomer) {
     if (this.length === 0) {
         return;
     }
-    if (image instanceof ui.ctrls.ImageZoomer) {
+    if (zoomer instanceof ui.ctrls.ImageZoomer) {
         this.click(function(e) {
             var target = $(e.target);
             var largeSize = target.data("LargeSize");
             if(largeSize) {
-                image.show(target);
+                zoomer.show(target);
             } else {
-                loadImageSize(image._getLargeImageSrc(target))
+                loadImageSize(zoomer._getLargeImageSrc(target))
                     .then(
                         //success
                         function(size) {
                             target.data("LargeSize", size);
-                            image.show(target);
+                            zoomer.show(target);
                         },
                         //failed
                         function(size) {
-                            image.show(target);
+                            zoomer.show(target);
                         }
                     );
             }
