@@ -1937,7 +1937,7 @@ ui.extend = function() {
 
     for (; i < length; i++) {
         // 避开 null/undefined
-        if ((options = arguments[i]) !== null) {
+        if ((options = arguments[i]) != null) {
             for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
@@ -5855,7 +5855,9 @@ function getConstructor(name, constructor) {
     }
 
     if(existingConstructor) {
-        $.extend(constructor, constructorInfo.constructor);
+        constructor.getOriginal = function() {
+            return existingConstructor;
+        };
     }
 
     return constructorInfo;
@@ -5873,12 +5875,12 @@ function define(name, base, prototype, constructor) {
 
     // 基类的处理
     if(base) {
-        basePrototype = new base();
+        basePrototype = ui.core.isFunction(base) ? base.prototype : base;
+        basePrototype = ui.extend({}, basePrototype);
     } else {
         basePrototype = {};
         basePrototype.namespace = "";
     }
-    basePrototype.option = $.extend({}, basePrototype.option);
 
     // 方法重写
     $.each(prototype, function (prop, value) {
@@ -5916,7 +5918,7 @@ function define(name, base, prototype, constructor) {
     });
 
     // 原型合并
-    constructorInfo.constructor.prototype = $.extend(
+    constructorInfo.constructor.prototype = ui.extend(
         // 基类
         basePrototype,
         // 原型
@@ -5929,6 +5931,26 @@ function define(name, base, prototype, constructor) {
     return constructorInfo.constructor;
 }
 
+function mergeEvents() {
+    var temp,
+        events,
+        i, len;
+
+    temp = {};
+    for(i = 0, len = arguments.length; i < len; i++) {
+        events = arguments[i];
+        if(Array.isArray(events)) {
+            events.forEach(function(e) {
+                if(!temp.hasOwnProperty(e)) {
+                    temp[e] = true;
+                }
+            });
+        }
+    }
+
+    return Object.keys(temp);
+}
+
 function CtrlBase() {
 }
 CtrlBase.prototype = {
@@ -5936,50 +5958,27 @@ CtrlBase.prototype = {
     ctrlName: "CtrlBase",
     namespace: "ui.ctrls",
     version: ui.version,
-    mergeEvents: function(originEvents, newEvents) {
-        var temp,
-            i, len;
-        if(!Array.isArray(originEvents)) {
-            return newEvents;
-        }
-
-        temp = {};
-        for(i = 0, len = originEvents.length; i < len; i++) {
-            if(!temp.hasOwnProperty(originEvents[i])) {
-                temp[originEvents[i]] = true;
-            }
-        }
-
-        for(i = 0, len = newEvents.length; i < len; i++) {
-            if(!temp.hasOwnProperty(newEvents[i])) {
-                temp[newEvents[i]] = true;
-            }
-        }
-
-        newEvents = [];
-        for(i in temp) {
-            if(temp.hasOwnProperty(i)) {
-                newEvents.push(i);
-            }
-        }
-
-        return newEvents;
-    },
     i18n: function(key) {
         // TODO: 实现根据key获取对应的本地化文本
     },
     _initialize: function(option, element) {
-        var events;
+        var events,
+            prototypeOption,
+            prototypeEvents;
 
         this.document = document;
         this.window = window;
         this.element = element || null;
 
         // 配置项初始化 deep copy
-        this.option = ui.extend(true, {}, this._defineOption(), option) || {};
+        if(this.constructor && this.constructor.prototype) {
+            prototypeOption = this.constructor.prototype.option;
+            prototypeEvents = this.constructor.prototype.events;
+        }
+        this.option = ui.extend(true, {}, prototypeOption, this._defineOption(), option) || {};
         // 事件初始化
-        events = this._defineEvents();
-        if(Array.isArray(events) && events.length > 0) {
+        events = mergeEvents(prototypeEvents, this._defineEvents());
+        if(events.length > 0) {
             this.eventDispatcher = new ui.CustomEvent(this);
             this.eventDispatcher.initEvents(events);
         }
@@ -6031,7 +6030,9 @@ ui.ctrls = {
 
 ui.define = function(name, base, prototype) {
     var index,
-        constructor;
+        constructor,
+        basePrototype,
+        events;
 
     if(!ui.core.isString(name) || name.length === 0) {
         return null;
@@ -6052,12 +6053,21 @@ ui.define = function(name, base, prototype) {
     }
 
     constructor = define(name, base, prototype, function(option, element) {
-        if (this instanceof ui.ctrls.CtrlBase) {
+        if (this instanceof constructor) {
             this._initialize(option, element);
         } else {
             return new constructor(option, element);
         }
     });
+
+    basePrototype = ui.core.isFunction(base) ? base.prototype : base;
+    if(ui.core.isFunction(basePrototype._defineOption)) {
+        constructor.prototype.option = ui.extend(true, {}, basePrototype.option, basePrototype._defineOption());
+    }
+    if(ui.core.isFunction(basePrototype._defineEvents)) {
+        constructor.prototype.events = mergeEvents(basePrototype._defineEvents(), basePrototype.events);
+    }
+
     return constructor;
 };
 
@@ -9202,10 +9212,10 @@ var contentTop = 40,
     operatePanelHeight = 0;
 ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _defineOption: function() {
-        return $.extend(this._super(), {
+        return {
             title: "",
             buttons: null
-        });
+        };
     },
     _create: function() {
         this._super();

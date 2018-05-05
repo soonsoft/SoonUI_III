@@ -2393,10 +2393,10 @@ var contentTop = 40,
     operatePanelHeight = 0;
 ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _defineOption: function() {
-        return $.extend(this._super(), {
+        return {
             title: "",
             buttons: null
-        });
+        };
     },
     _create: function() {
         this._super();

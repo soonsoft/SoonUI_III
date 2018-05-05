@@ -116,7 +116,7 @@ ui.extend = function() {
 
     for (; i < length; i++) {
         // 避开 null/undefined
-        if ((options = arguments[i]) !== null) {
+        if ((options = arguments[i]) != null) {
             for (name in options) {
                 if(!options.hasOwnProperty(name))  {
                     continue;
