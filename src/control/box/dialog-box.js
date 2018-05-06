@@ -22,7 +22,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -49,7 +49,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -76,7 +76,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -103,7 +103,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -130,7 +130,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -156,7 +156,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     down: function () {
@@ -173,7 +173,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     left: function () {
@@ -190,7 +190,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     right: function () {
@@ -207,7 +207,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     fadeout: function () {
@@ -223,7 +223,7 @@ hideStyles = {
         };
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
 
         this.box.css({
@@ -273,7 +273,7 @@ ui.define("ui.ctrls.DialogBox", {
         };
     },
     _defineEvents: function() {
-        return ["showing", "showed", "closing", "closed", "resize"];
+        return ["showing", "shown", "hiding", "hidden", "resize"];
     },
     _create: function() {
         var that;
@@ -604,7 +604,7 @@ ui.define("ui.ctrls.DialogBox", {
             return ui.PromiseEmpty;
         }
 
-        if(this.fire("closing") === false) {
+        if(this.fire("hiding") === false) {
             return ui.PromiseEmpty;
         }
         if(!ui.core.isFunction(hideFn)) {
@@ -627,17 +627,17 @@ ui.define("ui.ctrls.DialogBox", {
         return this.hide(doneFn);
     },
     /** 显示结束后处理函数，显示动画用 */
-    onShowed: function() {
-        this.fire("showed");
+    onShown: function() {
+        this.fire("shown");
     },
     /** 隐藏结束后处理函数，隐藏动画用 */
-    onHided: function() {
+    onHidden: function() {
         this.box.css("display", "none");
         if (this.maskable()) {
             $(document.body).css("overflow", this._oldBodyOverflow);
             this.mask.css("display", "none");
         }
-        this.fire("closed");
+        this.fire("hidden");
     },
     /** 显示遮罩层，显示动画用 */
     openMask: function() {

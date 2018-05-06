@@ -242,12 +242,12 @@ ui.define("ui.ctrls.ImagePreview", {
             this._moveChooserQueue(index);
         }
     },
-    empty: function() {
+    clear: function() {
         this.items = [];
         this.chooserQueue.empty();
         
         if(this.imageViewer) {
-            this.imageViewer.empty();
+            this.imageViewer.clear();
         }
     },
     setImages: function(images) {
@@ -255,7 +255,7 @@ ui.define("ui.ctrls.ImagePreview", {
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
-        this.empty();
+        this.clear();
         
         this.option.images = images;
         if(!this.imageViewer) {

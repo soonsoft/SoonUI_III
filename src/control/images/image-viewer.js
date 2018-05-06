@@ -86,7 +86,7 @@ ui.define("ui.ctrls.ImageViewer", {
         if(arguments.length === 0) {
             return;
         }
-        this.empty();
+        this.clear();
         var images = [],
             i = 0,
             len = arguments.length,
@@ -295,7 +295,7 @@ ui.define("ui.ctrls.ImageViewer", {
             this.showImage(0);
         }
     },
-    empty: function() {
+    clear: function() {
         this.images = [];
         this.currentIndex = -1;
         this.viewAnimator.stop();

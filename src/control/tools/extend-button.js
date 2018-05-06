@@ -11,7 +11,7 @@ ui.define("ui.ctrls.ExtendButton", {
         };
     },
     _defineEvents: function() {
-        return ["showing", "showed", "hiding", "hided"];
+        return ["showing", "shown", "hiding", "hidden"];
     },
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
@@ -357,7 +357,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonAnimator.delayHandler = setTimeout(function() {
                 that.buttonAnimator.delayHandler = null;
                 that.buttonAnimator.start().then(function() {
-                    that.fire("showed");
+                    that.fire("shown");
                 });
             }, 100);
         }
@@ -382,7 +382,7 @@ ui.define("ui.ctrls.ExtendButton", {
                 that.buttonPanelAnimator.delayHandler = null;
                 that.buttonPanelAnimator.start().then(function() {
                     that.buttonPanel.css("display", "none");
-                    that.fire("hided");
+                    that.fire("hidden");
                 });
             }, 100);
         }

@@ -9,7 +9,7 @@ ui.define("ui.ctrls.SidebarBase", {
         };
     },
     _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided", "resize"];
+        return ["showing", "shown", "hiding", "hidden", "resize"];
     },
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
@@ -133,6 +133,10 @@ ui.define("ui.ctrls.SidebarBase", {
             that = this,
             i, len;
         if(!this.isShow()) {
+            if(this.fire("showing") === false) {
+                return ui.PromiseEmpty;
+            }
+
             this.animator.stop();
             this.animator.splice(1, this.length - 1);
             this.animator.duration = this.showTimeValue;
@@ -149,22 +153,23 @@ ui.define("ui.ctrls.SidebarBase", {
                 }
             }
 
-            this.animator.onBegin = function() {
-                that.fire("showing");
-            };
             this.animator.onEnd = function() {
                 this.splice(1, this.length - 1);
-                that.fire("showed");
+                that.fire("shown");
             };
             return this.animator.start();
         }
-        return ui.PromiseEmpty;;
+        return ui.PromiseEmpty;
     },
     hide: function() {
         var op,
             that = this,
             i, len;
         if(this.isShow()) {
+            if(this.fire("hiding") === false) {
+                return ui.PromiseEmpty;
+            }
+
             this.animator.stop();
             this.animator.splice(1, this.length - 1);
             this.animator.duration = this.hideTimeValue;
@@ -180,16 +185,13 @@ ui.define("ui.ctrls.SidebarBase", {
                 }
             }
 
-            this.animator.onBegin = function() {
-                that.fire("hiding");
-            };
             this.animator.onEnd = function() {
                 this.splice(1, this.length - 1);
                 op.target.css("display", "none");
-                that.fire("hided");
+                that.fire("hidden");
             };
             return this.animator.start();
         }
-        return ui.PromiseEmpty;;
+        return ui.PromiseEmpty;
     }
 });

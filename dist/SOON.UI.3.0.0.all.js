@@ -7130,7 +7130,7 @@ ui.define("ui.ctrls.SidebarBase", {
         };
     },
     _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided", "resize"];
+        return ["showing", "shown", "hiding", "hidden", "resize"];
     },
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
@@ -7254,6 +7254,10 @@ ui.define("ui.ctrls.SidebarBase", {
             that = this,
             i, len;
         if(!this.isShow()) {
+            if(this.fire("showing") === false) {
+                return ui.PromiseEmpty;
+            }
+
             this.animator.stop();
             this.animator.splice(1, this.length - 1);
             this.animator.duration = this.showTimeValue;
@@ -7270,22 +7274,23 @@ ui.define("ui.ctrls.SidebarBase", {
                 }
             }
 
-            this.animator.onBegin = function() {
-                that.fire("showing");
-            };
             this.animator.onEnd = function() {
                 this.splice(1, this.length - 1);
-                that.fire("showed");
+                that.fire("shown");
             };
             return this.animator.start();
         }
-        return ui.PromiseEmpty;;
+        return ui.PromiseEmpty;
     },
     hide: function() {
         var op,
             that = this,
             i, len;
         if(this.isShow()) {
+            if(this.fire("hiding") === false) {
+                return ui.PromiseEmpty;
+            }
+
             this.animator.stop();
             this.animator.splice(1, this.length - 1);
             this.animator.duration = this.hideTimeValue;
@@ -7301,17 +7306,14 @@ ui.define("ui.ctrls.SidebarBase", {
                 }
             }
 
-            this.animator.onBegin = function() {
-                that.fire("hiding");
-            };
             this.animator.onEnd = function() {
                 this.splice(1, this.length - 1);
                 op.target.css("display", "none");
-                that.fire("hided");
+                that.fire("hidden");
             };
             return this.animator.start();
         }
-        return ui.PromiseEmpty;;
+        return ui.PromiseEmpty;
     }
 });
 
@@ -8210,7 +8212,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -8237,7 +8239,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -8264,7 +8266,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -8291,7 +8293,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -8318,7 +8320,7 @@ showStyles = {
         };
         this.openMask();
         this.animator.onEnd = function () {
-            that.onShowed();
+            that.onShown();
         };
 
         this.box.css({
@@ -8344,7 +8346,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     down: function () {
@@ -8361,7 +8363,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     left: function () {
@@ -8378,7 +8380,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     right: function () {
@@ -8395,7 +8397,7 @@ hideStyles = {
 
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
     },
     fadeout: function () {
@@ -8411,7 +8413,7 @@ hideStyles = {
         };
         this.closeMask();
         this.animator.onEnd = function () {
-            that.onHided();
+            that.onHidden();
         };
 
         this.box.css({
@@ -8461,7 +8463,7 @@ ui.define("ui.ctrls.DialogBox", {
         };
     },
     _defineEvents: function() {
-        return ["showing", "showed", "closing", "closed", "resize"];
+        return ["showing", "shown", "hiding", "hidden", "resize"];
     },
     _create: function() {
         var that;
@@ -8792,7 +8794,7 @@ ui.define("ui.ctrls.DialogBox", {
             return ui.PromiseEmpty;
         }
 
-        if(this.fire("closing") === false) {
+        if(this.fire("hiding") === false) {
             return ui.PromiseEmpty;
         }
         if(!ui.core.isFunction(hideFn)) {
@@ -8815,17 +8817,17 @@ ui.define("ui.ctrls.DialogBox", {
         return this.hide(doneFn);
     },
     /** 显示结束后处理函数，显示动画用 */
-    onShowed: function() {
-        this.fire("showed");
+    onShown: function() {
+        this.fire("shown");
     },
     /** 隐藏结束后处理函数，隐藏动画用 */
-    onHided: function() {
+    onHidden: function() {
         this.box.css("display", "none");
         if (this.maskable()) {
             $(document.body).css("overflow", this._oldBodyOverflow);
             this.mask.css("display", "none");
         }
-        this.fire("closed");
+        this.fire("hidden");
     },
     /** 显示遮罩层，显示动画用 */
     openMask: function() {
@@ -22708,7 +22710,7 @@ ui.define("ui.ctrls.ExtendButton", {
         };
     },
     _defineEvents: function() {
-        return ["showing", "showed", "hiding", "hided"];
+        return ["showing", "shown", "hiding", "hidden"];
     },
     _create: function() {
         this.parent = ui.getJQueryElement(this.option.parent);
@@ -23054,7 +23056,7 @@ ui.define("ui.ctrls.ExtendButton", {
             this.buttonAnimator.delayHandler = setTimeout(function() {
                 that.buttonAnimator.delayHandler = null;
                 that.buttonAnimator.start().then(function() {
-                    that.fire("showed");
+                    that.fire("shown");
                 });
             }, 100);
         }
@@ -23079,7 +23081,7 @@ ui.define("ui.ctrls.ExtendButton", {
                 that.buttonPanelAnimator.delayHandler = null;
                 that.buttonPanelAnimator.start().then(function() {
                     that.buttonPanel.css("display", "none");
-                    that.fire("hided");
+                    that.fire("hidden");
                 });
             }, 100);
         }
@@ -23434,7 +23436,7 @@ ui.define("ui.ctrls.HoverView", {
         };
     },
     _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided"];
+        return ["showing", "shown", "hiding", "hidden"];
     },
     _create: function () {
         this.viewPanel = $("<div class='hover-view-panel border-highlight' />");
@@ -23466,7 +23468,7 @@ ui.define("ui.ctrls.HoverView", {
         this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
         this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
     },
-    empty: function () {
+    clear: function () {
         this.viewPanel.empty();
         return this;
     },
@@ -23540,7 +23542,7 @@ ui.define("ui.ctrls.HoverView", {
         var func = function () {
             view.animating = false;
             view.addDocMousemove();
-            view.fire("showed");
+            view.fire("shown");
         };
         this.viewPanel.animate(css, 240, func);
     },
@@ -23555,7 +23557,7 @@ ui.define("ui.ctrls.HoverView", {
         var func = function () {
             view.isShow = false;
             view.viewPanel.css("display", "none");
-            view.fire("hided");
+            view.fire("hidden");
         };
         var css = {
             "opacity": 0,
@@ -24344,12 +24346,12 @@ ui.define("ui.ctrls.ImagePreview", {
             this._moveChooserQueue(index);
         }
     },
-    empty: function() {
+    clear: function() {
         this.items = [];
         this.chooserQueue.empty();
         
         if(this.imageViewer) {
-            this.imageViewer.empty();
+            this.imageViewer.clear();
         }
     },
     setImages: function(images) {
@@ -24357,7 +24359,7 @@ ui.define("ui.ctrls.ImagePreview", {
         if(!Array.isArray(images) || images.length === 0) {
             return;
         }
-        this.empty();
+        this.clear();
         
         this.option.images = images;
         if(!this.imageViewer) {
@@ -24553,7 +24555,7 @@ ui.define("ui.ctrls.ImageViewer", {
         if(arguments.length === 0) {
             return;
         }
-        this.empty();
+        this.clear();
         var images = [],
             i = 0,
             len = arguments.length,
@@ -24762,7 +24764,7 @@ ui.define("ui.ctrls.ImageViewer", {
             this.showImage(0);
         }
     },
-    empty: function() {
+    clear: function() {
         this.images = [];
         this.currentIndex = -1;
         this.viewAnimator.stop();

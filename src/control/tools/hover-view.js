@@ -98,7 +98,7 @@ ui.define("ui.ctrls.HoverView", {
         };
     },
     _defineEvents: function () {
-        return ["showing", "showed", "hiding", "hided"];
+        return ["showing", "shown", "hiding", "hidden"];
     },
     _create: function () {
         this.viewPanel = $("<div class='hover-view-panel border-highlight' />");
@@ -130,7 +130,7 @@ ui.define("ui.ctrls.HoverView", {
         this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
         this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
     },
-    empty: function () {
+    clear: function () {
         this.viewPanel.empty();
         return this;
     },
@@ -204,7 +204,7 @@ ui.define("ui.ctrls.HoverView", {
         var func = function () {
             view.animating = false;
             view.addDocMousemove();
-            view.fire("showed");
+            view.fire("shown");
         };
         this.viewPanel.animate(css, 240, func);
     },
@@ -219,7 +219,7 @@ ui.define("ui.ctrls.HoverView", {
         var func = function () {
             view.isShow = false;
             view.viewPanel.css("display", "none");
-            view.fire("hided");
+            view.fire("hidden");
         };
         var css = {
             "opacity": 0,
