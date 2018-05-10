@@ -1,5 +1,5 @@
 /* 扩展按钮 */
-ui.define("ui.ctrls.ExtendButton", {
+ui.ctrls.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
         return {
             buttonSize: 32,

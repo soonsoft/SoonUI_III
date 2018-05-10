@@ -1,5 +1,5 @@
 //图片局部放大查看器
-ui.define("ui.ctrls.ImageWatcher", {
+ui.ctrls.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
         return {
             position: "right",

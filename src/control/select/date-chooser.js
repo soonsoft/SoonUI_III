@@ -352,7 +352,7 @@ function onTimeTextinput(e) {
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
-ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 日期格式化样式

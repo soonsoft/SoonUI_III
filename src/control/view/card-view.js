@@ -101,7 +101,7 @@ function onBodyClick(e) {
     this._selectItem(elem);
 }
 
-ui.define("ui.ctrls.CardView", {
+ui.ctrls.define("ui.ctrls.CardView", {
     _defineOption: function() {
         return {
             // 视图数据

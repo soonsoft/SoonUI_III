@@ -27,7 +27,7 @@ function onButtonClick(e) {
     }
 }
 
-ui.define("ui.ctrls.ConfirmButton", {
+ui.ctrls.define("ui.ctrls.ConfirmButton", {
     _defineOption: function () {
         return {
             disabled: false,

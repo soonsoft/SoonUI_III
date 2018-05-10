@@ -335,7 +335,7 @@ Tab.prototype = {
     }
 };
 
-ui.define("ctrls.TabView", {
+ui.ctrls.define("ctrls.TabView", {
     _defineOption: function() {
         return {
             /*

@@ -144,7 +144,7 @@ function onTreeFoldLazyClick(e) {
     }
 }
 
-ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 是否支持多选

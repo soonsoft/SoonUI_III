@@ -3,7 +3,7 @@
  * 树形列表
  */
 
-ui.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
+ui.ctrls.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
     _render: function() {
         var position;
 

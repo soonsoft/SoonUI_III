@@ -70,7 +70,7 @@ function calculatePercent(location, min, max) {
     return percent;
 }
 
-ui.define("ui.ctrls.Slidebar", {
+ui.ctrls.define("ui.ctrls.Slidebar", {
     _defineOption: function() {
         return {
             // 方向 横向 horizontal | 纵向 vertical

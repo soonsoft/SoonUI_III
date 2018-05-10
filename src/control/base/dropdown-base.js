@@ -82,7 +82,7 @@ function onClick(e) {
 }
 
 // 下拉框基础类
-ui.define("ui.ctrls.DropDownBase", {
+ui.ctrls.define("ui.ctrls.DropDownBase", {
     showTimeValue: 200,
     hideTimeValue: 200,
     _create: function() {

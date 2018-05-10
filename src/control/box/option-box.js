@@ -2,7 +2,7 @@
 var contentTop = 40,
     buttonTop = 0,
     operatePanelHeight = 0;
-ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
+ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _defineOption: function() {
         return {
             title: "",

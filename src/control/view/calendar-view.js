@@ -2548,7 +2548,7 @@ viewTypes = {
     "WEEKVIEW": WeekView,
     "DAYVIEW": DayView
 };
-ui.define("ui.ctrls.CalendarView", {
+ui.ctrls.define("ui.ctrls.CalendarView", {
     _defineOption: function() {
         return {
             // 要包含的日历视图，YearView: 年视图, MonthView: 月视图, WeekView: 周视图, DayView: 天视图

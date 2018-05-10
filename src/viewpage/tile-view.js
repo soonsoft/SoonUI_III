@@ -15,7 +15,7 @@ var tileMargin = 4,
     titleHeight = 24,
     edgeDistance = 48,
     groupTitleHeight = 48;
-var defineProperty = ui.ctrls.CtrlBase.prototype.defineProperty,
+var defineProperty = ui.ctrls.ControlBase.prototype.defineProperty,
     tileInfoProperties = ["name", "title", "icon", "link", "color"],
     tileUpdater;
 

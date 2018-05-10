@@ -90,6 +90,7 @@ ui.param = function(obj) {
 };
 
 /** 对象扩展 param[0]: deep, param[1]: target param[2]... */
+// TODO Object.assign
 ui.extend = function() {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},

@@ -331,7 +331,7 @@ function onCheckboxAllClick(e) {
 }
 
 
-ui.define("ui.ctrls.GridView", {
+ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
         return {
             /*

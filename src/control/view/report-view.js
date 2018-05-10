@@ -430,7 +430,7 @@ function onTableDataBodyClick(e) {
     this._selectItem(elem, selectedClass);
 }
 
-ui.define("ui.ctrls.ReportView", {
+ui.ctrls.define("ui.ctrls.ReportView", {
     _defineOption: function() {
         return {
                 /*

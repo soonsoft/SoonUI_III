@@ -89,7 +89,7 @@ function onDocumentMousemove (e) {
 }
 
 
-ui.define("ui.ctrls.HoverView", {
+ui.ctrls.define("ui.ctrls.HoverView", {
     buffer: 30,
     _defineOption: function () {
         return {

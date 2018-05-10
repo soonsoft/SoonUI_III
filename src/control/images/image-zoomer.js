@@ -30,7 +30,7 @@ function loadImageSize(src) {
 }
 
 //图片放大器
-ui.define("ui.ctrls.ImageZoomer", {
+ui.ctrls.define("ui.ctrls.ImageZoomer", {
     _defineOption: function () {
         return {
             parentContent: $(document.body),

@@ -105,7 +105,7 @@ marshmallowStyle = {
     thumbSize: 24
 };
 
-ui.define("ui.ctrls.SwitchButton", {
+ui.ctrls.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
             width: 44,

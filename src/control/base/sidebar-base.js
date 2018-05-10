@@ -1,5 +1,5 @@
 //侧滑面板基类
-ui.define("ui.ctrls.SidebarBase", {
+ui.ctrls.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
     _defineOption: function() {

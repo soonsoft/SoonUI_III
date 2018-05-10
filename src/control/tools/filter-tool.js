@@ -14,7 +14,7 @@ function onItemClick (e) {
     this._selectItem(elem);
 }
 
-ui.define("ui.ctrls.FilterTool", {
+ui.ctrls.define("ui.ctrls.FilterTool", {
     _defineOption: function () {
         //data item is { text: "", value: "" }
         return {

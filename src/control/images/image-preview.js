@@ -20,7 +20,7 @@ function onChooserItemClick(e) {
     this.imageViewer.showImage(index);
 }
 
-ui.define("ui.ctrls.ImagePreview", {
+ui.ctrls.define("ui.ctrls.ImagePreview", {
     _defineOption: function () {
         return {
             chooserButtonSize: 16,

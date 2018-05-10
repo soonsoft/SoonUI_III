@@ -40,7 +40,7 @@ function onListItemClick(e) {
     }
 }
 
-ui.define("ui.ctrls.ListView", {
+ui.ctrls.define("ui.ctrls.ListView", {
     _defineOption: function() {
         return {
             // 支持多选

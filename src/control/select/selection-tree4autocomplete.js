@@ -64,7 +64,7 @@ function onTextinput(e) {
 }
 
 
-ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
+ui.ctrls.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
     _create: function() {
         // 只支持单选
         this.option.multiple = false;

@@ -248,7 +248,7 @@ function onMousewheel(e) {
     return false; 
 }
 
-ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 选择器类型，支持yearMonth, time, hourMinute，也可以自定义

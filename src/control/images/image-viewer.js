@@ -1,5 +1,5 @@
 //图片轮播视图
-ui.define("ui.ctrls.ImageViewer", {
+ui.ctrls.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
         return {
             //是否显示切换
