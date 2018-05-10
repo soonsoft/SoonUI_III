@@ -6,8 +6,13 @@
   "author": {
     "name": "周松",
     "email": "soonz@outlook.com",
+    "url": "https://github.com/soonsoft"
+  },
+  "repository": {
+    "type" : "git",
     "url": "https://github.com/soonsoft/SoonUI_III"
   },
+  "license": "Apache-2.0",
   "devDependencies": {
     "grunt": "^1.0.2",
     "grunt-contrib-clean": "^1.1.0",
