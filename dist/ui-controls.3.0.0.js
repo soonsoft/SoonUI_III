@@ -1,3 +1,141 @@
+// Source: src/control/base/control-define.js
+
+(function($, ui) {
+
+// 创建命名空间
+ui.ctrls = {};
+function noop() {}
+// 创建控件基础类
+ui.define("ui.ctrls.ControlBase", {
+    version: ui.version,
+    i18n: function(key) {
+        // TODO: 实现根据key获取对应的本地化文本
+    },
+    _initialize: function(option, element) {
+        var events,
+            prototypeOption,
+            prototypeEvents;
+
+        this.document = document;
+        this.window = window;
+        this.element = element || null;
+
+        // 配置项初始化 deep copy
+        if(this.constructor && this.constructor.prototype) {
+            prototypeOption = this.constructor.prototype.option;
+            prototypeEvents = this.constructor.prototype.events;
+        }
+        this.option = ui.extend(true, {}, prototypeOption, this._defineOption(), option) || {};
+        // 事件初始化
+        events = mergeEvents(prototypeEvents, this._defineEvents());
+        if(events.length > 0) {
+            this.eventDispatcher = new ui.CustomEvent(this);
+            this.eventDispatcher.initEvents(events);
+        }
+
+        this._create();
+        this._render();
+        return this;
+    },
+    _defineOption: noop,
+    _defineEvents: noop,
+    _create: noop,
+    _render: noop,
+    /** 提供属性声明方法，用于创建属性 */
+    defineProperty: function(propertyName, getter, setter) {
+        var definePropertyFn,
+            config = {};
+
+        if(!ui.core.isString(propertyName) || propertyName.length === 0) {
+            throw new TypeError("参数propertyName只能是String类型并且不能为空");
+        }
+
+        if(typeof Reflect !== "undefined" && ui.core.isFunction(Reflect.defineProperty)) {
+            definePropertyFn = Reflect.defineProperty;
+        } else if(ui.core.isFunction(Object.defineProperty)) {
+            definePropertyFn = Object.defineProperty;
+        } else {
+            return;
+        }
+
+        if(ui.core.isFunction(getter)) {
+            config.get = getter.bind(this);
+        }
+        if(ui.core.isFunction(setter)) {
+            config.set = setter.bind(this);
+        }
+
+        config.enumerable = false;
+        config.configurable = false;
+        definePropertyFn(this, propertyName, config);
+    },
+    /** 默认的toString方法实现，返回类名 */
+    toString: function() {
+        return this.fullName;
+    }
+});
+
+function mergeEvents() {
+    var temp,
+        events,
+        i, len;
+
+    temp = {};
+    for(i = 0, len = arguments.length; i < len; i++) {
+        events = arguments[i];
+        if(Array.isArray(events)) {
+            events.forEach(function(e) {
+                if(!temp.hasOwnProperty(e)) {
+                    temp[e] = true;
+                }
+            });
+        }
+    }
+
+    return Object.keys(temp);
+}
+
+function define(name, base, prototype) {
+    var index,
+        constructor,
+        basePrototype,
+        events;
+
+    if(!ui.core.isString(name) || name.length === 0) {
+        return null;
+    }
+
+    index = name.indexOf(".");
+    if(index < 0) {
+        name = "ui.ctrls." + name;
+    } else {
+        if(name.substring(0, index) !== "ui") {
+            name = "ui." + name;
+        }
+    }
+
+    if(!prototype) {
+        prototype = base;
+        base = ui.ctrls.ControlBase;
+    }
+
+    constructor = ui.define(name, base, prototype);
+
+    basePrototype = ui.core.isFunction(base) ? base.prototype : base;
+    if(ui.core.isFunction(basePrototype._defineOption)) {
+        constructor.prototype.option = ui.extend(true, {}, basePrototype.option, basePrototype._defineOption());
+    }
+    if(ui.core.isFunction(basePrototype._defineEvents)) {
+        constructor.prototype.events = mergeEvents(basePrototype._defineEvents(), basePrototype.events);
+    }
+
+    return constructor;
+}
+
+ui.ctrls.define = define;
+
+})(jQuery, ui);
+
 // Source: src/control/base/dropdown-base.js
 
 (function($, ui) {
@@ -85,7 +223,7 @@ function onClick(e) {
 }
 
 // 下拉框基础类
-ui.define("ui.ctrls.DropDownBase", {
+ui.ctrls.define("ui.ctrls.DropDownBase", {
     showTimeValue: 200,
     hideTimeValue: 200,
     _create: function() {
@@ -301,7 +439,7 @@ ui.define("ui.ctrls.DropDownBase", {
 
 (function($, ui) {
 //侧滑面板基类
-ui.define("ui.ctrls.SidebarBase", {
+ui.ctrls.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
     hideTimeValue: 300,
     _defineOption: function() {
@@ -1604,7 +1742,7 @@ hideStyles = {
     }
 };
 
-ui.define("ui.ctrls.DialogBox", {
+ui.ctrls.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
             // 标题 { text: String 标题文字, hasHr: false 是否显示分隔符, style: 标题样式 }
@@ -2393,7 +2531,7 @@ ui.failedShow = function(text) {
 var contentTop = 40,
     buttonTop = 0,
     operatePanelHeight = 0;
-ui.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
+ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _defineOption: function() {
         return {
             title: "",
@@ -2762,7 +2900,7 @@ function onMousewheel(e) {
     return false; 
 }
 
-ui.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 选择器类型，支持yearMonth, time, hourMinute，也可以自定义
@@ -3956,7 +4094,7 @@ function onTimeTextinput(e) {
         new Date(this._selYear, this._selMonth, this._selDay, h, m, s));
 }
 
-ui.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 日期格式化样式
@@ -5119,7 +5257,7 @@ function onItemClick(e) {
     this._selectItem(elem);
 }
 
-ui.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 是否支持多选
@@ -5599,7 +5737,7 @@ function onTreeFoldLazyClick(e) {
     }
 }
 
-ui.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
+ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _defineOption: function() {
         return {
             // 是否支持多选
@@ -6349,7 +6487,7 @@ function onTextinput(e) {
 }
 
 
-ui.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
+ui.ctrls.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
     _create: function() {
         // 只支持单选
         this.option.multiple = false;
@@ -9115,7 +9253,7 @@ viewTypes = {
     "WEEKVIEW": WeekView,
     "DAYVIEW": DayView
 };
-ui.define("ui.ctrls.CalendarView", {
+ui.ctrls.define("ui.ctrls.CalendarView", {
     _defineOption: function() {
         return {
             // 要包含的日历视图，YearView: 年视图, MonthView: 月视图, WeekView: 周视图, DayView: 天视图
@@ -9764,7 +9902,7 @@ function onBodyClick(e) {
     this._selectItem(elem);
 }
 
-ui.define("ui.ctrls.CardView", {
+ui.ctrls.define("ui.ctrls.CardView", {
     _defineOption: function() {
         return {
             // 视图数据
@@ -11657,7 +11795,7 @@ function onCheckboxAllClick(e) {
 }
 
 
-ui.define("ui.ctrls.GridView", {
+ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
         return {
             /*
@@ -12681,7 +12819,7 @@ function onListItemClick(e) {
     }
 }
 
-ui.define("ui.ctrls.ListView", {
+ui.ctrls.define("ui.ctrls.ListView", {
     _defineOption: function() {
         return {
             // 支持多选
@@ -13712,7 +13850,7 @@ function onTableDataBodyClick(e) {
     this._selectItem(elem, selectedClass);
 }
 
-ui.define("ui.ctrls.ReportView", {
+ui.ctrls.define("ui.ctrls.ReportView", {
     _defineOption: function() {
         return {
                 /*
@@ -15416,7 +15554,7 @@ Tab.prototype = {
     }
 };
 
-ui.define("ctrls.TabView", {
+ui.ctrls.define("ctrls.TabView", {
     _defineOption: function() {
         return {
             /*
@@ -15643,7 +15781,7 @@ ui.ctrls.TabView.TabManager = TabManager;
  * 树形列表
  */
 
-ui.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
+ui.ctrls.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
     _render: function() {
         var position;
 
@@ -15704,7 +15842,7 @@ function onButtonClick(e) {
     }
 }
 
-ui.define("ui.ctrls.ConfirmButton", {
+ui.ctrls.define("ui.ctrls.ConfirmButton", {
     _defineOption: function () {
         return {
             disabled: false,
@@ -15879,7 +16017,7 @@ $.fn.confirmClick = function(option) {
 
 (function($, ui) {
 /* 扩展按钮 */
-ui.define("ui.ctrls.ExtendButton", {
+ui.ctrls.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
         return {
             buttonSize: 32,
@@ -16298,7 +16436,7 @@ function onItemClick (e) {
     this._selectItem(elem);
 }
 
-ui.define("ui.ctrls.FilterTool", {
+ui.ctrls.define("ui.ctrls.FilterTool", {
     _defineOption: function () {
         //data item is { text: "", value: "" }
         return {
@@ -16608,7 +16746,7 @@ function onDocumentMousemove (e) {
 }
 
 
-ui.define("ui.ctrls.HoverView", {
+ui.ctrls.define("ui.ctrls.HoverView", {
     buffer: 30,
     _defineOption: function () {
         return {
@@ -16840,7 +16978,7 @@ function calculatePercent(location, min, max) {
     return percent;
 }
 
-ui.define("ui.ctrls.Slidebar", {
+ui.ctrls.define("ui.ctrls.Slidebar", {
     _defineOption: function() {
         return {
             // 方向 横向 horizontal | 纵向 vertical
@@ -17124,7 +17262,7 @@ marshmallowStyle = {
     thumbSize: 24
 };
 
-ui.define("ui.ctrls.SwitchButton", {
+ui.ctrls.define("ui.ctrls.SwitchButton", {
     _defineOption: function() {
         return {
             width: 44,
@@ -17305,7 +17443,7 @@ function onChooserItemClick(e) {
     this.imageViewer.showImage(index);
 }
 
-ui.define("ui.ctrls.ImagePreview", {
+ui.ctrls.define("ui.ctrls.ImagePreview", {
     _defineOption: function () {
         return {
             chooserButtonSize: 16,
@@ -17649,7 +17787,7 @@ $.fn.imagePreview = function(option) {
 
 (function($, ui) {
 //图片轮播视图
-ui.define("ui.ctrls.ImageViewer", {
+ui.ctrls.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
         return {
             //是否显示切换
@@ -17973,7 +18111,7 @@ $.fn.imageViewer = function(option) {
 
 (function($, ui) {
 //图片局部放大查看器
-ui.define("ui.ctrls.ImageWatcher", {
+ui.ctrls.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
         return {
             position: "right",
@@ -18168,7 +18306,7 @@ function loadImageSize(src) {
 }
 
 //图片放大器
-ui.define("ui.ctrls.ImageZoomer", {
+ui.ctrls.define("ui.ctrls.ImageZoomer", {
     _defineOption: function () {
         return {
             parentContent: $(document.body),
