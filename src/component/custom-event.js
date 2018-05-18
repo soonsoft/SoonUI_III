@@ -5,17 +5,28 @@ function CustomEvent (target) {
 }
 CustomEvent.prototype = {
     constructor: CustomEvent,
-    addEventListener: function (type, callback, scope, priority) {
-        if (isFinite(scope)) {
-            priority = scope;
-            scope = null;
+    addEventListener: function (type, data, callback, priority) {
+        var list, 
+            listener, 
+            index, i;
+
+        if (ui.core.isNumeric(callback) && isFinite(callback)) {
+            priority = callback;
+            callback = null;
         }
-        priority = priority || 0;
-        var list = this._listeners[type], index = 0, listener, i;
+        if(ui.core.isFunction(data)) {
+            callback = data;
+            data = null;
+        }
+
+        list = this._listeners[type];
         if (!list) {
             this._listeners[type] = list = [];
         }
+
         i = list.length;
+        index = 0;
+        priority = priority || 0;
         while (--i > -1) {
             listener = list[i];
             if (listener.callback === callback) {
@@ -24,9 +35,10 @@ CustomEvent.prototype = {
                 index = i + 1;
             }
         }
+
         list.splice(index, 0, {
             callback: callback,
-            scope: scope,
+            data: data,
             priority: priority
         });
     },
@@ -43,19 +55,20 @@ CustomEvent.prototype = {
         }
     },
     dispatchEvent: function (type) {
-        var list = this._listeners[type];
+        var list = this._listeners[type],
+            target, args, i,
+            listener,
+            result;
         if (list && list.length > 0) {
-            var target = this._eventTarget,
-                args = Array.apply([], arguments),
-                i = list.length,
-                listener;
-            var result;
+            target = this._eventTarget;
+            args = Array.apply([], arguments);
+            i = list.length;
             while (--i > -1) {
                 listener = list[i];
-                target = listener.scope || target;
                 args[0] = {
                     type: type,
-                    target: target
+                    target: target,
+                    data: listener.data
                 };
                 result = listener.callback.apply(target, args);
             }
@@ -67,6 +80,8 @@ CustomEvent.prototype = {
         return list && list.length > 0;
     },
     initEvents: function (events, target) {
+        var that = this;
+
         if (!target) {
             target = this._eventTarget;
         }
@@ -77,9 +92,8 @@ CustomEvent.prototype = {
             return;
         }
 
-        var that = this;
-        target.on = function (type, callback, scope, priority) {
-            that.addEventListener(type, callback, scope, priority);
+        target.on = function (type, data, callback, priority) {
+            that.addEventListener(type, data, callback, priority);
         };
         target.off = function (type, callback) {
             that.removeEventListener(type, callback);
@@ -89,19 +103,15 @@ CustomEvent.prototype = {
             return that.dispatchEvent.apply(that, args);
         };
 
-        var i = 0, 
-            len = events.length, 
-            eventName;
-        for (; i < len; i++) {
-            eventName = events[i];
-            target[eventName] = this._createEventFunction(eventName, target);
-        }
+        events.forEach(function(eventName) {
+            target[eventName] = that._createEventFunction(eventName, target);
+        });
     },
     _createEventFunction: function (type, target) {
         var eventName = type;
-        return function (callback, scope, priority) {
+        return function (data, callback, priority) {
             if (arguments.length > 0) {
-                target.on(eventName, callback, scope, priority);
+                target.on(eventName, data, callback, priority);
             }
         };
     }

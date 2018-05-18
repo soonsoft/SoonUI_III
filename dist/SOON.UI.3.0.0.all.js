@@ -1695,8 +1695,7 @@ ArrayFaker.prototype = {
     find: arrayInstance.find,
     findIndex: arrayInstance.findIndex,
     fill: arrayInstance.fill,
-    includes: arrayInstance.includes,
-    constructor: ui.ArrayFaker
+    includes: arrayInstance.includes
 };
 
 ui.ArrayFaker = ArrayFaker;
@@ -1748,10 +1747,11 @@ KeyArray.prototype.initialize = function() {
     ui.ArrayFaker.apply(this);
     this._keys = {};
 };
-// 判断是否存在key
+/** 判断是否存在key */
 KeyArray.prototype.containsKey = function (key) {
     return this._keys.hasOwnProperty(key);
 };
+/** 判断是否存在value */
 KeyArray.prototype.containsValue = function(value) {
     var i, len = this.length;
     for(i = 0; i < len; i++) {
@@ -1761,6 +1761,7 @@ KeyArray.prototype.containsValue = function(value) {
     }
     return false;
 };
+/** 设置值，如果没有则添加 */
 KeyArray.prototype.set = function (key, value) {
     if (typeof key !== "string") {
         throw new TypeError("the key must be string");
@@ -1772,6 +1773,7 @@ KeyArray.prototype.set = function (key, value) {
         this._keys[key] = this.length - 1;
     }
 };
+/** 根据key获取value */
 KeyArray.prototype.get = function (key) {
     if (this.containsKey(key)) {
         return this[this._keys[key]];
@@ -1779,6 +1781,7 @@ KeyArray.prototype.get = function (key) {
         return null;
     }
 };
+/** 根据key移除value */
 KeyArray.prototype.remove = function (key) {
     var index;
     if (this.containsKey(key)) {
@@ -1788,6 +1791,7 @@ KeyArray.prototype.remove = function (key) {
         delete this._keys[key];
     }
 };
+/** 根据索引移除value */
 KeyArray.prototype.removeAt = function (index) {
     var key, flag, k;
     if (index >= 0 && index < this.length) {
@@ -1806,6 +1810,11 @@ KeyArray.prototype.removeAt = function (index) {
         arrayInstance.splice.apply(this, [index, 1]);
     }
 };
+/** 枚举所有的key值并用数组返回 */
+KeyArray.prototype.keys = function() {
+    return Object.keys(this._keys);
+};
+/** 清空 */
 KeyArray.prototype.clear = function () {
     arrayInstance.splice.apply(this, [0, this.length]);
     this._keys = {};
@@ -5003,17 +5012,28 @@ function CustomEvent (target) {
 }
 CustomEvent.prototype = {
     constructor: CustomEvent,
-    addEventListener: function (type, callback, scope, priority) {
-        if (isFinite(scope)) {
-            priority = scope;
-            scope = null;
+    addEventListener: function (type, data, callback, priority) {
+        var list, 
+            listener, 
+            index, i;
+
+        if (ui.core.isNumeric(callback) && isFinite(callback)) {
+            priority = callback;
+            callback = null;
         }
-        priority = priority || 0;
-        var list = this._listeners[type], index = 0, listener, i;
+        if(ui.core.isFunction(data)) {
+            callback = data;
+            data = null;
+        }
+
+        list = this._listeners[type];
         if (!list) {
             this._listeners[type] = list = [];
         }
+
         i = list.length;
+        index = 0;
+        priority = priority || 0;
         while (--i > -1) {
             listener = list[i];
             if (listener.callback === callback) {
@@ -5022,9 +5042,10 @@ CustomEvent.prototype = {
                 index = i + 1;
             }
         }
+
         list.splice(index, 0, {
             callback: callback,
-            scope: scope,
+            data: data,
             priority: priority
         });
     },
@@ -5041,19 +5062,20 @@ CustomEvent.prototype = {
         }
     },
     dispatchEvent: function (type) {
-        var list = this._listeners[type];
+        var list = this._listeners[type],
+            target, args, i,
+            listener,
+            result;
         if (list && list.length > 0) {
-            var target = this._eventTarget,
-                args = Array.apply([], arguments),
-                i = list.length,
-                listener;
-            var result;
+            target = this._eventTarget;
+            args = Array.apply([], arguments);
+            i = list.length;
             while (--i > -1) {
                 listener = list[i];
-                target = listener.scope || target;
                 args[0] = {
                     type: type,
-                    target: target
+                    target: target,
+                    data: listener.data
                 };
                 result = listener.callback.apply(target, args);
             }
@@ -5065,6 +5087,8 @@ CustomEvent.prototype = {
         return list && list.length > 0;
     },
     initEvents: function (events, target) {
+        var that = this;
+
         if (!target) {
             target = this._eventTarget;
         }
@@ -5075,9 +5099,8 @@ CustomEvent.prototype = {
             return;
         }
 
-        var that = this;
-        target.on = function (type, callback, scope, priority) {
-            that.addEventListener(type, callback, scope, priority);
+        target.on = function (type, data, callback, priority) {
+            that.addEventListener(type, data, callback, priority);
         };
         target.off = function (type, callback) {
             that.removeEventListener(type, callback);
@@ -5087,19 +5110,15 @@ CustomEvent.prototype = {
             return that.dispatchEvent.apply(that, args);
         };
 
-        var i = 0, 
-            len = events.length, 
-            eventName;
-        for (; i < len; i++) {
-            eventName = events[i];
-            target[eventName] = this._createEventFunction(eventName, target);
-        }
+        events.forEach(function(eventName) {
+            target[eventName] = that._createEventFunction(eventName, target);
+        });
     },
     _createEventFunction: function (type, target) {
         var eventName = type;
-        return function (callback, scope, priority) {
+        return function (data, callback, priority) {
             if (arguments.length > 0) {
-                target.on(eventName, callback, scope, priority);
+                target.on(eventName, data, callback, priority);
             }
         };
     }
@@ -24777,7 +24796,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
         this.currentView.append("<img class='image-view-img' />");
         this.nextView.append("<img class='image-view-img' />");
-        this.closeButton = $("<a class='close-button font-highlight-hover' href='javascript:void(0)'>×</a>");
+        this.closeButton = $("<a class='closable-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
         this.closeButton.click(function () {
             that.hide();
@@ -25348,7 +25367,7 @@ function initMenu() {
     if(this.menuConfig) {
         this.menu = ui.ctrls.Menu(this.menuConfig);
         that = this;
-        this.menu.showed(function(e) {
+        this.menu.shown(function(e) {
             if(this.isExtrusion()) {
                 if(this.isModern()) {
                     that.contentBodyWidth -= this.menuWidth - this.menuNarrowWidth;
@@ -25357,7 +25376,7 @@ function initMenu() {
                 }
             }
         });
-        this.menu.hided(function(e) {
+        this.menu.hidden(function(e) {
             if(this.isExtrusion()) {
                 if(this.isModern()) {
                     that.contentBodyWidth += this.menuWidth - this.menuNarrowWidth;
@@ -25550,7 +25569,7 @@ function userSettings() {
     sidebar.showing(function() {
         sidebarElement.css("display", "none");
     });
-    sidebar.showed(function() {
+    sidebar.shown(function() {
         sidebarElement.css({
             "display": "block",
             "left": "100%"
@@ -25764,7 +25783,7 @@ normalStyle = {
         animator.start().then(function () {
             that.hideState = false;
             if(animator.length === 1) {
-                that.fire("showed");
+                that.fire("shown");
             }
         });
     },
@@ -25805,7 +25824,7 @@ normalStyle = {
         animator.start().then(function () {
             that.hideState = true;
             if(animator.length === 1) {
-                that.fire("hided");
+                that.fire("hidden");
             }
         });
     },
@@ -25917,7 +25936,7 @@ normalStyle = {
                 });
             }
             this.option.menuPanel.css("left", "0");
-            this.fire("showed");
+            this.fire("shown");
         } else {
             //隐藏菜单
             if(this.isExtrusion()) {
@@ -25929,7 +25948,7 @@ normalStyle = {
             this.option.menuPanel.css({
                 "left": -this.menuWidth + "px"
             });
-            this.fire("hided");
+            this.fire("hidden");
         }
     }
 };
@@ -26078,7 +26097,7 @@ modernStyle = {
             }
             this.option.menuPanel.removeClass("ui-menu-panel-narrow");
             this.option.menuPanel.css("width", this.menuWidth + "px");
-            this.fire("showed");
+            this.fire("shown");
         } else {
             //收缩菜单
             if(this.isExtrusion()) {
@@ -26089,7 +26108,7 @@ modernStyle = {
             }
             this.option.menuPanel.addClass("ui-menu-panel-narrow");
             this.option.menuPanel.css("width", this.menuNarrowWidth + "px");
-            this.fire("hided");
+            this.fire("hidden");
         }
     },
     // 设置子菜单列表
@@ -26234,7 +26253,7 @@ function onMenuItemModernClick(e) {
     }
 }
 
-ui.define("ui.ctrls.Menu", {
+ui.ctrls.define("ui.ctrls.Menu", {
     _defineOption: function() {
         return {
             // 菜单样式，普通: normal | 现代: modern
@@ -26256,7 +26275,7 @@ ui.define("ui.ctrls.Menu", {
         };
     },
     _defineEvents: function() {
-        return ["showed", "hided"];
+        return ["shown", "hidden"];
     },
     _create: function() {
         var style,

@@ -39,10 +39,11 @@ KeyArray.prototype.initialize = function() {
     ui.ArrayFaker.apply(this);
     this._keys = {};
 };
-// 判断是否存在key
+/** 判断是否存在key */
 KeyArray.prototype.containsKey = function (key) {
     return this._keys.hasOwnProperty(key);
 };
+/** 判断是否存在value */
 KeyArray.prototype.containsValue = function(value) {
     var i, len = this.length;
     for(i = 0; i < len; i++) {
@@ -52,6 +53,7 @@ KeyArray.prototype.containsValue = function(value) {
     }
     return false;
 };
+/** 设置值，如果没有则添加 */
 KeyArray.prototype.set = function (key, value) {
     if (typeof key !== "string") {
         throw new TypeError("the key must be string");
@@ -63,6 +65,7 @@ KeyArray.prototype.set = function (key, value) {
         this._keys[key] = this.length - 1;
     }
 };
+/** 根据key获取value */
 KeyArray.prototype.get = function (key) {
     if (this.containsKey(key)) {
         return this[this._keys[key]];
@@ -70,6 +73,7 @@ KeyArray.prototype.get = function (key) {
         return null;
     }
 };
+/** 根据key移除value */
 KeyArray.prototype.remove = function (key) {
     var index;
     if (this.containsKey(key)) {
@@ -79,6 +83,7 @@ KeyArray.prototype.remove = function (key) {
         delete this._keys[key];
     }
 };
+/** 根据索引移除value */
 KeyArray.prototype.removeAt = function (index) {
     var key, flag, k;
     if (index >= 0 && index < this.length) {
@@ -97,6 +102,11 @@ KeyArray.prototype.removeAt = function (index) {
         arrayInstance.splice.apply(this, [index, 1]);
     }
 };
+/** 枚举所有的key值并用数组返回 */
+KeyArray.prototype.keys = function() {
+    return Object.keys(this._keys);
+};
+/** 清空 */
 KeyArray.prototype.clear = function () {
     arrayInstance.splice.apply(this, [0, this.length]);
     this._keys = {};

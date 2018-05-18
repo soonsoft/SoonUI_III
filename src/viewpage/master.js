@@ -25,7 +25,7 @@ function initMenu() {
     if(this.menuConfig) {
         this.menu = ui.ctrls.Menu(this.menuConfig);
         that = this;
-        this.menu.showed(function(e) {
+        this.menu.shown(function(e) {
             if(this.isExtrusion()) {
                 if(this.isModern()) {
                     that.contentBodyWidth -= this.menuWidth - this.menuNarrowWidth;
@@ -34,7 +34,7 @@ function initMenu() {
                 }
             }
         });
-        this.menu.hided(function(e) {
+        this.menu.hidden(function(e) {
             if(this.isExtrusion()) {
                 if(this.isModern()) {
                     that.contentBodyWidth += this.menuWidth - this.menuNarrowWidth;
@@ -227,7 +227,7 @@ function userSettings() {
     sidebar.showing(function() {
         sidebarElement.css("display", "none");
     });
-    sidebar.showed(function() {
+    sidebar.shown(function() {
         sidebarElement.css({
             "display": "block",
             "left": "100%"

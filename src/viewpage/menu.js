@@ -44,7 +44,7 @@ normalStyle = {
         animator.start().then(function () {
             that.hideState = false;
             if(animator.length === 1) {
-                that.fire("showed");
+                that.fire("shown");
             }
         });
     },
@@ -85,7 +85,7 @@ normalStyle = {
         animator.start().then(function () {
             that.hideState = true;
             if(animator.length === 1) {
-                that.fire("hided");
+                that.fire("hidden");
             }
         });
     },
@@ -197,7 +197,7 @@ normalStyle = {
                 });
             }
             this.option.menuPanel.css("left", "0");
-            this.fire("showed");
+            this.fire("shown");
         } else {
             //隐藏菜单
             if(this.isExtrusion()) {
@@ -209,7 +209,7 @@ normalStyle = {
             this.option.menuPanel.css({
                 "left": -this.menuWidth + "px"
             });
-            this.fire("hided");
+            this.fire("hidden");
         }
     }
 };
@@ -358,7 +358,7 @@ modernStyle = {
             }
             this.option.menuPanel.removeClass("ui-menu-panel-narrow");
             this.option.menuPanel.css("width", this.menuWidth + "px");
-            this.fire("showed");
+            this.fire("shown");
         } else {
             //收缩菜单
             if(this.isExtrusion()) {
@@ -369,7 +369,7 @@ modernStyle = {
             }
             this.option.menuPanel.addClass("ui-menu-panel-narrow");
             this.option.menuPanel.css("width", this.menuNarrowWidth + "px");
-            this.fire("hided");
+            this.fire("hidden");
         }
     },
     // 设置子菜单列表
@@ -514,7 +514,7 @@ function onMenuItemModernClick(e) {
     }
 }
 
-ui.define("ui.ctrls.Menu", {
+ui.ctrls.define("ui.ctrls.Menu", {
     _defineOption: function() {
         return {
             // 菜单样式，普通: normal | 现代: modern
@@ -536,7 +536,7 @@ ui.define("ui.ctrls.Menu", {
         };
     },
     _defineEvents: function() {
-        return ["showed", "hided"];
+        return ["shown", "hidden"];
     },
     _create: function() {
         var style,

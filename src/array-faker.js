@@ -69,8 +69,7 @@ ArrayFaker.prototype = {
     find: arrayInstance.find,
     findIndex: arrayInstance.findIndex,
     fill: arrayInstance.fill,
-    includes: arrayInstance.includes,
-    constructor: ui.ArrayFaker
+    includes: arrayInstance.includes
 };
 
 ui.ArrayFaker = ArrayFaker;

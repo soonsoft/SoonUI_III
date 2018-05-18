@@ -20,6 +20,9 @@ var msie = 0,
     
     ensureOption,
     ajaxConverter,
+
+    eventDispatcher,
+    events = ["start", "end", "success", "error", "complete", "stop"],
     
     acceptsAll,
     accepts,
@@ -28,6 +31,8 @@ var msie = 0,
     rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg,
     requestIDSeed = parseInt((Math.random() + "").substring(2), 10),
     jsonpCallbackSeed = parseInt((Math.random() + "").substring(2), 10);
+
+function noop() {}
 
 head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
 // 检测IE的版本
@@ -81,6 +86,38 @@ accepts = {
 
 httpRequestProcessor = {
     ajax: {
+        // ajax数据预处理
+        prepareData: function() {
+            var dataType = ui.core.type(option.data);
+            if(dataType === "string") {
+                option.querystring = option.data;
+            } else {
+                if(dataType === "null" || dataType === "undefined" || isNaN(option.data)) {
+                    option.querystring = "";
+                } else if(type === "array" || type === "object") {
+                    if(isJsonContent(option.contentType)) {
+                        option.querystring = JSON.stringify(option.data);
+                    } else {
+                        option.querystring = ui.param(option.data);
+                    }
+                } else {
+                    option.querystring = option.data + "";
+                }
+            }
+
+            // HTTP Method GET和HEAD没有RequestBody
+            option.hasRequestBody = !rnoContent.test(option.type);
+            if(!option.hasRequestBody) {
+                // 请求没有requestBody，把参数放到url上
+                appendChar = rquery.test(option.url) ? "&" : "?";
+                if(option.querystring) {
+                    option.url += appendChar + option.querystring;
+                }
+                if(option.cache === false) {
+                    option.url += appendChar + "_time=" + (new Date() - 0);
+                }
+            }
+        },
         // 发起请求
         request: function() {
             var that, i;
@@ -310,21 +347,81 @@ httpRequestProcessor = {
     },
     upload: {
         preprocess: function() {
-            // TODO 处理上传
+            this.option.contentType = "multipart/form-data";
+        },
+        prepareData: function() {
+            var files = this.option.files,
+                formData,
+                data;
+            
+            data = this.option.data;
+            if(data instanceof FromData) {
+                formData = this.data;
+            } else {
+                formData = new FormData();
+            }
+            
+            if(files) {
+                if(!Array.isArray(files)) {
+                    files = [files];
+                }
+                files.forEach(function(blob, index) {
+                    var i;
+                    if(ui.core.isDomObject(blob) && blob.nodeName === "INPUT" && blob.type === "file") {
+                        if(blob.files) {
+                            if(blob.files.length > 1) {
+                                for(i = 0; i < blob.files.length; i++) {
+                                    formData.append(blob.name + "[" + i + "]", blob.files[i]);
+                                }
+                            } else {
+                                formData.append(blob.name, blob.files[0]);
+                            }
+                        }
+                    } else if(blob instanceof Blob) {
+                        formData.append("file_" + index, blob);
+                    }
+                });
+            }
+
+            // 添加其它文本数据
+            if(ui.core.isString(data)) {
+                formdata.append("fileinfo", data); 
+            } else if(ui.core.isPlainObject(data)) {
+                Object.keys(data).forEach(function(key) {
+                    formdata.append(encodeURIComponent(key), encodeURIComponent(data[key]));
+                });
+            }
+
+            this.formData = formData;
         }
     }
 };
 
+// 设置jsonp和script的数据处理函数
+httpRequestProcessor.jsonp.prepareData = httpRequestProcessor.ajax.prepareData;
+httpRequestProcessor.script.prepareData = httpRequestProcessor.ajax.prepareData;
 // 完善jsonp的接口
 httpRequestProcessor.jsonp.request = httpRequestProcessor.script.request;
 httpRequestProcessor.jsonp.respond = httpRequestProcessor.script.respond;
-
-// 完成upload的接口
+// 完善upload的接口 upload有自己的数据处理函数
 httpRequestProcessor.upload.request = httpRequestProcessor.ajax.request;
 httpRequestProcessor.upload.respond = httpRequestProcessor.ajax.respond;
-if(!global.FormData) {
+/*
+if(!global.FormData && ui.browser.ie) {
     // 为upload修复FormData
+    var str = 
+            'Function BinaryToArray(binary)\r\n\
+                Dim oDic\r\n\
+                Set oDic = CreateObject("scripting.dictionary")\r\n\
+                length = LenB(binary) - 1\r\n\
+                For i = 1 To length\r\n\
+                    oDic.add i, AscB(MidB(binary, i, 1))\r\n\
+                Next\r\n\
+                BinaryToArray = oDic.Items\r\n\
+            End Function';
+    execScript(str, "VBScript");
 }
+*/
 
 /**
  * ajax数据转换器
@@ -337,6 +434,7 @@ ajaxConverter = {
         return xml ? xml : ui.parseXML(text);
     },
     html: function(text) {
+        // TODO 还没有完成HTML Parser
         return ui.parseHTML(text);
     },
     json: function(text) {
@@ -478,25 +576,25 @@ httpRequestMethods = {
         if(isSuccess) {
             this._resolve([this.response, statusText, this]);
             ui.setTask(function() {
-                ui.ajax.globalEvents.onSuccess(that, that.option, statusText);
+                ui.ajax.global.fire("success", that, that.option, statusText);
             });
         } else {
             this._reject([this, statusText, this.error]);
             ui.setTask(function() {
-                ui.ajax.globalEvents.onError(that, that.option, statusText);
+                ui.ajax.global.fire("error", that, that.option, statusText);
             });
         }
         delete this.xhr;
-        ui.ajax.activeIndex--;
+        ui.ajax.global.activeIndex--;
         ui.setTask(function() {
-            ui.ajax.globalEvents.onComplete(that, that.option);
+            ui.ajax.global.fire("complete", that, that.option);
         });
 
-        if(ui.ajax.activeIndex === 0) {
+        if(ui.ajax.global.activeIndex === 0) {
             // 最后一个ajax执行完毕
             ui.setTask(function() {
-                if(ui.ajax.activeIndex === 0) {
-                    ui.ajax.globalEvents.onStop();
+                if(ui.ajax.global.activeIndex === 0) {
+                    ui.ajax.global.fire("stop");
                 }
             });
         }
@@ -526,30 +624,12 @@ ensureOption = (function() {
                 contentType.startsWith("application/javascript");
     }
     return function(option) {
-        var dataType,
-            urlAnchor,
+        var urlAnchor,
             appendChar;
 
         option = ui.extend({}, defaultOption, option);
         option.type = option.type.toUpperCase();
         option.contentType = option.contentType.trim();
-
-        dataType = ui.core.type(option.data);
-        if(dataType === "string") {
-            option.querystring = option.data;
-        } else {
-            if(dataType === "null" || dataType === "undefined" || isNaN(option.data)) {
-                option.querystring = "";
-            } else if(type === "array" || type === "object") {
-                if(isJsonContent(option.contentType)) {
-                    option.querystring = JSON.stringify(option.data);
-                } else {
-                    option.querystring = ui.param(option.data);
-                }
-            } else {
-                option.querystring = option.data + "";
-            }
-        }
         
         option.url = option.url.replace(rhash, "").replace(rprotocol, location.protocol + "//");
 
@@ -565,19 +645,6 @@ ensureOption = (function() {
                 option.crossDomain = originAnchor.protocol + "//" + originAnchor.host !== urlAnchor.protocol + "//" + urlAnchor.host;
             } catch(e) {
                 option.crossDomain = true;
-            }
-        }
-
-        // HTTP Method GET和HEAD没有RequestBody
-        option.hasRequestBody = !rnoContent.test(option.type);
-        if(!option.hasRequestBody) {
-            // 请求没有requestBody，把参数放到url上
-            appendChar = rquery.test(option.url) ? "&" : "?";
-            if(option.querystring) {
-                option.url += appendChar + option.querystring;
-            }
-            if(option.cache === false) {
-                option.url += appendChar + "_time=" + (new Date() - 0);
             }
         }
         return option;
@@ -650,6 +717,10 @@ function ajax(option) {
             ajaxRequest.dispatch(0, "timeout");
         }, option.timeout);
     }
+    // 5. 准备发送数据
+    if(ajaxRequest.prepareData) {
+        ajaxRequest.prepareData();
+    }
 
     // 设置处理方法
     ajaxRequest
@@ -657,41 +728,48 @@ function ajax(option) {
         .catch(option.error)
         .complete(option.complete);
 
-    if(ui.ajax.activeIndex === 0) {
+    if(ui.ajax.global.activeIndex === 0) {
         // 第一个活动的ajax
-        ui.ajax.globalEvents.onStart();
+        ui.ajax.global.fire("start");
     }
-    ui.ajax.globalEvents.onSend(ajaxRequest, option);
-    ui.ajax.activeIndex++;
+    ui.ajax.global.fire("send", ajaxRequest, option);
+    ui.ajax.global.activeIndex++;
 
     ajaxRequest.request();
     return ajaxRequest;
 }
 
-function getScript() {
-
+function getScript(url, callback) {
+    return ui.get(url, null, callback, "script");
 }
 
-function getJSON() {
-
+function getJSON(url, data, callback) {
+    return ui.get(url, data, callback, "json");
 }
 
-function upload() {
-
+function upload(url, files, data, successFn, errorFn, dataType) {
+    if (ui.core.isFunction(data)) {
+        dataType = errorFn;
+        errorFn = successFn;
+        successFn = data;
+        data = null;
+    }
+    return ui.ajax({
+        url: url,
+        type: "post",
+        dataType: dataType,
+        files: files,
+        data: data,
+        success: callback
+    });
 }
-
-function noop() {}
 
 ui.ajax = ajax;
-ui.ajax.activeIndex = 0;
-ui.ajax.globalEvents = {
-    onStart: noop,
-    onSend: noop,
-    onSuccess: noop,
-    onError: noop,
-    onComplete: noop,
-    onStop: noop
+ui.ajax.global = {
+    activeIndex: 0
 };
+eventDispatcher = new ui.CustomEvent(ui.ajax.global);
+eventDispatcher.initEvents(events);
 
 ["get", "post"].forEach(function(method) {
     ui[method] = function(url, data, callback, type) {

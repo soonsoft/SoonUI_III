@@ -81,7 +81,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         this.nextView = $("<div class='image-view-panel' style='display:none;' />");
         this.currentView.append("<img class='image-view-img' />");
         this.nextView.append("<img class='image-view-img' />");
-        this.closeButton = $("<a class='close-button font-highlight-hover' href='javascript:void(0)'>×</a>");
+        this.closeButton = $("<a class='closable-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
         this.closeButton.click(function () {
             that.hide();
