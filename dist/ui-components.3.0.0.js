@@ -1037,99 +1037,100 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
  * Wrapped
  * Extension-method
  */
-ui.ajax = {
-    /** get方式 */
-    get: function (url, params, success, failure, option) {
-        if(!option) option = {};
-        option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("GET", url, params, success, failure, option);
-    },
-    /** post方式 */
-    post: function (url, params, success, failure, option) {
-        if(!option) option = {};
-        option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** post方式，提交数据为为Json格式 */
-    postJson: function(url, params, success, failure, option) {
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
-    postOnce: function (btn, url, params, success, failure, option) {
-        var text,
-            textFormat,
-            fn;
-        btn = ui.getJQueryElement(btn);
-        if(!btn) {
-            throw new Error("没有正确设置要禁用的按钮");
-        }
-        if(!option) {
-            option = {};
-        }
+if(!ui.ajax) {
+    ui.ajax = {};
+}
+/** get方式 */
+ui.ajax.get = function (url, params, success, failure, option) {
+    if(!option) option = {};
+    option.contentType = "application/x-www-form-urlencoded";
+    return ajaxCall("GET", url, params, success, failure, option);
+};
+/** post方式 */
+ui.ajax.post = function (url, params, success, failure, option) {
+    if(!option) option = {};
+    option.contentType = "application/x-www-form-urlencoded";
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** post方式，提交数据为为Json格式 */
+ui.ajax.postJson = function(url, params, success, failure, option) {
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
+ui.ajax.postOnce = function (btn, url, params, success, failure, option) {
+    var text,
+        textFormat,
+        fn;
+    btn = ui.getJQueryElement(btn);
+    if(!btn) {
+        throw new Error("没有正确设置要禁用的按钮");
+    }
+    if(!option) {
+        option = {};
+    }
 
-        textFormat = "正在{0}...";
-        if(option.textFormat) {
-            textFormat = option.textFormat;
-            delete option.textFormat;
+    textFormat = "正在{0}...";
+    if(option.textFormat) {
+        textFormat = option.textFormat;
+        delete option.textFormat;
+    }
+    btn.attr("disabled", "disabled");
+    fn = function() {
+        btn.removeAttr("disabled");
+    };
+    if(btn.isNodeName("input")) {
+        text = btn.val();
+        if(text.length > 0) {
+            btn.val(ui.str.format(textFormat, text));
+        } else {
+            btn.val(ui.str.format(textFormat, "处理"));
         }
-        btn.attr("disabled", "disabled");
         fn = function() {
+            btn.val(text);
             btn.removeAttr("disabled");
         };
-        if(btn.isNodeName("input")) {
-            text = btn.val();
-            if(text.length > 0) {
-                btn.val(ui.str.format(textFormat, text));
-            } else {
-                btn.val(ui.str.format(textFormat, "处理"));
-            }
+    } else {
+        text = btn.html();
+        if(!ui._rhtml.test(text)) {
+            btn.text(ui.str.format(textFormat, text));
             fn = function() {
-                btn.val(text);
+                btn.text(text);
                 btn.removeAttr("disabled");
             };
-        } else {
-            text = btn.html();
-            if(!ui._rhtml.test(text)) {
-                btn.text(ui.str.format(textFormat, text));
-                fn = function() {
-                    btn.text(text);
-                    btn.removeAttr("disabled");
-                };
-            }
         }
-        
-        option.complete = fn;
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
-    all: function () {
-        var promises,
-            promise;
-        if (arguments.length == 1) {
-            promises = [arguments[0]];
-        } else if (arguments.length > 1) {
-            promises = [].slice.call(arguments, 0);
-        } else {
-            return;
-        }
-        promise = Promise.all(promises);
-        promise._then_old = promise.then;
-
-        promise.then = function () {
-            var context;
-            if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
-                context = {
-                    error: {},
-                    errorFn: arguments[1]
-                };
-                arguments[1] = function(xhr) {
-                    errorHandler(context, xhr);
-                };
-            }
-            return this._then_old.apply(this, arguments);
-        };
-        return promise;
     }
+    
+    option.complete = fn;
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
+ui.ajax.all = function () {
+    var promises,
+        promise;
+    if (arguments.length == 1) {
+        promises = [arguments[0]];
+    } else if (arguments.length > 1) {
+        promises = [].slice.call(arguments, 0);
+    } else {
+        return;
+    }
+    promise = Promise.all(promises);
+    promise._then_old = promise.then;
+
+    promise.then = function () {
+        var context;
+        if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
+            context = {
+                error: {},
+                errorFn: arguments[1]
+            };
+            arguments[1] = function(xhr) {
+                errorHandler(context, xhr);
+            };
+        }
+        return this._then_old.apply(this, arguments);
+    };
+    return promise;
 };
 
 })(jQuery, ui);

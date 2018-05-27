@@ -516,7 +516,7 @@ if(!isFunction(Array.prototype.includes)) {
 if(!isFunction(Array.from)) {
     Array.from = function(arrayLike, fn) {
         var i, len,
-            itenFn,
+            itemFn,
             result = [];
 
         if(arrayLike && arrayLike.length) {
@@ -3441,30 +3441,35 @@ var open = "{",
     close = "}";
 function bindTemplate(data, converter) {
     var indexes = this.braceIndexes,
-        parts = [].concat(this.parts),
+        parts,
         name, formatter,
         index, value,
         i, len;
     if(!converter) {
         converter = {};
     }
-    for(i = 0, len = indexes.length; i < len; i++) {
-        index = indexes[i];
-        name = parts[index];
-        if(ui.str.isEmpty(name)) {
-            parts[index] = "";
-        } else {
-            value = data[name];
-            formatter = converter[name];
-            if(ui.core.isFunction(formatter)) {
-                parts[index] = formatter.call(data, value);
+    if(Array.isArray(indexes)) {
+        parts = [].concat(this.parts)
+        for(i = 0, len = indexes.length; i < len; i++) {
+            index = indexes[i];
+            name = parts[index];
+            if(ui.str.isEmpty(name)) {
+                parts[index] = "";
             } else {
-                if(ui.str.isEmpty(value)) {
-                    value = "";
+                value = data[name];
+                formatter = converter[name];
+                if(ui.core.isFunction(formatter)) {
+                    parts[index] = formatter.call(data, value);
+                } else {
+                    if(ui.str.isEmpty(value)) {
+                        value = "";
+                    }
+                    parts[index] = value;
                 }
-                parts[index] = value;
             }
         }
+    } else {
+        parts = this.parts;
     }
     return parts.join("");
 }
@@ -3478,14 +3483,13 @@ function parseTemplate(template) {
     builder = {
         parts: parts,
         braceIndexes: [],
-        statusText: ""
+        statusText: "",
+        bind: bindTemplate
     };
     if(typeof template !== "string" || template.length === 0) {
         parts.push(template);
         builder.statusText = "template error";
-        return {
-            parts: parts
-        };
+        return builder;
     }
     index = 0;
     while(true) {
@@ -3493,6 +3497,7 @@ function parseTemplate(template) {
         closeIndex = template.indexOf(close, (openIndex > -1 ? openIndex : index));
         // 没有占位符
         if(openIndex < 0 && closeIndex < 0) {
+            parts.push(template.substring(index));
             break;
         }
         // 可是要输出'}'标记符
@@ -3518,7 +3523,6 @@ function parseTemplate(template) {
         }
         parts.push(template.substring(index, closeIndex).trim());
         builder.braceIndexes.push(parts.length - 1);
-        builder.bind = bindTemplate;
         index = closeIndex + 1;
     }
     return builder;
@@ -3552,7 +3556,6 @@ function parseXML(data) {
 function parseHTML(html) {
     return html;
 }
-
 
 ui.parseTemplate = parseTemplate;
 ui.parseXML = parseXML;

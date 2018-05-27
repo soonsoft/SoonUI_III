@@ -21,6 +21,31 @@
             top: 0;
             left: 0;
         }
+        .indicator-panel {
+            position: fixed;
+            z-index: 9999;
+            width: 20px;
+            height: 130px;
+            right: 48px;
+            top: 50%;
+            margin-top: -65px;
+            overflow: hidden;
+        }
+        .indicator {
+            display: block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid;
+            line-height: 16px;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .indicator-selected {
+            background-color: rgba(15, 128, 193, .6);
+            color: #fff;
+        }
         .container-item {
             width: 100%;
             height: auto;
@@ -259,6 +284,7 @@
 </head>
 <body>
     <div class="heighter"></div>
+    <div class="indicator-panel"></div>
     <section class="container-item" style="background-color:rgba(255, 255, 255, .2);z-index:10;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;">
         <div class="container-panel" style="height:auto;background-color:rgba(255, 255, 255, .4);top:auto;">
             <div class="main-panel">
@@ -270,7 +296,7 @@
                     代号: OCEAN
                 </h3>
                 <p class="description-text">
-                    SOON.UI是用于桌面Web浏览器的UI框架，基于jQuery开发。SOON.UI 3.0版本重写了所有代码，使其更加模块化，分层也更清晰。在逻辑上分为ui-core(核心)，ui-components(组件)，ui-controls(控件)，ui-effects(特效)，ui-viewpages(视图)五个组件。松散的构建形式使其可以很容易的从中分离出一部分用于构建现有的项目，不用为了一部分功能而不得不引入整个SOON.UI库；对于新项目直接引入SOON.UI.3.0.0.all.js就可以使用完整的功能了。
+                    SOON.UI是用于桌面Web浏览器的UI框架，基于jQuery开发。SOON.UI 3.0版本重写了所有代码，使其更加模块化，分层也更清晰。从逻辑上分为ui-core(核心)，ui-components(组件)，ui-controls(控件)，ui-effects(特效)，ui-viewpages(视图)五个组件。松散的构建形式使其可以很容易的从中分离出一部分用于构建现有的项目，不用为了一部分功能而不得不引入整个SOON.UI库。对于新项目直接引入SOON.UI.3.0.0.all.js就可以使用完整的功能了。
                 </p>
                 <div class="link-panel">
                     <a class="main-link" style="margin-right:20px;" href="https://github.com/soonsoft/SoonUI_III">GitHub</a>
@@ -287,10 +313,10 @@
                     <span style="opacity:.7">FEATURE</span>
                 </h1>
                 <p class="description-text" style="opacity:.8">
-                    SOON.UI采用微软(Microsoft)的METRO设计语言作为蓝本，同时也融入了Google的Material Design设计语言的部分元素。在风格上注重内容而非形式，移除了高光、阴影这些装饰元素。通过灰阶和主题色的搭配，大量的撞色设计元素加上精雕细琢的动画效果，让整体UI界面呈现一种轻盈灵动的特点。系统通过第一时间对用户的操作做出响应，并且配合上符合用户预期的动画效果，为用户提供极致的交互体验。
+                    SOON.UI采用微软(Microsoft)的METRO设计语言作为蓝本，同时也融入了Google的Material Design设计语言的部分元素。在风格上注重内容而非形式，移除了高光、阴影等装饰元素。通过灰阶与主题色的搭配，加上大量的撞色设计元素和精雕细琢的动画效果，让整体UI界面呈现一种轻盈灵动的特点。通过第一时间对用户的操作做出响应，配合上符合用户预期的动画效果，为用户提供极致的交互体验。
                 </p>
                 <p class="description-text" style="opacity:.8">
-                    SOON.UI提供了Light和Dark两种内置主题风格，并且搭配28种精心挑选的主题色，可以组合出有个性的界面配色，使得系统UI不在显得沉闷乏味和千篇一律。在实现上，做到样式和交互逻辑完整分离，主题样式和高亮色样式互不干扰，配合SOON.UI中精心设计的主题引擎，可以非常容易的对UI样式进行扩展和调整。甚至通过简单的开发可以为用户提供完整的主题自定义功能，像如今的Windows 10一样。
+                    SOON.UI提供了Light和Dark两种内置主题风格，并且搭配28种精心挑选的主题色，用户可以订制出出个性的界面配色，使得系统UI不在显得沉闷乏味和千篇一律。在实现上，做到样式和交互逻辑完整分离，主题样式和高亮色样式互不干扰，配合SOON.UI中精心设计的主题引擎，可以非常容易的对UI样式进行扩展和调整。甚至通过简单的开发可以为用户提供完整的主题自定义功能，像如今的Windows 10一样。
                 </p>
             </div>
         </div>
@@ -310,10 +336,10 @@
                     <span style="opacity:.7">后记</span>
                 </h1>
                 <p class="description-text" style="opacity:.8">
-                    SOON.UI源自我的一次“叛逆”，在从事了多年各种“信息系统”开发工作以后，我见过了太多凑合的，缺乏良好的设计的各类信息系统，被各种商业名词包装后高价销售给政府或是企事业单位。随着一个又一个的项目的完结和开始，似乎没有人在乎真正用户的使用体验。在3个月或者半年左右的工期内，人们也很难有精力去关注交互体验这个看上去是锦上添花的功能。但我一直很在乎软件系统的UI，我无法忍受自己参与开发的系统有着那样丑陋的外表和可笑的交互逻辑。
+                    我一向很注重UI，当从事了多年各种软件开发工作后，我见过了太多缺乏良好的设计的各类信息系统。这些系统，或是因为项目周期原因，又或是因为主管领导个人的美学偏好，再或是因为开发人员“嫌麻烦”，最终都为用户呈现出了一个堆砌视觉元素和交互逻辑混乱的UI系统。我一直很在乎软件系统的UI，我喜欢使用优雅精致的软件。同时作为一名软件开发人员，我也时刻记得“我编写一次的代码，可能是一些用户接下来好几年需要天天面对的工作工具”这句话。
                 </p>
                 <p class="description-text" style="opacity:.8">
-                    最早的想法产生于2010年，当我第一次看到2010年微软发布的Windows Phone 7的UI设计后，METRO设计令我印象深刻。于是在一个用于公司内部的工作量管理系统(<a href="http://teamwork.yzgit.com" target="_blank">Team Work</a>)上，我开始尝试构建一套使用METRO设计语言的UI。意外的是，系统很成功，UI风格在公司内部大量推广，当时这套简陋的UI框架被使用到其它商业项目上。在很长一段时间的迭代后，最终定格在<a href="https://github.com/soonsoft/soonUI" target="_blank">SOON.UI 2.5</a>。
+                    最早的想法产生于2010年，当我第一次看到微软在2010年发布的Windows Phone 7的UI后，METRO设计令人印象深刻。于是在一个用于公司内部的工作量管理系统(<a href="http://teamwork.yzgit.com" target="_blank">Team Work</a>)上，我开始尝试构建一套使用METRO设计语言的UI框架，意外的是，尝试很成功。接下来，METRO UI风格在公司内部大量推广，而当时这套简陋的UI框架被使用到其它商业项目上。早期的UI框架经过了很长一段时间的迭代后，最终定格在<a href="https://github.com/soonsoft/soonUI" target="_blank">SOON.UI 2.5</a>。
                 </p>
                 <p class="description-text" style="opacity:.8">
                     由于缺乏设计和良好的规划，所以我决定重写。断断续续一年的时间，终于SOON.UI 3.0重写完成，而此时Web前端界也已经发生了翻天覆地的变化，各种MVVM的框架层出不穷，UI界面正在变得越来越好，我也期待着SOON.UI的成长和蜕变。
@@ -356,6 +382,7 @@
                 init: function() {
                     this.sections = $(".container-item");
                     this.heighter = $(".heighter");
+
                     this.events = new ui.CustomEvent(this);
                     this.events.initEvents(["move", "change"]);
                     this.resizeHandler = [];
@@ -364,16 +391,83 @@
                             this.resizeHandler.push(fn);
                         }
                     };
+                    
+                    this.initIndicator();
                     featureSection.call(this);
                     demoSection.call(this);
                     pagerFootSection.call(this);
+                },
+                initIndicator: function() {
+                    var i, len,
+                        html = [],
+                        animator;
+                    this.indicator = $(".indicator-panel");
+                    len = this.sections.length;
+                    for(i = 1; i <= len; i++) {
+                        html.push("<label class='indicator font-highlight border-highlight'");
+                        if(i < len) {
+                            html.push(" style='margin-bottom:10px;'");
+                        }
+                        html.push(">", i, "</label>");
+                    }
+                    this.indicator.html(html.join(""));
+
+                    animator = ui.animator({
+                        target: $(document),
+                        onChange: function(val) {
+                            this.target.scrollTop(val);
+                        },
+                        duration: 500
+                    });
+                    animator.onEnd = (function() {
+                        this.indicator.isIndicatorStateChanged = false;
+                    }).bind(this);
+                    this.indicator.changeIndicatorState = function(index) {
+                        if(this.currentIndicator) {
+                            this.currentIndicator
+                                    .removeClass("background-highlight")
+                                    .addClass("font-highlight");
+                        }
+                        this.currentIndicator = $(this.children()[index]);
+                        this.currentIndicator
+                                .removeClass("font-highlight")
+                                .addClass("background-highlight");
+                    };
+                    this.indicator.click((function(e) {
+                        var elem = $(e.target),
+                            index,
+                            option;
+                        if(!elem.hasClass("indicator")) {
+                            return;
+                        }
+                        index = parseInt(elem.text(), 10) - 1 || 0;
+                        this.indicator.changeIndicatorState(index);
+                        this.indicator.isIndicatorStateChanged = true;
+
+                        option = animator[0];
+                        option.begin = this.lastScrollTop;
+                        option.end = this.itemHeight * index;
+
+                        animator.start();
+                    }).bind(this));
+
+                    this.move((function(e, index, scrollTop, itemHeight) {
+                        if(this.indicator.isIndicatorStateChanged) {
+                           return; 
+                        }
+                        var percent = (scrollTop - (itemHeight * index)) / itemHeight;
+                        if(percent > .5) {
+                            this.indicator.changeIndicatorState(index + 1);
+                        } else {
+                            this.indicator.changeIndicatorState(index);
+                        }
+                    }).bind(this));
                 },
                 setFixedItems: function() {
                     var scrollTop,
                         section,
                         i, len, 
                         operator,
-                        lastIndex,
                         index;
                     scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                     if(scrollTop > this.lastScrollTop) {
@@ -397,9 +491,8 @@
                             }
                         }
                     }
-                    lastIndex = this.currentIndex;
                     this.currentIndex = index;
-                    this.fire("change", lastIndex, index);
+                    this.fire("change", index);
                 },
                 resize: function(width, height) {
                     this.sections.css("height", height + "px");
@@ -579,23 +672,20 @@
                         tab.showIndex(0);
                     });
                 });
-                this.move(function(e, index, scrollTop) {
+                this.move(function(e, index, scrollTop, itemHeight) {
                     if(index !== 1) {
                         return;
                     }
-                    var percent = (scrollTop - (layer.itemHeight * index)) / layer.itemHeight;
-                    if(percent > 1) {
-                        percent = 1;
-                    }
+                    var percent = (scrollTop - (itemHeight * index)) / itemHeight;
                     $("#demoTabPanel").css("opacity", percent);
                 });
             }
             function pagerFootSection() {
-                this.move(function(e, index, scrollTop) {
+                this.move(function(e, index, scrollTop, itemHeight) {
                     if(index !== 2) {
                         return;
                     }
-                    var percent = (scrollTop - (layer.itemHeight * index)) / layer.itemHeight,
+                    var percent = (scrollTop - (itemHeight * index)) / itemHeight,
                         img = $("#bg4"),
                         panel = img.next();
                     panel.css("opacity", percent);

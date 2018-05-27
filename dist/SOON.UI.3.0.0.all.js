@@ -516,7 +516,7 @@ if(!isFunction(Array.prototype.includes)) {
 if(!isFunction(Array.from)) {
     Array.from = function(arrayLike, fn) {
         var i, len,
-            itenFn,
+            itemFn,
             result = [];
 
         if(arrayLike && arrayLike.length) {
@@ -3441,30 +3441,35 @@ var open = "{",
     close = "}";
 function bindTemplate(data, converter) {
     var indexes = this.braceIndexes,
-        parts = [].concat(this.parts),
+        parts,
         name, formatter,
         index, value,
         i, len;
     if(!converter) {
         converter = {};
     }
-    for(i = 0, len = indexes.length; i < len; i++) {
-        index = indexes[i];
-        name = parts[index];
-        if(ui.str.isEmpty(name)) {
-            parts[index] = "";
-        } else {
-            value = data[name];
-            formatter = converter[name];
-            if(ui.core.isFunction(formatter)) {
-                parts[index] = formatter.call(data, value);
+    if(Array.isArray(indexes)) {
+        parts = [].concat(this.parts)
+        for(i = 0, len = indexes.length; i < len; i++) {
+            index = indexes[i];
+            name = parts[index];
+            if(ui.str.isEmpty(name)) {
+                parts[index] = "";
             } else {
-                if(ui.str.isEmpty(value)) {
-                    value = "";
+                value = data[name];
+                formatter = converter[name];
+                if(ui.core.isFunction(formatter)) {
+                    parts[index] = formatter.call(data, value);
+                } else {
+                    if(ui.str.isEmpty(value)) {
+                        value = "";
+                    }
+                    parts[index] = value;
                 }
-                parts[index] = value;
             }
         }
+    } else {
+        parts = this.parts;
     }
     return parts.join("");
 }
@@ -3478,14 +3483,13 @@ function parseTemplate(template) {
     builder = {
         parts: parts,
         braceIndexes: [],
-        statusText: ""
+        statusText: "",
+        bind: bindTemplate
     };
     if(typeof template !== "string" || template.length === 0) {
         parts.push(template);
         builder.statusText = "template error";
-        return {
-            parts: parts
-        };
+        return builder;
     }
     index = 0;
     while(true) {
@@ -3493,6 +3497,7 @@ function parseTemplate(template) {
         closeIndex = template.indexOf(close, (openIndex > -1 ? openIndex : index));
         // 没有占位符
         if(openIndex < 0 && closeIndex < 0) {
+            parts.push(template.substring(index));
             break;
         }
         // 可是要输出'}'标记符
@@ -3518,7 +3523,6 @@ function parseTemplate(template) {
         }
         parts.push(template.substring(index, closeIndex).trim());
         builder.braceIndexes.push(parts.length - 1);
-        builder.bind = bindTemplate;
         index = closeIndex + 1;
     }
     return builder;
@@ -3552,7 +3556,6 @@ function parseXML(data) {
 function parseHTML(html) {
     return html;
 }
-
 
 ui.parseTemplate = parseTemplate;
 ui.parseXML = parseXML;
@@ -5302,99 +5305,100 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
  * Wrapped
  * Extension-method
  */
-ui.ajax = {
-    /** get方式 */
-    get: function (url, params, success, failure, option) {
-        if(!option) option = {};
-        option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("GET", url, params, success, failure, option);
-    },
-    /** post方式 */
-    post: function (url, params, success, failure, option) {
-        if(!option) option = {};
-        option.contentType = "application/x-www-form-urlencoded";
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** post方式，提交数据为为Json格式 */
-    postJson: function(url, params, success, failure, option) {
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
-    postOnce: function (btn, url, params, success, failure, option) {
-        var text,
-            textFormat,
-            fn;
-        btn = ui.getJQueryElement(btn);
-        if(!btn) {
-            throw new Error("没有正确设置要禁用的按钮");
-        }
-        if(!option) {
-            option = {};
-        }
+if(!ui.ajax) {
+    ui.ajax = {};
+}
+/** get方式 */
+ui.ajax.get = function (url, params, success, failure, option) {
+    if(!option) option = {};
+    option.contentType = "application/x-www-form-urlencoded";
+    return ajaxCall("GET", url, params, success, failure, option);
+};
+/** post方式 */
+ui.ajax.post = function (url, params, success, failure, option) {
+    if(!option) option = {};
+    option.contentType = "application/x-www-form-urlencoded";
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** post方式，提交数据为为Json格式 */
+ui.ajax.postJson = function(url, params, success, failure, option) {
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
+ui.ajax.postOnce = function (btn, url, params, success, failure, option) {
+    var text,
+        textFormat,
+        fn;
+    btn = ui.getJQueryElement(btn);
+    if(!btn) {
+        throw new Error("没有正确设置要禁用的按钮");
+    }
+    if(!option) {
+        option = {};
+    }
 
-        textFormat = "正在{0}...";
-        if(option.textFormat) {
-            textFormat = option.textFormat;
-            delete option.textFormat;
+    textFormat = "正在{0}...";
+    if(option.textFormat) {
+        textFormat = option.textFormat;
+        delete option.textFormat;
+    }
+    btn.attr("disabled", "disabled");
+    fn = function() {
+        btn.removeAttr("disabled");
+    };
+    if(btn.isNodeName("input")) {
+        text = btn.val();
+        if(text.length > 0) {
+            btn.val(ui.str.format(textFormat, text));
+        } else {
+            btn.val(ui.str.format(textFormat, "处理"));
         }
-        btn.attr("disabled", "disabled");
         fn = function() {
+            btn.val(text);
             btn.removeAttr("disabled");
         };
-        if(btn.isNodeName("input")) {
-            text = btn.val();
-            if(text.length > 0) {
-                btn.val(ui.str.format(textFormat, text));
-            } else {
-                btn.val(ui.str.format(textFormat, "处理"));
-            }
+    } else {
+        text = btn.html();
+        if(!ui._rhtml.test(text)) {
+            btn.text(ui.str.format(textFormat, text));
             fn = function() {
-                btn.val(text);
+                btn.text(text);
                 btn.removeAttr("disabled");
             };
-        } else {
-            text = btn.html();
-            if(!ui._rhtml.test(text)) {
-                btn.text(ui.str.format(textFormat, text));
-                fn = function() {
-                    btn.text(text);
-                    btn.removeAttr("disabled");
-                };
-            }
         }
-        
-        option.complete = fn;
-        return ajaxCall("POST", url, params, success, failure, option);
-    },
-    /** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
-    all: function () {
-        var promises,
-            promise;
-        if (arguments.length == 1) {
-            promises = [arguments[0]];
-        } else if (arguments.length > 1) {
-            promises = [].slice.call(arguments, 0);
-        } else {
-            return;
-        }
-        promise = Promise.all(promises);
-        promise._then_old = promise.then;
-
-        promise.then = function () {
-            var context;
-            if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
-                context = {
-                    error: {},
-                    errorFn: arguments[1]
-                };
-                arguments[1] = function(xhr) {
-                    errorHandler(context, xhr);
-                };
-            }
-            return this._then_old.apply(this, arguments);
-        };
-        return promise;
     }
+    
+    option.complete = fn;
+    return ajaxCall("POST", url, params, success, failure, option);
+};
+/** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
+ui.ajax.all = function () {
+    var promises,
+        promise;
+    if (arguments.length == 1) {
+        promises = [arguments[0]];
+    } else if (arguments.length > 1) {
+        promises = [].slice.call(arguments, 0);
+    } else {
+        return;
+    }
+    promise = Promise.all(promises);
+    promise._then_old = promise.then;
+
+    promise.then = function () {
+        var context;
+        if (arguments.length > 1 && ui.core.isFunction(arguments[1])) {
+            context = {
+                error: {},
+                errorFn: arguments[1]
+            };
+            arguments[1] = function(xhr) {
+                errorHandler(context, xhr);
+            };
+        }
+        return this._then_old.apply(this, arguments);
+    };
+    return promise;
 };
 
 })(jQuery, ui);

@@ -57,7 +57,7 @@ if(!isFunction(Array.prototype.includes)) {
 if(!isFunction(Array.from)) {
     Array.from = function(arrayLike, fn) {
         var i, len,
-            itenFn,
+            itemFn,
             result = [];
 
         if(arrayLike && arrayLike.length) {
