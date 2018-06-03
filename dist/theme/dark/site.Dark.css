@@ -16,7 +16,7 @@ body {
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  color: #aaaaaa;
+  color: #cccccc;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -141,7 +141,7 @@ a:active {
   border-color: #4b4d4f;
 }
 .theme-font {
-  color: #aaaaaa;
+  color: #cccccc;
 }
 .theme-font1 {
   color: #949494;
@@ -542,8 +542,8 @@ input[type="number"]:focus,
 input[type="tel"]:focus,
 textarea:focus,
 select:focus {
-  color: #aaaaaa;
-  border-color: #aaaaaa;
+  color: #cccccc;
+  border-color: #cccccc;
   text-decoration: none;
   outline: none 0;
 }
@@ -579,9 +579,9 @@ textarea {
   outline: none;
   height: 24px;
   line-height: 24px;
-  border: 0 solid;
-  color: #fff;
-  background-color: #888888;
+  border: 0 none;
+  color: #1d1f21;
+  background-color: #cccccc;
   font-size: 0.813em;
   padding-top: 0;
   padding-bottom: 0;

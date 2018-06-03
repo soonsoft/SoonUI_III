@@ -714,7 +714,7 @@
   border-style: solid;
   border-width: 2px;
   background-color: #1d1f21;
-  color: #aaaaaa;
+  color: #cccccc;
   font-size: 12px;
   display: none;
   overflow: hidden;
@@ -862,7 +862,7 @@
   padding: 0;
   text-align: center;
   font-weight: normal;
-  color: #aaaaaa;
+  color: #cccccc;
   width: 30px;
   height: 24px;
   overflow: hidden;
@@ -1185,7 +1185,7 @@
 .ui-table-head {
   table-layout: fixed;
   width: 100%;
-  color: #aaaaaa;
+  color: #cccccc;
   border-spacing: 0;
   border-collapse: collapse;
 }
@@ -2121,7 +2121,7 @@ div.c_flyingDots div.c_loadingFallback {
 .ui-report-head .table-data-head {
   table-layout: fixed;
   width: 100%;
-  color: #aaaaaa;
+  color: #cccccc;
   border-spacing: 0;
   border-collapse: collapse;
 }
@@ -2652,7 +2652,7 @@ div.c_flyingDots div.c_loadingFallback {
   line-height: 22px;
   text-align: center;
   text-decoration: none;
-  color: #aaaaaa;
+  color: #cccccc;
   cursor: pointer;
 }
 .ui-tab-button:hover {
