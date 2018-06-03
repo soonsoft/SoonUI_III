@@ -111,7 +111,6 @@ module.exports = function(grunt) {
         "src/jquery-extends.js",
         "src/cookie.js",
         "src/style-sheet.js",
-        //"src/ajax.js",
         "src/i18n.js",
     ];
     // 单独的ui.core.js
@@ -125,6 +124,7 @@ module.exports = function(grunt) {
         "src/component/animation.js",
         "src/component/custom-event.js",
         "src/component/ajax.js",
+        "src/component/ajax-extends.js",
         "src/component/color.js",
         "src/component/browser.js",
         "src/component/image-loader.js",

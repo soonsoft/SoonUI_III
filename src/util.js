@@ -46,7 +46,8 @@ ui.fixedNumber = function (number, precision) {
     return Math.round(Math.abs(number) * multiplier) / multiplier * b;
 };
 
-var rbracket = /\[\]$/;
+var r20 = /%20/g,
+    rbracket = /\[\]$/;
 function buildParams(prefix, obj, add) {
     if(Array.isArray(obj)) {
         obj.forEach(function(item, index) {
@@ -86,7 +87,12 @@ ui.param = function(obj) {
         });
     }
 
-    return strBuilder.join("&");
+    /*
+        为什么要把 %20 替换成 + 呢？
+        按照 RFC3986 ，空格编码后是 %20
+        但按照 HTML 标准，application/x-www-form-urlencoded 对空格编码的要求为 +
+    */
+    return strBuilder.join("&").replace(r20, "+");
 };
 
 /** 对象扩展 param[0]: deep, param[1]: target param[2]... */

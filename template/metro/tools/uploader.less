@@ -1,11 +1,10 @@
 .ui-uploader-panel {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100px;
-    height: 100px;
+    top: -99;
+    left: -99;
+    width: 0;
+    height: 0;
     overflow: hidden;
-    display: none;
 }
 
     .ui-uploader-panel .form-upload-iframe {
@@ -14,26 +13,20 @@
         visibility: hidden;
     }
 
-.ui-uploader-file {
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-    bottom: 0;
+.ui-uploader-button {
     overflow: hidden;
-    opacity: .0001;
-    -moz-opacity:.0001;
-    z-index: 9999999;
-    cursor: pointer;
+    position: relative;
 }
 
 .ui-uploader-input-file {
     position: absolute;
     top: 0;
-    right: 0;
-    width: 200px;
-    height: 100px;
+    left: -400px;
+    width: 400px;
+    height: 400px;
     margin: 0;
     padding: 0;
     cursor: pointer;
+    z-index: 99;
+    opacity: .0001;
 }
