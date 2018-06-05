@@ -32,7 +32,6 @@ a {
 .border-highlight-hover:hover {
   border-color: #F567C5 !important;
 }
-.icon-button:hover,
 .tool-button:hover,
 .button-highlight {
   color: #F567C5;

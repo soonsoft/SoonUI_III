@@ -432,7 +432,6 @@ a {
         }
 
 /* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
-.icon-button, 
 .tool-button {
     text-align: center;
     height: 24px;
@@ -457,15 +456,28 @@ a {
 }
 
 .icon-button {
+    text-align: center;
     border-radius: 50%;
-    line-height: 1em;
+    line-height: 24px;
+    margin: 0;
+    padding: 0;
     height: 24px;
+    width: 24px;
+    border: none 0;
     overflow: hidden;
+    background-color: @tool-color;
+    color: #fff;
+    cursor: pointer;
+    outline: 0 none;
 }
 
     .icon-button .fa {
         font-size: @font-h5;
-        line-height: 18px;
+        line-height: 22px;
+    }
+
+    .icon-button:hover {
+        background-color: @hover-color;
     }
 
     .icon-button:focus,

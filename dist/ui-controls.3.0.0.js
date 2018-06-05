@@ -4426,7 +4426,6 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     _createCtrlPanel: function() {
         var ctrlPanel,
             now,
-            valid,
             temp;
 
         ctrlPanel = $("<div class='date-chooser-operate-panel' />");
@@ -4457,23 +4456,38 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
             ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
         } else {
-            valid = this.startDay ? this.startDay.lt(now.getFullYear(), now.getMonth(), now.getDate()) : true;
-            valid = valid && (this.endDay ? this.endDay.gt(now.getFullYear(), now.getMonth(), now.getDate()) : true);
-
-            temp = this._createButton(
-                this.onTodayButtonClickHandler,
-                now.getDate()
-            );
-            temp.attr("title", this.formatDateValue(now));
-            if(!valid) {
-                temp.prop("disabled", true);
-            }
-            this._todayButton = temp;
-            ctrlPanel.append(temp);
+            this._setTodayButton(function() {
+                this._todayButton = this._createButton(
+                    this.onTodayButtonClickHandler,
+                    now.getDate()
+                );
+                ctrlPanel.append(this._todayButton);
+            });
         }
         return ctrlPanel;
     },
+    _setTodayButton: function(createFn, now) {
+        var valid;
+        
+        if(createFn) {
+            createFn.call(this);
+        }
 
+        if(!now) {
+            now = new Date();
+        }
+        valid = this.startDay ? this.startDay.lt(now.getFullYear(), now.getMonth(), now.getDate()) : true;
+        valid = valid && (this.endDay ? this.endDay.gt(now.getFullYear(), now.getMonth(), now.getDate()) : true);
+
+        if(!valid) {
+            this._todayButton.removeAttr("title");
+            this._todayButton.attr("disabled", "disabled");
+        } else {
+            this._todayButton.attr("title", this.formatDateValue(now));
+            this._todayButton.removeAttr("disabled");
+        }
+
+    },
     _createButton: function(eventFn, innerHtml, className, css) {
         var btn = $("<button class='icon-button date-chooser-button' />");
         if(innerHtml) {
@@ -4485,7 +4499,9 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         if(ui.core.isObject(css)) {
             btn.css(css);
         }
-        btn.click(eventFn);
+        if(eventFn) {
+            btn.click(eventFn);
+        }
         return btn;
     },
     _setCurrentDate: function(value) {
@@ -5079,8 +5095,15 @@ function setOptions(elem, option) {
     // 修正配置信息
     this.option = option;
     // 更新可选择范围
+    this._monthPrev.removeClass("date-chooser-prev-disabled");
+    this._monthNext.removeClass("date-chooser-next-disabled");
     this._initDateRange();
+    if(!this.isDateTime()) {
+        this._setTodayButton();
+    }
+    // 设置面板的位置是否固定
     this.setLayoutPanel(option.layoutPanel);
+    // 更新目标对象
     this.element = elem;
     // 修正事件引用
     this.selectingHandler = option.selectingHandler;
@@ -5137,7 +5160,7 @@ $.fn.dateChooser = function(option) {
         }
         currentDateChooser = dateChooser;
     }
-    option = $.extend({}, currentDateChooser.option, option);
+    option = ui.extend({}, currentDateChooser.option, option);
     this.focus(function(e) {
         var elem = $(e.target),
             value;
