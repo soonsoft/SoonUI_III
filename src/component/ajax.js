@@ -430,22 +430,6 @@ httpRequestProcessor.jsonp.respond = httpRequestProcessor.script.respond;
 // 完善upload的接口 upload有自己的数据处理函数
 httpRequestProcessor.upload.request = httpRequestProcessor.ajax.request;
 httpRequestProcessor.upload.respond = httpRequestProcessor.ajax.respond;
-/*
-if(!global.FormData && ui.browser.ie) {
-    // 为upload修复FormData
-    var str = 
-            'Function BinaryToArray(binary)\r\n\
-                Dim oDic\r\n\
-                Set oDic = CreateObject("scripting.dictionary")\r\n\
-                length = LenB(binary) - 1\r\n\
-                For i = 1 To length\r\n\
-                    oDic.add i, AscB(MidB(binary, i, 1))\r\n\
-                Next\r\n\
-                BinaryToArray = oDic.Items\r\n\
-            End Function';
-    execScript(str, "VBScript");
-}
-*/
 
 /**
  * ajax数据转换器
