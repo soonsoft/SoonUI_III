@@ -579,15 +579,9 @@ textarea {
   outline: none;
   height: 24px;
   line-height: 24px;
-<<<<<<< HEAD
-  border: 0 solid;
-  color: #ffffff;
-  background-color: #fff;
-=======
   border: 0 none;
   color: #ffffff;
   background-color: #666666;
->>>>>>> origin/master
   font-size: 0.813em;
   padding-top: 0;
   padding-bottom: 0;
