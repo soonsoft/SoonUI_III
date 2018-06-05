@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>图片展示</title>
+
+    <link type="text/css" href="../../../dist/theme/light/site.light.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/light/metro-light.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .content-panel {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .section-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-paragraph {
+            line-height: 1.5;
+            font-size: 1.25em;
+            margin: 0;
+            padding: 0;
+            margin-top: 1em;
+        }
+
+        .box-line {
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .box-column {
+            width: 192px;
+            height: 108px;
+            margin-right: 10px;
+            float: left;
+        }
+
+        .box-column > .label-text {
+            line-height: 30px;
+        }
+        
+        .box-column > .tool-button {
+            width:80px;
+        }
+
+        .box-column > .tool-button:active {
+            border-color: #434343 !important;
+            background-color: #434343 !important;
+        }
+        
+        .image-preview {
+            position: relative;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">IMAGES</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        
+    <div class="content-panel">
+        <dl class="ui-fold-view" style="padding:20px;">
+            <dt>ui.ctrls.ImageZoomer</dt>
+                <dd class="section-container">
+                    <p class="description-paragraph">
+                        图片放大(<span class="font-highlight">ui.ctrls.ImageZoomer</span>)，点击小图查看大图功能。
+                    </p>
+                    <div class="box-line clear">
+                        <div class="box-column">
+                            <img id="imageZoomSource1" src="" alt="" />
+                        </div>
+                        <div class="box-column">
+                            <img id="imageZoomSource2" src="" alt="" />
+                        </div>
+                    </div>
+                </dd>
+            <dt>ui.ctrls.ImageWatcher</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    图片放大镜(<span class="font-highlight">ui.ctrls.ImageWatcher</span>)，类似淘宝的商品细节展示。
+                </p>
+                <div class="box-line clear" style="overflow:visible;">
+                    <div class="box-column theme-bg4" style="width:400px;height:300px;">
+                        <img id="imageWatchSource1" src="" alt="" />
+                    </div>
+                    <div class="box-column theme-bg4" style="width:300px;height:300px;">
+                        <img id="imageWatchSource2" src="" alt="" />
+                    </div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.ImageViewer</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    图片轮播(<span class="font-highlight">ui.ctrls.ImageViewer</span>)，这是一个图片轮播组件，充当一个controller的角色，本身不是完整的控件。<br />
+                    它可以被嵌入到页面的任意位置，可以通过调用改组件提供的API方便的和各种交互逻辑集成。
+                </p>
+                <div class="box-line">
+                    <div id="imageViewer" class="theme-bg4" style="width:576px;height:360px;"></div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.ImagePreview</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    图片预览视图(<span class="font-highlight">ui.ctrls.ImagePreview</span>)，这是结合上面<span class="font-highlight">ui.ctrls.ImageViewer</span>实现的一个完整的图片预览视图控件。<br />
+                </p>
+                <div class="box-line">
+                    <div id="preview1" class="image-preview" style="width:576px;height:408px">
+                        <div class="image-view-panel theme-bg4" style="width:100%;height:360px;"></div>
+                        <div class="image-preview-chooser theme-panel"></div>
+                    </div>
+                </div>
+                <p class="description-paragraph">
+                    纵向切换模式，设置参数<span class="font-highlight">direction: "vertical"</span>
+                </p>
+                <div class="box-line clear">
+                    <div id="preview2" class="image-preview" style="width:624px;height:360px;">
+                        <div class="image-view-panel theme-bg4" style="width:576px;height:100%;position:absolute;"></div>
+                        <div class="image-preview-chooser theme-panel" style="position:absolute;left:576px;height:100%;width:48px;"></div>
+                    </div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+        });
+    </script>
+    
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createImageZoomer.call(this);
+                        createImageWather.call(this);
+                        createImageViewer.call(this);
+                        createImagePreview.call(this);
+
+                        $(".ui-fold-view").foldView();
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        
+                    }
+                }
+            };
+
+            function createImageZoomer() {
+                var imageZoomer,
+                    image1, image2;
+                
+                imageZoomer = ui.ctrls.ImageZoomer({
+                    getNext: function() {
+                        var currentImage,
+                            nextElem;
+
+                        currentImage = this.target;
+                        nextElem = currentImage.parent().next();
+                        if(nextElem.length > 0 && nextElem.hasClass("box-column")) {
+                            return nextElem.children("img");
+                        }
+                        return null;
+                    },
+                    getPrev: function() {
+                        var currentImage,
+                            prevElem;
+
+                        currentImage = this.target;
+                        prevElem = currentImage.parent().prev();
+                        if(prevElem.length > 0 && prevElem.hasClass("box-column")) {
+                            return prevElem.children("img");
+                        }
+                        return null;
+                    },
+                    hasNext: function() {
+                        return !!this.option.getNext();
+                    },
+                    hasPrev: function() {
+                        return !!this.option.getPrev();
+                    }
+                });
+                image1 = $("#imageZoomSource1");
+                image1.setImage("../../content/pictures/5.jpg", 192, 108).then(function(result) {
+                    image1.addImageZoomer(imageZoomer);
+                });
+                image2 = $("#imageZoomSource2");
+                image2.setImage("../../content/pictures/11.jpg", 192, 108).then(function(result) {
+                    image2.addImageZoomer(imageZoomer);
+                });
+            }
+
+            function createImageWather() {
+                var image1, image2;
+
+                image1 = $("#imageWatchSource1");
+                image1.setImage("../../content/pictures/2.jpg", 400, 300).then(function(data) {
+                    image1.parent().imageWatcher();
+                });
+
+                image2 = $("#imageWatchSource2");
+                image2.setImage("../../content/pictures/1.jpg", 300, 300, ui.ImageLoader.fitCenter).then(function(data) {
+                    image2.parent().imageWatcher({
+                        position: "left",
+                        zoomWidth: 400,
+                        zoomHeight: 300
+                    });
+                });
+            }
+
+            function createImageViewer() {
+                this.imageViewer = $("#imageViewer").imageViewer({
+                    interval: 2000,
+                    hasSwitchButtom: true,
+                    images: [
+                        "../../content/pictures/24.jpg",
+                        "../../content/pictures/25.jpg",
+                        "../../content/pictures/26.jpg"
+                    ]
+                });
+            }
+
+            function createImagePreview() {
+                var imgPreviewer1,
+                    imgPreviewer2;
+                
+                imgPreviewer1 = $("#preview1").imagePreview({
+                    interval: false,
+                    images: [
+                        "../../content/pictures/1.jpg",
+                        "../../content/pictures/2.jpg",
+                        "../../content/pictures/3.jpg",
+                        "../../content/pictures/4.jpg",
+                        "../../content/pictures/5.jpg",
+                        "../../content/pictures/6.jpg",
+                        "../../content/pictures/7.jpg",
+                        "../../content/pictures/8.jpg",
+                        "../../content/pictures/9.jpg"
+                    ]
+                });
+
+                imgPreviewer2 = $("#preview2").imagePreview({
+                    interval: false,
+                    direction: "vertical",
+                    images: [
+                        "../../content/pictures/10.jpg",
+                        "../../content/pictures/11.jpg",
+                        "../../content/pictures/12.jpg",
+                        "../../content/pictures/13.jpg",
+                        "../../content/pictures/14.jpg",
+                        "../../content/pictures/15.jpg",
+                        "../../content/pictures/16.jpg",
+                        "../../content/pictures/17.jpg",
+                        "../../content/pictures/18.jpg",
+                        "../../content/pictures/19.jpg",
+                        "../../content/pictures/20.jpg",
+                        "../../content/pictures/21.jpg",
+                        "../../content/pictures/22.jpg",
+                        "../../content/pictures/23.jpg",
+                        "../../content/pictures/24.jpg",
+                        "../../content/pictures/25.jpg",
+                        "../../content/pictures/26.jpg"
+                    ]
+                });
+                /*
+                imgPreviewer2.ready(function(e) {
+                    ui.messageShow("event ready");
+                });
+                imgPreviewer2.changing(function(e) {
+                    ui.messageShow("event changing");
+                });
+                imgPreviewer2.changed(function(e) {
+                    ui.messageShow("event changed");
+                });
+                */
+            }
+        })();
+    </script>
+
+</body>
+</html>
