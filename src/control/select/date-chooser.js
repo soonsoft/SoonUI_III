@@ -469,7 +469,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 this.target.css("top", val + "px");
             }
         });
-        this.ymAnimator.duration = 300;
+        this.ymAnimator.duration = 240;
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
@@ -483,7 +483,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
                 this.target.css("left", val + "px");
             }
         });
-        this.mcAnimator.duration = 300;
+        this.mcAnimator.duration = 240;
     },
     _initYearMonthPanel: function() {
         var yearTitle, monthTitle,
