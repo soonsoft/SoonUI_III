@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>表格</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title">
+            <a class="ui-menu-button" href="javascript:void(0)"></a><span class="head-system-title-text">GRID VIEW</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        <div class="ui-menu-panel"></div>
+        <div class="content-container">
+            
+    <div class="toolbar"></div>
+    <div id="gridview"></div>
+
+        </div>
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.config("userSettings", {
+            changeHighlightUrl: function(highlight) {
+                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                ui.theme.setHighlight(highlight);
+            }
+        });
+        ui.master.init(function() {
+            this.config("menu");
+        });
+        ui.master.ready(function() {
+            if(pageLogic && menus) {
+                ui.master.menu.setMenuList(menus);
+            }
+        });
+    </script>
+    
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createGridView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.gridview.setSize(height - 40);
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        loadGridViewData(this);
+                    }
+                }
+            };
+
+            function createGridView() {
+                this.gridview = $("#gridview").gridView({
+                    columns: [
+                        { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
+                        { text: "缩略图", column: "image", len: 121, formatter: ui.ColumnStyle.cfnp.getImageFormatter(120, 90, "", "../../content/images/disabled_l1.png", ui.ImageLoader.centerCrop) },
+                        { text: "姓名", column: "name", sort: true, len: 100 },
+                        { text: "年龄", column: "age", len: 60, align: "right", sort: true },
+                        //{ text: "点数", column: "point", len: 60, align: "right", formatter: ui.ColumnStyle.cfn.rowspan },
+                        { text: "日期", column: "dateValue", len: 90, align: "center", formatter: ui.ColumnStyle.cfn.date },
+                        { text: "时间", column: "dateValue", len: 80, align: "center", formatter: ui.ColumnStyle.cfn.time },
+                        { text: "日期时间", column: "dateValue", len: 160, align: "center", formatter: ui.ColumnStyle.cfn.datetime },
+                        { text: "价格", column: "money", len: 120, align: "right", sort: true, formatter: ui.ColumnStyle.cfn.money },
+                        { text: "电话", column: "phone", len: 120, align: "center", formatter: ui.ColumnStyle.cfn.cellPhone },
+                        { text: "状态", column: "status", len: 50, align: "center", formatter: ui.ColumnStyle.cfnp.getBooleanFormatter("启用", "禁用") },
+                        { text: "数字", column: "number", len: 80, align: "right", formatter: ui.ColumnStyle.cfnp.getNumberFormatter(3) },
+                        { text: "开关", column: "status", len: 120, align: "center",
+                            formatter: ui.ColumnStyle.cfnp.switchButton(function() {
+                                if(this.checked) {
+                                    ui.successShow("开");
+                                } else {
+                                    ui.failedShow("关");
+                                }
+                            })
+                        },
+                        { text: "进度", column: "money2", len: 200 },
+                        { text: "详情", column: "detail", len: 480, formatter: ui.ColumnStyle.cfn.paragraph },
+                        { text: "悬停", column: "hoverText", len: 80, align: "center",
+                            formatter: ui.ColumnStyle.cfnp.hoverView(240, 180, function(rowData) {
+                                return "<span class='hover-view-text'>" + rowData.detail + "</span>";
+                            })
+                        },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    selection: {
+                        type: "row",
+                        multiple: false,
+                        isRelateCheckbox: false
+                    }
+                });
+                this.gridview.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.gridview.selected(function(e, eventData) {
+
+                });
+                this.gridview.deselected(function(e, eventData) {
+
+                });
+                this.gridview.pagechanging(function(e, pageIndex, pageSize) {
+                    loadGridViewData(pageIndex);
+                });
+                this.gridview.cancel(function(e) {
+
+                });
+            }
+
+            function loadGridViewData(pageIndex) {
+                var i, 
+                    len = 20,
+                    total,
+                    data = [];
+                
+                if(!ui.core.isNumber(pageIndex)) {
+                    pageLogic.gridview.pageIndex = 1;
+                }
+
+                for(i = 0; i < len; i++) {
+                    data.push({
+                        name: "姓名" + (i + 1),
+                        age: ui.random.getNum(1, 150),
+                        dateValue: new Date(),
+                        detail: "落网 ( luoo.net )一直是我很喜欢的一个音乐社区, 其中大量优质的独立音乐推荐很合我的口味, 他们十多年对音乐的坚持也让我充满敬意。落网是我手机上使用频率仅次于网易云的音乐软件, 但是电脑端却只能使用网页来听落网, 因此便决定给落网写电脑客户端。",
+                        money: ui.random.getNum(1, 10000),
+                        money2: ui.random.getNum(5000, 50000),
+                        phone: "18662707795",
+                        point: ui.random.getNum(1, 4),
+                        status: !!ui.random.getNum(0, 2),
+                        number: ui.random.getNum(1111, 2222)  / 1.356,
+                        hoverText: "详情",
+                        image: "../../content/pictures/" + ui.random.getNum(1, 30) + ".jpg",
+                    });
+                }
+
+                total = 0;
+                for(i = 0, len = data.length; i < len; i++) {
+                    total += data[i].money;
+                    
+                }
+                len = pageLogic.gridview.option.columns.length;
+                pageLogic.gridview.option.columns[len - 4].formatter = ui.ColumnStyle.cfnp.getProgressFormatter(null, total);
+                pageLogic.gridview.createGridBody(data, 1052);
+            }
+        })();
+    </script>
+
+</body>
+</html>

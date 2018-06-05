@@ -6,6 +6,7 @@ module.exports = {
         "second-bg-color": "#eaeaea",
         "third-bg-color": "#e1e1e1",
         "fouth-bg-color": "#dedede",
+        "button-bg-color": "#666666",
         // 字体颜色
         "font-color": "#333333",
         "first-color": "#525252",
@@ -44,8 +45,9 @@ module.exports = {
         "second-bg-color": "#37383a",
         "third-bg-color": "#434547",
         "fouth-bg-color": "#505253",
+        "button-bg-color": "#cccccc",
         // 字体颜色
-        "font-color": "#aaaaaa",
+        "font-color": "#cccccc",
         "first-color": "#949494",
         "second-color": "#808080",
         "third-color": "#737373",

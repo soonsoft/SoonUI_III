@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>控制器</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .content-panel {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .section-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-paragraph {
+            line-height: 1.5;
+            font-size: 1.25em;
+            margin: 0;
+            padding: 0;
+            margin-top: 1em;
+        }
+
+        .box-line {
+            width: 100%;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .box-column {
+            width: 120px;
+            height: 100%;
+            float: left;
+        }
+
+        .box-column > .label-text {
+            line-height: 30px;
+        }
+        
+        .box-column > .tool-button {
+            width:80px;
+        }
+
+        .box-column > .tool-button:active {
+            border-color: #434343 !important;
+            background-color: #434343 !important;
+        }
+
+        .point-marker {
+            position:absolute;
+            left:50%;
+            top:50%;
+            width:32px;
+            height:32px;
+            margin-top:-6px;
+            margin-left:-16px;
+            font-size:16px;
+            text-align:center;
+            line-height:32px;
+            cursor:pointer;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">CONTROL TOOLS</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        
+    <div class="content-panel">
+        <dl class="ui-fold-view" style="padding:20px;">
+            <dt>ui.ctrls.SwitchButton</dt>
+                <dd class="section-container">
+                    <p class="description-paragraph">
+                        开关按钮(<span class="font-highlight">ui.ctrls.SwitchButton</span>)如今已经大范围的替代了checkbox，非常直观的表达了boolean状态。<br />
+                        <span class="font-highlight">SwitchButton</span>会将checkbox包裹起来，并且根据checkbox的状态呈现。如果checkbox的checked属性为true，则会展示为开启状态。<br />
+                        <span class="font-highlight">注意：由于没有办法捕获form reset事件，所以使用reset时会出现状态不匹配的问题。</span>
+                    </p>
+                    <div class="box-line clear">
+                        <div class="box-column">
+                            <label class="label-text">默认样式</label>
+                            <br />
+                            <input id="normal" type="checkbox" checked="checked" />
+                            <label for="normal" class="ui-switch-text">开</label>
+                        </div>
+                        <div class="box-column">
+                            <label class="label-text">棒棒糖样式</label>
+                            <br />
+                            <input id="lollipop" type="checkbox" />
+                            <label for="lollipop" class="ui-switch-text">关</label>
+                        </div>
+                        <div class="box-column">
+                            <label class="label-text">棉花糖样式</label>
+                            <br />
+                            <input id="marshmallow" type="checkbox" />
+                            <label for="marshmallow" class="ui-switch-text">关</label>
+                        </div>
+                    </div>
+                </dd>
+            <dt>ui.ctrls.ConfirmButton</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    确认按钮(<span class="font-highlight">ui.ctrls.ConfirmButton</span>)，一般用在删除操作。常规的删除确认交互都是采用window.comfirm实现的，但是确认框会阻塞JavaScript线程执行，用户体验不好。而且反复的提示也大大降低了用户的操作效率。<br />
+                    确认按钮被设计成双重点击的交互方式，用户点击一次的时候，按钮会转变形态，询问用户是否确定，用户再次点击才会真正执行操作。
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label class="label-text">默认按钮样式</label>
+                        <br />
+                        <button id="deleteButton" class="button">删除</button>
+                    </div>
+                    <div class="box-column">
+                        <label class="label-text">ToolButton Style</label>
+                        <br />
+                        <button id="deleteToolButton" class="tool-button" style="color:#990000;border-color:#990000;">删除</button>
+                    </div>
+                </div>
+                <p class="description-paragraph">
+                    在“确定”之前，可以做相关校验，如果校验没有通过则<span class="font-highlight">return false;</span>，这样按钮不会进入确认状态。        
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label class="label-text">校验模式</label>
+                        <br />
+                        <button id="deleteCheckButton" class="button background-highlight">删除</button>
+                    </div>
+                </div>
+                <p class="description-paragraph">
+                    按钮默认表达的是删除的含义，所以默认颜色是红色的，色号为<span style="color:#990000">#990000</span>。<br />
+                    显示在其他场景下是不合适的，所以可以支持通过参数定制颜色，<span class="font-highlight">color</span>和<span class="font-highlight">backgroundColor</span> 
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label class="label-text">确认完成场景</label>
+                        <br />
+                        <button id="completedButton" class="button">完成</button>
+                    </div>
+                    <div class="box-column">
+                        <label class="label-text">支付场景</label>
+                        <br />
+                        <button id="payButton" class="button background-highlight">支付</button>
+                    </div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.ExtendButton</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    扩展按钮(<span class="font-highlight">ui.ctrls.ExtendButton</span>)为地图点位交互专门设计的，相当于一个上下文菜单。
+                </p>
+                <div class="box-line clear" style="height:240px;">
+                    <div class="box-column" style="position:relative;width:200px;">
+                        <label class="label-text">覆盖模式</label>
+                        <div id="extendPanel" class="point-marker" class="font-highlight">
+                            <i class="fa fa-search"></i>
+                        </div>
+                    </div>
+                    <div class="box-column" style="position:relative;width:200px;">
+                        <label class="label-text">围绕模式</label>
+                        <div id="extendRoundPanel" class="point-marker" class="font-highlight">
+                            <i class="fa fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.FilterTool</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    内容过滤(<span class="font-highlight">ui.ctrls.FilterTool</span>)，常常用来作为查询条件。
+                </p>
+                <div class="box-line" style="height:40px;">
+                    <div id="filter" style="margin-top:16px;"></div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.Slidebar</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    滑动条(<span class="font-highlight">ui.ctrls.Slidebar</span>)，默认是横向的。如果要获取slidebar当前的进度值可以使用<span class="font-highlight">percentValue</span>，该值是一个0 ~ 100直接的数据，表示百分比，保留两位小数。<br />
+                    如果想设置初始值，那么可以直接对percentValue进行赋值，如:<br />
+                    slidebar.percentValue = 15;<br />
+                    如果页面中包含<span class="font-highlight">iframe</span>元素，请设置参数<span class="font-highlight">iframeShield: true</span>
+                </p>
+                <div class="box-line clear" style="height:40px;">
+                    <div id="slidebar" style="width:160px;margin-top:8px;margin-left:8px;float:left;"></div>
+                    <div id="slidebarValue" style="width:60px;margin-top:8px;text-align:center;float:left;">0%</div>
+                </div>
+                <p class="description-paragraph">
+                    滑动条，默认是横向的。如果想要纵向的可以设置参数<span class="font-highlight">direction: vertical</span>
+                </p>
+                <div class="box-line" style="height:80px;">
+                    <div id="slidebarVertical" style="height:60px;margin-top:8px;"></div>
+                </div>
+            </dd>
+            <dt>ui.ctrls.HoverView</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    悬停提示(<span class="font-highlight">ui.ctrls.HoverView</span>)是对html element title属性的补充，可以对内容进行格式化和布局，也可以放入一些交互控件。在布局空间局促又需要展示很多信息的时候有大用。<br />
+                    <span class="font-highlight">用法：</span><br />
+                    第一步：创建<span class="font-highlight">HoverView</span>对象。var hoverView = ui.ctrls.HoverView();<br />
+                    第二步: 定义<span class="font-highlight">showing</span>事件，在事件处理函数中使用<span class="font-highlight">this.empty()</span>清空内容，使用<span class="font-highlight">this.append()</span>添加内容。<br />
+                    第三步：将元素和<span class="font-highlight">HoverView</span>的实例绑定，<span class="font-highlight">$("#hoverElem").addHoverView(hoverView)</span>
+                </p>
+                <div class="box-line">
+                    <a id="hoverLink" href="javascript:void(0)" style="font-size:1.5em;line-height:40px;">云之国</a>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.config("userSettings", {
+            changeHighlightUrl: function(highlight) {
+                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                ui.theme.setHighlight(highlight);
+            }
+        });
+        ui.master.init();
+    </script>
+    
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createSwitchButton.call(this);
+                        createComfirmButton.call(this);
+                        createExtendButton.call(this);
+                        createFilterTool.call(this);
+                        createSlidebar.call(this);
+                        createHoverView.call(this);
+
+                        $(".ui-fold-view").foldView();
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        
+                    }
+                }
+            };
+
+            function createSwitchButton() {
+                var normal, lollipop, marshmallow,
+                    changeFn = function() {
+                        if(this.checked) {
+                            this.switchBox.next().text("开");
+                        } else {
+                            this.switchBox.next().text("关");
+                        }
+                    };
+                normal = $("#normal").switchButton();
+                normal.changed(changeFn);
+
+                lollipop = $("#lollipop").switchButton({
+                    style: "lollipop"
+                });
+                lollipop.changed(changeFn);
+
+                marshmallow = $("#marshmallow").switchButton({
+                    style: "marshmallow"
+                });
+                marshmallow.changed(changeFn);
+            }
+
+            function createComfirmButton() {
+                $("#deleteButton").confirmClick(
+                    function() {
+                        ui.messageShow("删除成功");
+                    }
+                );
+                $("#deleteToolButton").confirmClick({
+                    backgroundColor: "#990000",
+                    handler: function() {
+                        ui.messageShow("删除成功");
+                    }
+                });
+                $("#deleteCheckButton").confirmClick(
+                    function() {
+                        ui.warnShow("您还没有选择要删除的记录");
+                        return false;
+                    },
+                    function() {
+                        ui.messageShow("删除成功");
+                    }
+                );
+                $("#completedButton").confirmClick({
+                    backgroundColor: "#28B467",
+                    handler: function() {
+                        ui.successShow("完成");
+                    }
+                });
+                $("#payButton").confirmClick({
+                    backgroundColor: "#FC8D0F",
+                    handler: function() {
+                        ui.successShow("支付成功");
+                    }
+                });
+            }
+
+            function createExtendButton() {
+                var buttons = [
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    },
+                    {
+                        icon: "<i class='fa fa-search'></i>",
+                        title: "搜索"
+                    }
+                ];
+                $("#extendPanel").extendButton({
+                    buttonSize: 32,
+                    centerIcon: "close",
+                    buttons: buttons
+                });
+                $("#extendRoundPanel").extendButton({
+                    buttonSize: 32,
+                    centerIcon: "none",
+                    buttons: buttons
+                });
+            }
+
+            function createFilterTool() {
+                this.filterView = $("#filter").filterTool({
+                    viewData: [
+                        { text: "全部", value: "all", selected: true },
+                        { text: "工具", value: "tool" },
+                        { text: "网络", value: "network" },
+                        { text: "游戏", value: "game" }
+                    ]
+                });
+            }
+
+            function createSlidebar() {
+                this.slidebar = $("#slidebar").slidebar();
+                this.slidebar.changed(function(e, percent) {
+                    $("#slidebarValue").html(percent + "%");
+                });
+                this.slidebar.percentValue = 15;
+
+                this.verticalBar = $("#slidebarVertical").slidebar({
+                    direction: "vertical"
+                });
+                this.verticalBar.percentValue = 45;
+            }
+
+            function createHoverView() {
+                this.hoverView = ui.ctrls.HoverView({
+                    width: 200,
+                    height: 100
+                });
+                this.hoverView.showing(function() {
+                    this.empty().append("<a href='http://www.yzgit.com' style='line-height:24px;margin-left:5px;'>欢迎去云之国主页看看</a>");
+                });
+                $("#hoverLink").addHoverView(this.hoverView);
+            }
+        })();
+    </script>
+
+</body>
+</html>
