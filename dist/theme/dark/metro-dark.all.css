@@ -775,9 +775,6 @@
   line-height: 23px;
   font-size: 12px;
 }
-.ui-date-chooser-panel .set-title span {
-  margin-left: 5px;
-}
 .ui-date-chooser-panel .set-title .title-fieldset {
   border-left: none 0;
   border-bottom: none 0;
@@ -2743,6 +2740,7 @@ input.ui-clear-text {
 .ui-uploader-button {
   overflow: hidden;
   position: relative;
+  cursor: pointer;
 }
 .ui-uploader-input-file {
   position: absolute;
@@ -2752,7 +2750,6 @@ input.ui-clear-text {
   height: 400px;
   margin: 0;
   padding: 0;
-  cursor: pointer;
   z-index: 99;
   opacity: .0001;
 }

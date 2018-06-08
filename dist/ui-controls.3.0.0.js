@@ -17482,7 +17482,7 @@ if(global.FormData) {
                 xhr, context;
     
             that.percent = Math.floor(index / total * 1000) / 10;
-            that.fire(progressing, that.percent);
+            that.fire("progressing", that.percent);
     
             isEnd = false;
     
@@ -17565,7 +17565,7 @@ if(global.FormData) {
                 fileName, index, total,
                 i, key, sliceNames;
         
-            files = this.inputFile[0].files;
+            files = this._inputFile[0].files;
             file = files[0];
             if (!files || files.length === 0) {
                 return;
@@ -17595,20 +17595,7 @@ if(global.FormData) {
         };
     };
 } else {
-    /*
     // 浏览器不支持FormData，用iFrame实现无刷新上传
-    scriptText = 'Function BinaryToArray(binary)\r\n\
-                    Dim oDic\r\n\
-                    Set oDic = CreateObject("scripting.dictionary")\r\n\
-                    length = LenB(binary) - 1\r\n\
-                    For i = 1 To length\r\n\
-                        oDic.add i, AscB(MidB(binary, i, 1))\r\n\
-                    Next\r\n\
-                    BinaryToArray = oDic.Items\r\n\
-                End Function';
-    execScript(scriptText, "VBScript");
-    */
-
     initUploader = function() {
         var div = $("<div class='ui-uploader-panel' />"),
             iframeId = "uploadFrameId_" + this._uploaderId;
@@ -17629,7 +17616,7 @@ if(global.FormData) {
         div.append(this._form);
         $(document.body).append(div);
 
-        this._iframe.load((function () {
+        this._iframe[0].onload = (function () {
             var contentWindow,
                 fileInfo,
                 errorMsg;
@@ -17650,7 +17637,7 @@ if(global.FormData) {
             } else {
                 this.fire("uploaded", fileInfo);
             }
-        }).bind(this));
+        }).bind(this);
 
         if(!fouceText) {
             fouceText = $("<input type='text' value='' style='position:absolute;left:-99px;top:-1px;width:0;height:0;' />");
@@ -17692,7 +17679,7 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         return ["selected", "uploading", "uploaded", "progressing", "error"];
     },
     _create: function() {
-        this._uploaderId = ++id;
+        this._uploaderId = ++counter;
         this._form = null;
         this._inputFile = null;
 
@@ -17714,7 +17701,7 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         if(!this.element) {
             this.element = $("<label />");
         }
-        if(this.element.nodeName() !== "LABLE") {
+        if(this.element.nodeName() !== "LABEL") {
             throw TypeError("the element must be label element");
         }
 
@@ -17770,6 +17757,10 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         if (!this.checkFile(path)) {
             this.fire("error", "不支持上传当前选择的文件格式");
             return;
+        }
+
+        if(!this.option.url) {
+            throw new TypeError("the upload url is null.");
         }
 
         if(this.fire("uploading", path) === false) {

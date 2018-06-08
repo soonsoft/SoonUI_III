@@ -116,8 +116,8 @@ httpRequestProcessor = {
             }
 
             // HTTP Method GET和HEAD没有RequestBody
-            option.hasRequestBody = !rnoContent.test(option.type);
-            if(!option.hasRequestBody) {
+            this.hasRequestBody = !rnoContent.test(option.type);
+            if(!this.hasRequestBody) {
                 // 请求没有requestBody，把参数放到url上
                 appendChar = rquery.test(option.url) ? "&" : "?";
                 if(this.querystring) {
@@ -190,7 +190,7 @@ httpRequestProcessor = {
 
             //必须要支持 FormData 和 file.fileList 的浏览器 才能用 xhr 发送
             //标准规定的 multipart/form-data 发送必须用 utf-8 格式， 记得 ie 会受到 document.charset 的影响
-            this.xhr.send(this.option.hasRequestBody && (this.formdata || this.querystring) || null);
+            this.xhr.send(this.hasRequestBody && (this.formdata || this.querystring) || null);
             
             //在同步模式中,IE6,7可能会直接从缓存中读取数据而不会发出请求,因此我们需要手动调用响应处理函数
             if(!this.option.async || this.xhr.readyState === 4) {
@@ -371,7 +371,10 @@ httpRequestProcessor = {
     },
     upload: {
         preprocess: function() {
-            this.option.contentType = "multipart/form-data";
+            // 上传文件使用的是RFC1867
+            // contentType = multipart/form-data会自动设置
+            // 会自动设置，不要手动设置，因为还需要设置boundary，这个是浏览器自动生成的
+            this.option.contentType = "";
         },
         prepareData: function() {
             var files = this.option.files,
@@ -379,7 +382,7 @@ httpRequestProcessor = {
                 data;
             
             data = this.option.data;
-            if(data instanceof FromData) {
+            if(data instanceof FormData) {
                 formData = this.data;
             } else {
                 formData = new FormData();
@@ -409,14 +412,15 @@ httpRequestProcessor = {
 
             // 添加其它文本数据
             if(ui.core.isString(data)) {
-                formdata.append("fileinfo", data); 
+                formData.append("fileinfo", data); 
             } else if(ui.core.isPlainObject(data)) {
                 Object.keys(data).forEach(function(key) {
-                    formdata.append(encodeURIComponent(key), encodeURIComponent(data[key]));
+                    formData.append(encodeURIComponent(key), encodeURIComponent(data[key]));
                 });
             }
 
-            this.formData = formData;
+            this.formdata = formData;
+            this.hasRequestBody = true;
         }
     }
 };
@@ -700,7 +704,7 @@ function ajax(option) {
     }
     dataType = option.dataType;
     ui.extend(ajaxRequest, 
-        (httpRequestProcessor[option.form ? "upload" : dataType] || 
+        (httpRequestProcessor[option.files ? "upload" : dataType] || 
             httpRequestProcessor.ajax));
 
     if(ajaxRequest.preprocess) {
@@ -773,7 +777,8 @@ function upload(url, files, data, successFn, errorFn, dataType) {
         dataType: dataType,
         files: files,
         data: data,
-        success: callback
+        success: successFn,
+        error: errorFn
     });
 }
 
@@ -804,3 +809,7 @@ eventDispatcher.initEvents(events);
 ui.getScript = getScript;
 ui.getJSON = getJSON;
 ui.upload = upload;
+
+function extendHttpProcessor() {
+
+}

@@ -35,6 +35,7 @@ module.exports = {
         "hover-color": "#434343",
         // 激活色
         "active-color": "#434343",
+        "button-active-color": "#333333",
         // 阴影色
         "shadow-color": "#434343"
     },
@@ -74,6 +75,7 @@ module.exports = {
         "hover-color": "#999999",
         // 激活色
         "active-color": "#999999",
+        "button-active-color": "#ffffff",
         // 阴影色
         "shadow-color": "#999999"
     }

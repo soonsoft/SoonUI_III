@@ -254,7 +254,7 @@ module.exports = function(grunt) {
                     viewDestFile
                 ],
                 // 合并后的JS文件的存放位置
-                dest: "dist/<%= pkg.name %>.<%= pkg.version %>.all.js"
+                dest: "dist/<%= pkg.title %>.<%= pkg.version %>.all.js"
             }
         },
         // 压缩工具
@@ -276,7 +276,7 @@ module.exports = function(grunt) {
                     // ui.viewpages.min.js
                     "dist/ui.viewpages.<%= pkg.version %>.min.js": ["<%= concat.viewpages.dest %>"],
                     // SOON.UI.all.min.js
-                    "dist/<%= pkg.name %>.<%= pkg.version %>.all.min.js": ["<%= concat.dist.dest %>"]
+                    "dist/<%= pkg.title %>.<%= pkg.version %>.all.min.js": ["<%= concat.dist.dest %>"]
                 }
             }
         },
