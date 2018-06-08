@@ -22,7 +22,8 @@ a {
   background-color: #A988DF !important;
   color: #ffffff !important;
 }
-.background-highlight-hover:hover {
+.background-highlight-hover:hover,
+.background-highlight-active:active {
   background-color: #A988DF !important;
   color: #ffffff !important;
 }

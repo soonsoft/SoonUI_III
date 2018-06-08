@@ -468,7 +468,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
-        this._closeButton = $("<button class='icon-button' />");
+        this._closeButton = $("<button class='icon-button background-highlight-active' />");
         this._closeButton.append("<i class='fa fa-chevron-right'></i>");
         this._closeButton.css({
             "position": "absolute",
@@ -478,7 +478,8 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             "min-width": "auto",
             "top": "5px",
             "right": "5px",
-            "z-index": 999
+            "z-index": 999,
+            "background-color": "transparent"
         });
         this._closeButton.click(function(e) {
             that.hide();
@@ -17202,7 +17203,7 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumbSize - 3;
+        option.end = this.width - this.thumbSize - 4;
         this.animator.start();
     },
     close: function() {
@@ -17222,11 +17223,11 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = 3;
+        option.end = 4;
         
         this.animator.start();
     },
-    thumbSize: 18
+    thumbSize: 16
 };
 
 lollipopStyle = {

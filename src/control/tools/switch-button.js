@@ -22,7 +22,7 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumbSize - 3;
+        option.end = this.width - this.thumbSize - 4;
         this.animator.start();
     },
     close: function() {
@@ -42,11 +42,11 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = 3;
+        option.end = 4;
         
         this.animator.start();
     },
-    thumbSize: 18
+    thumbSize: 16
 };
 
 lollipopStyle = {
