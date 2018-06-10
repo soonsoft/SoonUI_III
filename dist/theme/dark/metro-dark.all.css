@@ -2517,7 +2517,6 @@ div.c_flyingDots div.c_loadingFallback {
   height: 100%;
   top: 0px;
   bottom: 0px;
-  border-left: solid 1px #5d5f60;
   z-index: 9999;
   overflow: hidden;
   display: none;

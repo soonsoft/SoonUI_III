@@ -91,7 +91,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             this.centerIcon.css({
                 "width": this.centerSize + "px",
                 "height": this.centerSize + "px",
-                "line-height": this.centerSize + "px",
+                "line-height": this.centerSize - 2 + "px",
                 "top": this.centerTop - this.centerSize / 2 + "px",
                 "left": this.centerLeft - this.centerSize / 2 + "px"
             });
@@ -307,7 +307,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         button.elem.css({
             "width": this.buttonSize + "px",
             "height": this.buttonSize + "px",
-            "line-height": this.buttonSize + "px"
+            "line-height": this.buttonSize - 2 + "px"
         });
         this.buttonPanel.append(button.elem);
         

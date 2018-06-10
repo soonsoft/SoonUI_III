@@ -216,7 +216,7 @@
                     悬停提示(<span class="font-highlight">ui.ctrls.HoverView</span>)是对html element title属性的补充，可以对内容进行格式化和布局，也可以放入一些交互控件。在布局空间局促又需要展示很多信息的时候有大用。<br />
                     <span class="font-highlight">用法：</span><br />
                     第一步：创建<span class="font-highlight">HoverView</span>对象。var hoverView = ui.ctrls.HoverView();<br />
-                    第二步: 定义<span class="font-highlight">showing</span>事件，在事件处理函数中使用<span class="font-highlight">this.empty()</span>清空内容，使用<span class="font-highlight">this.append()</span>添加内容。<br />
+                    第二步: 定义<span class="font-highlight">showing</span>事件，在事件处理函数中使用<span class="font-highlight">this.clear()</span>清空内容，使用<span class="font-highlight">this.append()</span>添加内容。<br />
                     第三步：将元素和<span class="font-highlight">HoverView</span>的实例绑定，<span class="font-highlight">$("#hoverElem").addHoverView(hoverView)</span>
                 </p>
                 <div class="box-line">
@@ -237,13 +237,14 @@
     <script type="text/javascript">
         ui.theme.currentTheme = "Dark";
         ui.theme.backgroundColor = "#1d1f21";
-        ui.master.config("userSettings", {
-            changeHighlightUrl: function(highlight) {
-                $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-                ui.theme.setHighlight(highlight);
-            }
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
         });
-        ui.master.init();
     </script>
     
     <script type="text/javascript">
@@ -413,7 +414,7 @@
                     height: 100
                 });
                 this.hoverView.showing(function() {
-                    this.empty().append("<a href='http://www.yzgit.com' style='line-height:24px;margin-left:5px;'>欢迎去云之国主页看看</a>");
+                    this.clear().append("<a href='http://www.yzgit.com' style='line-height:24px;margin-left:5px;'>欢迎去云之国主页看看</a>");
                 });
                 $("#hoverLink").addHoverView(this.hoverView);
             }
