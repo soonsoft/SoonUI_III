@@ -3444,11 +3444,12 @@ ui.random = random;
 
 (function($, ui) {
 var open = "{",
-    close = "}";
+    close = "}",
+    formatterOperator = "|";
 function bindTemplate(data, converter) {
     var indexes = this.braceIndexes,
         parts,
-        name, formatter,
+        name,
         index, value,
         i, len;
     if(!converter) {
@@ -3462,22 +3463,52 @@ function bindTemplate(data, converter) {
             if(ui.str.isEmpty(name)) {
                 parts[index] = "";
             } else {
-                value = data[name];
-                formatter = converter[name];
-                if(ui.core.isFunction(formatter)) {
-                    parts[index] = formatter.call(data, value);
-                } else {
-                    if(ui.str.isEmpty(value)) {
-                        value = "";
-                    }
-                    parts[index] = value;
+                value = getValue(name, data, converter);
+                if(ui.str.isEmpty(value)) {
+                    value = "";
                 }
+                parts[index] = value;
             }
         }
     } else {
         parts = this.parts;
     }
     return parts.join("");
+}
+function getValue(name, data, converter) {
+    var index,
+        formatterName,
+        names, type,
+        value;
+
+    if(!data) {
+        return null;
+    }
+    
+    index = name.indexOf(formatterOperator);
+    if(index >= 0) {
+        formatterName = name.substring(index + 1).trim();
+        name = name.substring(0, index).trim();
+    }
+
+    names = name.split(".");
+    value = names.reduce(function(o, n) {
+        if(!o) {
+            return null;
+        }
+        return o[n];
+    }, data);
+
+    type = ui.core.type(value);
+    if(type === "null" || type === "undefined") {
+        return null;
+    }
+    
+    if(formatterName && converter && ui.core.isFunction(converter[formatterName])) {
+        return converter[formatterName].call(data, value, name);
+    }
+
+    return value;
 }
 function parseTemplate(template) {
     var index, 
