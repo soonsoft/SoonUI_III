@@ -250,10 +250,21 @@ Tile.prototype = {
         this.tileInfo = tileInfo || {};
         that = this;
         tileInfoProperties.forEach(function(propertyName) {
+            var getter,
+                setter,
+                setterName;
             if(tileInfo.hasOwnProperty(propertyName)) {
-                defineProperty.call(that, propertyName, function() {
+                getter = function() {
                     return that.tileInfo[propertyName];
-                });
+                };
+                setterName = "_set" + propertyName.charAt(0).toUpperCase() + propertyName.substring(1);
+                if(ui.core.isFunction(that[setterName])) {
+                    setter = function(value) {
+                        that.tileInfo[propertyName] = value;
+                        that[setterName](value);
+                    };
+                }
+                defineProperty.call(that, propertyName, getter, setter);
             }
         });
 
@@ -279,7 +290,7 @@ Tile.prototype = {
         this.tilePanel = $("<div class='ui-tile tile-" + this.type + "' />");
         
         this.tileInner = $("<div class='tile-inner' />");
-        this.tileInner.css("background-color", this.color);
+        this._setColor(this.color);
         this.tilePanel.append(this.tileInner);
         
         this.iconImg = $("<img class='tile-icon' />");
@@ -299,7 +310,7 @@ Tile.prototype = {
 
             // 磁贴标题
             this.titlePanel = $("<div class='tile-title' />");
-            this.titlePanel.html("<span class='tile-title-text'>" + this.title + "</span>");
+            this._setTitle(this.title);
             
             this.tileInner
                     .append(this.contentPanel)
@@ -316,6 +327,16 @@ Tile.prototype = {
             this.linkAnchor = $("<a class='tile-link " + this.type + "' />");
             this.linkAnchor.prop("href", this.link);
             this.tilePanel.append(this.linkAnchor);
+        }
+    },
+    _setColor: function(value) {
+        if(value && value.length > 0) {
+            this.tileInner.css("background-color", value);
+        }
+    },
+    _setTitle: function(value) {
+        if(this.titlePanel) {
+            this.titlePanel.html("<span class='tile-title-text'>" + value + "</span>");
         }
     },
     /** 更新磁贴 */
@@ -560,7 +581,7 @@ TileGroup.prototype = {
 
         if(tile instanceof Tile) {
             index = -1;
-            for(i = this.length - 1; i >= 0 i--) {
+            for(i = this.length - 1; i >= 0; i--) {
                 if(this[i] === tile) {
                     index = i;
                     break;

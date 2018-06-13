@@ -151,8 +151,9 @@ core.type = function(obj) {
 };
 // 生成isXXX方法
 core.each(typeStr, function (name) {
+    var lowerName = name.toLowerCase();
     core["is" + name] = function() {
-        return core.type.apply(core, arguments) === name.toLowerCase();
+        return core.type.apply(core, arguments) === lowerName;
     };
 });
 
