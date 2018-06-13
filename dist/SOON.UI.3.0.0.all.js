@@ -3444,11 +3444,12 @@ ui.random = random;
 
 (function($, ui) {
 var open = "{",
-    close = "}";
+    close = "}",
+    formatterOperator = "|";
 function bindTemplate(data, converter) {
     var indexes = this.braceIndexes,
         parts,
-        name, formatter,
+        name,
         index, value,
         i, len;
     if(!converter) {
@@ -3462,22 +3463,52 @@ function bindTemplate(data, converter) {
             if(ui.str.isEmpty(name)) {
                 parts[index] = "";
             } else {
-                value = data[name];
-                formatter = converter[name];
-                if(ui.core.isFunction(formatter)) {
-                    parts[index] = formatter.call(data, value);
-                } else {
-                    if(ui.str.isEmpty(value)) {
-                        value = "";
-                    }
-                    parts[index] = value;
+                value = getValue(name, data, converter);
+                if(ui.str.isEmpty(value)) {
+                    value = "";
                 }
+                parts[index] = value;
             }
         }
     } else {
         parts = this.parts;
     }
     return parts.join("");
+}
+function getValue(name, data, converter) {
+    var index,
+        formatterName,
+        names, type,
+        value;
+
+    if(!data) {
+        return null;
+    }
+    
+    index = name.indexOf(formatterOperator);
+    if(index >= 0) {
+        formatterName = name.substring(index + 1).trim();
+        name = name.substring(0, index).trim();
+    }
+
+    names = name.split(".");
+    value = names.reduce(function(o, n) {
+        if(!o) {
+            return null;
+        }
+        return o[n];
+    }, data);
+
+    type = ui.core.type(value);
+    if(type === "null" || type === "undefined") {
+        return null;
+    }
+    
+    if(formatterName && converter && ui.core.isFunction(converter[formatterName])) {
+        return converter[formatterName].call(data, value, name);
+    }
+
+    return value;
 }
 function parseTemplate(template) {
     var index, 
@@ -5259,8 +5290,8 @@ httpRequestProcessor = {
             }
 
             // HTTP Method GET和HEAD没有RequestBody
-            option.hasRequestBody = !rnoContent.test(option.type);
-            if(!option.hasRequestBody) {
+            this.hasRequestBody = !rnoContent.test(option.type);
+            if(!this.hasRequestBody) {
                 // 请求没有requestBody，把参数放到url上
                 appendChar = rquery.test(option.url) ? "&" : "?";
                 if(this.querystring) {
@@ -5333,7 +5364,7 @@ httpRequestProcessor = {
 
             //必须要支持 FormData 和 file.fileList 的浏览器 才能用 xhr 发送
             //标准规定的 multipart/form-data 发送必须用 utf-8 格式， 记得 ie 会受到 document.charset 的影响
-            this.xhr.send(this.option.hasRequestBody && (this.formdata || this.querystring) || null);
+            this.xhr.send(this.hasRequestBody && (this.formdata || this.querystring) || null);
             
             //在同步模式中,IE6,7可能会直接从缓存中读取数据而不会发出请求,因此我们需要手动调用响应处理函数
             if(!this.option.async || this.xhr.readyState === 4) {
@@ -5514,7 +5545,10 @@ httpRequestProcessor = {
     },
     upload: {
         preprocess: function() {
-            this.option.contentType = "multipart/form-data";
+            // 上传文件使用的是RFC1867
+            // contentType = multipart/form-data会自动设置
+            // 会自动设置，不要手动设置，因为还需要设置boundary，这个是浏览器自动生成的
+            this.option.contentType = "";
         },
         prepareData: function() {
             var files = this.option.files,
@@ -5522,7 +5556,7 @@ httpRequestProcessor = {
                 data;
             
             data = this.option.data;
-            if(data instanceof FromData) {
+            if(data instanceof FormData) {
                 formData = this.data;
             } else {
                 formData = new FormData();
@@ -5552,14 +5586,15 @@ httpRequestProcessor = {
 
             // 添加其它文本数据
             if(ui.core.isString(data)) {
-                formdata.append("fileinfo", data); 
+                formData.append("fileinfo", data); 
             } else if(ui.core.isPlainObject(data)) {
                 Object.keys(data).forEach(function(key) {
-                    formdata.append(encodeURIComponent(key), encodeURIComponent(data[key]));
+                    formData.append(encodeURIComponent(key), encodeURIComponent(data[key]));
                 });
             }
 
-            this.formData = formData;
+            this.formdata = formData;
+            this.hasRequestBody = true;
         }
     }
 };
@@ -5843,7 +5878,7 @@ function ajax(option) {
     }
     dataType = option.dataType;
     ui.extend(ajaxRequest, 
-        (httpRequestProcessor[option.form ? "upload" : dataType] || 
+        (httpRequestProcessor[option.files ? "upload" : dataType] || 
             httpRequestProcessor.ajax));
 
     if(ajaxRequest.preprocess) {
@@ -5916,7 +5951,8 @@ function upload(url, files, data, successFn, errorFn, dataType) {
         dataType: dataType,
         files: files,
         data: data,
-        success: callback
+        success: successFn,
+        error: errorFn
     });
 }
 
@@ -5947,6 +5983,10 @@ eventDispatcher.initEvents(events);
 ui.getScript = getScript;
 ui.getJSON = getJSON;
 ui.upload = upload;
+
+function extendHttpProcessor() {
+
+}
 
 })(jQuery, ui);
 
@@ -7735,7 +7775,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
-        this._closeButton = $("<button class='icon-button' />");
+        this._closeButton = $("<button class='icon-button background-highlight-active' />");
         this._closeButton.append("<i class='fa fa-chevron-right'></i>");
         this._closeButton.css({
             "position": "absolute",
@@ -7745,7 +7785,8 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             "min-width": "auto",
             "top": "5px",
             "right": "5px",
-            "z-index": 999
+            "z-index": 999,
+            "background-color": "transparent"
         });
         this._closeButton.click(function(e) {
             that.hide();
@@ -23399,7 +23440,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             this.centerIcon.css({
                 "width": this.centerSize + "px",
                 "height": this.centerSize + "px",
-                "line-height": this.centerSize + "px",
+                "line-height": this.centerSize - 2 + "px",
                 "top": this.centerTop - this.centerSize / 2 + "px",
                 "left": this.centerLeft - this.centerSize / 2 + "px"
             });
@@ -23615,7 +23656,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         button.elem.css({
             "width": this.buttonSize + "px",
             "height": this.buttonSize + "px",
-            "line-height": this.buttonSize + "px"
+            "line-height": this.buttonSize - 2 + "px"
         });
         this.buttonPanel.append(button.elem);
         
@@ -24469,7 +24510,7 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = this.width - this.thumbSize - 3;
+        option.end = this.width - this.thumbSize - 4;
         this.animator.start();
     },
     close: function() {
@@ -24489,11 +24530,11 @@ normalStyle = {
         
         option = this.animator[1];
         option.begin = parseFloat(option.target.css("left"));
-        option.end = 3;
+        option.end = 4;
         
         this.animator.start();
     },
-    thumbSize: 18
+    thumbSize: 16
 };
 
 lollipopStyle = {
@@ -24749,7 +24790,7 @@ if(global.FormData) {
                 xhr, context;
     
             that.percent = Math.floor(index / total * 1000) / 10;
-            that.fire(progressing, that.percent);
+            that.fire("progressing", that.percent);
     
             isEnd = false;
     
@@ -24832,7 +24873,7 @@ if(global.FormData) {
                 fileName, index, total,
                 i, key, sliceNames;
         
-            files = this.inputFile[0].files;
+            files = this._inputFile[0].files;
             file = files[0];
             if (!files || files.length === 0) {
                 return;
@@ -24862,20 +24903,7 @@ if(global.FormData) {
         };
     };
 } else {
-    /*
     // 浏览器不支持FormData，用iFrame实现无刷新上传
-    scriptText = 'Function BinaryToArray(binary)\r\n\
-                    Dim oDic\r\n\
-                    Set oDic = CreateObject("scripting.dictionary")\r\n\
-                    length = LenB(binary) - 1\r\n\
-                    For i = 1 To length\r\n\
-                        oDic.add i, AscB(MidB(binary, i, 1))\r\n\
-                    Next\r\n\
-                    BinaryToArray = oDic.Items\r\n\
-                End Function';
-    execScript(scriptText, "VBScript");
-    */
-
     initUploader = function() {
         var div = $("<div class='ui-uploader-panel' />"),
             iframeId = "uploadFrameId_" + this._uploaderId;
@@ -24896,7 +24924,7 @@ if(global.FormData) {
         div.append(this._form);
         $(document.body).append(div);
 
-        this._iframe.load((function () {
+        this._iframe[0].onload = (function () {
             var contentWindow,
                 fileInfo,
                 errorMsg;
@@ -24917,7 +24945,7 @@ if(global.FormData) {
             } else {
                 this.fire("uploaded", fileInfo);
             }
-        }).bind(this));
+        }).bind(this);
 
         if(!fouceText) {
             fouceText = $("<input type='text' value='' style='position:absolute;left:-99px;top:-1px;width:0;height:0;' />");
@@ -24959,7 +24987,7 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         return ["selected", "uploading", "uploaded", "progressing", "error"];
     },
     _create: function() {
-        this._uploaderId = ++id;
+        this._uploaderId = ++counter;
         this._form = null;
         this._inputFile = null;
 
@@ -24981,7 +25009,7 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         if(!this.element) {
             this.element = $("<label />");
         }
-        if(this.element.nodeName() !== "LABLE") {
+        if(this.element.nodeName() !== "LABEL") {
             throw TypeError("the element must be label element");
         }
 
@@ -25037,6 +25065,10 @@ ui.ctrls.define("ui.ctrls.Uploader", {
         if (!this.checkFile(path)) {
             this.fire("error", "不支持上传当前选择的文件格式");
             return;
+        }
+
+        if(!this.option.url) {
+            throw new TypeError("the upload url is null.");
         }
 
         if(this.fire("uploading", path) === false) {
