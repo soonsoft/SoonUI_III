@@ -473,11 +473,16 @@ TileGroup.prototype = {
             y += 2;
         }
     },
+    /** 对该磁贴组进行布局 */
     arrange: function(size) {
         var i, len,
             standard,
             smallCount, smallX, smallY, smallIndex,
             positionBox, currentPosition, tile;
+
+        if(!ui.core.isNumber(size) || size <= 0) {
+            throw new TypeError("the arguments size: " + size + " is invalid.");
+        }
 
         standard = tileSize.medium;
         positionBox = [];
@@ -542,13 +547,42 @@ TileGroup.prototype = {
             "height": this.height + "px"
         });
     },
-
+    /** 在磁贴组中加入一个新磁贴（会引起重排计算） */
     addTile: function(tileInfo) {
         var tile = new Tile(tileInfo);
-        ui.ArrayFaker.prototype.push(tile);
+        ui.ArrayFaker.prototype.push.call(this, tile);
+        // 重排，重新布局
+        this.container._registerLayoutTask();
     },
-    removeTile: function(tileInfo) {
+    /** 移除一个磁贴（会引起重排计算） */
+    removeTile: function(tile) {
+        var i, index;
 
+        if(tile instanceof Tile) {
+            index = -1;
+            for(i = this.length - 1; i >= 0 i--) {
+                if(this[i] === tile) {
+                    index = i;
+                    break;
+                }
+            }
+            if(index !== -1) {
+                this.removeAt(index);
+            }
+        }
+    },
+    /** 按磁贴的索引移除一个磁贴（会引起重排计算） */
+    removeAt: function(index) {
+        if(!ui.core.isNumber(index)) {
+            throw new TypeError("the arguments index is not a number.");
+        }
+        if(index < 0 || index >= this.length) {
+            return;
+        }
+
+        ui.ArrayFaker.prototype.splice.call(this, index, 1);
+        // 重排，重新布局
+        this.container._registerLayoutTask();
     }
 };
 
@@ -573,6 +607,9 @@ TileContainer.prototype = {
         } else {
             this.container.addClass("ui-tile-container");
         }
+        // 容器的宽度和高度
+        this.containerWidth = this.container.width();
+        this.containerHeight = this.container.height();
         // 添加底部留白占位符
         this.tileMargin = $("<div class='tile-margin' />");
         this.container.append(this.tileMargin);
@@ -644,6 +681,16 @@ TileContainer.prototype = {
             groupSize: size
         };
     },
+    // 注册一个异步的layout任务，避免layout多次执行
+    _registerLayoutTask: function() {
+        if(ui.core.isNumber(this._layoutTaskHandler)) {
+            return;
+        }
+        this._layoutTaskHandler = ui.setMicroTask((function() {
+            this._layoutTaskHandler = null;
+            this.layout(this.containerWidth, this.containerHeight);
+        }).bind(this));
+    },
     /** 布局磁贴 */
     layout: function(containerWidth, containerHeight) {
         var groupLayoutInfo,
@@ -655,9 +702,18 @@ TileContainer.prototype = {
             groupTemp,
             i, len, j;
 
+        if(!ui.core.isNumber(containerWidth) || containerWidth <= 0) {
+            throw new TypeError("the arguments containerWidth: " + containerWidth + " is invalid.");
+        }
+        if(!ui.core.isNumber(containerHeight) || containerHeight <= 0) {
+            throw new TypeError("the arguments containerHeight: " + containerHeight + " is invalid.");
+        }
+
         if(this.groups.length === 0) {
             return;
         }
+        this.containerWidth = containerWidth;
+        this.containerHeight = containerHeight;
         groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth);
         
         // 排列每一组磁贴
@@ -704,14 +760,14 @@ TileContainer.prototype = {
                 }
                 group = this.groups[i];
                 if(groupTemp[j] === undefined) {
-                groupTemp[j] = 0;
+                    groupTemp[j] = 0;
                 }
                 group.left = groupTemp.left;
                 group.top = groupTemp[j];
                 group.groupPanel.css({
-                "left": group.left + "px",
-                "top": group.top + "px",
-                "visibility": "visible"
+                    "left": group.left + "px",
+                    "top": group.top + "px",
+                    "visibility": "visible"
                 });
                 groupTemp.left += group.width + edgeDistance;
                 groupTemp[j] += group.height;
@@ -765,7 +821,7 @@ TileContainer.prototype = {
     activateDynamicTile: function(tile) {
         this.dynamicTiles.activeCount++;
         this._register(); 
-    },
+    }
 };
 
 ui.TileContainer = TileContainer;
