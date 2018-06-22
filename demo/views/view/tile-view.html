@@ -60,6 +60,16 @@
                             { type: "wide", color: color, title: "登录图片", icon: "../../content/icons/tile/login-images.png", name: "loginImage", interval: 1, updateFn: picturePlay }
                         ]);
                         
+                        ui.page.hlchanged(function(e, highlight) {
+                            pageLogic.tileContainer.groups.forEach(function(group) {
+                                var i = group.length - 1,
+                                    tile;
+                                for(; i >= 0; i--) {
+                                    tile = group[i];
+                                    tile.color = highlight.Color;
+                                }
+                            });
+                        });
                     },
                     layout: function() {
                         ui.master.resize(function(e) {
