@@ -86,14 +86,18 @@
                 <div class="box-line clear" style="height:240px;">
                     <div class="box-column" style="position:relative;width:200px;">
                         <label class="label-text">覆盖模式</label>
-                        <div id="extendPanel" class="point-marker" class="font-highlight">
-                            <i class="fa fa-search"></i>
+                        <div class="extend-container">
+                            <div id="extendPanel" class="point-marker" class="font-highlight">
+                                <i class="fa fa-search"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="box-column" style="position:relative;width:200px;">
                         <label class="label-text">围绕模式</label>
-                        <div id="extendRoundPanel" class="point-marker" class="font-highlight">
-                            <i class="fa fa-search"></i>
+                        <div class="extend-container">
+                            <div id="extendRoundPanel" class="point-marker" class="font-highlight">
+                                <i class="fa fa-search"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,18 +193,24 @@
             background-color: #434343 !important;
         }
 
+        .extend-container {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 40px;
+            left: 0;
+        }
+
         .point-marker {
-            position:absolute;
-            left:50%;
-            top:50%;
-            width:32px;
-            height:32px;
-            margin-top:-6px;
-            margin-left:-16px;
-            font-size:16px;
-            text-align:center;
-            line-height:30px;
-            cursor:pointer;
+            position: absolute;
+            left: 84px;
+            top: 84px;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
         }
     </style>
 </partial>
@@ -334,12 +344,14 @@
                 $("#extendPanel").extendButton({
                     buttonSize: 32,
                     centerIcon: "close",
-                    buttons: buttons
+                    buttons: buttons,
+                    parent: $("#extendPanel").parent()
                 });
                 $("#extendRoundPanel").extendButton({
                     buttonSize: 32,
                     centerIcon: "none",
-                    buttons: buttons
+                    buttons: buttons,
+                    parent: $("#extendRoundPanel").parent()
                 });
             }
 

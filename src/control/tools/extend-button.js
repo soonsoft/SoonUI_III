@@ -317,8 +317,8 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             that: this,
             onChange: function(val) {
                 var centerLeft = (this.button.centerLeft - this.that.centerLeft) * val / 100 + this.that.centerLeft,
-                    centerTop = (this.button.centerTop - this.that.centerTop) * val / 100 + this.that.centerTop;
-                var po = this.that._caculatePositionByCenter(centerLeft, centerTop);
+                    centerTop = (this.button.centerTop - this.that.centerTop) * val / 100 + this.that.centerTop,
+                    po = this.that._caculatePositionByCenter(centerLeft, centerTop);
                 this.target.css({
                     "left": po.left + "px",
                     "top": po.top + "px"

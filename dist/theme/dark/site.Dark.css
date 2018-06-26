@@ -603,7 +603,7 @@ textarea {
 }
 .button:disabled {
   background-color: #5d5f60 !important;
-  color: #888888;
+  color: #888888 !important;
 }
 /* 通用遮罩层 */
 .mask-panel {

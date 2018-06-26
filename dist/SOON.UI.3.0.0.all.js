@@ -4914,6 +4914,7 @@ Animator.prototype._prepare = function () {
             i--;
         }
 
+        // 动画节点是否被禁用
         option.disabled = false;
         //开始位置
         option.begin = option.begin || 0;
@@ -4923,7 +4924,8 @@ Animator.prototype._prepare = function () {
         option.change = option.end - option.begin;
         //当前值
         option.current = option.begin;
-        if (option.change === 0) {
+
+        if (option.disabled || option.change === 0) {
             option.disabled = true;
             disabledCount++;
             continue;
@@ -23667,8 +23669,8 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             that: this,
             onChange: function(val) {
                 var centerLeft = (this.button.centerLeft - this.that.centerLeft) * val / 100 + this.that.centerLeft,
-                    centerTop = (this.button.centerTop - this.that.centerTop) * val / 100 + this.that.centerTop;
-                var po = this.that._caculatePositionByCenter(centerLeft, centerTop);
+                    centerTop = (this.button.centerTop - this.that.centerTop) * val / 100 + this.that.centerTop,
+                    po = this.that._caculatePositionByCenter(centerLeft, centerTop);
                 this.target.css({
                     "left": po.left + "px",
                     "top": po.top + "px"

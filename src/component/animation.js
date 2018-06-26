@@ -405,6 +405,7 @@ Animator.prototype._prepare = function () {
             i--;
         }
 
+        // 动画节点是否被禁用
         option.disabled = false;
         //开始位置
         option.begin = option.begin || 0;
@@ -414,7 +415,8 @@ Animator.prototype._prepare = function () {
         option.change = option.end - option.begin;
         //当前值
         option.current = option.begin;
-        if (option.change === 0) {
+
+        if (option.disabled || option.change === 0) {
             option.disabled = true;
             disabledCount++;
             continue;
