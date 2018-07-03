@@ -16685,7 +16685,7 @@ var guid = 1;
 function onDocumentMousemove (e) {
     var x = e.clientX,
         y = e.clientY;
-    if (this.animating) {
+    if (this.animator.isStarted) {
         return;
     }
     var p = this.target.offset();
@@ -16798,7 +16798,6 @@ ui.ctrls.define("ui.ctrls.HoverView", {
 
         this.hasDocMousemoveEvent = false;
 
-        this.animating = false;
         this.isShow = false;
 
         if (!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
@@ -16810,6 +16809,27 @@ ui.ctrls.define("ui.ctrls.HoverView", {
 
         this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
         this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
+
+        this.animator = ui.animator({
+            target: this.viewPanel,
+            onChange: function(val) {
+                this.target.css({
+                    "opacity": val / 100,
+                    "filter": "Alpha(opacity=" + val + ")"
+                });
+            }
+        }).addTarget({
+            target: this.viewPanel,
+            onChange: function(val) {
+                this.target.css("left", val + "px");
+            }
+        }).addTarget({
+            target: this.viewPanel,
+            onChange: function(val) {
+                this.target.css("top", val + "px");
+            }
+        });
+        this.animator.duration = 240;
     },
     clear: function () {
         this.viewPanel.empty();
@@ -16841,72 +16861,79 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         return location;
     },
     show: function (target) {
-        var view = this;
+        var view = this,
+            location,
+            opacity,
+            option;
+
         this.target = target;
 
-        this.animating = true;
-
-        var result = this.fire("showing");
-        if (result === false) return;
+        if (this.fire("showing") === false) return;
 
         //update size
         this.targetWidth = this.target.outerWidth();
         this.targetHeight = this.target.outerHeight();
         this.height = this.viewPanel.outerHeight();
 
-        this.viewPanel.stop();
-        var loc = this.getLocation(),
-            opacity,
-            css;
+        this.animator.stop();
+        location = this.getLocation();
         if (this.isShow) {
-            css = {
-                left: loc.left + "px",
-                top: loc.top + "px"
-            };
             opacity = parseFloat(this.viewPanel.css("opacity"));
+            option = this.animator[0];
             if (opacity < 1) {
-                css["opacity"] = 1;
-                css["filter"] = "Alpha(opacity=100)";
+                option.begin = opacity * 100;
+                option.end = 100;
+            } else {
+                option.begin = option.end = 100;
             }
+            option = this.animator[1];
+            option.begin = parseFloat(this.viewPanel.css("left"));
+            option.end = location.left;
+            option = this.animator[2];
+            option.begin = parseFloat(this.viewPanel.css("top"));
+            option.end = location.top;
         } else {
             this.viewPanel.css({
-                "top": loc.top + "px",
-                "left": loc.left + "px",
-                "opacity": 0,
-                "filter": "Alpha(opacity=0)"
+                "top": location.top + "px",
+                "left": location.left + "px"
             });
-            css = {
-                "opacity": 1,
-                "filter": "Alpha(opacity=100)"
-            };
+            option = this.animator[0];
+            option.begin = 0;
+            option.end = 100;
+            option = this.animator[1];
+            option.begin = option.end = location.left;
+            option = this.animator[2];
+            option.begin = option.end = location.top;
         }
         this.isShow = true;
         this.viewPanel.css("display", "block");
-        var func = function () {
-            view.animating = false;
+        this.animator.start().then(function() {
             view.addDocMousemove();
             view.fire("shown");
-        };
-        this.viewPanel.animate(css, 240, func);
+        });
     },
     hide: function (complete) {
-        var view = this;
+        var view = this,
+            option;
 
-        var result = this.fire("hiding");
-        if (result === false) return;
+        if (this.fire("hiding") === false) return;
 
-        this.viewPanel.stop();
+        this.animator.stop();
         this.removeDocMousemove();
-        var func = function () {
+
+        option = this.animator[0];
+        option.begin = parseFloat(this.viewPanel.css("opacity"));
+        option.end = 0;
+        option = this.animator[1];
+        option.begin = option.end = 0;
+        option = this.animator[2];
+        option.begin = option.end = 0;
+
+        this.animator.start().then(function() {
             view.isShow = false;
             view.viewPanel.css("display", "none");
             view.fire("hidden");
-        };
-        var css = {
-            "opacity": 0,
-            "filter": "Alpha(opacity=0)"
-        };
-        this.viewPanel.animate(css, 200, func);
+        });
     }
 });
 ui.createHoverView = function (option) {
