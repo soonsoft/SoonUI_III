@@ -467,7 +467,7 @@ cellParameterFormatter = {
                     var rowData,
                         index,
                         result;
-                    this.empty();
+                    this.clear();
                     index = parseInt(this.target.attr("data-rowIndex"), 10);
                     rowData = this._contextCtrl.getRowData(index);
                     result = formatViewFn.call(this._contextCtrl, rowData);

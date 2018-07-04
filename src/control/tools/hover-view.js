@@ -7,11 +7,11 @@ function onDocumentMousemove (e) {
     if (this.animator.isStarted) {
         return;
     }
-    var p = this.target.offset();
-    var tl = {
-        top: Math.floor(p.top),
-        left: Math.floor(p.left)
-    };
+    var p = this.target.offset(),
+        tl = {
+            top: Math.floor(p.top),
+            left: Math.floor(p.left)
+        };
     tl.bottom = tl.top + this.targetHeight;
     tl.right = tl.left + this.targetWidth;
 
@@ -84,7 +84,7 @@ function onDocumentMousemove (e) {
     }
     this.viewPanel.css({
         "opacity": opacity,
-        "filter": "Alpha(opacity=" + opacity * 100 + ")"
+        "filter": "Alpha(opacity=" + (opacity * 100) + ")"
     });
 }
 
@@ -131,6 +131,7 @@ ui.ctrls.define("ui.ctrls.HoverView", {
 
         this.animator = ui.animator({
             target: this.viewPanel,
+            ease: ui.AnimationStyle.easeFrom,
             onChange: function(val) {
                 this.target.css({
                     "opacity": val / 100,
@@ -139,16 +140,18 @@ ui.ctrls.define("ui.ctrls.HoverView", {
             }
         }).addTarget({
             target: this.viewPanel,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).addTarget({
             target: this.viewPanel,
+            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
         });
-        this.animator.duration = 240;
+        this.animator.duration = 300;
     },
     clear: function () {
         this.viewPanel.empty();
@@ -182,7 +185,6 @@ ui.ctrls.define("ui.ctrls.HoverView", {
     show: function (target) {
         var view = this,
             location,
-            opacity,
             option;
 
         this.target = target;
@@ -197,10 +199,9 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         this.animator.stop();
         location = this.getLocation();
         if (this.isShow) {
-            opacity = parseFloat(this.viewPanel.css("opacity"));
             option = this.animator[0];
-            if (opacity < 1) {
-                option.begin = opacity * 100;
+            if (option.current < 100) {
+                option.begin = option.current;
                 option.end = 100;
             } else {
                 option.begin = option.end = 100;
@@ -231,17 +232,17 @@ ui.ctrls.define("ui.ctrls.HoverView", {
             view.fire("shown");
         });
     },
-    hide: function (complete) {
+    hide: function () {
         var view = this,
             option;
 
         if (this.fire("hiding") === false) return;
 
-        this.animator.stop();
         this.removeDocMousemove();
+        this.animator.stop();
 
         option = this.animator[0];
-        option.begin = parseFloat(this.viewPanel.css("opacity"));
+        option.begin = (parseFloat(this.viewPanel.css("opacity")) || 1) * 100;
         option.end = 0;
         option = this.animator[1];
         option.begin = option.end = 0;

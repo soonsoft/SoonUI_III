@@ -672,7 +672,6 @@ Animator.prototype.start = function (duration) {
         if (flag) {
             setTimeout(function() {
                 that.onEnd.call(that);
-                promise._resolve(that);
             });
         } else {
             fn = this.onEnd;
@@ -692,6 +691,7 @@ Animator.prototype.stop = function () {
     this.stopHandle = null;
     
     if(this.promise) {
+        this.promise._reject("stop");
         this.promise = null;
     }
 };
