@@ -4849,7 +4849,7 @@ Animator.prototype.doAnimation = function () {
 
     fps = parseInt(this.fps, 10) || 60;
     len = this.length;
-    onEndFn = ui.core.isFunction(this.onEnd) ? this.onEnd : null;
+    onEndFn = this.onEnd;
     
     this.isStarted = true;
     that = this;
@@ -4892,9 +4892,7 @@ Animator.prototype.doAnimation = function () {
             if (that.duration <= timestamp) {
                 that.isStarted = false;
                 that.stopHandle = null;
-                if (onEndFn) {
-                    onEndFn.call(that);
-                }
+                onEndFn.call(that);
             } else {
                 that.stopHandle = requestAnimationFrame(fn);
             }
@@ -4978,6 +4976,7 @@ Animator.prototype.start = function (duration) {
         if (flag) {
             setTimeout(function() {
                 that.onEnd.call(that);
+                promise._resolve(that);
             });
         } else {
             fn = this.onEnd;
