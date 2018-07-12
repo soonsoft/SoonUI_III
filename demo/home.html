@@ -88,7 +88,7 @@
         /* Main Section */
         .main-panel {
             width: 60%;
-            min-width: 400px;
+            min-width: 320px;
             height: auto;
             flex: none;
             display: flex;
@@ -99,7 +99,7 @@
             line-height: 150px;
             color: #fff;
             font-size: 5em;
-            text-shadow: #888 1px 0 0,#888 0 1px 0,#fff 0 0 0,#fff 0 0 0;
+            /*text-shadow: #888 1px 0 0,#888 0 1px 0,#fff 0 0 0,#fff 0 0 0;*/
         }
         .code {
             text-align: center;
@@ -155,13 +155,14 @@
         }
         .feature-panel {
             width: 50%;
-            min-width: 400px;
+            min-width: 320px;
             overflow: hidden;
             display: flex;
             flex: none;
             flex-flow: column nowrap;
             transform: scale(1.5, 1.5);
             color: #fff;
+            text-overflow: ellipsis;
         }
         /* Demo Section */
         .demo-arrow {
@@ -259,12 +260,13 @@
         }
         .end-panel {
             width: 50%;
-            min-width: 400px;
+            min-width: 320px;
             overflow: hidden;
             display: flex;
             flex: none;
             flex-flow: column nowrap;
             color: #fff;
+            text-overflow: ellipsis;
         }
     </style>
     <style type="text/css">
@@ -277,8 +279,41 @@
         @media only screen and (min-width: 480px) and (max-width: 767px) {
         }
         @media only screen and (max-width: 767px) {
+            .indicator-panel {
+                display: none;
+            }
         }
         @media only screen and (max-width: 479px) {
+            .indicator-panel {
+                display: none;
+            }
+
+            .main-header {
+                height: 90px;
+                line-height: 110px;
+                font-size: 3em;
+                /*text-shadow: #888 1px 0 0,#888 0 1px 0,#fff 0 0 0,#fff 0 0 0;*/
+            }
+
+            .code {
+                font-size: 1.5em;
+                height: 30px;
+            }
+
+            .description-text {
+                font-size: 1em;
+            }
+
+            .link-panel {
+                height: 36px;
+                margin-top: 20px;
+                margin-bottom: 48px;
+            }
+
+            .main-link {
+                width: 150px;
+                line-height: 36px;
+            }
         }
     </style>
 </head>

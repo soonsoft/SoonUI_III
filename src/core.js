@@ -182,8 +182,8 @@ core.isSupportCanvas = function () {
 
 // 判断是否支持触摸操作
 core.isTouchAvailable = function() {
-    if(core.type(isTouchAvaliable) !== "boolean") {
-        isTouchAvaliable = "ontouchstart" in window;
+    if(core.type(isTouchAvailable) !== "boolean") {
+        isTouchAvailable = "ontouchstart" in window;
     }
     return isTouchAvailable;
 };

@@ -628,6 +628,10 @@ TileContainer.prototype = {
         } else {
             this.container.addClass("ui-tile-container");
         }
+        // 如果支持触摸，则添加平滑滚动的样式
+        if(ui.core.isTouchAvailable()) {
+            this.container.css("-webkit-overflow-scrolling", "touch");
+        }
         // 容器的宽度和高度
         this.containerWidth = this.container.width();
         this.containerHeight = this.container.height();
