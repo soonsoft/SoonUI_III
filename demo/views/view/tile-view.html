@@ -16,7 +16,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         var color = ui.theme.currentHighlight.Color;
                         this.tileContainer = ui.TileContainer("tileContainer");
                         this.tileContainer.addGroup("常用", [
@@ -59,7 +59,16 @@
                             { type: "medium", color: color, title: "字典管理", icon: "../../content/icons/tile/dictionary.png" },
                             { type: "wide", color: color, title: "登录图片", icon: "../../content/icons/tile/login-images.png", name: "loginImage", interval: 1, updateFn: picturePlay }
                         ]);
-                        
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.tileContainer.layout(width, height);
+                        });
+                    },
+                    event: function() {
+                        // 主题高亮色变化事件
                         ui.page.hlchanged(function(e, highlight) {
                             pageLogic.tileContainer.groups.forEach(function(group) {
                                 var i = group.length - 1,
@@ -70,17 +79,6 @@
                                 }
                             });
                         });
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            pageLogic.tileContainer.layout(width, height);
-                        });
-                    },
-                    after: function() {
-                    },
-                    events: function() {
                     },
                     load: function() {
                     }

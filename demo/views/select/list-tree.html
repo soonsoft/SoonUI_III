@@ -130,7 +130,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         this.contentPanel = $(".content-panel");
 
                         createSimpleSelectionList.call(this);
@@ -150,10 +150,7 @@
                                 height = ui.master.contentBodyHeight;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

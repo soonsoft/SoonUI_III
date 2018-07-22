@@ -63,7 +63,7 @@
             var westlifeInsertItem = { album: "Unbreakable - The Greatest Hits", year: "2002-11-02", artist: "Westlife" };
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         this.toolbar = ui.master.createToolbar("toolbar");
                         createCardView.call(this);
                     },
@@ -74,10 +74,7 @@
                             pageLogic.cardView.setSize(height - pageLogic.toolbar.height);
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
                         $("#addItem").click(function(e) {
                             if(removeItems.length === 0) {
                                 ui.messageShow("没有被移除的项目，请先移除一个项目");

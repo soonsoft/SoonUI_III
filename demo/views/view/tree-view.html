@@ -2,7 +2,21 @@
 <partial id="header">TREE VIEW</partial>
 
 <partial id="content">
-    <div class="toolbar"></div>
+    <div class="toolbar">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="setSelection" class="tool-action-button" href="javascript:void(0)" title="选中项目">
+                    <i class="fa fa-check-square"></i>
+                </a>
+                <a id="cancelSelection" class="tool-action-button" href="javascript:void(0)" title="取消特定的项目">
+                    <i class="fa fa-minus-square"></i>
+                </a>
+                <a id="cancelAll" class="tool-action-button" href="javascript:void(0)" title="取消全部项目">
+                    <i class="fa fa-square-o"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
     <div id="treeView"></div>
 </partial>
 
@@ -20,8 +34,9 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
-                        createTreeView.call(this);
+                    create: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        this.treeView = createTreeView.call(this);
                     },
                     layout: function() {
                         ui.master.resize(function(e) {
@@ -30,11 +45,16 @@
                             $("#treeView").css("height", height - 80 + "px");
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
-
+                    event: function() {
+                        $("#setSelection").click(function(e) {
+                            pageLogic.treeView.setSelection(["1.1", "2.1", "3"]);
+                        });
+                        $("#cancelSelection").click(function(e) {
+                            pageLogic.treeView.cancelSelection(["1.1", "3"]);
+                        });
+                        $("#cancelAll").click(function(e) {
+                            pageLogic.treeView.cancelSelection();
+                        });
                     },
                     load: function() {
                     }
@@ -42,7 +62,7 @@
             };
 
             function createTreeView() {
-                this.treeView = $("#treeView").treeView({
+                var treeView = $("#treeView").treeView({
                     valueField: "id",
                     textField: "name",
                     parentField: "parent",
@@ -63,6 +83,7 @@
                         { id: "3", name: "第三层" }
                     ]
                 });
+                return treeView;
             }
         })();
     </script>

@@ -128,7 +128,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         createImageZoomer.call(this);
                         createImageWather.call(this);
                         createImageViewer.call(this);
@@ -142,10 +142,7 @@
                                 height = ui.master.contentBodyHeight;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

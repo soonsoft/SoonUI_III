@@ -765,16 +765,43 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         this._selectParentNode(nodeData, nodeId, isSelection);
     },
     /** 取消选中 */
-    cancelSelection: function(isFire) {
+    cancelSelection: function(values, isFire) {
         var elem,
-            i, len;
+            i, len, j,
+            nodeData,
+            isCanceled;
         if(this.isMultiple()) {
-            for(i = 0, len = this._selectList.length; i < len; i++) {
-                elem = $(this._selectList[i]);
-                setChecked.call(this, elem.find("." + checkboxClass), false);
+            isCanceled = false;
+            if(values) {
+                if(Array.isArray(values)) {
+                    values = Array.from(values);
+                } else {
+                    values = [values];
+                }
+                for(j = this._selectList.length - 1; j >= 0; j--) {
+                    if(values.length === 0) {
+                        break;
+                    }
+                    elem = $(this._selectList[j]);
+                    nodeData = this._getNodeData(elem);
+                    for(i = 0, len = values.length; i < len; i++) {
+                        if(this._equalValue(nodeData, values[i])) {
+                            this._selectItem(elem, nodeData, false);
+                            values.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for(i = 0, len = this._selectList.length; i < len; i++) {
+                    elem = $(this._selectList[i]);
+                    setChecked.call(this, elem.find("." + checkboxClass), false);
+                }
+                this._selectList = [];
             }
-            this._selectList = [];
+            isCanceled = this._selectList.length === 0;
         } else {
+            isCanceled = true;
             if(this._current) {
                 this._current
                     .removeClass(selectedClass)
@@ -783,7 +810,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             }
         }
 
-        if(isFire !== false) {
+        if(isFire !== false && isCanceled) {
             this.fire("cancel");
         }
     },

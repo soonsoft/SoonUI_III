@@ -16,7 +16,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         createReportView.call(this);
                     },
                     layout: function() {
@@ -26,10 +26,7 @@
                             pageLogic.reportView.setSize(width, height - 40);
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

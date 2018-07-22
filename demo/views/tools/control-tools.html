@@ -220,7 +220,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         createSwitchButton.call(this);
                         createComfirmButton.call(this);
                         createExtendButton.call(this);
@@ -236,10 +236,7 @@
                                 height = ui.master.contentBodyHeight;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

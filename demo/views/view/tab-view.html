@@ -204,7 +204,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         createSimpleTab.call(this);
                         createVerticalTab.call(this);
                         createTabView.call(this);
@@ -218,10 +218,7 @@
                                 height = ui.master.contentBodyHeight;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

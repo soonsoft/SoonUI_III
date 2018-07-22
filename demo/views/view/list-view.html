@@ -47,7 +47,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         this.toolbar = ui.master.createToolbar("toolbar");
                         createListView.call(this);
                     },
@@ -58,9 +58,7 @@
                             $("#listView").css("height", height - 82 + "px");
                         });
                     },
-                    after: function() {
-                    },
-                    events: function() {
+                    event: function() {
                         $("#addItem").click(function(e) {
                             var viewData = pageLogic.listView.getViewData();
                             if(viewData.indexOf("CEO") === -1) {

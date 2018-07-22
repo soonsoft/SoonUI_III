@@ -118,7 +118,7 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         createSimpleDialog.call(this);
                         createIframeDialog.call(this);
                         createStyleDialog.call(this);
@@ -132,10 +132,7 @@
                                 height = ui.master.contentBodyHeight;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
                         $("#showSimpleDialogBox").click(function(e) {
                             pageLogic.simpleDialogBox.show();
                         });

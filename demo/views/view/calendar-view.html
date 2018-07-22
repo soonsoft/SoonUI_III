@@ -171,10 +171,24 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         this.toolbar = ui.master.createToolbar("toolbar");
                         
                         initializeCalendarView.call(this);
+
+                        // 创建过滤器对象
+                        this.viewFilter = $("#viewFilter").filterTool({
+                            viewData: [
+                                { text: "年", value: "YearView", selected: true },
+                                { text: "月", value: "MonthView" },
+                                { text: "周", value: "WeekView" },
+                                { text: "日", value: "DayView" }
+                            ]
+                        });
+                        this.viewFilter.selected(function(e, eventData) {
+                            pageLogic.calendarView.changeView(eventData.itemData.value);
+                        });
+                        $("#calendarTitle").text(pageLogic.calendarView.getTitle());
                     },
                     layout: function() {
                         // 注册resize事件
@@ -191,22 +205,7 @@
                             pageLogic.calendarView.setSize(width, calendarViewHeight);
                         });
                     },
-                    after: function() {
-                        // 创建过滤器对象
-                        this.viewFilter = $("#viewFilter").filterTool({
-                            viewData: [
-                                { text: "年", value: "YearView", selected: true },
-                                { text: "月", value: "MonthView" },
-                                { text: "周", value: "WeekView" },
-                                { text: "日", value: "DayView" }
-                            ]
-                        });
-                        this.viewFilter.selected(function(e, eventData) {
-                            pageLogic.calendarView.changeView(eventData.itemData.value);
-                        });
-                        $("#calendarTitle").text(pageLogic.calendarView.getTitle());
-                    },
-                    events: function() {
+                    event: function() {
                         // 视图内容切换
                         $("#previous").click(function(e) {
                             pageLogic.calendarView.previous();

@@ -55,7 +55,7 @@
 
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         defineAlbumList.call(this);
                     },
                     layout: function() {
@@ -66,10 +66,7 @@
                             pageLogic.albumList.size.height = height - 40;
                         });
                     },
-                    after: function() {
-
-                    },
-                    events: function() {
+                    event: function() {
 
                     },
                     load: function() {

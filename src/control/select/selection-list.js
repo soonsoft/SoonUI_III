@@ -361,16 +361,42 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
         }
     },
     /** 取消选中 */
-    cancelSelection: function(isFire) {
+    cancelSelection: function(values, isFire) {
         var elem,
-            i, len;
+            i, len, j,
+            itemData,
+            isChecked;
         if(this.isMultiple()) {
-            for(i = 0, len = this._selectList.length; i < len; i++) {
-                elem = $(this._selectList[i]);
-                setChecked.call(this, elem.find("." + checkboxClass), false);
+            if(values) {
+                if(Array.isArray(values)) {
+                    values = Array.from(values);
+                } else {
+                    values = [values];
+                }
+                for(j = this._selectList.length - 1; j >= 0; j--) {
+                    if(values.length === 0) {
+                        break;
+                    }
+                    elem = $(this._selectList[j]);
+                    itemData = this._getSelectionData(elem[0]).itemData;
+                    for(i = 0, len = values.length; i < len; i++) {
+                        if(this._equalValue(itemData, values[i])) {
+                            this._selectItem(elem, false);
+                            values.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for(i = 0, len = this._selectList.length; i < len; i++) {
+                    elem = $(this._selectList[i]);
+                    setChecked.call(this, elem.find("." + checkboxClass), false);
+                }
+                this._selectList = [];
             }
-            this._selectList = [];
+            isCanceled = this._selectList.length === 0;
         } else {
+            isCanceled = true;
             if(this._current) {
                 this._current
                     .removeClass(selectedClass)

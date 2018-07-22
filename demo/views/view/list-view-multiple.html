@@ -35,9 +35,9 @@
         (function() {
             window.pageLogic = {
                 init: {
-                    before: function() {
+                    create: function() {
                         this.toolbar = ui.master.createToolbar("toolbar");
-                        createListView.call(this);
+                        this.listView = createListView.call(this);
                     },
                     layout: function() {
                         ui.master.resize(function(e) {
@@ -46,9 +46,7 @@
                             $("#listView").css("height", height - 82 + "px");
                         });
                     },
-                    after: function() {
-                    },
-                    events: function() {
+                    event: function() {
                         $("#setSelection").click(function(e) {
                             pageLogic.listView.setSelection([0, 3]);
                         });
@@ -72,7 +70,7 @@
             };
 
             function createListView() {
-                this.listView = $("#listView").listView({
+                var listView = $("#listView").listView({
                     hasRemoveButton: true,
                     animatable: false,
                     multiple: true,
@@ -91,6 +89,7 @@
                         "部门经理"
                     ]
                 });
+                return listView;
             }
         })();
     </script>
