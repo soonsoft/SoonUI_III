@@ -83,12 +83,18 @@ function onClick(e) {
 
 // 下拉框基础类
 ui.ctrls.define("ui.ctrls.DropDownBase", {
-    showTimeValue: 200,
-    hideTimeValue: 200,
     _create: function() {
         this.setLayoutPanel(this.option.layoutPanel);
         this.onMousemoveHandler = onMousemove.bind(this);
         this.onMouseupHandler = onMouseup.bind(this);
+
+        this.fadeAnimator = ui.animator({
+            onChange: function(opacity) {
+                console.log(opacity);
+                this.target.css("opacity", opacity / 100);
+            }
+        });
+        this.fadeAnimator.duration = 240;
     },
     _render: function(elementEvents) {
         var that,
@@ -202,7 +208,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     isShow: function() {
         return this._panel.hasClass(this._showClass);
     },
-    show: function(fn) {
+    show: function(callback) {
         ui.addHideHandler(this, this.hide);
         var parent, pw, ph,
             p, w, h,
@@ -210,6 +216,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             top, left;
         if (!this.isShow()) {
             this._panel.addClass(this._showClass);
+            this._panel.css("opacity", "0");
             
             w = this.element.outerWidth();
             h = this.element.outerHeight();
@@ -249,11 +256,12 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             } else {
                 ui.setDown(this.element, this._panel);
             }
-            this._show(this._panel, fn);
+            this._show(this._panel, callback);
         }
     },
     _show: function(panel, fn) {
         var callback,
+            option,
             that = this;
         if(!ui.core.isFunction(fn)) {
             fn = undefined;
@@ -269,23 +277,45 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         } else {
             callback = fn;
         }
-        panel.fadeIn(this.showTimeValue, callback);
+        
+        this.fadeAnimator.stop();
+        option = this.fadeAnimator[0];
+        option.target = panel;
+        option.ease = ui.AnimationStyle.easeFrom;
+        option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
+        option.end = 100;
+        option.target.css("display", "block");
+        this.fadeAnimator.onEnd = callback;
+        this.fadeAnimator.start();
     },
-    hide: function(fn) {
+    hide: function(callback) {
         if (this.isShow()) {
             this._panel.removeClass(this._showClass);
             this.element.removeClass(this._clearClass);
             this.element.off("mousemove", this.onMousemoveHandler);
             this.element.off("mouseup", this.onMouseupHandler);
             this.element.css("cursor", "auto");
-            this._hide(this._panel, fn);
+            this._hide(this._panel, callback);
         }
     },
     _hide: function(panel, fn) {
-        if(!$.isFunction(fn)) {
+        var option;
+        if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }
-        panel.fadeOut(this.hideTimeValue, fn);
+
+        this.fadeAnimator.stop();
+        option =  this.fadeAnimator[0];
+        option.target = panel;
+        option.ease = ui.AnimationStyle.easeTo;
+        option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
+        option.end = 0;
+        this.fadeAnimator.onEnd = fn;
+        this.fadeAnimator
+            .start()
+            .then(function(e) {
+                option.target.css("display", "none");
+            });
     },
     _clear: function() {
     }

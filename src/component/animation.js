@@ -531,3 +531,12 @@ ui.getRequestAnimationFrame = function() {
 ui.getCancelAnimationFrame = function() {
     return cancelAnimationFrame;
 };
+
+/** 淡入动画 */
+ui.animator.fadeIn = function(target, callback) {
+
+};
+/** 淡出动画 */
+ui.animator.fadeOut = function(target, callback) {
+
+};
