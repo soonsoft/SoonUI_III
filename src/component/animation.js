@@ -533,10 +533,80 @@ ui.getCancelAnimationFrame = function() {
 };
 
 /** 淡入动画 */
-ui.animator.fadeIn = function(target, callback) {
+ui.animator.fadeIn = function(target) {
+    var display,
+        opacity,
+        animator;
 
+    if(!target) {
+        return;
+    }
+
+    display = target.css("dispaly");
+    if(display === "block") {
+        return;
+    }
+
+    opacity = parseFloat(target.css("opacity")) * 100;
+    if(isNaN(opacity)) {
+        opacity = 0;
+        target.css("opacity", opacity);
+    }
+    
+    target.css("display", "block");
+    if(opacity >= 100) {
+        return;
+    }
+
+    animator = ui.animator({
+        target: target,
+        begin: opacity,
+        end: 100,
+        ease: animationEaseStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", val);
+        }
+    });
+    animator.duration = 240;
+    return animator.start();
 };
 /** 淡出动画 */
-ui.animator.fadeOut = function(target, callback) {
+ui.animator.fadeOut = function(target) {
+    var display,
+        opacity,
+        animator;
 
+    if(!target) {
+        return;
+    }
+
+    display = target.css("dispaly");
+    if(display === "none") {
+        return;
+    }
+
+    opacity = parseFloat(target.css("opacity")) * 100;
+    if(isNaN(opacity)) {
+        opacity = 100;
+        target.css("opacity", opacity);
+    }
+    if(opacity <= 0) {
+        target.css("display", "none");
+        return;
+    }
+
+    animator = ui.animator({
+        target: target,
+        begin: opacity,
+        end: 0,
+        ease: animationEaseStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", val);
+        }
+    });
+    animator.onEnd = function() {
+        target.css("display", "none");
+    };
+    animator.duration = 240;
+    return animator.start();
 };
