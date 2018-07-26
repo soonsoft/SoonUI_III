@@ -437,6 +437,10 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         ul = $("<ul class='ui-chooser-list-ul' />");
         for(i = 0, len = list.length; i < len; i++) {
             li = this._createItem(list[i]);
+            if(i - len === 0) {
+                listItem._current = li;
+                li.addClass(selectedClass).addClass("font-highlight");
+            }
             li.attr("data-index", i);
             ul.append(li);
         }
