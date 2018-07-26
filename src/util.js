@@ -245,30 +245,33 @@ ui.getJQueryElement = function(arg) {
     return elem;
 };
 
-//将元素移动到目标元素下方
-ui.setDown = function (target, panel) {
+function setLocation(fn, target, panel) {
+    var width, 
+        height,
+        location,
+        css = {};
+    
     if (!target || !panel) {
         return;
     }
-    var width = panel.outerWidth(),
-        height = panel.outerHeight();
-    var css = ui.getDownLocation(target, width, height);
-    css.top += "px";
-    css.left += "px";
+    
+    width = panel.outerWidth();
+    height = panel.outerHeight();
+    
+    location = fn.call(ui, target, width, height);
+    css.top = location.top + "px";
+    css.left = location.left + "px";
     panel.css(css);
+}
+
+//将元素移动到目标元素下方
+ui.setDown = function (target, panel) {
+    setLocation(ui.getDownLocation, target, panel);
 };
 
 //将元素移动到目标元素左边
 ui.setLeft = function (target, panel) {
-    if (!target || !panel) {
-        return;
-    }
-    var width = panel.outerWidth(),
-        height = panel.outerHeight();
-    var css = ui.getLeftLocation(target, width, height);
-    css.top += "px";
-    css.left += "px";
-    panel.css(css);
+    setLocation(ui.getLeftLocation, target, panel);
 };
 
 //获取目标元素下方的坐标信息
