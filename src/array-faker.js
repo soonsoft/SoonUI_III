@@ -7,9 +7,6 @@ function ArrayFaker () {
 }
 ArrayFaker.prototype = {
     constructor: ArrayFaker,
-    isArray: function (obj) {
-        return ui.core.isArray(obj);
-    },
     setArray: function (elems) {
         this.length = 0;
         //设置length以及重排索引
