@@ -299,7 +299,7 @@ function Animator () {
     this.isStarted = false;
 }
 Animator.prototype = new ui.ArrayFaker();
-Animator.prototype.addTarget = function (target, option) {
+Animator.prototype.add = function (option) {
     if (arguments.length === 1) {
         option = target;
         target = option.target;
@@ -310,10 +310,11 @@ Animator.prototype.addTarget = function (target, option) {
     }
     return this;
 };
-Animator.prototype.removeTarget = function (option) {
-    var index = -1;
+Animator.prototype.remove = function (option) {
+    var index = -1,
+        i;
     if (ui.core.type(option) !== "number") {
-        for (var i = 0; i < this.length; i++) {
+        for (i = this.length - 1; i >= 0; i--) {
             if (this[i] === option) {
                 index = i;
                 break;
@@ -322,10 +323,20 @@ Animator.prototype.removeTarget = function (option) {
     } else {
         index = option;
     }
-    if (index < 0) {
+    if (index < 0 || index >= this.length) {
         return;
     }
     this.splice(index, 1);
+};
+Animator.prototype.get = function(name) {
+    var i, option;
+    for(i = this.length - 1; i >= 0; i--) {
+        option = this.[i];
+        if(option.name === name) {
+            return option;
+        }
+    }
+    return null;
 };
 Animator.prototype.doAnimation = function () {
     var fps,
@@ -519,7 +530,7 @@ ui.transitionTiming = function() {
         return bezierStyleMapper[name];
     }
 
-    bezierStyleMapper[name] = getBezierFn.call(this, args);
+    bezierStyleMapper[name] = getBezierFn.apply(this, args);
     return bezierStyleMapper[name];
 };
 
