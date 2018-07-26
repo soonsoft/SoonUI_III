@@ -150,7 +150,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 
             for(i = 0, len = arguments.length; i < len; i++) {
                 if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
+                    this.animator.add(arguments[i]);
                 }
             }
 
@@ -182,7 +182,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             
             for(i = 0, len = arguments.length; i < len; i++) {
                 if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
+                    this.animator.add(arguments[i]);
                 }
             }
 

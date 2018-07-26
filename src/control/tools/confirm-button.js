@@ -94,7 +94,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
             onChange: function(val) {
                 this.target.css("margin-left", val + "%");
             }
-        }).addTarget({
+        }).add({
             target: confirmState,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {

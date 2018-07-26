@@ -2062,17 +2062,17 @@ Selector.prototype = {
                 }
                 elem.css("top", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 elem.css("left", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 elem.css("width", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 if (that._selectDirection) {
@@ -2627,7 +2627,7 @@ ui.ctrls.define("ui.ctrls.CalendarView", {
                 elem.css("left", val + "px");
             }
         });
-        this.viewChangeAnimator.addTarget({
+        this.viewChangeAnimator.add({
             ease: ui.AnimationStyle.easeFrom,
             onChange: function (val, elem) {
                 elem.css("opacity", val / 100);

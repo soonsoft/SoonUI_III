@@ -130,12 +130,12 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(val) {
                 this.target.css({
@@ -143,7 +143,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
                     "height": val + "px"
                 });
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(op) {
                 this.target.css({
@@ -311,7 +311,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         });
         this.buttonPanel.append(button.elem);
         
-        this.buttonAnimator.addTarget({
+        this.buttonAnimator.add({
             target: button.elem,
             button: button,
             that: this,

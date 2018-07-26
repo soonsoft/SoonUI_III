@@ -502,7 +502,7 @@ function Animator () {
     this.isStarted = false;
 }
 Animator.prototype = new ui.ArrayFaker();
-Animator.prototype.addTarget = function (target, option) {
+Animator.prototype.add = function (target, option) {
     if (arguments.length === 1) {
         option = target;
         target = option.target;
@@ -513,10 +513,11 @@ Animator.prototype.addTarget = function (target, option) {
     }
     return this;
 };
-Animator.prototype.removeTarget = function (option) {
-    var index = -1;
+Animator.prototype.remove = function (option) {
+    var index = -1,
+        i;
     if (ui.core.type(option) !== "number") {
-        for (var i = 0; i < this.length; i++) {
+        for (i = this.length - 1; i >= 0; i--) {
             if (this[i] === option) {
                 index = i;
                 break;
@@ -525,10 +526,20 @@ Animator.prototype.removeTarget = function (option) {
     } else {
         index = option;
     }
-    if (index < 0) {
+    if (index < 0 || index >= this.length) {
         return;
     }
     this.splice(index, 1);
+};
+Animator.prototype.get = function(name) {
+    var i, option;
+    for(i = this.length - 1; i >= 0; i--) {
+        option = this[i];
+        if(option.name === name) {
+            return option;
+        }
+    }
+    return null;
 };
 Animator.prototype.doAnimation = function () {
     var fps,
@@ -700,9 +711,9 @@ Animator.prototype.stop = function () {
  * @param {动画目标} target 
  * @param {动画参数} option 
  */
-ui.animator = function (target, option) {
+ui.animator = function (option) {
     var list = new Animator();
-    list.addTarget.apply(list, arguments);
+    list.add.apply(list, arguments);
     return list;
 };
 
@@ -722,7 +733,7 @@ ui.transitionTiming = function() {
         return bezierStyleMapper[name];
     }
 
-    bezierStyleMapper[name] = getBezierFn.call(this, args);
+    bezierStyleMapper[name] = getBezierFn.apply(this, args);
     return bezierStyleMapper[name];
 };
 
@@ -736,12 +747,82 @@ ui.getCancelAnimationFrame = function() {
 };
 
 /** 淡入动画 */
-ui.animator.fadeIn = function(target, callback) {
+ui.animator.fadeIn = function(target) {
+    var display,
+        opacity,
+        animator;
 
+    if(!target) {
+        return;
+    }
+
+    display = target.css("dispaly");
+    if(display === "block") {
+        return;
+    }
+
+    opacity = parseFloat(target.css("opacity")) * 100;
+    if(isNaN(opacity)) {
+        opacity = 0;
+        target.css("opacity", opacity);
+    }
+    
+    target.css("display", "block");
+    if(opacity >= 100) {
+        return;
+    }
+
+    animator = ui.animator({
+        target: target,
+        begin: opacity,
+        end: 100,
+        ease: animationEaseStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", val);
+        }
+    });
+    animator.duration = 240;
+    return animator.start();
 };
 /** 淡出动画 */
-ui.animator.fadeOut = function(target, callback) {
+ui.animator.fadeOut = function(target) {
+    var display,
+        opacity,
+        animator;
 
+    if(!target) {
+        return;
+    }
+
+    display = target.css("dispaly");
+    if(display === "none") {
+        return;
+    }
+
+    opacity = parseFloat(target.css("opacity")) * 100;
+    if(isNaN(opacity)) {
+        opacity = 100;
+        target.css("opacity", opacity);
+    }
+    if(opacity <= 0) {
+        target.css("display", "none");
+        return;
+    }
+
+    animator = ui.animator({
+        target: target,
+        begin: opacity,
+        end: 0,
+        ease: animationEaseStyle.easeFromTo,
+        onChange: function(val) {
+            this.target.css("opacity", val);
+        }
+    });
+    animator.onEnd = function() {
+        target.css("display", "none");
+    };
+    animator.duration = 240;
+    return animator.start();
 };
 
 

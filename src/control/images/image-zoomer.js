@@ -110,6 +110,29 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.page.resize(function(e) {
             that.resizeZoomImage();
         }, ui.eventPriority.ctrlResize);
+
+        this.zoomAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(top) {
+                this.target.css("top", top + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(left) {
+                this.target.css("left", left + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(width) {
+                this.target.css("width", width + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(height) {
+                this.target.css("height", height + "px");
+            }
+        });
+        this.zoomAnimator.duration = 300;
         
         if(this.prevButton || this.nextButton) {
             this.changeViewAnimator = ui.animator({
@@ -117,7 +140,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
                 onChange: function(val) {
                     this.target.css("left", val + "px");
                 }
-            }).addTarget({
+            }).add({
                 ease: ui.AnimationStyle.easeFromTo,
                 onChange: function(val) {
                     this.target.css("left", val + "px");
@@ -158,8 +181,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         }
     },
     show: function (target) {
-        var img,
-            that,
+        var img, imgInitial,
+            that, option,
             left, top;
 
         this.target = target;
@@ -167,12 +190,17 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         if (!content) {
             return;
         }
+
+        imgInitial = {
+            width: this.target.width(),
+            height: this.target.height()
+        };
         
         img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
         img.css({
-            "width": this.target.width() + "px",
-            "height": this.target.height() + "px",
+            "width": imgInitial.width + "px",
+            "height": imgInitial.height + "px",
             "left": this.targetLeft + "px",
             "top": this.targetTop + "px"
         });
@@ -191,25 +219,64 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.mask.open({
             opacity: 0.8
         });
-        img.animate({
-            "left": left + "px",
-            "top": top + "px",
-            "width": this.width + "px",
-            "height": this.height + "px"
-        }, 240, function() {
+
+        option = this.zoomAnimator[0];
+        option.target = img;
+        option.begin = this.targetTop;
+        option.end = top;
+
+        option = this.zoomAnimator[1];
+        option.target = img;
+        option.begin = this.targetLeft;
+        option.end = left;
+
+        option = this.zoomAnimator[2];
+        option.target = img;
+        option.begin = imgInitial.width;
+        option.end = this.width;
+
+        option = this.zoomAnimator[3];
+        option.target = img;
+        option.begin = imgInitial.height;
+        option.end = this.height;
+
+        this.zoomAnimator.start().then(function() {
             that._updateButtonState();
         });
     },
     hide: function () {
         var that = this,
-            img = this.currentView.children("img");
+            img = this.currentView.children("img"),
+            imgInitial, option;
+
+        imgInitial = {
+            width: this.target.width(),
+            height: this.target.height()
+        };
+
         ui.mask.close();
-        img.animate({
-            "top": this.targetTop + "px",
-            "left": this.targetLeft + "px",
-            "width": this.target.width() + "px",
-            "height": this.target.height() + "px"
-        }, 240, function() {
+
+        option = this.zoomAnimator[0];
+        option.target = img;
+        option.begin = parseFloat(img.css("top"));
+        option.end = this.targetTop;
+
+        option = this.zoomAnimator[1];
+        option.target = img;
+        option.begin = parseFloat(img.css("left"));
+        option.end = this.targetLeft;
+
+        option = this.zoomAnimator[2];
+        option.target = img;
+        option.begin = parseFloat(img.css("width"));
+        option.end = this.target.width();
+
+        option = this.zoomAnimator[3];
+        option.target = img;
+        option.begin = parseFloat(img.css("height"));
+        option.end = this.target.height();
+
+        this.zoomAnimator.start().then(function() {
             that._hideOptionButtons();
             that.imagePanel.css("display", "none");
             that.currentView.css("display", "none");
@@ -375,7 +442,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         }
         
         img = this.currentView.children("img");
-        img.stop();
+        this.zoomAnimator.stop();
         
         size = this._getActualSize(this.target);
 

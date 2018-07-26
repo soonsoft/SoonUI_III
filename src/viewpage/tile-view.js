@@ -63,7 +63,7 @@ tileUpdater = {
                 onChange: function(val) {
                     this.target.css(setRotateFn(val));
                 }
-            }).addTarget({
+            }).add({
                 ease: function(pos) {
                     var s = 3;
                     return (pos = pos - 1) * pos * ((s + 1) * pos + s) + 1;

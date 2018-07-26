@@ -62,7 +62,7 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
-        }).addTarget({
+        }).add({
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");

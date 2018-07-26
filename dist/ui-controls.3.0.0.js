@@ -140,7 +140,7 @@ ui.ctrls.define = define;
 
 (function($, ui) {
 var htmlClickHideHandler = [],
-    dropdownPanelBorderWidth = 2;
+    dropdownPanelBorderWidth = 1;
 
 function hideControls (currentCtrl) {
     var handler, retain;
@@ -181,6 +181,45 @@ ui.addHideHandler = function (ctrl, func) {
 ui.hideAll = function (currentCtrl) {
     hideControls(currentCtrl);
 };
+
+function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth, panelHeight) {
+    var location,
+        elementPosition,
+        layoutPanelWidth, 
+        layoutPanelHeight;
+
+    location = {
+        top: height,
+        left: 0
+    };
+    location.topOffset = -height;
+
+    elementPosition = element.parent().position();
+    if(layoutPanel.css("overflow") === "hidden") {
+        layoutPanelWidth = layoutPanel.width();
+        layoutPanelHeight = layoutPanel.height();
+    } else {
+        layoutPanelWidth = layoutPanel[0].scrollWidth;
+        layoutPanelHeight = layoutPanel[0].scrollHeight;
+        layoutPanelWidth += layoutPanel.scrollLeft();
+        layoutPanelHeight += layoutPanel.scrollTop();
+    }
+    if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
+        if(elementPosition.top - panelHeight > 0) {
+            location.top = -panelHeight;
+            location.topOffset = height;
+        }
+    }
+    if(elementPosition.left + panelWidth > layoutPanelWidth) {
+        if(elementPosition.left - (elementPosition.left + panelWidth - layoutPanelWidth) > 0) {
+            location.left = -(elementPosition.left + panelWidth - layoutPanelWidth);
+        } else {
+            location.left = -elementPosition.left;
+        }
+    }
+
+    return location;
+}
 
 function onMousemove(e) {
     var eWidth = this.element.width(),
@@ -230,9 +269,14 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         this.onMouseupHandler = onMouseup.bind(this);
 
         this.fadeAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(opacity) {
-                console.log(opacity);
                 this.target.css("opacity", opacity / 100);
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(translateY) {
+                this.target.css("transform", "translateY(" + translateY + "px)");
             }
         });
         this.fadeAnimator.duration = 240;
@@ -351,52 +395,38 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     },
     show: function(callback) {
         ui.addHideHandler(this, this.hide);
-        var parent, pw, ph,
-            p, w, h,
-            panelWidth, panelHeight,
-            top, left;
+        var panelWidth, panelHeight,
+            width, height,
+            location,
+            offset;
+
         if (!this.isShow()) {
             this._panel.addClass(this._showClass);
             this._panel.css("opacity", "0");
             
-            w = this.element.outerWidth();
-            h = this.element.outerHeight();
+            width = this.element.outerWidth();
+            height = this.element.outerHeight();
+
+            panelWidth = this._panel.outerWidth();
+            panelHeight = this._panel.outerHeight();
 
             if(this.hasLayoutPanel()) {
-                parent = this.layoutPanel;
-                top = h;
-                left = 0;
-                p = this.element.parent().position();
-                panelWidth = this._panel.outerWidth();
-                panelHeight = this._panel.outerHeight();
-                if(parent.css("overflow") === "hidden") {
-                    pw = parent.width();
-                    ph = parent.height();
-                } else {
-                    pw = parent[0].scrollWidth;
-                    ph = parent[0].scrollHeight;
-                    pw += parent.scrollLeft();
-                    ph += parent.scrollTop();
-                }
-                if(p.top + h + panelHeight > ph) {
-                    if(p.top - panelHeight > 0) {
-                        top = -panelHeight;
-                    }
-                }
-                if(p.left + panelWidth > pw) {
-                    if(p.left - (p.left + panelWidth - pw) > 0) {
-                        left = -(p.left + panelWidth - pw);
-                    } else {
-                        left = -p.left;
-                    }
-                }
-                this._panel.css({
-                    top: top + "px",
-                    left: left + "px"
-                });
+                location = getLayoutPanelLocation(this.layoutPanel, this.element, width, height, panelWidth, panelHeight);
             } else {
-                ui.setDown(this.element, this._panel);
+                location = ui.getDownLocation(this.element, panelWidth, panelHeight);
+                location.topOffset = -height;
+                offset = this.element.offset();
+                if(location.top < offset.top) {
+                    location.topOffset = height;
+                }
             }
+
+            this._panel.css({
+                "top": location.top + "px",
+                "left": location.left + "px",
+                "transform": "translateY(" + location.topOffset + "px)"
+            });
+            this.panelLocation = location;
             this._show(this._panel, callback);
         }
     },
@@ -420,13 +450,20 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
         
         this.fadeAnimator.stop();
+
         option = this.fadeAnimator[0];
         option.target = panel;
-        option.ease = ui.AnimationStyle.easeFrom;
         option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
         option.end = 100;
-        option.target.css("display", "block");
+
+        option = this.fadeAnimator[1];
+        option.target = panel;
+        option.begin = this.panelLocation.topOffset;
+        option.end = 0;
+
+        panel.css("display", "block");
         this.fadeAnimator.onEnd = callback;
+
         this.fadeAnimator.start();
     },
     hide: function(callback) {
@@ -440,17 +477,24 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
     },
     _hide: function(panel, fn) {
-        var option;
+        var option,
+            that;
         if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }
 
         this.fadeAnimator.stop();
+
         option =  this.fadeAnimator[0];
         option.target = panel;
-        option.ease = ui.AnimationStyle.easeTo;
         option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
         option.end = 0;
+
+        option = this.fadeAnimator[1];
+        option.target = panel;
+        option.begin = 0;
+        option.end = this.panelLocation.topOffset;
+
         this.fadeAnimator.onEnd = fn;
         this.fadeAnimator
             .start()
@@ -620,7 +664,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 
             for(i = 0, len = arguments.length; i < len; i++) {
                 if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
+                    this.animator.add(arguments[i]);
                 }
             }
 
@@ -652,7 +696,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             
             for(i = 0, len = arguments.length; i < len; i++) {
                 if(arguments[i]) {
-                    this.animator.addTarget(arguments[i]);
+                    this.animator.add(arguments[i]);
                 }
             }
 
@@ -1861,7 +1905,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         this._initOperateButtons();
         this._initClosableButton();
 
-        this.animator.addTarget({
+        this.animator.add({
             target: this.box,
             ease: ui.AnimationStyle.easeFromTo
         });
@@ -1870,7 +1914,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         if(this.maskable()) {
             this.mask = $("<div class='ui-dialog-box-mask' />");
             body.append(this.mask);
-            this.animator.addTarget({
+            this.animator.add({
                 target: this.mask,
                 ease: ui.AnimationStyle.easeFrom
             });
@@ -2693,7 +2737,7 @@ var sizeInfo = {
         M: 5,
         L: 9
     },
-    borderWidth = 2,
+    borderWidth = 1,
     defaultMargin = 0,
     defaultItemSize = 32,
     defaultSize = "M",
@@ -3103,15 +3147,17 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     },
     _createList: function(listItem) {
         var list, headArr, footArr,
-            ul, li, i, len;
+            ul, li, 
+            attachmentCount,
+            i, len;
 
         // 计算需要附加的空元素个数
-        len = this._getAttachmentCount();
+        attachmentCount = this._getAttachmentCount();
         // 在头尾添加辅助元素
         list = listItem.list;
         headArr = [];
         footArr = [];
-        for(i = 0; i < len; i++) {
+        for(i = 0; i < attachmentCount; i++) {
             headArr.push(null);
             footArr.push(null);
         }
@@ -3120,6 +3166,11 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         ul = $("<ul class='ui-chooser-list-ul' />");
         for(i = 0, len = list.length; i < len; i++) {
             li = this._createItem(list[i]);
+            // 默认选中第一个
+            if(i - attachmentCount === 0) {
+                listItem._current = li;
+                li.addClass(selectedClass).addClass("font-highlight");
+            }
             li.attr("data-index", i);
             ul.append(li);
         }
@@ -4250,7 +4301,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
@@ -8874,17 +8925,17 @@ Selector.prototype = {
                 }
                 elem.css("top", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 elem.css("left", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 elem.css("width", val + "px");
             }
-        }).addTarget(this.selectionBox, {
+        }).add(this.selectionBox, {
             ease: ui.AnimationStyle.swing,
             onChange: function (val, elem) {
                 if (that._selectDirection) {
@@ -9439,7 +9490,7 @@ ui.ctrls.define("ui.ctrls.CalendarView", {
                 elem.css("left", val + "px");
             }
         });
-        this.viewChangeAnimator.addTarget({
+        this.viewChangeAnimator.add({
             ease: ui.AnimationStyle.easeFrom,
             onChange: function (val, elem) {
                 elem.css("opacity", val / 100);
@@ -15351,7 +15402,7 @@ View.prototype = {
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
-        }).addTarget({
+        }).add({
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
@@ -16016,7 +16067,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
             onChange: function(val) {
                 this.target.css("margin-left", val + "%");
             }
-        }).addTarget({
+        }).add({
             target: confirmState,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
@@ -16255,12 +16306,12 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(val) {
                 this.target.css({
@@ -16268,7 +16319,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
                     "height": val + "px"
                 });
             }
-        }).addTarget({
+        }).add({
             target: this.buttonPanelBackground,
             onChange: function(op) {
                 this.target.css({
@@ -16436,7 +16487,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         });
         this.buttonPanel.append(button.elem);
         
-        this.buttonAnimator.addTarget({
+        this.buttonAnimator.add({
             target: button.elem,
             button: button,
             that: this,
@@ -16902,13 +16953,13 @@ ui.ctrls.define("ui.ctrls.HoverView", {
                     "filter": "Alpha(opacity=" + val + ")"
                 });
             }
-        }).addTarget({
+        }).add({
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
@@ -17479,7 +17530,7 @@ ui.ctrls.define("ui.ctrls.SwitchButton", {
                 color = ui.color.rgb2hex(color.red, color.green, color.blue);
                 this.target.css("background-color", color);
             }
-        }).addTarget({
+        }).add({
             target: this.thumb,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val, elem) {
@@ -18333,7 +18384,7 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
-        }).addTarget({
+        }).add({
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
@@ -18869,6 +18920,29 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.page.resize(function(e) {
             that.resizeZoomImage();
         }, ui.eventPriority.ctrlResize);
+
+        this.zoomAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(top) {
+                this.target.css("top", top + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(left) {
+                this.target.css("left", left + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(width) {
+                this.target.css("width", width + "px");
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: function(height) {
+                this.target.css("height", height + "px");
+            }
+        });
+        this.zoomAnimator.duration = 300;
         
         if(this.prevButton || this.nextButton) {
             this.changeViewAnimator = ui.animator({
@@ -18876,7 +18950,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
                 onChange: function(val) {
                     this.target.css("left", val + "px");
                 }
-            }).addTarget({
+            }).add({
                 ease: ui.AnimationStyle.easeFromTo,
                 onChange: function(val) {
                     this.target.css("left", val + "px");
@@ -18917,8 +18991,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         }
     },
     show: function (target) {
-        var img,
-            that,
+        var img, imgInitial,
+            that, option,
             left, top;
 
         this.target = target;
@@ -18926,12 +19000,17 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         if (!content) {
             return;
         }
+
+        imgInitial = {
+            width: this.target.width(),
+            height: this.target.height()
+        };
         
         img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
         img.css({
-            "width": this.target.width() + "px",
-            "height": this.target.height() + "px",
+            "width": imgInitial.width + "px",
+            "height": imgInitial.height + "px",
             "left": this.targetLeft + "px",
             "top": this.targetTop + "px"
         });
@@ -18950,25 +19029,64 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.mask.open({
             opacity: 0.8
         });
-        img.animate({
-            "left": left + "px",
-            "top": top + "px",
-            "width": this.width + "px",
-            "height": this.height + "px"
-        }, 240, function() {
+
+        option = this.zoomAnimator[0];
+        option.target = img;
+        option.begin = this.targetTop;
+        option.end = top;
+
+        option = this.zoomAnimator[1];
+        option.target = img;
+        option.begin = this.targetLeft;
+        option.end = left;
+
+        option = this.zoomAnimator[2];
+        option.target = img;
+        option.begin = imgInitial.width;
+        option.end = this.width;
+
+        option = this.zoomAnimator[3];
+        option.target = img;
+        option.begin = imgInitial.height;
+        option.end = this.height;
+
+        this.zoomAnimator.start().then(function() {
             that._updateButtonState();
         });
     },
     hide: function () {
         var that = this,
-            img = this.currentView.children("img");
+            img = this.currentView.children("img"),
+            imgInitial, option;
+
+        imgInitial = {
+            width: this.target.width(),
+            height: this.target.height()
+        };
+
         ui.mask.close();
-        img.animate({
-            "top": this.targetTop + "px",
-            "left": this.targetLeft + "px",
-            "width": this.target.width() + "px",
-            "height": this.target.height() + "px"
-        }, 240, function() {
+
+        option = this.zoomAnimator[0];
+        option.target = img;
+        option.begin = parseFloat(img.css("top"));
+        option.end = this.targetTop;
+
+        option = this.zoomAnimator[1];
+        option.target = img;
+        option.begin = parseFloat(img.css("left"));
+        option.end = this.targetLeft;
+
+        option = this.zoomAnimator[2];
+        option.target = img;
+        option.begin = parseFloat(img.css("width"));
+        option.end = this.target.width();
+
+        option = this.zoomAnimator[3];
+        option.target = img;
+        option.begin = parseFloat(img.css("height"));
+        option.end = this.target.height();
+
+        this.zoomAnimator.start().then(function() {
             that._hideOptionButtons();
             that.imagePanel.css("display", "none");
             that.currentView.css("display", "none");
@@ -19134,7 +19252,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         }
         
         img = this.currentView.children("img");
-        img.stop();
+        this.zoomAnimator.stop();
         
         size = this._getActualSize(this.target);
 

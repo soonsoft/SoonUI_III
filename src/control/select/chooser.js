@@ -10,7 +10,7 @@ var sizeInfo = {
         M: 5,
         L: 9
     },
-    borderWidth = 2,
+    borderWidth = 1,
     defaultMargin = 0,
     defaultItemSize = 32,
     defaultSize = "M",
@@ -420,15 +420,17 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
     },
     _createList: function(listItem) {
         var list, headArr, footArr,
-            ul, li, i, len;
+            ul, li, 
+            attachmentCount,
+            i, len;
 
         // 计算需要附加的空元素个数
-        len = this._getAttachmentCount();
+        attachmentCount = this._getAttachmentCount();
         // 在头尾添加辅助元素
         list = listItem.list;
         headArr = [];
         footArr = [];
-        for(i = 0; i < len; i++) {
+        for(i = 0; i < attachmentCount; i++) {
             headArr.push(null);
             footArr.push(null);
         }
@@ -438,7 +440,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         for(i = 0, len = list.length; i < len; i++) {
             li = this._createItem(list[i]);
             // 默认选中第一个
-            if(i - len === 0) {
+            if(i - attachmentCount === 0) {
                 listItem._current = li;
                 li.addClass(selectedClass).addClass("font-highlight");
             }

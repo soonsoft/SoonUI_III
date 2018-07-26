@@ -299,7 +299,7 @@ function Animator () {
     this.isStarted = false;
 }
 Animator.prototype = new ui.ArrayFaker();
-Animator.prototype.add = function (option) {
+Animator.prototype.add = function (target, option) {
     if (arguments.length === 1) {
         option = target;
         target = option.target;
@@ -331,7 +331,7 @@ Animator.prototype.remove = function (option) {
 Animator.prototype.get = function(name) {
     var i, option;
     for(i = this.length - 1; i >= 0; i--) {
-        option = this.[i];
+        option = this[i];
         if(option.name === name) {
             return option;
         }
@@ -508,9 +508,9 @@ Animator.prototype.stop = function () {
  * @param {动画目标} target 
  * @param {动画参数} option 
  */
-ui.animator = function (target, option) {
+ui.animator = function (option) {
     var list = new Animator();
-    list.addTarget.apply(list, arguments);
+    list.add.apply(list, arguments);
     return list;
 };
 

@@ -138,13 +138,13 @@ ui.ctrls.define("ui.ctrls.HoverView", {
                     "filter": "Alpha(opacity=" + val + ")"
                 });
             }
-        }).addTarget({
+        }).add({
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {

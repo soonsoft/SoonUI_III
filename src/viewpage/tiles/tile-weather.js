@@ -177,7 +177,7 @@ function activeMutualTile(tile) {
             this.target.css("height", val + "px");
             this.original.css("height", this.end - (val - this.begin) + "px");
         }
-    }).addTarget({
+    }).add({
         ease: ui.AnimationStyle.easeTo,
         onChange: function(val) {
             this.target.css("opacity", val / 100);

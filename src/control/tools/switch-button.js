@@ -187,7 +187,7 @@ ui.ctrls.define("ui.ctrls.SwitchButton", {
                 color = ui.color.rgb2hex(color.red, color.green, color.blue);
                 this.target.css("background-color", color);
             }
-        }).addTarget({
+        }).add({
             target: this.thumb,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val, elem) {

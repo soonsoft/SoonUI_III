@@ -1,5 +1,5 @@
 var htmlClickHideHandler = [],
-    dropdownPanelBorderWidth = 2;
+    dropdownPanelBorderWidth = 1;
 
 function hideControls (currentCtrl) {
     var handler, retain;
@@ -41,40 +41,43 @@ ui.hideAll = function (currentCtrl) {
     hideControls(currentCtrl);
 };
 
-function getLayoutPanelLocation(layoutParent, element, width, height, panelWidth, panelHeight) {
+function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth, panelHeight) {
     var location,
         elementPosition,
-        parentWidth, parentHeight;
+        layoutPanelWidth, 
+        layoutPanelHeight;
 
     location = {
         top: height,
         left: 0
     };
-    location.topOffset = location.top - height;
+    location.topOffset = -height;
 
     elementPosition = element.parent().position();
-    if(layoutParent.css("overflow") === "hidden") {
-        parentWidth = layoutParent.width();
-        parentHeight = layoutParent.height();
+    if(layoutPanel.css("overflow") === "hidden") {
+        layoutPanelWidth = layoutPanel.width();
+        layoutPanelHeight = layoutPanel.height();
     } else {
-        parentWidth = layoutParent[0].scrollWidth;
-        parentHeight = layoutParent[0].scrollHeight;
-        parentWidth += layoutParent.scrollLeft();
-        parentHeight += layoutParent.scrollTop();
+        layoutPanelWidth = layoutPanel[0].scrollWidth;
+        layoutPanelHeight = layoutPanel[0].scrollHeight;
+        layoutPanelWidth += layoutPanel.scrollLeft();
+        layoutPanelHeight += layoutPanel.scrollTop();
     }
-    if(elementPosition.top + height + panelHeight > parentHeight) {
+    if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
             location.top = -panelHeight;
-            location.startTopOffset = location.top + height;
+            location.topOffset = height;
         }
     }
-    if(elementPosition.left + panelWidth > parentWidth) {
-        if(elementPosition.left - (elementPosition.left + panelWidth - parentWidth) > 0) {
-            location.left = -(elementPosition.left + panelWidth - parentWidth);
+    if(elementPosition.left + panelWidth > layoutPanelWidth) {
+        if(elementPosition.left - (elementPosition.left + panelWidth - layoutPanelWidth) > 0) {
+            location.left = -(elementPosition.left + panelWidth - layoutPanelWidth);
         } else {
             location.left = -elementPosition.left;
         }
     }
+
+    return location;
 }
 
 function onMousemove(e) {
@@ -131,7 +134,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             }
         }).add({
             ease: ui.AnimationStyle.easeFromTo,
-            onChange: fucntion(translateY) {
+            onChange: function(translateY) {
                 this.target.css("transform", "translateY(" + translateY + "px)");
             }
         });
@@ -267,19 +270,19 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             panelHeight = this._panel.outerHeight();
 
             if(this.hasLayoutPanel()) {
-                location = getLayoutPanelLocation(this.layoutParent, this.element, width, height, panelWidth, panelHeight);
+                location = getLayoutPanelLocation(this.layoutPanel, this.element, width, height, panelWidth, panelHeight);
             } else {
                 location = ui.getDownLocation(this.element, panelWidth, panelHeight);
-                location.topOffset = this.top - height;
+                location.topOffset = -height;
                 offset = this.element.offset();
                 if(location.top < offset.top) {
-                    location.topOffset = location.top + height;
+                    location.topOffset = height;
                 }
             }
 
             this._panel.css({
                 "top": location.top + "px",
-                "left": locaton.left + "px",
+                "left": location.left + "px",
                 "transform": "translateY(" + location.topOffset + "px)"
             });
             this.panelLocation = location;
@@ -314,7 +317,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
 
         option = this.fadeAnimator[1];
         option.target = panel;
-        option.begin = this.panelLocation.location;
+        option.begin = this.panelLocation.topOffset;
         option.end = 0;
 
         panel.css("display", "block");
@@ -349,7 +352,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         option = this.fadeAnimator[1];
         option.target = panel;
         option.begin = 0;
-        option.end = this.panelLocation.location;
+        option.end = this.panelLocation.topOffset;
 
         this.fadeAnimator.onEnd = fn;
         this.fadeAnimator

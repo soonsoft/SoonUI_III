@@ -625,22 +625,24 @@ ui.ctrls.define("ui.ctrls.Menu", {
             }
         });
         if(this.isExtrusion()) {
-            this.menuPanelAnimator.addTarget({
-                target: this.option.contentContainer,
-                ease: ui.AnimationStyle.easeTo,
-                onChange: function (val, elem) {
-                    elem.css("left", val + "px");
-                }
-            }).addTarget({
-                target: this.option.contentContainer,
-                ease: ui.AnimationStyle.easeTo,
-                onChange: function (val, elem) {
-                    elem.css("width", val + "px");
-                    mp.contentBodyWidth = val;
+            this.menuPanelAnimator
+                .add({
+                    target: this.option.contentContainer,
+                    ease: ui.AnimationStyle.easeTo,
+                    onChange: function (val, elem) {
+                        elem.css("left", val + "px");
+                    }
+                })
+                .add({
+                    target: this.option.contentContainer,
+                    ease: ui.AnimationStyle.easeTo,
+                    onChange: function (val, elem) {
+                        elem.css("width", val + "px");
+                        mp.contentBodyWidth = val;
 
-                    that._fireResize();
-                }
-            });
+                        that._fireResize();
+                    }
+                });
         }
         this.menuPanelAnimator.duration = 300;
     },
@@ -649,7 +651,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
             onChange: function (val, elem) {
                 elem.css("height", parseInt(val, 10) + "px");
             }
-        }).addTarget({
+        }).add({
             onChange: function (val, elem) {
                 elem.css("top", parseInt(val, 10) + "px");
             }

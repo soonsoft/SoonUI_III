@@ -321,7 +321,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         this._initOperateButtons();
         this._initClosableButton();
 
-        this.animator.addTarget({
+        this.animator.add({
             target: this.box,
             ease: ui.AnimationStyle.easeFromTo
         });
@@ -330,7 +330,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         if(this.maskable()) {
             this.mask = $("<div class='ui-dialog-box-mask' />");
             body.append(this.mask);
-            this.animator.addTarget({
+            this.animator.add({
                 target: this.mask,
                 ease: ui.AnimationStyle.easeFrom
             });

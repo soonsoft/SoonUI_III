@@ -63,7 +63,7 @@ Toolbar.prototype = {
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.extendWrapPanel,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {

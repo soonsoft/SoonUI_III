@@ -477,7 +477,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
-        }).addTarget({
+        }).add({
             ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");

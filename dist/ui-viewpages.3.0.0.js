@@ -1025,22 +1025,24 @@ ui.ctrls.define("ui.ctrls.Menu", {
             }
         });
         if(this.isExtrusion()) {
-            this.menuPanelAnimator.addTarget({
-                target: this.option.contentContainer,
-                ease: ui.AnimationStyle.easeTo,
-                onChange: function (val, elem) {
-                    elem.css("left", val + "px");
-                }
-            }).addTarget({
-                target: this.option.contentContainer,
-                ease: ui.AnimationStyle.easeTo,
-                onChange: function (val, elem) {
-                    elem.css("width", val + "px");
-                    mp.contentBodyWidth = val;
+            this.menuPanelAnimator
+                .add({
+                    target: this.option.contentContainer,
+                    ease: ui.AnimationStyle.easeTo,
+                    onChange: function (val, elem) {
+                        elem.css("left", val + "px");
+                    }
+                })
+                .add({
+                    target: this.option.contentContainer,
+                    ease: ui.AnimationStyle.easeTo,
+                    onChange: function (val, elem) {
+                        elem.css("width", val + "px");
+                        mp.contentBodyWidth = val;
 
-                    that._fireResize();
-                }
-            });
+                        that._fireResize();
+                    }
+                });
         }
         this.menuPanelAnimator.duration = 300;
     },
@@ -1049,7 +1051,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
             onChange: function (val, elem) {
                 elem.css("height", parseInt(val, 10) + "px");
             }
-        }).addTarget({
+        }).add({
             onChange: function (val, elem) {
                 elem.css("top", parseInt(val, 10) + "px");
             }
@@ -1534,7 +1536,7 @@ tileUpdater = {
                 onChange: function(val) {
                     this.target.css(setRotateFn(val));
                 }
-            }).addTarget({
+            }).add({
                 ease: function(pos) {
                     var s = 3;
                     return (pos = pos - 1) * pos * ((s + 1) * pos + s) + 1;
@@ -2565,7 +2567,7 @@ function initAnimator(tile) {
         onChange: function(val) {
             this.target.css("top", val + "px");
         }
-    }).addTarget({
+    }).add({
         ease: ui.AnimationStyle.easeTo,
         duration: 500,
         begin: tile.height,
@@ -2869,7 +2871,7 @@ function activeMutualTile(tile) {
             this.target.css("height", val + "px");
             this.original.css("height", this.end - (val - this.begin) + "px");
         }
-    }).addTarget({
+    }).add({
         ease: ui.AnimationStyle.easeTo,
         onChange: function(val) {
             this.target.css("opacity", val / 100);
@@ -3065,7 +3067,7 @@ Toolbar.prototype = {
             onChange: function(val) {
                 this.target.css("top", val + "px");
             }
-        }).addTarget({
+        }).add({
             target: this.extendWrapPanel,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {

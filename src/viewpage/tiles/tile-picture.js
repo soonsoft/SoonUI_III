@@ -59,7 +59,7 @@ function initAnimator(tile) {
         onChange: function(val) {
             this.target.css("top", val + "px");
         }
-    }).addTarget({
+    }).add({
         ease: ui.AnimationStyle.easeTo,
         duration: 500,
         begin: tile.height,
