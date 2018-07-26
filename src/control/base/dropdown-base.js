@@ -41,6 +41,42 @@ ui.hideAll = function (currentCtrl) {
     hideControls(currentCtrl);
 };
 
+function getLayoutPanelLocation(layoutParent, element, width, height, panelWidth, panelHeight) {
+    var location,
+        elementPosition,
+        parentWidth, parentHeight;
+
+    location = {
+        top: height,
+        left: 0
+    };
+    location.topOffset = location.top - height;
+
+    elementPosition = element.parent().position();
+    if(layoutParent.css("overflow") === "hidden") {
+        parentWidth = layoutParent.width();
+        parentHeight = layoutParent.height();
+    } else {
+        parentWidth = layoutParent[0].scrollWidth;
+        parentHeight = layoutParent[0].scrollHeight;
+        parentWidth += layoutParent.scrollLeft();
+        parentHeight += layoutParent.scrollTop();
+    }
+    if(elementPosition.top + height + panelHeight > parentHeight) {
+        if(elementPosition.top - panelHeight > 0) {
+            location.top = -panelHeight;
+            location.startTopOffset = location.top + height;
+        }
+    }
+    if(elementPosition.left + panelWidth > parentWidth) {
+        if(elementPosition.left - (elementPosition.left + panelWidth - parentWidth) > 0) {
+            location.left = -(elementPosition.left + panelWidth - parentWidth);
+        } else {
+            location.left = -elementPosition.left;
+        }
+    }
+}
+
 function onMousemove(e) {
     var eWidth = this.element.width(),
         offsetX = e.offsetX;
@@ -89,9 +125,14 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         this.onMouseupHandler = onMouseup.bind(this);
 
         this.fadeAnimator = ui.animator({
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(opacity) {
-                console.log(opacity);
                 this.target.css("opacity", opacity / 100);
+            }
+        }).add({
+            ease: ui.AnimationStyle.easeFromTo,
+            onChange: fucntion(translateY) {
+                this.target.css("transform", "translateY(" + translateY + "px)");
             }
         });
         this.fadeAnimator.duration = 240;
@@ -210,52 +251,38 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     },
     show: function(callback) {
         ui.addHideHandler(this, this.hide);
-        var parent, pw, ph,
-            p, w, h,
-            panelWidth, panelHeight,
-            top, left;
+        var panelWidth, panelHeight,
+            width, height,
+            location,
+            offset;
+
         if (!this.isShow()) {
             this._panel.addClass(this._showClass);
             this._panel.css("opacity", "0");
             
-            w = this.element.outerWidth();
-            h = this.element.outerHeight();
+            width = this.element.outerWidth();
+            height = this.element.outerHeight();
+
+            panelWidth = this._panel.outerWidth();
+            panelHeight = this._panel.outerHeight();
 
             if(this.hasLayoutPanel()) {
-                parent = this.layoutPanel;
-                top = h;
-                left = 0;
-                p = this.element.parent().position();
-                panelWidth = this._panel.outerWidth();
-                panelHeight = this._panel.outerHeight();
-                if(parent.css("overflow") === "hidden") {
-                    pw = parent.width();
-                    ph = parent.height();
-                } else {
-                    pw = parent[0].scrollWidth;
-                    ph = parent[0].scrollHeight;
-                    pw += parent.scrollLeft();
-                    ph += parent.scrollTop();
-                }
-                if(p.top + h + panelHeight > ph) {
-                    if(p.top - panelHeight > 0) {
-                        top = -panelHeight;
-                    }
-                }
-                if(p.left + panelWidth > pw) {
-                    if(p.left - (p.left + panelWidth - pw) > 0) {
-                        left = -(p.left + panelWidth - pw);
-                    } else {
-                        left = -p.left;
-                    }
-                }
-                this._panel.css({
-                    top: top + "px",
-                    left: left + "px"
-                });
+                location = getLayoutPanelLocation(this.layoutParent, this.element, width, height, panelWidth, panelHeight);
             } else {
-                ui.setDown(this.element, this._panel);
+                location = ui.getDownLocation(this.element, panelWidth, panelHeight);
+                location.topOffset = this.top - height;
+                offset = this.element.offset();
+                if(location.top < offset.top) {
+                    location.topOffset = location.top + height;
+                }
             }
+
+            this._panel.css({
+                "top": location.top + "px",
+                "left": locaton.left + "px",
+                "transform": "translateY(" + location.topOffset + "px)"
+            });
+            this.panelLocation = location;
             this._show(this._panel, callback);
         }
     },
@@ -279,13 +306,20 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
         
         this.fadeAnimator.stop();
+
         option = this.fadeAnimator[0];
         option.target = panel;
-        option.ease = ui.AnimationStyle.easeFrom;
         option.begin = parseFloat(option.target.css("opacity")) * 100 || 0;
         option.end = 100;
-        option.target.css("display", "block");
+
+        option = this.fadeAnimator[1];
+        option.target = panel;
+        option.begin = this.panelLocation.location;
+        option.end = 0;
+
+        panel.css("display", "block");
         this.fadeAnimator.onEnd = callback;
+
         this.fadeAnimator.start();
     },
     hide: function(callback) {
@@ -299,17 +333,24 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
     },
     _hide: function(panel, fn) {
-        var option;
+        var option,
+            that;
         if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }
 
         this.fadeAnimator.stop();
+
         option =  this.fadeAnimator[0];
         option.target = panel;
-        option.ease = ui.AnimationStyle.easeTo;
         option.begin = parseFloat(option.target.css("opacity")) * 100 || 100;
         option.end = 0;
+
+        option = this.fadeAnimator[1];
+        option.target = panel;
+        option.begin = 0;
+        option.end = this.panelLocation.location;
+
         this.fadeAnimator.onEnd = fn;
         this.fadeAnimator
             .start()
