@@ -250,7 +250,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         if (Array.isArray(this.option.viewData)) {
             this._fill(this.option.viewData);
         }
-        this._super();
+        this._super.apply(this, arguments);
     },
     _fill: function (data) {
         var dl,
@@ -770,6 +770,12 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             i, len, j,
             nodeData,
             isCanceled;
+
+        if(ui.core.isBoolean(values)) {
+            isFire = values;
+            values = null;
+        }
+
         if(this.isMultiple()) {
             isCanceled = false;
             if(values) {

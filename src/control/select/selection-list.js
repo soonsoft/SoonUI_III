@@ -364,9 +364,16 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     cancelSelection: function(values, isFire) {
         var elem,
             i, len, j,
-            itemData,
-            isChecked;
+            itemData, 
+            isCanceled;
+
+        if(ui.core.isBoolean(values)) {
+            isFire = values;
+            values = null;
+        }
+
         if(this.isMultiple()) {
+            isCanceled = false;
             if(values) {
                 if(Array.isArray(values)) {
                     values = Array.from(values);
@@ -404,7 +411,7 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
                 this._current = null;
             }
         }
-        if(isFire !== false) {
+        if(isFire !== false && isCanceled) {
             this.fire("cancel");
         }
     },
