@@ -40,29 +40,31 @@ ui.trans = {
             pid = parentField.call(item) + "" || "__";
             if (tempList.hasOwnProperty(pid)) {
                 temp = tempList[pid];
+                if(!temp[childrenField]) {
+                    temp[childrenField] = [];
+                }
                 temp[childrenField].push(item);
             } else {
                 temp = {};
                 temp[childrenField] = [];
                 temp[childrenField].push(item);
                 tempList[pid] = temp;
+                temp[flagField] = true;
             }
             id = valueField.call(item) + "";
             if (tempList.hasOwnProperty(id)) {
                 temp = tempList[id];
                 item[childrenField] = temp[childrenField];
                 tempList[id] = item;
-                item[flagField] = true;
             } else {
-                item[childrenField] = [];
-                item[flagField] = true;
+                item[childrenField] = null;
                 tempList[id] = item;
             }
         }
         for (key in tempList) {
             if(tempList.hasOwnProperty(key)) {
                 temp = tempList[key];
-                if (!temp.hasOwnProperty(flagField)) {
+                if (temp.hasOwnProperty(flagField)) {
                     root = temp;
                     break;
                 }

@@ -228,7 +228,10 @@
                         if(!Array.isArray(nextList.list)) {
                             nextList.list = [];
                         }
-                        nextList.target.empty().append(this._createList(nextList));
+                        nextList.target
+                            .empty()
+                            .append(this._createList(nextList))
+                            .scrollTop(0);
                     });
                     this.getText = function(item) {
                         return item ? item.text : "";
