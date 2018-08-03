@@ -5740,14 +5740,33 @@ var selectedClass = "ui-selection-tree-selected",
     expandClass = "expand-button";
 
 var instanceCount = 0,
-    parentNode = "_selectionTreeParentNode";
+    extensionPropertyName = "_extensions";
 
 var flodButtonLeft = 3,
     flodButtonWidth = 14;
 
-function getParent() {
-    return this[parentNode];
+function setExtension(name, value) {
+    var extensions = this[extensionPropertyName];
+    if(!extensions) {
+        extensions = {};
+        this[extensionPropertyName] = extensions;
+    }
+
+    extensions[name] = value;
 }
+
+function getExtension(name) {
+    var extensions = this[extensionPropertyName];
+    if(extensions) {
+        return extensions[name] || null;
+    }
+    return null;
+}
+
+function getParent() {
+    return getExtension.call(this, "parentNode");
+}
+
 // 获取值
 function getValue(field) {
     var value,
@@ -6033,12 +6052,14 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         for(i = 0, len = list.length; i < len; i++) {
             tempMargin = 0;
             item = list[i];
-            item[parentNode] = parentData || null;
-            item.getParent = getParent;
 
             id = path ? (path + "_" + i) : ("" + i);
             text = this._getText.call(item, this.option.textField) || "";
 
+            setExtension.call(item, "parentNode", parentData || null);
+            setExtension.call(item, "elementId", id);
+            item.getParent = getParent;
+            
             dt = $("<dt class='ui-selection-tree-dt' />");
             if(this.isMultiple()) {
                 cbx = this._createCheckbox();
@@ -6138,10 +6159,11 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
     },
     _getLevel: function(nodeData) {
-        var level = 0;
-        while(nodeData[parentNode]) {
+        var level = 0,
+            parentData;
+        while(parentData = nodeData.getParent()) {
             level++;
-            nodeData = nodeData[parentNode];
+            nodeData = parentData;
         }
         return level;
     },
@@ -6178,8 +6200,8 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
         }
         data.nodeData = nodeData;
         data.children = this._getChildren(nodeData);
-        data.parent = nodeData[parentNode];
-        data.isRoot = !nodeData[parentNode];
+        data.parent = data.nodeData.getParent();
+        data.isRoot = !data.parent;
         data.isNode = this._hasChildren(nodeData);
         return data;
     },
@@ -6365,7 +6387,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
             elem, nextElem, dtList, 
             i, len, checkbox;
 
-        parentNodeData = nodeData[parentNode];
+        parentNodeData = nodeData.getParent();
         if (!parentNodeData) {
             return;
         }

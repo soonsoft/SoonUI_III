@@ -356,6 +356,7 @@
 
                     /*
                     这个功能一般用在菜单权限这种地方
+                    */
 
                     // 如果选中的是父节点，则把下面的子节点都选中
                     if (eventData.isNode) {
@@ -365,7 +366,6 @@
                     if (!eventData.isRoot) {
                         this.selectParentNode(eventData.element, eventData.isSelection);
                     }
-                    */
 
                     for(i = 0; i < arr.length; i++) {
                         data.push(arr[i].name);
