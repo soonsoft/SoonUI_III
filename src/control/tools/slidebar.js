@@ -12,9 +12,7 @@ function prepareMove(arg) {
 }
 function moving(arg) {
     var option = arg.option,
-        location,
-        extend,
-        result;
+        extend;
 
     extend = this.thumb.width() / 2;
     if(this.isHorizontal()) {
@@ -57,6 +55,30 @@ function moveVertical(changeVal, extend, lengthValue) {
 
         this.fire("changed", percent);
     }
+}
+function onMouseup(e) {
+    var offset,
+        lengthValue,
+        arg;
+
+    if(this.mouseDragger._isDragStart) {
+        return;
+    }
+    arg = {};
+    offset = this.track.offset();
+    if(this.isHorizontal()) {
+        lengthValue = this.track.width();
+        arg.x = e.pageX - offset.left;
+        arg.x -= parseFloat(this.thumb.css("left")) || 0;
+    } else {
+        lengthValue = this.track.height();
+        arg.y = e.pageY - offset.top;
+        arg.y -= parseFloat(this.thumb.css("top")) || 0;
+    }
+    arg.option = {
+        lengthValue: lengthValue
+    };
+    moving.call(this, arg);
 }
 function calculatePercent(location, min, max) {
     var percent;
@@ -101,6 +123,8 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this.defineProperty("readonly", this.getReadonly, this.setReadonly);
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("percentValue", this.getPercent, this.setPercent);
+
+        this.onMouseupHandler = onMouseup.bind(this);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
@@ -112,6 +136,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
 
         this._initScale();
         this._initMouseDragger();
+        this.track.on("mouseup", this.onMouseupHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;
@@ -209,13 +234,11 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
     },
     /** 设置值 */
     setPercent: function(value) {
-        var extend,
-            percent,
+        var percent,
             arg = {
                 option: {}
             };
         percent = value;
-        extend = this.thumb.width() / 2;
         if(ui.core.isNumber(percent)) {
             if(percent < 0) {
                 percent = 0;
