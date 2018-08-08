@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>分组表格</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .album-panel {
+            width: 100%;
+            height: 60px;
+            overflow: hidden;
+            text-align: left;
+            position: relative;
+        }
+
+        .album-image-panel {
+            width: 48px;
+            height: 48px;
+            margin-top: 6px;
+            margin-left: 6px;
+            margin-right: 6px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .album-name {
+            font-size: 18px;
+            line-height: 60px;
+        }
+
+        .album-year {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            font-size: 14px;
+            line-height: 60px;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title">
+            <a class="ui-menu-button" href="javascript:void(0)"></a><span class="head-system-title-text">GRID GROUP</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        <div class="ui-menu-panel"></div>
+        <div class="content-container">
+            
+    <div class="toolbar"></div>
+    <div id="gridview"></div>
+
+        </div>
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+            this.config("menu");
+        });
+        ui.master.ready(function() {
+            if(pageLogic && menus) {
+                ui.master.menu.setMenuList(menus);
+            }
+        });
+    </script>
+    
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
+    <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    create: function() {
+                        createGridGroup.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.gridview.setSize(height - 40);
+                        });
+                    },
+                    event: function() {
+
+                    },
+                    load: function() {
+                        loadGridGroupData();
+                    }
+                }
+            };
+
+            function createGridGroup() {
+                var gridGroup = new ui.ctrls.GridViewGroup();
+                gridGroup.groupItemFormatter = function(group, colunm, index, td) {
+                    var div = $("<div class='album-panel' />");
+                    
+                    var imgPanel = $("<div class='album-image-panel'/>");
+                    div.append(imgPanel);
+                    var img = $("<img />");
+                    img.setImage(group.cover, 48, 48);
+                    imgPanel.append(img);
+                    
+                    div.append("<span class='album-name'>" + group.name + "</span>");
+                    
+                    div.append("<span class='album-year'>" + group.year + "</span>");
+                    
+                    return div;
+                };
+                this.gridview = $("#gridview").gridView({
+                    columns: [
+                        { text: "#", align: "right", len: 40, formatter: gridGroup.rowNumber },
+                        { column: "name", text: "标题", len: 240 },
+                        { column: "artist", text: "艺术家", len: 160 },
+                        { column: "star", text: "等级", len: 120 },
+                        { column: "time", text: "时间", len: 100 },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    pager: false,
+                    selection: {
+                        type: "row",
+                        multiple: false,
+                        isRelateCheckbox: false
+                    }
+                });
+                gridGroup.setGridView(this.gridview);
+                this.gridview.selecting(function(e, eventData) {
+                });
+                this.gridview.selected(function(e, eventData) {
+                    ui.messageShow("开始播放");
+                });
+                this.gridview.deselected(function(e, eventData) {
+
+                });
+                this.gridview.cancel(function(e) {
+
+                });
+            }
+
+            function loadGridGroupData() {
+                var groupList = pageLogic.gridview.group.listGroup(jaySongs, "album", function(groupKey) {
+                    return {
+                        name: this.album,
+                        year: this.year,
+                        cover: "../../lib/data/album-cover/" + this.album + ".jpg",
+                        genre: "pop"
+                    };
+                });
+                pageLogic.gridview.createGridBody(groupList);
+            }
+        })();
+    </script>
+
+</body>
+</html>

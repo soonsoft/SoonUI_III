@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>分组视图</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .album {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .album-text {
+            overflow: hidden;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title">
+            <a class="ui-menu-button" href="javascript:void(0)"></a><span class="head-system-title-text">CARD GROUP</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        <div class="ui-menu-panel"></div>
+        <div class="content-container">
+            
+    <div id="toolbar" class="toolbar clear">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="addItem" class="tool-action-button" href="javascript:void(0)" title="添加">
+                    <i class="fa fa-plus-circle"></i>
+                </a>
+                <a id="addGroup" class="tool-action-button" href="javascript:void(0)" title="添加分组">
+                    <i class="fa fa-plus-square"></i>
+                </a>
+                <a id="insertItem" class="tool-action-button" href="javascript:void(0)" title="插入">
+                        <i class="fa fa-object-group"></i>
+                    </a>
+                <a id="deleteItem" class="tool-action-button" href="javascript:void(0)" title="删除">
+                    <i class="fa fa-remove"></i>
+                </a>
+            </li>
+        </ul>
+        <div class="toolbar-extend"></div>
+    </div>
+    <div id="cardView"></div>
+
+        </div>
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+            this.config("menu");
+        });
+        ui.master.ready(function() {
+            if(pageLogic && menus) {
+                ui.master.menu.setMenuList(menus);
+            }
+        });
+    </script>
+    
+    <script type="text/javascript" src="../../lib/menu/card-view-menus.js"></script>
+    <script type="text/javascript" src="../../lib/data/albums.js"></script>
+    <script type="text/javascript">
+        (function() {
+            var removeItems = [];
+            var westlifeGroup = [
+                { album: "Westlife", year: "1999-10-29", artist: "Westlife" },
+                { album: "Coast to Coast", year: "2001-05-11", artist: "Westlife" },
+                { album: "World of Our Own", year: "2001-11-12", artist: "Westlife" },
+                { album: "Turnaround", year: "2003-11-01", artist: "Westlife" },
+                { album: "Allow Us to Be Frank", year: "2004-11-06", artist: "Westlife" },
+                { album: "Face to Face", year: "2005-11-01", artist: "Westlife" },
+                { album: "The Love Album", year: "2006-11-13", artist: "Westlife" },
+                { album: "Back Home", year: "2007-11-23", artist: "Westlife" },
+                { album: "Where We Are", year: "2009-10-01", artist: "Westlife" },
+                { album: "Gravity", year: "2010-11-01", artist: "Westlife" },
+                { album: "Westlife - Greatest Hits", year: "2011-11-01", artist: "Westlife" }
+            ];
+            var westlifeInsertItem = { album: "Unbreakable - The Greatest Hits", year: "2002-11-02", artist: "Westlife" };
+            window.pageLogic = {
+                init: {
+                    create: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        createCardView.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.cardView.setSize(height - pageLogic.toolbar.height);
+                        });
+                    },
+                    event: function() {
+                        $("#addItem").click(function(e) {
+                            if(removeItems.length === 0) {
+                                ui.messageShow("没有被移除的项目，请先移除一个项目");
+                                return;
+                            }
+                            while(removeItems.length > 0) {
+                                pageLogic.cardView.addItem(removeItems.shift());
+                            }
+                        });
+                        $("#addGroup").click(function(e) {
+                            if(westlifeGroup.length === 0) {
+                                ui.messageShow("没新分组");
+                                return;
+                            }
+                            westlifeGroup.forEach(function(item) {
+                                item.picture = "../../lib/data/album-cover/" + item.album + ".jpg";
+                                pageLogic.cardView.addItem(item);
+                            });
+                            westlifeGroup = [];
+                        });
+                        $("#insertItem").click(function(e) {
+                            if(!westlifeInsertItem) {
+                                ui.messageShow("没有需要插入的元素");
+                                return;
+                            }
+                            westlifeInsertItem.picture = "../../lib/data/album-cover/" + westlifeInsertItem.album + ".jpg";
+                            pageLogic.cardView.insertItem(36, westlifeInsertItem);
+                            westlifeInsertItem = null;
+                        });
+                        $("#deleteItem").click(function(e) {
+                            var selectList = pageLogic.cardView.getSelection();
+                            if(selectList.length === 0) {
+                                ui.messageShow("您还没有选择要删除的内容");
+                                return;
+                            }
+                            var indexes = [];
+                            selectList.forEach(function(item) {
+                                removeItems.push(item.itemData);
+                                indexes.push(item.itemIndex);
+                            });
+                            pageLogic.cardView.removeAt.apply(pageLogic.cardView, indexes);
+                        });
+                    },
+                    load: function() {
+                        loadCardViewData();
+                    }
+                }
+            };
+
+            function createCardView() {
+                this.cardView = $("#cardView").cardView({
+                    itemWidth: 160,
+                    itemHeight: 190,
+                    group: "artist",
+                    renderItemFormatter: renderItem,
+                    pager: false,
+                    selection: {
+                        multiple: true
+                    }
+                });
+                this.cardView.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.cardView.selected(function(e, eventData) {
+
+                });
+                this.cardView.deselected(function(e, eventData) {
+
+                });
+                this.cardView.cancel(function(e) {
+
+                });
+            }
+            
+            function renderItem(itemData, index) {
+                var imagePanel,
+                    img,
+                    textPanel;
+
+                imagePanel = $("<div class='album' />");
+                imagePanel.css("height", this.option.itemWidth + "px");
+
+                img = $("<img />");
+                imagePanel.append(img);
+                img.setImage(
+                    itemData.picture,
+                    this.option.itemWidth,
+                    this.option.itemHeight,
+                    ui.ImageLoader.centerCrop
+                ).then(
+                    function() {
+                        
+                    }, 
+                    function() {
+                        ui.messageShow("专辑图片加载失败");
+                    }
+                );
+
+                textPanel = $("<div class='album-text' />");
+                textPanel.css({
+                    "height": this.option.itemHeight - this.option.itemWidth + "px",
+                    "line-height": this.option.itemHeight - this.option.itemWidth + "px"
+                });
+                textPanel.text(itemData.album);
+                
+                return [imagePanel, textPanel];
+            }
+
+            function loadCardViewData() {
+                albums.forEach(function(item) {
+                    item.picture = "../../lib/data/album-cover/" + item.album + ".jpg";
+                });
+                pageLogic.cardView.fill(albums, 100);
+            }
+        })();
+    </script>
+
+</body>
+</html>

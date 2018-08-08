@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>视图模型</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .album-list {
+            overflow: auto;
+            margin: 20px auto 20px auto;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">VIEW MODEL</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        
+    <ul id="list" class="album-list theme-panel"></ul>
+
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+        });
+    </script>
+    
+    <script type="text/javascript">
+        (function() {
+            var vm = ui.ViewModel({
+                size: {
+                    width: 240,
+                    height: 0,
+                },
+                items: []
+            });
+
+            function defineAlbumList() {
+                var elem = $("#list");
+                ui.ViewModel.bindOneWay(vm, "items", function(value) {
+                    var htmlBuilder = [];
+                    value.forEach(function(item) {
+                        htmlBuilder.push("<li>");
+                        htmlBuilder.push("<span>", item, "</span>");
+                        htmlBuilder.push("</li>");
+                    });
+                    elem.html(htmlBuilder.join(""));
+                });
+                ui.ViewModel.bindOneWay(vm.size, "width", function(value) {
+                    if(value > 0) {
+                        elem.css("width", value + "px");
+                    }
+                });
+                ui.ViewModel.bindOneWay(vm.size, "height", function(value) {
+                    if(value > 0) {
+                        elem.css("height", value + "px");
+                    }
+                });
+                vm.refresh();
+
+                this.albumList = vm;
+                //vm.items.push("用情", "背叛", "多想", "Good Love", "放手", "受罪", "改变", "等你", "快乐", "游戏");
+            }
+
+            window.pageLogic = {
+                init: {
+                    create: function() {
+                        defineAlbumList.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+
+                            pageLogic.albumList.size.height = height - 40;
+                        });
+                    },
+                    event: function() {
+
+                    },
+                    load: function() {
+                        
+                    }
+                }
+            };
+        })();
+    </script>
+
+</body>
+</html>

@@ -24011,11 +24011,11 @@ $.fn.extendButton = function(option) {
 
 })(jQuery, ui);
 
-// Source: src/control/tools/filter-tool.js
+// Source: src/control/tools/filter-button.js
 
 (function($, ui) {
 /* 内容过滤选择器 */
-var prefix = "filter_tool",
+var prefix = "filter_button_",
     filterCount = 0;
 
 function onItemClick (e) {
@@ -24030,7 +24030,7 @@ function onItemClick (e) {
     this._selectItem(elem);
 }
 
-ui.ctrls.define("ui.ctrls.FilterTool", {
+ui.ctrls.define("ui.ctrls.FilterButton", {
     _defineOption: function () {
         //data item is { text: "", value: "" }
         return {
@@ -24047,9 +24047,9 @@ ui.ctrls.define("ui.ctrls.FilterTool", {
             item,
             viewData;
 
-        this.filterPanel = $("<div class='filter-tools-panel'>");
+        this.filterPanel = $("<div class='filter-button-panel'>");
         this.parent = this.element;
-        this.radioName = prefix + "_" + (filterCount++);
+        this.radioName = prefix + (filterCount++);
         this._current = null;
 
         this.onItemClickHandler = $.proxy(onItemClick, this);
@@ -24082,14 +24082,14 @@ ui.ctrls.define("ui.ctrls.FilterTool", {
             return;
         }
 
-        label = $("<label class='filter-tools-item' />");
-        radio = $("<input type='radio' class='filter-tools-item-radio' name='" + this.radioName + "'/>");
-        span = $("<span class='filter-tools-item-text' />");
+        label = $("<label class='filter-button-item' />");
+        radio = $("<input type='radio' class='filter-button-item-radio' name='" + this.radioName + "'/>");
+        span = $("<span class='filter-button-item-text' />");
         label.append(radio).append(span);
 
         label.attr("data-index", index);
         if (index === 0) {
-            label.addClass("filter-tools-item-first");
+            label.addClass("filter-button-item-first");
         }
         label.addClass("font-highlight").addClass("border-highlight");
 
@@ -24157,9 +24157,9 @@ ui.ctrls.define("ui.ctrls.FilterTool", {
         if (index >= 0 && index < viewData.length) {
             label = $(this.filterPanel.children()[index]);
             if(isHide) {
-                label.addClass("filter-tools-item-hide");
+                label.addClass("filter-button-item-hide");
             } else {
-                label.removeClass("filter-tools-item-hide");
+                label.removeClass("filter-button-item-hide");
             }
             this._updateFirstClass();
         }  
@@ -24173,17 +24173,17 @@ ui.ctrls.define("ui.ctrls.FilterTool", {
         children = this.filterPanel.children();
         for(i, len = children.length; i < len; i++) {
             label = $(children[i]);
-            if(label.hasClass("filter-tools-item-hide")) {
+            if(label.hasClass("filter-button-item-hide")) {
                 continue;
             }
             if(!firstLabel) {
                 firstLabel = label;
             } else {
-                label.removeClass("filter-tools-item-first");
+                label.removeClass("filter-button-item-first");
             }
         }
         if(firstLabel) {
-            firstLabel.addClass("filter-tools-item-first");
+            firstLabel.addClass("filter-button-item-first");
         }
     },
     getViewData: function() {
@@ -24236,11 +24236,11 @@ ui.ctrls.define("ui.ctrls.FilterTool", {
         }
     }
 });
-$.fn.filterTool = function (option) {
+$.fn.filterButton = function (option) {
     if (this.length === 0) {
         return null;
     }
-    return ui.ctrls.FilterTool(option, this);
+    return ui.ctrls.FilterButton(option, this);
 };
 
 
@@ -24520,6 +24520,187 @@ $.fn.addHoverView = function (view) {
             view.show(that);
         });
     }
+};
+
+
+})(jQuery, ui);
+
+// Source: src/control/tools/progress.js
+
+(function($, ui) {
+// Progress
+
+var circlePrototype,
+    dashboardPrototype,
+    barPrototype;
+
+function ProgressView(option) {
+    var percent = 0;
+
+    this.trackColor = option.trackColor;
+    this.trackWidth = option.trackWidth;
+    this.trackLength = option.trackLength;
+
+    this.progressColor = option.progressColor;
+    this.progressWidth = option.progressWidth;
+
+    this.size = option.size;
+    this.type = option.type;
+
+    Object.defineProperty(this, "percent", {
+        get: function() {
+            return percent;
+        },
+        set: function(value) {
+            percent = value;
+            this.update(percent);
+        },
+        enumerable: true,
+        configurable: true
+    });
+}
+
+circlePrototype = {
+    render: function() {
+        var contianer,
+            svg,
+            path,
+            pathData,
+            radius;
+
+        contianer = $("<div class='ui-progress-container' />");
+        contianer.css({
+            "width": this.size + "px",
+            "height": this.size + "px"
+        });
+        svg = $("<svg viewBox='0 0 100 100'></svg>");
+        
+        radius = 100 / 2 - Math.max(this.trackWidth, this.progressWidth) / 2;
+        this.trackLength = 2 * Math.PI * radius;
+
+        pathData = [
+            "M 50,50 m 0,", -radius, 
+            " a ", radius, ",", radius, " 0 1 1 0,", radius * 2,
+            " a ", radius, ",", radius, " 0 1 1 0,", -radius * 2
+        ];
+        pathData = pathData.join("");
+
+        path = $("<path fill-opacity='0' />");
+        path.attr("stroke", this.trackColor);
+        path.attr("stroke-width", this.trackWidth);
+        svg.append(path);
+
+        path = $("<path fill-opacity='0' stroke-linecap='round' />");
+        path.attr("stroke", this.progressColor);
+        path.attr("stroke-width", this.progressWidth);
+        path.css({
+            "stroke-dasharray": this.trackLength + "px," + this.trackLength + "px",
+            "stroke-dashoffset": ((100 - this.percent) / 100 * this.trackLength) + "px",
+            "transition": "stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease"
+        });
+        svg.append(path);
+
+        contianer.append(svg);
+
+        this.textElem = $("<div class='ui-progress-text' />");
+        contianer.append(this.textElem);
+
+        this.progressElem = path;
+
+        return contianer;
+    },
+    update: function(percent) {
+        this.progressElem.css("stroke-dashoffset", ((100 - percent) / 100 * this.trackLength) + "px");
+    }
+};
+dashboardPrototype = {};
+barPrototype = {
+    render: function() {
+        var track,
+            progressBar;
+
+        track = $("<div class='ui-progress-track' />");
+        track.css({
+            "width": this.size + "px",
+            "height": this.progressWidth + "px"
+        });
+
+        progressBar = $("<div class='ui-progress-bar background-highlight' />");
+        track.append(track);
+
+        this.progressElem = progressBar;
+
+        return track;
+    },
+    update: function(percent) {
+        this.progressElem.css("width", percent + "%");
+    }
+};
+
+function createProgressView(option) {
+    var view;
+
+    option.type = (option.type || "circle").toLowerCase();
+    if(type === "circle") {
+        ProgressView.prototype = circlePrototype;
+        view = new ProgressView(option);
+    } else if(type === "dashboard") {
+        ProgressView.prototype = dashboardPrototype;
+        view = new ProgressView(option);
+    } else if(type === "bar") {
+        ProgressView.prototype = dashboardPrototype;
+        view = new ProgressView(option);
+    } else {
+        return null;
+    }
+
+    return view;
+}
+
+ui.ctrls.define("ui.ctrls.Progress", {
+    _defineOption: function() {
+        return {
+            // 进度条样式 circle: 进度环, dashboard: 仪表盘, bar: 进度条 
+            type: "circle",
+            // 宽度和高度，单位px
+            size: 100,
+            trackColor: "#f1f1f1",
+            trackWidth: 5,
+            progressColor: "#ff0066",
+            progressWidth: 6
+        };
+    },
+    _create: function() {
+        this.view = createProgressView(this.option);
+        if(!this.view) {
+            throw new TypeError("the option.type: " + this.option.type + " is invalid.");
+        }
+        
+        this.defineProperty("percent", this.getPercent, this.setPercent);
+    },
+    _render: function() {
+        this.element.addClass("ui-progress");
+        this.element.append(this.view.render());
+    },
+
+    // API
+    /** 获取百分比 */
+    getPercent: function() {
+        return this.view.getPercent;
+    },
+    /** 设置百分比 */
+    setPercent: function(value) {
+        if(ui.core.isNumber(value)) {
+            this.view.setPercent(value);
+        }
+    }
+});
+
+$.fn.progress = function(option) {
+    if(this.length === 0) {
+        return null;
+    }
+    return ui.ctrls.Progress(option, this);
 };
 
 

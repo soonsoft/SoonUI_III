@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>树形表格</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title">
+            <a class="ui-menu-button" href="javascript:void(0)"></a><span class="head-system-title-text">GRID TREE</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        <div class="ui-menu-panel"></div>
+        <div class="content-container">
+            
+    <div class="toolbar"></div>
+    <div id="gridview"></div>
+
+        </div>
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+            this.config("menu");
+        });
+        ui.master.ready(function() {
+            if(pageLogic && menus) {
+                ui.master.menu.setMenuList(menus);
+            }
+        });
+    </script>
+    
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        createGridTree.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            pageLogic.gridview.setSize(height - 40);
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        loadGridTreeData();
+                    }
+                }
+            };
+
+            function createGridTree() {
+                var gridTree = new ui.ctrls.GridViewTree();
+                this.gridview = $("#gridview").gridView({
+                    columns: [
+                        { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
+                        { text: "部门名称", column: "DeptName", len: 320, formatter: gridTree.treeNode },
+                        { text: "类型", column: "DeptTypeName", len: 100 },
+                        { text: "层级", column: "Level", len: 100 },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    // 树形表格一般不分页
+                    pager: false,
+                    selection: {
+                        type: "row",
+                        multiple: false,
+                        isRelateCheckbox: false
+                    }
+                });
+                gridTree.setGridView(this.gridview);
+                this.gridview.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.gridview.selected(function(e, eventData) {
+
+                });
+                this.gridview.deselected(function(e, eventData) {
+
+                });
+                this.gridview.cancel(function(e) {
+
+                });
+            }
+
+            function loadGridTreeData() {
+                var dataList = [];
+                getListData(dataList);
+                var treeList = pageLogic.gridview.tree.listTree(dataList, "ParentID", "DeptID");
+                pageLogic.gridview.createGridBody(treeList);
+            }
+
+            var companyNames = ["北京分公司", "浙江分公司", "江苏分公司", "软件研发中心", "消费者硬件研发中心", "云计算中心", "互联网产业孵化园", "政企信息网", "运营中心", "Galaxy研究院"];
+            var departNames = ["总裁办", "人事部", "行政部", "市场部", "营销部", "研发部", "服务部", "秘书部", "网络部", "工程部"];
+            // 构建具有逻辑上层级关系的列表数据
+            function getListData(dataList, parentID, level) {
+                var i, len, item;
+                if (!level) {
+                    level = 0;
+                    len = 10;
+                } else {
+                    if (level > 2) { // 最多构建3个层级
+                        return;
+                    }
+                    len = ui.random.getNum(1, 10);
+                }
+                for (i = 0; i < len; i++) {
+                    item = {
+                        DeptID: (i + 1) + "",
+                        DeptTypeName: level === 0 ? "机构" : "部门",
+                        Level:  level + "级",
+                        isOrganization: level === 0
+                    };
+                    if(item.isOrganization) {
+                        item.DeptName = companyNames[i];
+                    } else {
+                        item.DeptName = departNames[i];
+                        if(level > 1) {
+                            item.DeptName = (level + 1) + "级" + item.DeptName;
+                        }
+                    }
+                    if(parentID) {
+                        item.DeptID = parentID + ":" + item.DeptID;
+                        item.ParentID = parentID;
+                    }
+                    if (ui.random.getNum(0, 2)) {
+                        arguments.callee.call(arguments.callee.caller, dataList, item.DeptID, level + 1);
+                    }
+                    dataList.push(item);
+                }
+            }
+        })();
+    </script>
+
+</body>
+</html>

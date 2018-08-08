@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>日历选择器</title>
+
+    <link type="text/css" href="../../../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .content-panel {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .section-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-paragraph {
+            line-height: 1.5;
+            font-size: 1.25em;
+            margin: 0;
+            padding: 0;
+            margin-top: 1em;
+        }
+
+        .box-line {
+            width: 100%;
+            height: 60px;
+        }
+
+        .box-column {
+            width: 240px;
+            height: 100%;
+            float: left;
+        }
+
+        .box-column > label {
+            line-height: 24px;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../../../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">DATE CHOOSER</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../../content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        
+    <div class="content-panel">
+        <dl class="ui-fold-view" style="padding:20px;">
+            <dt>日历选择器</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">日历选择器的样式</p>
+                <div id="dateInPanel" style="display:block"></div>
+            </dd>
+            <dt>在表单中使用</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    日期选择器常常被用在表单中，<span class="font-highlight">ui.ctrls.DateChooser</span>支持日期和时期时间两种模式。<br />
+                    初始化方式如下：<br />
+                    $("#textBox").dateChooser();<br />
+                    默认是日期格式，如果需要使用日期时间模式需要添加参数<span class="font-highlight">isDateTime</span>: true。<br />
+                    $("#textBox").dateChooser({ isDatetime: true });
+                </p>
+                <p class="description-paragraph">
+                    值得注意的是，默认的配置下日期选择面板是通过<span class="font-highlight">position:absolute</span>定位的。<br />
+                    但这种定位存在缺陷，当表单出现滚动条时，日期选择面板无法跟着滚动条移动。为了解决这个问题可以通过设置<span class="font-highlight">layoutPanel</span>属性来解决。<br />
+                    $("#textBox").dateChooser({ layoutPanel: "出现滚动条元素的ID" });
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label>日期选择</label>
+                        <br />
+                        <input id="dateText" type="text" class="ui-date-text" />
+                    </div>
+                    <div class="box-column">
+                        <label>日期时间选择</label>
+                        <br />
+                        <input id="datetimeText" type="text" class="ui-date-text" />
+                    </div>
+                </div>
+            </dd>
+            <dt>自定义元素使用</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    除了可以在文本框上使用日期选择器之外，也可以在任意元素上使用。
+                </p>
+                <div style="width:100%;height:40px;line-height:40px;">
+                    选择日期：<a id="customElement" href="javascript:void(0)"></a>
+                </div>
+            </dd>
+            <dt>限定可选择范围</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    支持可选范围的限定，在参数中设置<span class="font-highlight">startDate</span>和<span class="font-highlight">endDate</span><br />
+                    $("#dateRangeText").dateChooser({ startDate: "2017-12-21", endDate: "2018-01-16" });
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;">
+                        <label>日期选择（范围2017-12-21 ~ 2018-01-16）</label>
+                        <br />
+                        <input id="dateRangeText" type="text" class="ui-date-text" />
+                    </div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    </section>
+
+    <script type="text/javascript" src="../../../jquery.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../../../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../../lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+        });
+    </script>
+    
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    create: function() {
+                        createDateInPanel.call(this);
+                        createDateInForm.call(this);
+                        createDateInCustom.call(this);
+                        createDateRangeInForm.call(this);
+
+                        $(".ui-fold-view").foldView();
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                        });
+                    },
+                    event: function() {
+
+                    },
+                    load: function() {
+                        
+                    }
+                }
+            };
+
+            function createDateInPanel() {
+                this.date = ui.ctrls.DateChooser({
+                    calendarPanel: "dateInPanel"
+                });
+                this.date.setDateValue(
+                    ui.date.format(new Date(), "yyyy-MM-dd"));
+            }
+
+            function createDateInForm() {
+                var contentPanel = $(".content-panel");
+                this.dateText = $("#dateText").dateChooser({
+                    layoutPanel: contentPanel
+                });
+                this.datetimeText = $("#datetimeText").dateChooser({
+                    layoutPanel: contentPanel,
+                    isDateTime: true
+                });
+            }
+
+            function createDateInCustom() {
+                var customElement = $("#customElement");
+                customElement.text(ui.date.format(new Date(), "yyyy-MM-dd"));
+                this.dateText = customElement.dateChooser();
+            }
+
+            function createDateRangeInForm() {
+                this.dateText = $("#dateRangeText").dateChooser({
+                    startDate: "2017-12-21",
+                    endDate: "2018-01-16"
+                });
+            }
+        })();
+    </script>
+
+</body>
+</html>
