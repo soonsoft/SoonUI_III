@@ -17131,7 +17131,12 @@ $.fn.addHoverView = function (view) {
 
 var circlePrototype,
     dashboardPrototype,
-    barPrototype;
+    barPrototype,
+    svgNameSpace = "http://www.w3.org/2000/svg";
+
+function createSVGElement(tagName) {
+    return document.createElementNS(svgNameSpace, tagName);
+}
 
 function ProgressView(option) {
     var percent = 0;
@@ -17184,19 +17189,22 @@ circlePrototype = {
         ];
         pathData = pathData.join("");
 
-        path = $("<path fill-opacity='0' />");
-        path.attr("stroke", this.trackColor);
-        path.attr("stroke-width", this.trackWidth);
+        path = createSVGElement("path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill-opacity", 0);
+        path.setAttribute("stroke", this.trackColor);
+        path.setAttribute("stroke-width", this.trackWidth);
         svg.append(path);
 
-        path = $("<path fill-opacity='0' stroke-linecap='round' />");
-        path.attr("stroke", this.progressColor);
-        path.attr("stroke-width", this.progressWidth);
-        path.css({
-            "stroke-dasharray": this.trackLength + "px," + this.trackLength + "px",
-            "stroke-dashoffset": ((100 - this.percent) / 100 * this.trackLength) + "px",
-            "transition": "stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease"
-        });
+        path = createSVGElement("path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill-opacity", 0);
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("stroke", this.progressColor);
+        path.setAttribute("stroke-width", this.progressWidth);
+        path.style["stroke-dasharray"] = this.trackLength + "px," + this.trackLength + "px";
+        path.style["stroke-dashoffset"] = ((100 - this.percent) / 100 * this.trackLength) + "px";
+        path.style["transition"] = "stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease";
         svg.append(path);
 
         contianer.append(svg);
@@ -17209,7 +17217,7 @@ circlePrototype = {
         return contianer;
     },
     update: function(percent) {
-        this.progressElem.css("stroke-dashoffset", ((100 - percent) / 100 * this.trackLength) + "px");
+        this.progressElem.style["stroke-dashoffset"] = ((100 - percent) / 100 * this.trackLength) + "px";
     }
 };
 dashboardPrototype = {};
@@ -17240,13 +17248,13 @@ function createProgressView(option) {
     var view;
 
     option.type = (option.type || "circle").toLowerCase();
-    if(type === "circle") {
+    if(option.type === "circle") {
         ProgressView.prototype = circlePrototype;
         view = new ProgressView(option);
-    } else if(type === "dashboard") {
+    } else if(option.type === "dashboard") {
         ProgressView.prototype = dashboardPrototype;
         view = new ProgressView(option);
-    } else if(type === "bar") {
+    } else if(option.type === "bar") {
         ProgressView.prototype = dashboardPrototype;
         view = new ProgressView(option);
     } else {
@@ -17285,12 +17293,12 @@ ui.ctrls.define("ui.ctrls.Progress", {
     // API
     /** 获取百分比 */
     getPercent: function() {
-        return this.view.getPercent;
+        return this.view.percent;
     },
     /** 设置百分比 */
     setPercent: function(value) {
         if(ui.core.isNumber(value)) {
-            this.view.setPercent(value);
+            this.view.percent = value;
         }
     }
 });

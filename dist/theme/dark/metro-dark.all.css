@@ -2104,6 +2104,41 @@ div.c_flyingDots div.c_loadingFallback {
 	Color: #1d1f21
 	Name: 暗夜
 */
+.ui-progress-container {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.ui-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  transform: translateY(-50%);
+}
+.ui-progress-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.ui-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+}
+
+/*
+	Color: #1d1f21
+	Name: 暗夜
+*/
 .ui-report-view {
   border-top-style: solid;
   border-top-width: 1px;
