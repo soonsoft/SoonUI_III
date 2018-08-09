@@ -122,6 +122,20 @@
                         <div id="circleProgressError" class="extend-container"></div>
                     </div>
                 </div>
+                <p class="description-paragraph">
+                    进度条
+                </p>
+                <div class="box-line clear" style="height:40px;">
+                    <div id="progressBar" style="width:200px;height:8px;overflow:hidden;margin-top:16px;"></div>
+                </div>
+                <p class="description-paragraph">
+                    仪表盘
+                </p>
+                <div class="box-line clear" style="height:240px;">
+                    <div class="box-column" style="position:relative;width:200px;">
+                        <div id="dashProgress" class="extend-container"></div>
+                    </div>
+                </div>
             </dd>
 
             <dt>ui.ctrls.HoverView</dt>
@@ -201,18 +215,20 @@
             }
 
             function createProgress() {
+                var trackColor = "#888888",
+                    progressColor = ui.theme.currentHighlight.Color;
                 this.circleProgress = $("#circleProgress").progress({
                     size: 150,
-                    trackColor: "#888888",
+                    trackColor: trackColor,
                     trackWidth: 4,
-                    progressColor: ui.theme.currentHighlight.Color,
+                    progressColor: progressColor,
                     progressWidth: 4
                 });
                 this.circleProgress.percent = 30;
 
                 this.circleProgressDone = $("#circleProgressDone").progress({
                     size: 150,
-                    trackColor: "#888888",
+                    trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: "#00B200",
                     progressWidth: 4
@@ -221,12 +237,29 @@
 
                 this.circleProgressError = $("#circleProgressError").progress({
                     size: 150,
-                    trackColor: "#888888",
+                    trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: "#990000",
                     progressWidth: 4
                 });
                 this.circleProgressError.percent = 67;
+
+                this.progressBar = $("#progressBar").progress({
+                    type: "bar",
+                    size: 200,
+                    progressWidth: 8
+                });
+                this.progressBar.percent = 80;
+
+                this.dashProgress = $("#dashProgress").progress({
+                    type: "dashboard",
+                    size: 200,
+                    trackColor: trackColor,
+                    trackWidth: 4,
+                    progressColor: progressColor,
+                    progressWidth: 4
+                });
+                this.dashProgress.percent = 76;
             }
 
             function createHoverView() {

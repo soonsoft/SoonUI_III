@@ -810,6 +810,7 @@ ui.getScript = getScript;
 ui.getJSON = getJSON;
 ui.upload = upload;
 
+// TODO 扩展Ajax模式
 function extendHttpProcessor() {
 
 }

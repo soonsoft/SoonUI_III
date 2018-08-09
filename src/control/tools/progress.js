@@ -8,6 +8,24 @@ var circlePrototype,
 function createSVGElement(tagName) {
     return document.createElementNS(svgNameSpace, tagName);
 }
+function setAttribute(element, name, value) {
+    if(arguments.length === 2 && name) {
+        Object.keys(name).forEach(function(key) {
+            element.setAttribute(key, name[key]);
+        });
+    } else if(arguments.length > 2) {
+        element.setAttribute(name, value);
+    }
+}
+function setStyle(element, name, value) {
+    if(arguments.length === 2 && name) {
+        Object.keys(name).forEach(function(key) {
+            element.style[key] = name[key];
+        });
+    } else if(arguments.length > 2) {
+        element.style[name] = value;
+    }
+}
 
 function ProgressView(option) {
     var percent = 0;
@@ -61,21 +79,27 @@ circlePrototype = {
         pathData = pathData.join("");
 
         path = createSVGElement("path");
-        path.setAttribute("d", pathData);
-        path.setAttribute("fill-opacity", 0);
-        path.setAttribute("stroke", this.trackColor);
-        path.setAttribute("stroke-width", this.trackWidth);
+        setAttribute(path, {
+            "d": pathData,
+            "fill-opacity": 0,
+            "stroke": this.trackColor,
+            "stroke-width": this.trackWidth
+        });
         svg.append(path);
 
         path = createSVGElement("path");
-        path.setAttribute("d", pathData);
-        path.setAttribute("fill-opacity", 0);
-        path.setAttribute("stroke-linecap", "round");
-        path.setAttribute("stroke", this.progressColor);
-        path.setAttribute("stroke-width", this.progressWidth);
-        path.style["stroke-dasharray"] = this.trackLength + "px," + this.trackLength + "px";
-        path.style["stroke-dashoffset"] = ((100 - this.percent) / 100 * this.trackLength) + "px";
-        path.style["transition"] = "stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease";
+        setAttribute(path, {
+            "d": pathData,
+            "fill-opacity": 0,
+            "stroke-linecap": "round",
+            "stroke": this.progressColor,
+            "stroke-width": this.progressWidth
+        });
+        setStyle(path, {
+            "stroke-dasharray": this.trackLength + "px," + this.trackLength + "px",
+            "stroke-dashoffset": ((100 - this.percent) / 100 * this.trackLength) + "px",
+            "transition": "stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease"
+        });
         svg.append(path);
 
         contianer.append(svg);
@@ -88,10 +112,83 @@ circlePrototype = {
         return contianer;
     },
     update: function(percent) {
-        this.progressElem.style["stroke-dashoffset"] = ((100 - percent) / 100 * this.trackLength) + "px";
+        setStyle(
+            this.progressElem, 
+            "stroke-dashoffset",
+            ((100 - percent) / 100 * this.trackLength) + "px");
     }
 };
-dashboardPrototype = {};
+dashboardPrototype = {
+    render: function() {
+        var contianer,
+            svg,
+            path,
+            pathData,
+            radius;
+
+        contianer = $("<div class='ui-progress-container' />");
+        contianer.css({
+            "width": this.size + "px",
+            "height": this.size + "px"
+        });
+        svg = $("<svg viewBox='0 0 100 100'></svg>");
+        
+        radius = 100 / 2 - Math.max(this.trackWidth, this.progressWidth) / 2;
+        this.trackLength = 2 * Math.PI * radius;
+        this.gap = 75;
+
+        pathData = [
+            "M 50,50 m 0,", radius, 
+            " a ", radius, ",", radius, " 0 1 1 0,", -radius * 2,
+            " a ", radius, ",", radius, " 0 1 1 0,", radius * 2
+        ];
+        pathData = pathData.join("");
+
+        path = createSVGElement("path");
+        setAttribute(path, {
+            "d": pathData,
+            "fill-opacity": 0,
+            "stroke": this.trackColor,
+            "stroke-width": this.trackWidth
+        });
+        setStyle(path, {
+            "stroke-dasharray": this.trackLength - this.gap + "px," + this.trackLength + "px",
+            "stroke-dashoffset": -this.gap / 2 + "px",
+            "transition": "stroke-dashoffset .3s ease 0s, stroke-dasharray .3s ease 0s, stroke .3s"
+        });
+        svg.append(path);
+
+        path = createSVGElement("path");
+        setAttribute(path, {
+            "d": pathData,
+            "fill-opacity": 0,
+            "stroke-linecap": "round",
+            "stroke": this.progressColor,
+            "stroke-width": this.progressWidth
+        });
+        setStyle(path, {
+            "stroke-dasharray": (this.percent / 100) * (this.trackLength - this.gap) + "px," + this.trackLength + "px",
+            "stroke-dashoffset": -this.gap / 2 + "px",
+            "transition": "stroke-dashoffset .3s ease 0s, stroke-dasharray .6s ease 0s, stroke .6s, stroke-width .06s ease .6s"
+        });
+        svg.append(path);
+
+        contianer.append(svg);
+
+        this.textElem = $("<div class='ui-progress-text' />");
+        contianer.append(this.textElem);
+
+        this.progressElem = path;
+
+        return contianer;
+    },
+    update: function(percent) {
+        setStyle(
+            this.progressElem, 
+            "stroke-dasharray",
+            (percent / 100) * (this.trackLength - this.gap) + "px," + this.trackLength + "px");
+    }
+};
 barPrototype = {
     render: function() {
         var track,
@@ -104,7 +201,7 @@ barPrototype = {
         });
 
         progressBar = $("<div class='ui-progress-bar background-highlight' />");
-        track.append(track);
+        track.append(progressBar);
 
         this.progressElem = progressBar;
 
@@ -126,7 +223,7 @@ function createProgressView(option) {
         ProgressView.prototype = dashboardPrototype;
         view = new ProgressView(option);
     } else if(option.type === "bar") {
-        ProgressView.prototype = dashboardPrototype;
+        ProgressView.prototype = barPrototype;
         view = new ProgressView(option);
     } else {
         return null;
