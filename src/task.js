@@ -10,6 +10,8 @@ setImmediate\setTimeout\setInterval 属于MacroTask
 另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
 而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
 
+MicroTask和MacroTask的区别请看这里
+https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
 */
 
 var callbacks,
