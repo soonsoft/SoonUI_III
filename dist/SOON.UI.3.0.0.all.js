@@ -3619,6 +3619,8 @@ setImmediate\setTimeout\setInterval 属于MacroTask
 另外在HTML5的标准中规定了setTimeout和setInterval的最小时间变成了4ms，这导致了setTimeout(fn, 0)也会有4ms的延迟，
 而setImmediate没有这样的限制，但是setImmediate只有IE实现了，其它浏览器都不支持，所以可以采用MessageChannel代替。
 
+MicroTask和MacroTask的区别请看这里
+https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
 */
 
 var callbacks,
@@ -24557,30 +24559,24 @@ function setStyle(element, name, value) {
         element.style[name] = value;
     }
 }
+function defaultTextTemplate() {
+    return "<span class='ui-progress-indication' style='color:" + this.progressColor + "'>" + this.percent + "%</span>";
+}
 
 function ProgressView(option) {
-    var percent = 0;
-
-    this.trackColor = option.trackColor;
-    this.trackWidth = option.trackWidth;
-    this.trackLength = option.trackLength;
-
-    this.progressColor = option.progressColor;
-    this.progressWidth = option.progressWidth;
-
-    this.size = option.size;
-    this.type = option.type;
-
-    Object.defineProperty(this, "percent", {
-        get: function() {
-            return percent;
-        },
-        set: function(value) {
-            percent = value;
-            this.update(percent);
-        },
-        enumerable: true,
-        configurable: true
+    var that = this;
+    Object.keys(option).forEach(function(name) {
+        Object.defineProperty(that, name, {
+            get: function() {
+                return option[name];
+            },
+            set: function(value) {
+                option[name] = value;
+                this.update(name);
+            },
+            enumerable: true,
+            configurable: true
+        });
     });
 }
 
@@ -24636,17 +24632,41 @@ circlePrototype = {
         contianer.append(svg);
 
         this.textElem = $("<div class='ui-progress-text' />");
+        this.updateText();
         contianer.append(this.textElem);
 
+        this.contianer = contianer;
         this.progressElem = path;
 
         return contianer;
     },
-    update: function(percent) {
-        setStyle(
-            this.progressElem, 
-            "stroke-dashoffset",
-            ((100 - percent) / 100 * this.trackLength) + "px");
+    update: function(propertyName) {
+        if(propertyName === "percent") {
+            setStyle(
+                this.progressElem, 
+                "stroke-dashoffset",
+                ((100 - this.percent) / 100 * this.trackLength) + "px");
+            this.updateText();
+        } else if(propertyName === "progressColor") {
+            setAttribute( this.progressElem, "stroke", this.progressColor);
+            this.updateText();
+        }
+    },
+    updateText: function() {
+        if(this.textTemplate === false) {
+            return;
+        }
+        if(ui.core.isFunction(this.textTemplate)) {
+            this.textElem.html(this.textTemplate());
+        } else {
+            this.textElem.html(defaultTextTemplate.call(this));
+        }
+    },
+    show: function() {
+        this.contianer.css("display", "block");
+    },
+    hide: function() {
+        this.contianer.css("display", "none");
     }
 };
 dashboardPrototype = {
@@ -24707,18 +24727,29 @@ dashboardPrototype = {
         contianer.append(svg);
 
         this.textElem = $("<div class='ui-progress-text' />");
+        this.updateText();
         contianer.append(this.textElem);
 
+        this.contianer = contianer;
         this.progressElem = path;
 
         return contianer;
     },
-    update: function(percent) {
-        setStyle(
-            this.progressElem, 
-            "stroke-dasharray",
-            (percent / 100) * (this.trackLength - this.gap) + "px," + this.trackLength + "px");
-    }
+    update: function(propertyName) {
+        if(propertyName === "percent") {
+            setStyle(
+                this.progressElem, 
+                "stroke-dasharray",
+                (percent / 100) * (this.trackLength - this.gap) + "px," + this.trackLength + "px");
+            this.updateText();
+        } else if(propertyName === "progressColor") {
+            setAttribute( this.progressElem, "stroke", this.progressColor);
+            this.updateText();
+        }
+    },
+    updateText: circlePrototype.updateText,
+    show: circlePrototype.show,
+    hide: circlePrototype.hide
 };
 barPrototype = {
     render: function() {
@@ -24732,14 +24763,23 @@ barPrototype = {
         });
 
         progressBar = $("<div class='ui-progress-bar background-highlight' />");
+        progressBar.css("width", this.percent + "%");
         track.append(progressBar);
 
         this.progressElem = progressBar;
 
         return track;
     },
-    update: function(percent) {
-        this.progressElem.css("width", percent + "%");
+    update: function(propertyName) {
+        if(propertyName === "percent") {
+            this.progressElem.css("width", this.percent + "%");
+        }
+    },
+    show: function() {
+        this.progressElem.parent().css("display", "block");
+    },
+    hide: function() {
+        this.progressElem.parent().css("display", "none");
     }
 };
 
@@ -24770,13 +24810,24 @@ ui.ctrls.define("ui.ctrls.Progress", {
             type: "circle",
             // 宽度和高度，单位px
             size: 100,
+            // 进度值 0 ~ 100
+            percent: 0,
+            // 进度条轨道颜色
             trackColor: "#f1f1f1",
+            // 进度条轨道宽度
             trackWidth: 5,
+            // 进度条颜色
             progressColor: "#ff0066",
-            progressWidth: 6
+            // 进度条宽度
+            progressWidth: 6,
+            // 显示进度数值
+            textTemplate: defaultTextTemplate
         };
     },
     _create: function() {
+        if(!ui.core.isNumber(this.option.percent)) {
+            this.option.percent = 0;
+        }
         this.view = createProgressView(this.option);
         if(!this.view) {
             throw new TypeError("the option.type: " + this.option.type + " is invalid.");
@@ -24799,6 +24850,14 @@ ui.ctrls.define("ui.ctrls.Progress", {
         if(ui.core.isNumber(value)) {
             this.view.percent = value;
         }
+    },
+    /** 显示进度条 */
+    show: function() {
+        this.view.show();
+    },
+    /** 隐藏进度条 */
+    hide: function() {
+        this.view.hide();
     }
 });
 

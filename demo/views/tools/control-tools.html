@@ -28,7 +28,14 @@
             <dt>ui.ctrls.Progress</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    环形进度条
+                    进度条工具的默认视图为环形进度条，对应设置参数<span class="font-highlight">type: "circle"</span>。<br />
+                    在当今扁平化设计风潮中，环形进度条非常受欢迎，所以SOON.UI中也提供了一个环形进度条的组件。进度条组件提供了边框宽度和颜色的定制。基本参数如下：<br />
+                    size: 宽度和高度，单位px<br />
+                    percent: 进度值 0 ~ 100<br />
+                    trackColor: 进度条轨道颜色<br />
+                    trackWidth: 进度条轨道宽度<br />
+                    progressColor: 进度条颜色<br />
+                    progressWidth: 进度条宽度<br />
                 </p>
                 <div class="box-line clear" style="height:240px;">
                     <div class="box-column" style="position:relative;width:200px;">
@@ -45,13 +52,28 @@
                     </div>
                 </div>
                 <p class="description-paragraph">
-                    进度条
+                    现代化的UI设计会尽量让交互符合用户的直觉，进度条往往会直接和用户操作的元素结合起来展示。
+                    <br />下面是一个例子：上传用户头像的时候，进度条显示在用户头像的周围，这样用户可以非常直观的看到当前的进度。当上传结束后图片变得明亮，进度条消失，暗示用户操作完成。
+                    <br /><a id="showComplexSample" href="javascript:void(0)">点击查看效果</a>
+                </p>
+                <div class="box-line clear" style="height:240px;">
+                    <div class="box-column" style="position:relative;width:200px;">
+                        <div id="complexProgress" class="extend-container" style="border-radius:50%;overflow:hidden;">
+                            <img src="../../lib/data/album-cover/Red.jpg" style="width:100%;height:100%;" alt="" />
+                            <div id="complexShadow" style="background-color:#000;opacity:0;transition:opacity .3s ease-out 0s;;position:absolute;top:0;left:0;width:100%;height:100%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="description-paragraph">
+                    除了时下流行的环形进度条之外，也可以设置为最普通的进度条模式。<br />
+                    设置参数<span class="font-highlight">type: "bar"</span>
                 </p>
                 <div class="box-line clear" style="height:40px;">
                     <div id="progressBar" style="width:200px;height:8px;overflow:hidden;margin-top:16px;"></div>
                 </div>
                 <p class="description-paragraph">
-                    仪表盘
+                    展示为仪表盘视图，设置参数<span class="font-highlight">type: "dashboard"</span><br />
+                    如果想定制显示内容可以通过参数<span class="font-highlight">textTemplate: function</span>，返回一段html代码自定义格式。
                 </p>
                 <div class="box-line clear" style="height:240px;">
                     <div class="box-column" style="position:relative;width:200px;">
@@ -152,7 +174,32 @@
                         });
                     },
                     event: function() {
+                        $("#showComplexSample").click(function(e) {
+                            var complexProgress = pageLogic.complexProgress,
+                                shadow = $("#complexShadow");
+                            if(complexProgress.percent > 0) {
+                                return;
+                            }
 
+                            function changePercent() {
+                                complexProgress.percent += 20;
+                                
+                                if(complexProgress.percent >= 100) {
+                                    setTimeout(function() {
+                                        shadow.css("opacity", 0);
+                                        complexProgress.percent = 0;
+                                        complexProgress.hide();
+                                    }, 1000);
+                                } else {
+                                    setTimeout(changePercent, 1000);
+                                }
+                            }
+
+                            shadow.css("opacity", .6);
+                            complexProgress.show();
+                            
+                            setTimeout(changePercent, 300);
+                        });
                     },
                     load: function() {
                         
@@ -178,47 +225,67 @@
                     progressColor = ui.theme.currentHighlight.Color;
                 this.circleProgress = $("#circleProgress").progress({
                     size: 150,
+                    percent: 30,
                     trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: progressColor,
                     progressWidth: 4
                 });
-                this.circleProgress.percent = 30;
 
                 this.circleProgressDone = $("#circleProgressDone").progress({
                     size: 150,
+                    percent: 100,
                     trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: "#00B200",
-                    progressWidth: 4
+                    progressWidth: 4,
+                    textTemplate: function() {
+                        return "<i class='fa fa-check' style='font-size:3em;color: " + this.progressColor + "'></i>";
+                    }
                 });
-                this.circleProgressDone.percent = 100;
 
                 this.circleProgressError = $("#circleProgressError").progress({
                     size: 150,
+                    percent: 67,
                     trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: "#990000",
-                    progressWidth: 4
+                    progressWidth: 4,
+                    textTemplate: function() {
+                        return "<i class='fa fa-remove' style='font-size:3em;color: " + this.progressColor + "'></i>";
+                    }
                 });
-                this.circleProgressError.percent = 67;
+
+                this.complexProgress = $("#complexProgress").progress({
+                    size: 200,
+                    trackColor: trackColor,
+                    trackWidth: 2,
+                    progressColor: progressColor,
+                    progressWidth: 2
+                });
+                this.complexProgress.hide();
 
                 this.progressBar = $("#progressBar").progress({
                     type: "bar",
                     size: 200,
+                    percent: 80,
                     progressWidth: 8
                 });
-                this.progressBar.percent = 80;
 
                 this.dashProgress = $("#dashProgress").progress({
                     type: "dashboard",
                     size: 200,
+                    percent: 76,
                     trackColor: trackColor,
                     trackWidth: 4,
                     progressColor: progressColor,
-                    progressWidth: 4
+                    progressWidth: 4,
+                    textTemplate: function() {
+                        return "<span style='font-size:1.4em'>研发：<span style='color:" + this.trackColor + "'>10000</span></span><br />" + 
+                            "<span style='font-size:1.4em'>高级研发：" + 
+                            "<span style='color:" + this.progressColor + "'>" + 10000 * (this.percent / 100) + "</span></span>";
+                    }
                 });
-                this.dashProgress.percent = 76;
             }
 
             function createHoverView() {

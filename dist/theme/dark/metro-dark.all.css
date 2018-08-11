@@ -700,7 +700,7 @@
 }
 .confirm-button:active .confirm-state {
   background-color: transparent !important;
-  color: #999999;
+  color: #1d1f21 !important;
 }
 
 /*
@@ -2120,6 +2120,9 @@ div.c_flyingDots div.c_loadingFallback {
   height: auto;
   text-align: center;
   transform: translateY(-50%);
+}
+.ui-progress-indication {
+  font-size: 2em;
 }
 .ui-progress-track {
   position: relative;
