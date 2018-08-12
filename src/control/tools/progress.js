@@ -180,7 +180,7 @@ dashboardPrototype = {
         setAttribute(path, {
             "d": pathData,
             "fill-opacity": 0,
-            "stroke-linecap": "round",
+            "stroke-linecap": "butt",
             "stroke": this.progressColor,
             "stroke-width": this.progressWidth
         });

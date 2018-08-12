@@ -28,7 +28,7 @@
             <dt>ui.ctrls.Progress</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    进度条工具的默认视图为环形进度条，对应设置参数<span class="font-highlight">type: "circle"</span>。<br />
+                    进度条(<span class="font-highlight">ui.ctrls.Progress</span>)，默认视图为环形进度条，对应设置参数<span class="font-highlight">type: "circle"</span>。<br />
                     在当今扁平化设计风潮中，环形进度条非常受欢迎，所以SOON.UI中也提供了一个环形进度条的组件。进度条组件提供了边框宽度和颜色的定制。基本参数如下：<br />
                     size: 宽度和高度，单位px<br />
                     percent: 进度值 0 ~ 100<br />
@@ -60,7 +60,7 @@
                     <div class="box-column" style="position:relative;width:200px;">
                         <div id="complexProgress" class="extend-container" style="border-radius:50%;overflow:hidden;">
                             <img src="../../lib/data/album-cover/Red.jpg" style="width:100%;height:100%;" alt="" />
-                            <div id="complexShadow" style="background-color:#000;opacity:0;transition:opacity .3s ease-out 0s;;position:absolute;top:0;left:0;width:100%;height:100%;"></div>
+                            <div id="complexShadow" style="background-color:#000;opacity:0;transition:opacity .3s ease-out 0s;border-radius:50%;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;"></div>
                         </div>
                     </div>
                 </div>
@@ -277,9 +277,9 @@
                     size: 200,
                     percent: 76,
                     trackColor: trackColor,
-                    trackWidth: 4,
+                    trackWidth: 10,
                     progressColor: progressColor,
-                    progressWidth: 4,
+                    progressWidth: 10,
                     textTemplate: function() {
                         return "<span style='font-size:1.4em'>研发：<span style='color:" + this.trackColor + "'>10000</span></span><br />" + 
                             "<span style='font-size:1.4em'>高级研发：" + 

@@ -2137,6 +2137,7 @@ div.c_flyingDots div.c_loadingFallback {
   left: 0;
   height: 100%;
   width: 0;
+  transition: width .3s ease 0s;
 }
 
 /*
