@@ -298,7 +298,7 @@ function Animator () {
     //动画是否开始
     this.isStarted = false;
 }
-Animator.prototype = new ui.ArrayFaker();
+Animator.prototype = new ui.ArrayLike();
 Animator.prototype.add = function (target, option) {
     if (arguments.length === 1) {
         option = target;

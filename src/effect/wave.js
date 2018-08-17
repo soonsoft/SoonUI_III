@@ -111,7 +111,7 @@ WaveArea.prototype = {
 function Wave(canvas, width, height) {
     var wave;
     
-    wave = new ui.ArrayFaker();
+    wave = new ui.ArrayLike();
     wave.width = width;
     wave.height = height;
     wave.canvas = canvas;

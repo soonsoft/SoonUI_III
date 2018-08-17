@@ -26,7 +26,7 @@ var random = {
 
 // uuid
 var _time = new Date(),
-    getBits = function(val, start, end){ 
+    getBits = function(val, start, end) {
         val = val.toString(36).split('');
         start = (start / 4) | 0;
         end = (end / 4) | 0;

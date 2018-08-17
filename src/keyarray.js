@@ -2,7 +2,7 @@
     字典数组，同时支持索引和hash访问数组元素
  */
 var arrayInstance = [],
-    base = ui.ArrayFaker.prototype;
+    base = ui.ArrayLike.prototype;
 function rebuildIndex(obj, key) {
     var flag = false;
     for (var k in obj) {
@@ -36,7 +36,7 @@ KeyArray.prototype = {
 
 // 初始化
 KeyArray.prototype.initialize = function() {
-    ui.ArrayFaker.apply(this);
+    ui.ArrayLike.apply(this);
     this._keys = {};
 };
 /** 判断是否存在key */

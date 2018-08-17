@@ -1514,8 +1514,7 @@ tileUpdater = {
         },
         _createAnimator: function() {
             var setRotateFn,
-                perspective,
-                that;
+                perspective;
             
             perspective = this.width * 2;
             setRotateFn = function(val) {
@@ -1551,7 +1550,6 @@ tileUpdater = {
                     this.target.css(css);
                 }
             });
-            that = this;
             this.animator.onEnd = function() {
                 this[0].target.css("display", "none");
             };
@@ -1561,7 +1559,6 @@ tileUpdater = {
             if(this.link) {
                 this.link.css("display", "none");
             }
-            that = this;
             this.animator.start().then(function() {
                 var temp;
                 temp = that.tileInnerBack;
@@ -1573,8 +1570,7 @@ tileUpdater = {
             });
         },
         update: function(content) {
-            var option,
-                that;
+            var option;
 
             if(content) {
                 this.updatePanel.html(content);
@@ -1596,8 +1592,7 @@ tileUpdater = {
             this.updateStyle._play.call(this);
         },
         restore: function() {
-            var option,
-                that;
+            var option;
 
             if(!this.isDynamicChanged) {
                 return;
@@ -1880,7 +1875,7 @@ TileGroup.prototype = {
             arr.push(tile);
         });
         
-        ui.ArrayFaker.prototype.setArray.call(this, arr);
+        ui.ArrayLike.prototype.setArray.call(this, arr);
         this.titleHeight = groupTitleHeight;
         this._render();
     },
@@ -2044,7 +2039,7 @@ TileGroup.prototype = {
     /** 在磁贴组中加入一个新磁贴（会引起重排计算） */
     addTile: function(tileInfo) {
         var tile = new Tile(tileInfo);
-        ui.ArrayFaker.prototype.push.call(this, tile);
+        ui.ArrayLike.prototype.push.call(this, tile);
         // 重排，重新布局
         this.container._registerLayoutTask();
     },
@@ -2074,7 +2069,7 @@ TileGroup.prototype = {
             return;
         }
 
-        ui.ArrayFaker.prototype.splice.call(this, index, 1);
+        ui.ArrayLike.prototype.splice.call(this, index, 1);
         // 重排，重新布局
         this.container._registerLayoutTask();
     }

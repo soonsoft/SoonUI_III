@@ -95,8 +95,9 @@ module.exports = function(grunt) {
         "src/ES5-Object-shims.js",
         "src/ES6-Promise.shims.js",
 
-        "src/array-faker.js",
+        "src/array-like.js",
         "src/keyarray.js",
+        "src/linked-list.js",
         
         "src/util.js",
         "src/util-string.js",
