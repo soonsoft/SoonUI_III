@@ -502,6 +502,18 @@ Animator.prototype.stop = function () {
         this.promise = null;
     }
 };
+Animator.prototype.back = function() {
+    var i, len,
+        option,
+        temp;
+    for(i = 0, len = this.length; i < len; i++) {
+        option = this[i];
+        temp = option.begin;
+        option.begin = option.current || option.end;
+        option.end = temp;
+    }
+    return this.start();
+};
 
 /**
  * 创建一个动画对象

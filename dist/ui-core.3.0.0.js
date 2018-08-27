@@ -166,6 +166,12 @@ core.isNumber = function(obj) {
 // 设置一个别名，符合jquery的习惯
 core.isNumeric = core.isNumber;
 
+// 判断null，null或undefined都返回true
+core.isNull = function(obj) {
+    var type = this.type(obj);
+    return type === "undefined" || type === "null";
+};
+
 // window对象判断
 core.isWindow = function (obj) {
     if (!obj)
@@ -206,7 +212,7 @@ if (/\[native code\]/.test(Object.getPrototypeOf)) {
 // 判断是否是一个空的对象
 core.isEmptyObject = function (obj) {
     var name;
-    for ( name in obj ) {
+    for (name in obj) {
         return false;
     }
     return true;
@@ -1630,7 +1636,6 @@ global.Promise = PromiseShim;
 var arrayInstance = [];
 function ArrayLike () {
     this.setArray(this.makeArray(arguments));
-    return this;
 }
 ArrayLike.prototype = {
     constructor: ArrayLike,

@@ -390,10 +390,9 @@ TileGroup.prototype = {
     constructor: TileGroup,
     initialize: function(tileInfos, container) {
         var arr = [],
-            that;
+            that = this;
         
         this.container = container;
-        that = this;
         tileInfos.forEach(function(tileInfo) {
             var tile = new Tile(tileInfo, that);
             if(tile.isDynamic) {

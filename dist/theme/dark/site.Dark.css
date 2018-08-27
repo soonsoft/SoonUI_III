@@ -371,7 +371,7 @@ a:active {
   height: 120px;
   background-color: #434547;
   position: absolute;
-  z-index: 9999;
+  z-index: 999;
 }
 .toolbar .tool-extend-pin-button {
   width: 24px;
@@ -382,7 +382,7 @@ a:active {
   right: 0;
   font-size: 14px;
   line-height: 24px;
-  z-index: 10000;
+  z-index: 1000;
   text-align: center;
   color: #888888;
 }

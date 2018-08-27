@@ -185,7 +185,8 @@
                     width: 800,
                     height: 600,
                     src: "https://cn.bing.com",
-                    hasIframe: true
+                    hasIframe: true,
+                    boxCtrls: ["maximizable", "closable"]
                 });
             }
 
@@ -207,7 +208,10 @@
                     titleHeight: 30,
                     resizeable: false,
                     draggable: false,
-                    closeButtonStyle: "style-dialog-button",
+                    boxCtrls: [{
+                        type: "closable",
+                        className: "style-dialog-button"
+                    }],
                     style: {
                         "border": "none 0",
                         "border-radius": "10px",

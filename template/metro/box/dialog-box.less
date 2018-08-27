@@ -22,16 +22,6 @@
     display: none;
 }
 
-    .ui-dialog-box .closable-button {
-        font: 26px/24px Tahoma,Verdana,sans-serif;
-        width: 40px;
-        height: 40px;
-        right: 0;
-        top: 0;
-        line-height: 36px;
-        text-align: center;
-    }
-
 /* 标题部分 */
 .ui-dialog-box-title {
     position: absolute;
@@ -98,6 +88,38 @@
     border-width: 5px;
     border-color: transparent @tool-color @tool-color transparent;
     border-style: dashed solid solid dashed;
+}
+
+/* 窗体操作部分 */
+.ui-dialog-box-ctrls {
+    position: absolute;
+    height: 40px;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+.ui-dialog-box-ctrls .maximizable-button,
+.ui-dialog-box-ctrls .closable-button {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    color: @tool-color;
+    position: relative;
+    vertical-align: top;
+    right: 0;
+    top: 0;
+    line-height: 40px;
+    text-align: center;
+}
+
+.ui-dialog-box-ctrls .maximizable-button {
+    font-size: 16px;
+}
+
+.ui-dialog-box-ctrls .closable-button {
+    font: 26px/24px Tahoma,Verdana,sans-serif;
+    line-height: 36px;
 }
 
 /* 操作台部分 */

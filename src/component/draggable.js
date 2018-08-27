@@ -2,23 +2,23 @@
 var doc = $(document),
     body = $(document.body),
     defaultOption = {
-    // 上下文
-    context: null,
-    // 拖动的目标
-    target: null,
-    // 把手，拖拽事件附加的元素
-    handle: null,
-    // 范围元素，默认是$(body)
-    parent: body,
-    // 是否需要做Iframe屏蔽
-    hasIframe: false,
-    // 开始拖拽处理函数
-    onBeginDrag: null,
-    // 移动处理函数 
-    onMoving: null,
-    // 结束拖拽处理函数
-    onEndDrag: null
-};
+        // 上下文
+        context: null,
+        // 拖动的目标
+        target: null,
+        // 把手，拖拽事件附加的元素
+        handle: null,
+        // 范围元素，默认是$(body)
+        parent: body,
+        // 是否需要做Iframe屏蔽
+        hasIframe: false,
+        // 开始拖拽处理函数
+        onBeginDrag: null,
+        // 移动处理函数 
+        onMoving: null,
+        // 结束拖拽处理函数
+        onEndDrag: null
+    };
 
 // 鼠标按下处理事件
 function mouseDown(e) {
@@ -49,8 +49,8 @@ function mouseDown(e) {
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;    
-        }
-        */
+        }    
+    */
     this.option.target.addClass("cancel-user-select");
     this._isDragStart = true;
 
@@ -101,7 +101,6 @@ function mouseUp(e) {
         this.shield.remove();
     }
 }
-
 
 function MouseDragger(option) {
     if(this instanceof MouseDragger) {

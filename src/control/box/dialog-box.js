@@ -1,7 +1,8 @@
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
-    hideStyles;
+    hideStyles,
+    ctrlHandlers;
 
 showStyles = {
     up: function () {
@@ -233,6 +234,35 @@ hideStyles = {
     }
 };
 
+ctrlHandlers = {
+    "closable": function (option) {
+        var closeBtn,
+            that = this;
+
+        closeBtn = $("<a href='javascript:void(0)'>×</a>");
+        closeBtn.attr("class", option.className || "closable-button font-highlight-hover");
+
+        closeBtn.click(function() {
+            that.hide();
+        });
+
+        return closeBtn;
+    },
+    "maximizable": function(option) {
+        var maximizableButton,
+            that = this;
+
+        maximizableButton = $("<a href='javascript:void(0)'><i class='fa fa-window-maximize'></i></a>");
+        maximizableButton.attr("class", option.className || "maximizable-button font-highlight-hover");
+
+        maximizableButton.click(function() {
+            that._maximize(!that.isMaximizeState, maximizableButton);
+        });
+
+        return maximizableButton;
+    }
+};
+
 ui.ctrls.define("ui.ctrls.DialogBox", {
     _defineOption: function() {
         return {
@@ -248,6 +278,8 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
+            // TODO 父级容器，默认是Body
+            parent: null,
             // 内容是否包含iframe
             hasIframe: false,
             // box的宽度
@@ -268,8 +300,8 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             draggable: true,
             // 窗体样式
             style: null,
-            // 关闭按钮的样式
-            closeButtonStyle: "closable-button font-highlight-hover"
+            // 窗体要显示的控制按钮，"closable" or "maximizable"，默认显示关闭按钮；[{type: "closable", className: "closable-button font-highlight-hover", css: null}]
+            boxCtrls: ["closable"]
         };
     },
     _defineEvents: function() {
@@ -280,6 +312,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         this.box = null;
         this.mask = null;
         this.buttons = [];
+        this.isMaximizeState = false;
         
         this.animator = ui.animator();
         this.animator.duration = 500;
@@ -317,9 +350,9 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             .append(this.contentPanel);
 
         this._initTitle();
+        this._iniBoxCtrlsButton();
         this._initContent();
         this._initOperateButtons();
-        this._initClosableButton();
 
         this.animator.add({
             target: this.box,
@@ -336,6 +369,24 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             });
         }
         body.append(this.box);
+
+        this.parent = ui.getJQueryElement(this.option.parent);
+        if(this.parent) {
+            this.getParentSize = function() {
+                return {
+                    width: this.parent.width(),
+                    height: this.parent.height()  
+                };
+            };
+        } else {
+            this.parent = body;
+            this.getParentSize = function() {
+                return {
+                    width: document.documentElement.clientWidth,
+                    height: document.documentElement.clientHeight
+                };
+            };
+        }
 
         if(this.draggable()) {
             this._initDraggable();
@@ -362,17 +413,44 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             this.setTitle(title);
         }
     },
-    _initClosableButton: function() {
-        var closeBtn,
-            that;
-        closeBtn = $("<a href='javascript:void(0)'>×</a>");
-        closeBtn.attr("class", this.option.closeButtonStyle || "closable-button");
+    _iniBoxCtrlsButton: function() {
+        var ctrlButtons,
+            that = this;
 
-        that = this;
-        closeBtn.click(function() {
-            that.hide();
+        ctrlButtons = this.option.boxCtrls;
+        if(!Array.isArray(ctrlButtons) || ctrlButtons.length === 0) {
+            return;
+        }
+        
+        this.boxCtrls = $("<div class='ui-dialog-box-ctrls' />");
+        ctrlButtons.forEach(function(option) {
+            var handler,
+                btn,
+                option;
+            if(ui.core.isString(option)) {
+                option = {
+                    type: option
+                };
+            } else if(ui.core.isFunction(option)) {
+                btn = option.call(that);
+                if(btn) {
+                    that.boxCtrls.append(btn);
+                }
+                return;  
+            }
+
+            handler = ctrlHandlers[option.type];
+            if(!handler) {
+                return;
+            }
+            btn = handler.call(that, option);
+            if(ui.core.isPlainObject(option.css)) {
+                btn.css(option.css);
+            }
+            that.boxCtrls.append(btn);
         });
-        this.box.append(closeBtn);
+
+        this.box.append(this.boxCtrls);
     },
     _initContent: function() {
         if(this.option.src) {
@@ -451,6 +529,93 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             this._setSize(this.width, this.height, false);
         }
     },
+    _maximize: function(state, maximizableButton) {
+        var parentSize = this.getParentSize(),
+            option;
+
+        if(state === this.isMaximize) {
+            return;
+        }
+        if(!this.maximizeAnimator) {
+            this.maximizeAnimator = ui.animator({
+                target: this.box,
+                onChange: function(val) {
+                    this.target.css("top", val + "px");
+                }
+            }).add({
+                target: this.box,
+                onChange: function(val) {
+                    this.target.css("left", val + "px");
+                }
+            }).add({
+                target: this.box,
+                onChange: function(val) {
+                    this.target.css("width", val + "px");
+                }
+            }).add({
+                target: this.box,
+                onChange: function(val) {
+                    this.target.css("height", val + "px");
+                }
+            });
+            this.maximizeAnimator.onBegin = (function() {
+                this.contentPanel.css("display", "none");
+                if(this.operatePanel) {
+                    this.operatePanel.css("display", "none");
+                }
+            }).bind(this);
+            this.maximizeAnimator.onEnd = (function() {
+                this.contentPanel.css("display", "block");
+                if(this.operatePanel) {
+                    this.operatePanel.css("display", "block");
+                }
+                this._setSize(
+                    this.maximizeAnimator[2].end, 
+                    this.maximizeAnimator[3].end);
+            }).bind(this);
+            this.maximizeAnimator.duration = 500;
+        }
+
+        if(this.maximizeAnimator.isStarted) {
+            return;
+        }
+
+        if(state) {
+            this.isMaximizeState = true;
+            maximizableButton.html("<i class='fa fa-window-restore'></i>");
+            
+            if(this.resizeHandle) {
+                this.resizeHandle.css("display", "none");
+            }
+
+            option = this.maximizeAnimator[0];
+            option.begin = parseFloat(this.box.css("top")) || 0;
+            option.end = 0;
+
+            option = this.maximizeAnimator[1];
+            option.begin = parseFloat(this.box.css("left")) || 0;
+            option.end = 0;
+
+            option = this.maximizeAnimator[2];
+            option.begin = this.offsetWidth;
+            option.end = parentSize.width;
+
+            option = this.maximizeAnimator[3];
+            option.begin = this.offsetHeight;
+            option.end = parentSize.height;
+
+            this.maximizeAnimator.start();
+        } else {
+            this.isMaximizeState = false;
+            maximizableButton.html("<i class='fa fa-window-maximize'></i>");
+
+            if(this.resizeHandle) {
+                this.resizeHandle.css("display", "block");
+            }
+            
+            this.maximizeAnimator.back();
+        }
+    },
     _calculateSize: function(parentWidth, parentHeight) {
         var newWidth,
             newHeight;
@@ -475,15 +640,16 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         this.setSize(newWidth, newHeight, parentWidth, parentHeight);
     },
     _setSize: function(newWidth, newHeight, isFire) {
-        var borderTop = parseInt(this.box.css("border-top-width"), 10) || 0,
-            borderBottom = parseInt(this.box.css("border-bottom-width"), 10) || 0,
-            borderLeft = parseInt(this.box.css("border-left-width"), 10) || 0,
-            borderRight = parseInt(this.box.css("border-right-width"), 10) || 0;
+        var borderTop = Math.floor(parseFloat(this.box.css("border-top-width"))) || 0,
+            borderBottom = Math.floor(parseFloat(this.box.css("border-bottom-width"))) || 0,
+            borderLeft = Math.floor(parseFloat(this.box.css("border-left-width"))) || 0,
+            borderRight = Math.floor(parseFloat(this.box.css("border-right-width"))) || 0;
 
         if (ui.core.isNumber(newWidth) && newWidth > 0) {
             this.offsetWidth = newWidth;
             this.width = this.offsetWidth - borderLeft - borderRight;
             this.box.css("width", this.width + "px");
+            this.contentWidth = this.width;
         }
         if (ui.core.isNumber(newHeight) && newHeight > 0) {
             this.offsetHeight = newHeight;

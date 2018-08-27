@@ -705,6 +705,18 @@ Animator.prototype.stop = function () {
         this.promise = null;
     }
 };
+Animator.prototype.back = function() {
+    var i, len,
+        option,
+        temp;
+    for(i = 0, len = this.length; i < len; i++) {
+        option = this[i];
+        temp = option.begin;
+        option.begin = option.current || option.end;
+        option.end = temp;
+    }
+    return this.start();
+};
 
 /**
  * 创建一个动画对象
@@ -2688,23 +2700,23 @@ ui.define = function(name, base, prototype) {
 var doc = $(document),
     body = $(document.body),
     defaultOption = {
-    // 上下文
-    context: null,
-    // 拖动的目标
-    target: null,
-    // 把手，拖拽事件附加的元素
-    handle: null,
-    // 范围元素，默认是$(body)
-    parent: body,
-    // 是否需要做Iframe屏蔽
-    hasIframe: false,
-    // 开始拖拽处理函数
-    onBeginDrag: null,
-    // 移动处理函数 
-    onMoving: null,
-    // 结束拖拽处理函数
-    onEndDrag: null
-};
+        // 上下文
+        context: null,
+        // 拖动的目标
+        target: null,
+        // 把手，拖拽事件附加的元素
+        handle: null,
+        // 范围元素，默认是$(body)
+        parent: body,
+        // 是否需要做Iframe屏蔽
+        hasIframe: false,
+        // 开始拖拽处理函数
+        onBeginDrag: null,
+        // 移动处理函数 
+        onMoving: null,
+        // 结束拖拽处理函数
+        onEndDrag: null
+    };
 
 // 鼠标按下处理事件
 function mouseDown(e) {
@@ -2735,8 +2747,8 @@ function mouseDown(e) {
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;    
-        }
-        */
+        }    
+    */
     this.option.target.addClass("cancel-user-select");
     this._isDragStart = true;
 
@@ -2787,7 +2799,6 @@ function mouseUp(e) {
         this.shield.remove();
     }
 }
-
 
 function MouseDragger(option) {
     if(this instanceof MouseDragger) {

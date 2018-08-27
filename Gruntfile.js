@@ -25,6 +25,10 @@ module.exports = function(grunt) {
 
     // layer indexes
     let layerIndexes = {
+        // 布局覆盖层
+        "layout-layer": 999,
+        // 布局覆盖层按钮
+        "layout-action-layer": 1000,
         // 内容边栏
         "container-aside": 9000,
         // 遮罩层
@@ -132,7 +136,6 @@ module.exports = function(grunt) {
         //"src/component/view-model.js",
         "src/component/define.js",
         "src/component/draggable.js",
-        //"src/component/uploader.js",
         "src/component/theme.js",
         "src/component/page.js"
     ];
