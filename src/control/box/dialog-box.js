@@ -6,18 +6,16 @@ var defaultWidth = 640,
 
 showStyles = {
     up: function () {
-        var clientWidth,
-            clientHeight,
+        var parentSize,
             option,
             that;
 
+        parentSize = this.getParentSize();
         that = this;
-        clientHeight = document.documentElement.clientHeight;
-        clientWidth = document.documentElement.clientWidth;
 
         option = this.animator[0];
-        option.begin = clientHeight;
-        option.end = (clientHeight - this.offsetHeight) / 2;
+        option.begin = parentSize.height;
+        option.end = (parentSize.height - this.offsetHeight) / 2;
         option.onChange = function (top) {
             that.box.css("top", top + "px");
         };
@@ -28,23 +26,21 @@ showStyles = {
 
         this.box.css({
             "top": option.begin + "px",
-            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "left": (parentSize.width - this.offsetWidth) / 2 + "px",
             "display": "block"
         });
     },
     down: function () {
-        var clientWidth,
-            clientHeight,
+        var parentSize,
             option,
             that;
 
+        parentSize = this.getParentSize();
         that = this;
-        clientHeight = document.documentElement.clientHeight;
-        clientWidth = document.documentElement.clientWidth;
 
         option = this.animator[0];
         option.begin = -this.offsetHeight;
-        option.end = (clientHeight - this.offsetHeight) / 2;
+        option.end = (parentSize.height - this.offsetHeight) / 2;
         option.onChange = function (top) {
             that.box.css("top", top + "px");
         };
@@ -55,23 +51,21 @@ showStyles = {
 
         this.box.css({
             "top": option.begin + "px",
-            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "left": (parentSize.width - this.offsetWidth) / 2 + "px",
             "display": "block"
         });
     },
     left: function () {
-        var clientWidth,
-            clientHeight,
+        var parentSize,
             option,
             that;
 
+        parentSize = this.getParentSize();
         that = this;
-        clientHeight = document.documentElement.clientHeight;
-        clientWidth = document.documentElement.clientWidth;
 
         option = this.animator[0];
         option.begin = -this.offsetWidth;
-        option.end = (clientWidth - this.offsetWidth) / 2;
+        option.end = (parentSize.width - this.offsetWidth) / 2;
         option.onChange = function (left) {
             that.box.css("left", left + "px");
         };
@@ -81,24 +75,22 @@ showStyles = {
         };
 
         this.box.css({
-            "top": (clientHeight - this.offsetHeight) / 2 + "px",
+            "top": (parent.height - this.offsetHeight) / 2 + "px",
             "left": option.begin + "px",
             "display": "block"
         });
     },
     right: function () {
-        var clientWidth,
-            clientHeight,
+        var parentSize,
             option,
             that;
 
+        parentSize = this.getParentSize();
         that = this;
-        clientHeight = document.documentElement.clientHeight;
-        clientWidth = document.documentElement.clientWidth;
 
         option = this.animator[0];
-        option.begin = clientWidth;
-        option.end = (clientWidth - this.offsetWidth) / 2;
+        option.begin = parentSize.width;
+        option.end = (parentSize.width - this.offsetWidth) / 2;
         option.onChange = function (left) {
             that.box.css("left", left + "px");
         };
@@ -108,20 +100,18 @@ showStyles = {
         };
 
         this.box.css({
-            "top": (clientHeight - this.offsetHeight) / 2 + "px",
+            "top": (parentSize.height - this.offsetHeight) / 2 + "px",
             "left": option.begin + "px",
             "display": "block"
         });
     },
     fadein: function () {
-        var clientWidth,
-            clientHeight,
+        var parentSize,
             option,
             that;
 
+        parentSize = this.getParentSize();
         that = this;
-        clientHeight = document.documentElement.clientHeight;
-        clientWidth = document.documentElement.clientWidth;
 
         option = this.animator[0];
         option.begin = 0;
@@ -135,8 +125,8 @@ showStyles = {
         };
 
         this.box.css({
-            "top": (clientHeight - this.offsetHeight) / 2 + "px",
-            "left": (clientWidth - this.offsetWidth) / 2 + "px",
+            "top": (parentSize.height - this.offsetHeight) / 2 + "px",
+            "left": (parentSize.width - this.offsetWidth) / 2 + "px",
             "opacity": 0,
             "display": "block"
         });
@@ -161,13 +151,16 @@ hideStyles = {
         };
     },
     down: function () {
-        var option,
+        var parentSize,
+            option,
             that;
         
+        parentSize = this.getParentSize();
         that = this;
+
         option = this.animator[0];
         option.begin = parseFloat(this.box.css("top"), 10);
-        option.end = document.documentElement.clientHeight;
+        option.end = parentSize.height;
         option.onChange = function (top) {
             that.box.css("top", top + "px");
         };
@@ -195,13 +188,16 @@ hideStyles = {
         };
     },
     right: function () {
-        var option,
+        var parentSize,
+            option,
             that;
         
+        parentSize = this.getParentSize();
         that = this;
+
         option = this.animator[0];
         option.begin = parseFloat(this.box.css("left"), 10);
-        option.end = document.documentElement.clientWidth;
+        option.end = parentSize.width;
         option.onChange = function (left) {
             that.box.css("left", left + "px");
         };
@@ -359,17 +355,6 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             ease: ui.AnimationStyle.easeFromTo
         });
 
-        body = $(document.body);
-        if(this.maskable()) {
-            this.mask = $("<div class='ui-dialog-box-mask' />");
-            body.append(this.mask);
-            this.animator.add({
-                target: this.mask,
-                ease: ui.AnimationStyle.easeFrom
-            });
-        }
-        body.append(this.box);
-
         this.parent = ui.getJQueryElement(this.option.parent);
         if(this.parent) {
             this.getParentSize = function() {
@@ -379,7 +364,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
                 };
             };
         } else {
-            this.parent = body;
+            this.parent = $(document.body);
             this.getParentSize = function() {
                 return {
                     width: document.documentElement.clientWidth,
@@ -387,6 +372,16 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
                 };
             };
         }
+
+        if(this.maskable()) {
+            this.mask = $("<div class='ui-dialog-box-mask' />");
+            this.parent.append(this.mask);
+            this.animator.add({
+                target: this.mask,
+                ease: ui.AnimationStyle.easeFrom
+            });
+        }
+        this.parent.append(this.box);
 
         if(this.draggable()) {
             this._initDraggable();
@@ -612,18 +607,21 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             if(this.resizeHandle) {
                 this.resizeHandle.css("display", "block");
             }
-            
+
             this.maximizeAnimator.back();
         }
     },
     _calculateSize: function(parentWidth, parentHeight) {
         var newWidth,
-            newHeight;
+            newHeight,
+            parentSize;
+        
+        parentSize = this.getParentSize();
         if(!ui.core.isNumber(parentWidth)) {
-            parentWidth = document.documentElement.clientWidth;
+            parentWidth = parentSize.width;
         }
         if(!ui.core.isNumber(parentHeight)) {
-            parentHeight = document.documentElement.clientHeight;
+            parentHeight = parentSize.height;
         }
         newWidth = this.option.width;
         newHeight = parentHeight * 0.85;
@@ -800,22 +798,22 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
     onHidden: function() {
         this.box.css("display", "none");
         if (this.maskable()) {
-            $(document.body).css("overflow", this._oldBodyOverflow);
+            this.parent.css("overflow", this._oldBodyOverflow);
             this.mask.css("display", "none");
         }
         this.fire("hidden");
     },
     /** 显示遮罩层，显示动画用 */
     openMask: function() {
-        var body = $(document.body),
-            option;
+        var option,
+            parentSize = this.getParentSize();
         if (this.maskable()) {
-            this._oldBodyOverflow = body.css("overflow");
-            body.css("overflow", "hide");
+            this._oldBodyOverflow = this.parent.css("overflow");
+            this.parent.css("overflow", "hide");
             this.mask.css({
                 "display": "block",
                 "opacity": 0,
-                "height": document.documentElement.clientHeight + "px"
+                "height": parentSize.height + "px"
             });
 
             option = this.animator[1];
@@ -840,11 +838,12 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
     },
     /** 设置大小并居中显示 */
     setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
+        var parentSize = this.getParentSize();
         if(!ui.core.isNumber(parentWidth)) {
-            parentWidth = document.documentElement.clientWidth;
+            parentWidth = parentSize.width;
         }
         if(!ui.core.isNumber(parentHeight)) {
-            parentHeight = document.documentElement.clientHeight;
+            parentHeight = parentSize.height;
         }
         this._setSize(newWidth, newHeight);
         this.box.css({
