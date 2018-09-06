@@ -282,25 +282,21 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         this.fadeAnimator.duration = 240;
     },
     _render: function(elementEvents) {
-        var that,
-            onFocusHandler,
-            key;
+        var that;
         if(!this.element) {
             return;
         }
 
-        onFocusHandler = onFocus.bind(this);
-        that = this;
         if(!elementEvents) {
-            elementEvents = {};
-        }
-        if(!ui.core.isFunction(elementEvents.focus)) {
-            elementEvents.focus = onFocusHandler;
+            elementEvents = {
+                focus: onFocus.bind(this)
+            };
         }
         if(!ui.core.isFunction(elementEvents.click)) {
             elementEvents.click = onClick;
         }
 
+        that = this;
         Object.keys(elementEvents).forEach(function(key) {
             that.element.on(key, elementEvents[key]);
         });
@@ -1659,7 +1655,7 @@ showStyles = {
         };
 
         this.box.css({
-            "top": (parent.height - this.offsetHeight) / 2 + "px",
+            "top": (parentSize.height - this.offsetHeight) / 2 + "px",
             "left": option.begin + "px",
             "display": "block"
         });
@@ -1918,8 +1914,6 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         });
     },
     _render: function() {
-        var body;
-
         this.box = $("<div class='ui-dialog-box border-highlight' />");
         this.titlePanel = $("<section class='ui-dialog-box-title' />");
         this.contentPanel = $("<section class='ui-dialog-box-content' />");
@@ -2055,7 +2049,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
     _initDraggable: function() {
         var option = {
             target: this.box,
-            parent: $(document.body),
+            parent: this.parent,
             hasIframe: this.hasIframe()
         };
         this.titlePanel

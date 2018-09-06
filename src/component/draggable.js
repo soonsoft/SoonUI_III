@@ -66,10 +66,10 @@ function mouseMove(e) {
     };
     if(!this._isDragStart) return;
     
-    eventArg.x = e.pageX - this.currentX;
-    eventArg.y = e.pageY - this.currentY;
-    eventArg.currentX = this.currentX = e.pageX;
-    eventArg.currentY = this.currentY = e.pageY;
+    eventArg.x = e.clientX - this.currentX;
+    eventArg.y = e.clientY - this.currentY;
+    eventArg.currentX = this.currentX = e.clientX;
+    eventArg.currentY = this.currentY = e.clientY;
 
     if(ui.core.isFunction(this.option.onMoving)) {
         this.option.onMoving.call(this, eventArg);
@@ -212,10 +212,17 @@ $.fn.draggable = function(option) {
         
         option.targetWidth = option.target.outerWidth();
         option.targetHeight = option.target.outerHeight();
+
+        option.parentTop = p.top;
+        option.parentLeft = p.left;
     };
     option.onMoving = function(arg) {
         var option = this.option,
             p = option.target.position();
+
+        p.top = p.top + option.parentTop;
+        p.left = p.left + option.parentLeft;
+
         p.top += arg.y;
         p.left += arg.x;
 
@@ -229,6 +236,9 @@ $.fn.draggable = function(option) {
         } else if (p.left + option.targetWidth > option.rightLimit) {
             p.left = option.rightLimit - option.targetWidth;
         }
+
+        p.top = p.top - option.parentTop;
+        p.left = p.left - option.parentLeft;
 
         option.target.css({
             "top": p.top + "px",

@@ -37,7 +37,7 @@
                     titleHeight: 48 标题栏高度 <br />
                     operatePanelHeight: 48 按钮栏的高度 <br />
                     style: 窗体的样式<br />
-                    closeButtonStyle: 关闭按钮样式<br />
+                    boxCtrls: 显示窗体的控制按钮["maximizable", "closable"]，可以通过将字符串替换为{type: "closable", className: "", css: null}改变样式<br />
                 </p>
                 <div class="box-line">
                     <button id="showStyleDialogBox" class="button background-highlight">打开对话框</button>
@@ -56,6 +56,21 @@
                 </p>
                 <div class="box-line">
                     <button id="showCustomingDialogBox" class="button background-highlight">打开对话框</button>
+                </div>
+            </dd>
+            <dt>容器定制</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    对话框默认会被添加到<span class="font-highlight">body</span>元素上，如果想添加到其它的容器中，可以设置参数<span class="font-highlight">parent: id|$("element")|domElement</span>。设置parent以后，对话框元素会被添加到parent对应的对象内部。
+                </p>
+                <div class="box-line clear" style="height:auto;width:710px;">
+                    <div class="box-parent border-highlight"></div>
+                    <div class="box-button-list">
+                        <button class="tool-button">Left</button>
+                        <button class="tool-button">Right</button>
+                        <button class="tool-button">Up</button>
+                        <button class="tool-button">Down</button>
+                    </div>
                 </div>
             </dd>
         </dl>
@@ -110,6 +125,25 @@
             text-align: center;
             color: #fff;
         }
+
+        .box-parent {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            border: solid 1px;
+            float: left;
+            overflow: hidden;
+        }
+        .box-button-list {
+            float: left;
+            width: 100px;
+            height: 300px;
+            text-align: center;
+        }
+        .box-button-list .tool-button {
+            margin-bottom: 10px;
+            width: 80px;
+        }
     </style>
 </partial>
 
@@ -123,6 +157,7 @@
                         createIframeDialog.call(this);
                         createStyleDialog.call(this);
                         createCustomingDialog.call(this);
+                        initBoxParent.call(this);
 
                         $(".ui-fold-view").foldView();
                     },
@@ -229,6 +264,50 @@
                     resizeable: false,
                     draggable: false
                 });
+            }
+
+            function initBoxParent() {
+                var boxMap,
+                    parent;
+
+                boxMap = {};
+                parent = $(".box-parent");
+
+                $(".box-button-list").click(function(e) {
+                    var btn = $(e.target),
+                        text;
+                    if(btn.hasClass("tool-button")) {
+                        text = btn.text().toLowerCase();
+                        if(!boxMap[text]) {
+                            boxMap[text] = createDialogBox(text);
+                        }
+
+                        if(boxMap[text].isShow()) {
+                            btn.removeClass("border-highlight background-highlight");
+                            boxMap[text].hide();
+                        } else {
+                            btn.addClass("border-highlight background-highlight");
+                            boxMap[text].show();
+                        }
+                    }
+                });
+
+                function createDialogBox(direction) {
+                    var box = ui.ctrls.DialogBox({
+                        title: direction,
+                        show: direction,
+                        hide: direction,
+                        done: direction,
+                        width: 100,
+                        height: 100,
+                        parent: parent,
+                        maskable: false,
+                        suitable: false,
+                        resizeable: false,
+                        boxCtrls: false
+                    }, $("<div />"));
+                    return box;
+                }
             }
         })();
     </script>

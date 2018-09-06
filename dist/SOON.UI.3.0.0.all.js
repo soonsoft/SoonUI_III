@@ -7241,10 +7241,10 @@ function mouseMove(e) {
     };
     if(!this._isDragStart) return;
     
-    eventArg.x = e.pageX - this.currentX;
-    eventArg.y = e.pageY - this.currentY;
-    eventArg.currentX = this.currentX = e.pageX;
-    eventArg.currentY = this.currentY = e.pageY;
+    eventArg.x = e.clientX - this.currentX;
+    eventArg.y = e.clientY - this.currentY;
+    eventArg.currentX = this.currentX = e.clientX;
+    eventArg.currentY = this.currentY = e.clientY;
 
     if(ui.core.isFunction(this.option.onMoving)) {
         this.option.onMoving.call(this, eventArg);
@@ -7387,10 +7387,17 @@ $.fn.draggable = function(option) {
         
         option.targetWidth = option.target.outerWidth();
         option.targetHeight = option.target.outerHeight();
+
+        option.parentTop = p.top;
+        option.parentLeft = p.left;
     };
     option.onMoving = function(arg) {
         var option = this.option,
             p = option.target.position();
+
+        p.top = p.top + option.parentTop;
+        p.left = p.left + option.parentLeft;
+
         p.top += arg.y;
         p.left += arg.x;
 
@@ -7404,6 +7411,9 @@ $.fn.draggable = function(option) {
         } else if (p.left + option.targetWidth > option.rightLimit) {
             p.left = option.rightLimit - option.targetWidth;
         }
+
+        p.top = p.top - option.parentTop;
+        p.left = p.left - option.parentLeft;
 
         option.target.css({
             "top": p.top + "px",
@@ -7864,25 +7874,21 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         this.fadeAnimator.duration = 240;
     },
     _render: function(elementEvents) {
-        var that,
-            onFocusHandler,
-            key;
+        var that;
         if(!this.element) {
             return;
         }
 
-        onFocusHandler = onFocus.bind(this);
-        that = this;
         if(!elementEvents) {
-            elementEvents = {};
-        }
-        if(!ui.core.isFunction(elementEvents.focus)) {
-            elementEvents.focus = onFocusHandler;
+            elementEvents = {
+                focus: onFocus.bind(this)
+            };
         }
         if(!ui.core.isFunction(elementEvents.click)) {
             elementEvents.click = onClick;
         }
 
+        that = this;
         Object.keys(elementEvents).forEach(function(key) {
             that.element.on(key, elementEvents[key]);
         });
@@ -9241,7 +9247,7 @@ showStyles = {
         };
 
         this.box.css({
-            "top": (parent.height - this.offsetHeight) / 2 + "px",
+            "top": (parentSize.height - this.offsetHeight) / 2 + "px",
             "left": option.begin + "px",
             "display": "block"
         });
@@ -9500,8 +9506,6 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         });
     },
     _render: function() {
-        var body;
-
         this.box = $("<div class='ui-dialog-box border-highlight' />");
         this.titlePanel = $("<section class='ui-dialog-box-title' />");
         this.contentPanel = $("<section class='ui-dialog-box-content' />");
@@ -9637,7 +9641,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
     _initDraggable: function() {
         var option = {
             target: this.box,
-            parent: $(document.body),
+            parent: this.parent,
             hasIframe: this.hasIframe()
         };
         this.titlePanel

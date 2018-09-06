@@ -141,25 +141,21 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         this.fadeAnimator.duration = 240;
     },
     _render: function(elementEvents) {
-        var that,
-            onFocusHandler,
-            key;
+        var that;
         if(!this.element) {
             return;
         }
 
-        onFocusHandler = onFocus.bind(this);
-        that = this;
         if(!elementEvents) {
-            elementEvents = {};
-        }
-        if(!ui.core.isFunction(elementEvents.focus)) {
-            elementEvents.focus = onFocusHandler;
+            elementEvents = {
+                focus: onFocus.bind(this)
+            };
         }
         if(!ui.core.isFunction(elementEvents.click)) {
             elementEvents.click = onClick;
         }
 
+        that = this;
         Object.keys(elementEvents).forEach(function(key) {
             that.element.on(key, elementEvents[key]);
         });
