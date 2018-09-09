@@ -1,12 +1,11 @@
-// Array Faker
+// ArrayLike
 
 var arrayInstance = [];
-function ArrayFaker () {
+function ArrayLike () {
     this.setArray(this.makeArray(arguments));
-    return this;
 }
-ArrayFaker.prototype = {
-    constructor: ArrayFaker,
+ArrayLike.prototype = {
+    constructor: ArrayLike,
     setArray: function (elems) {
         this.length = 0;
         //设置length以及重排索引
@@ -69,4 +68,4 @@ ArrayFaker.prototype = {
     includes: arrayInstance.includes
 };
 
-ui.ArrayFaker = ArrayFaker;
+ui.ArrayLike = ArrayLike;
