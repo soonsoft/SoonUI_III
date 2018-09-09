@@ -332,8 +332,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
     },
     _hide: function(panel, fn) {
-        var option,
-            that;
+        var option;
         if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }

@@ -4,8 +4,12 @@ module.exports = function(grunt) {
     const rsrcHolder = /\/\/\$\|\$/;
     const tempPrefix = "_temp_";
 
+    // 语言
+    const langPath = __dirname + "/src/i18n";
+    const lang = "chs";
+    const i18n = require("./i18n-loader");
     // 主题色
-    let themeColor = [
+    const themeColor = [
         {
             // 主题名
             name: "light",
@@ -19,12 +23,12 @@ module.exports = function(grunt) {
             description: "暗夜"
         }
     ];
-    let colors = require("./theme-colors");
-    let images = require("./theme-inner-images");
-    let highlights = require("./theme-highlights");
+    const colors = require("./theme-colors");
+    const images = require("./theme-inner-images");
+    const highlights = require("./theme-highlights");
 
     // layer indexes
-    let layerIndexes = {
+    const layerIndexes = {
         // 布局覆盖层
         "layout-layer": 999,
         // 布局覆盖层按钮
@@ -40,7 +44,7 @@ module.exports = function(grunt) {
         // 最高层
         "highest-layer": 10001
     };
-    let themeFiles = [];
+    const themeFiles = [];
     // 主题色
     themeColor.forEach(function(item) {
         let name = item.name;
@@ -85,9 +89,18 @@ module.exports = function(grunt) {
         themeFiles.push(item);
     }
 
+    // 源码过滤器
+    const filters = {
+        "src/i18n.js": function(src) {
+            let i18nSource = i18n.loadLanguages.call(grunt, langPath + "/" + lang);
+            return src + "\r\n" + i18nSource;
+        }
+    };
+
     // UI库主框架文件
     let coreFiles = [
         "src/core.js",
+        "src/i18n.js",
 
         "src/ES5-Array-shims.js",
         "src/ES6-Array-shims.js",
@@ -115,8 +128,7 @@ module.exports = function(grunt) {
         "src/task.js",
         "src/jquery-extends.js",
         "src/cookie.js",
-        "src/style-sheet.js",
-        "src/i18n.js",
+        "src/style-sheet.js"
     ];
     // 单独的ui.core.js
     let coreDestFile = "dist/ui-core.<%= pkg.version %>.js";
@@ -168,6 +180,10 @@ module.exports = function(grunt) {
     // 内容合并
     let wrapper = grunt.file.read("src/wrapper.js").split(rsrcHolder);
     let wrapFn = function(src, filepath) {
+        let filter = filters[filepath];
+        if(typeof filter === "function") {
+            src = filter(src);
+        }
         return [
             "// Source: ", filepath, "\r\n",
             wrapper[0], 

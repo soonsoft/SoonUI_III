@@ -253,6 +253,74 @@ core.isTouchAvailable = function() {
 
 })(jQuery, ui);
 
+// Source: src/i18n.js
+
+(function($, ui) {
+// Internationalization
+
+var locale = "zh-CN",
+    language = {},
+    defaultNote = "common";
+
+ui.i18n = function() {
+    var i, len, 
+        propertyNameArr,    
+        propertyName,
+        langObj;
+
+    len = arguments.length;
+    if(len === 0) {
+        return language[defaultNote];
+    } else if(len === 1) {
+        propertyNameArr = [arguments[0]];
+    } else {
+        propertyNameArr = Array.from(arguments);
+    }
+
+    langObj = language[propertyNameArr[0]] || language[defaultNote];
+    for(i = 1, len = propertyNameArr.length; i < len; i++) {
+        propertyName = propertyNameArr[i] || "";
+        langObj = langObj[propertyName];
+        if(!langObj) {
+            break;
+        }
+    }
+    if(langObj === language || !langObj) {
+        return null;
+    }
+    return langObj;
+};
+
+ui.i18n.locale = locale;
+ui.i18n.language = language;
+// common language text
+
+ui.i18n.language.common = {
+    
+};
+
+// language of component
+
+// language of control
+
+ui.i18n.language.control = {};
+
+ui.i18n.language.control["ui.ctrls.DateChooser"] = {
+    dateFormat: "yyyy-mm-dd",
+    year: "年份",
+    month: "月份",
+    weeks: ["日", "一", "二", "三", "四", "五", "六"],
+    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+};
+// language of core
+
+// language of effect
+
+// language of viewpage
+
+
+})(jQuery, ui);
+
 // Source: src/ES5-Array-shims.js
 
 (function($, ui) {
@@ -4461,20 +4529,6 @@ ui.StyleSheet = StyleSheet;
 
 })(jQuery, ui);
 
-// Source: src/i18n.js
-
-(function($, ui) {
-// Internationalization
-
-ui.i18n = function() {
-
-};
-
-ui.i18n.locale = "zh-CN";
-ui.i18n.language = {};
-
-})(jQuery, ui);
-
 // Source: src/component/introsort.js
 
 (function($, ui) {
@@ -7600,8 +7654,8 @@ function noop() {}
 // 创建控件基础类
 ui.define("ui.ctrls.ControlBase", {
     version: ui.version,
-    i18n: function(key) {
-        // TODO: 实现根据key获取对应的本地化文本
+    i18n: function() {
+        return ui.i18n("control", this.toString());
     },
     _initialize: function(option, element) {
         var events,
@@ -7690,8 +7744,7 @@ function mergeEvents() {
 function define(name, base, prototype) {
     var index,
         constructor,
-        basePrototype,
-        events;
+        basePrototype;
 
     if(!ui.core.isString(name) || name.length === 0) {
         return null;
@@ -8065,8 +8118,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         }
     },
     _hide: function(panel, fn) {
-        var option,
-            that;
+        var option;
         if(!ui.core.isFunction(fn)) {
             fn = undefined;
         }
@@ -11573,8 +11625,7 @@ $.fn.colorPicker = function (option) {
 // Source: src/control/select/date-chooser.js
 
 (function($, ui) {
-var language,
-    selectedClass = "date-selected",
+var selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
     monthSelectedClass = "month-selected",
     defaultDateFormat = "yyyy-MM-dd",
@@ -11586,24 +11637,6 @@ var formatYear = /y+/i,
     formatHour = /h+/i,
     formatMinute = /m+/,
     formatSecond = /s+/i;
-
-language = {};
-//简体中文
-language["zh-CN"] = {
-    dateFormat: "yyyy-mm-dd",
-    year: "年份",
-    month: "月份",
-    weeks: ["日", "一", "二", "三", "四", "五", "六"],
-    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
-};
-//英文
-language["en-US"] = {
-    dateFormat: "yyyy-mm-dd",
-    year: "Year",
-    month: "Month",
-    weeks: ["S", "M", "T", "W", "T", "F", "S"],
-    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-};
 
 function Day(year, month, day, dateChooser) {
     if(this instanceof Day) {
@@ -11932,8 +11965,6 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         return {
             // 日期格式化样式
             dateFormat: defaultDateFormat,
-            // 显示语言 zh-CN: 中文, en-US: 英文
-            language: "zh-CN",
             // 放置日历的容器
             calendarPanel: null,
             // 是否要显示时间
@@ -11963,10 +11994,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._setCurrentDate(now);
          
         // 文字显示
-        this._language = language[this.option.language];
-        if (!this._language) {
-            this._language = language["zh-CN"];
-        }
+        this._language = this.i18n();
 
         // 事件
         /* 年月选择面板相关事件 */

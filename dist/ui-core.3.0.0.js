@@ -253,6 +253,74 @@ core.isTouchAvailable = function() {
 
 })(jQuery, ui);
 
+// Source: src/i18n.js
+
+(function($, ui) {
+// Internationalization
+
+var locale = "zh-CN",
+    language = {},
+    defaultNote = "common";
+
+ui.i18n = function() {
+    var i, len, 
+        propertyNameArr,    
+        propertyName,
+        langObj;
+
+    len = arguments.length;
+    if(len === 0) {
+        return language[defaultNote];
+    } else if(len === 1) {
+        propertyNameArr = [arguments[0]];
+    } else {
+        propertyNameArr = Array.from(arguments);
+    }
+
+    langObj = language[propertyNameArr[0]] || language[defaultNote];
+    for(i = 1, len = propertyNameArr.length; i < len; i++) {
+        propertyName = propertyNameArr[i] || "";
+        langObj = langObj[propertyName];
+        if(!langObj) {
+            break;
+        }
+    }
+    if(langObj === language || !langObj) {
+        return null;
+    }
+    return langObj;
+};
+
+ui.i18n.locale = locale;
+ui.i18n.language = language;
+// common language text
+
+ui.i18n.language.common = {
+    
+};
+
+// language of component
+
+// language of control
+
+ui.i18n.language.control = {};
+
+ui.i18n.language.control["ui.ctrls.DateChooser"] = {
+    dateFormat: "yyyy-mm-dd",
+    year: "年份",
+    month: "月份",
+    weeks: ["日", "一", "二", "三", "四", "五", "六"],
+    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+};
+// language of core
+
+// language of effect
+
+// language of viewpage
+
+
+})(jQuery, ui);
+
 // Source: src/ES5-Array-shims.js
 
 (function($, ui) {
@@ -4458,20 +4526,6 @@ StyleSheet.createStyleSheet = function(id) {
 
 ui.StyleSheet = StyleSheet;
 
-
-})(jQuery, ui);
-
-// Source: src/i18n.js
-
-(function($, ui) {
-// Internationalization
-
-ui.i18n = function() {
-
-};
-
-ui.i18n.locale = "zh-CN";
-ui.i18n.language = {};
 
 })(jQuery, ui);
 

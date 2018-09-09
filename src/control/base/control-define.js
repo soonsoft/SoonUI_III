@@ -5,8 +5,8 @@ function noop() {}
 // 创建控件基础类
 ui.define("ui.ctrls.ControlBase", {
     version: ui.version,
-    i18n: function(key) {
-        // TODO: 实现根据key获取对应的本地化文本
+    i18n: function() {
+        return ui.i18n("control", this.toString());
     },
     _initialize: function(option, element) {
         var events,
@@ -95,8 +95,7 @@ function mergeEvents() {
 function define(name, base, prototype) {
     var index,
         constructor,
-        basePrototype,
-        events;
+        basePrototype;
 
     if(!ui.core.isString(name) || name.length === 0) {
         return null;
