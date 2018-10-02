@@ -50,9 +50,10 @@
             width:80px;
         }
 
-        .box-column > .tool-button:active {
-            border-color: #434343 !important;
+        .box-column > #deleteToolButton:active {
             background-color: #434343 !important;
+            border-color: #434343 !important;
+            color: #ffffff !important;
         }
 
         .extend-container {
@@ -98,7 +99,31 @@
             <dt>Button</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
-                    按钮
+                    在SOON.UI的设计语言中，设计了三种按钮模式，样式如下：<br />
+                </p>
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;line-height:60px;">
+                        <button class="button">普通按钮</button>
+                        <button class="button background-highlight">重要按钮</button>
+                    </div>
+                </div>
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;line-height:60px;">
+                        <button class="tool-button">普通按钮</button>
+                        <button class="tool-button button-highlight">重要按钮</button>
+                    </div>
+                </div>
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;line-height:60px;">
+                        <button class="icon-button">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="description-paragraph">
+                    第一种是数据交互按钮，一般用在“保存”、“删除”这样的场景；<br />
+                    第二种是UI交互按钮，一般用于UI动作的触发，如点击后弹出对话框这样的场景；<br />
+                    第三种是图标按钮，一般用于工具栏，作用也是UI交互。
                 </p>
             </dd>
 
