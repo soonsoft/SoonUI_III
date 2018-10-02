@@ -91,8 +91,13 @@
                         { text: "#", align: "right", len: 40, formatter: gridGroup.rowNumber },
                         { column: "name", text: "标题", len: 240 },
                         { column: "artist", text: "艺术家", len: 160 },
-                        { column: "star", text: "等级", len: 120 },
-                        { column: "time", text: "时间", len: 100 },
+                        { column: "star", text: "等级", len: 120, align: "center", 
+                            formatter: function(value) {
+                                var rate = ui.random.getNum(1, 6);
+                                return "★★★★★☆☆☆☆☆".slice(5 - rate, 10 - rate);
+                            } 
+                        },
+                        { column: "year", text: "时间", len: 100, align: "center" },
                         { formatter: ui.ColumnStyle.empty }
                     ],
                     pager: false,
@@ -125,7 +130,7 @@
                         genre: "pop"
                     };
                 });
-                pageLogic.gridview.createGridBody(groupList);
+                pageLogic.gridview.createBody(groupList);
             }
         })();
     </script>

@@ -1,7 +1,7 @@
 @{layout:demo/views/shared/menu-layout.html}
 
 <partial id="title">数据表格</partial>
-<partial id="header">REPORT TREE</partial>
+<partial id="header">REPORT</partial>
 
 <partial id="content">
     <div class="toolbar"></div>
@@ -37,7 +37,7 @@
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({
-                    dataGroupColumns: [
+                    columns: [
                         { text: "", len: 40, align: "right", formatter: ui.ColumnStyle.cfn.rowNumber },
                         { column: "Text1", text: "列名", len: 100 },
                         { column: "Text2", text: "列名列名列名列名列名", len: 80 },
@@ -88,7 +88,7 @@
                     });
                 }
                 
-                pageLogic.reportView.createReportBody(data, data.length * 12);
+                pageLogic.reportView.createBody(data, data.length * 12);
             }
         })();
     </script>

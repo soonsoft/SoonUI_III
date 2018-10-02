@@ -1,10 +1,10 @@
 // CalendarView
-var timeTitleWidth = 80,
+var controlName = "ui.ctrls.CalendarView",
+    timeTitleWidth = 80,
     hourHeight = 25,
     currentTimeLineHeight = 17,
-    sundayFirstWeek = ["日", "一", "二", "三", "四", "五", "六"],
-    mondayFirstWeek = ["一", "二", "三", "四", "五", "六", "日"],
-    viewTypes;
+    viewTypes,
+    language = ui.i18n("control", controlName);
 
 function noop() {}
 function twoNumberFormatter(number) {
@@ -31,7 +31,7 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + sundayFirstWeek[date.getDay()] + "）";
+    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
 }
 
 // 事件处理
@@ -139,7 +139,7 @@ YearView.prototype = {
             div = $("<div class='year-month-panel' />");
             div.append(
                 $("<div class='year-month-title' />")
-                    .append("<span class='font-highlight'>" + (i + 1) + "月" + "</span>"));
+                    .append("<span class='font-highlight'>" + (i + 1) + language.monthUnit + "</span>"));
             div.append("<div class='year-month-content' />");
             this.yearPanel.append(div);
         }
@@ -568,7 +568,7 @@ YearView.prototype = {
     },
     /** 获取标题 */
     getTitle: function() {
-        return this.year + "年";
+        return this.year + language.yearUnit;
     },
     /** 重写toString */
     toString: function() {
@@ -2548,7 +2548,7 @@ viewTypes = {
     "WEEKVIEW": WeekView,
     "DAYVIEW": DayView
 };
-ui.ctrls.define("ui.ctrls.CalendarView", {
+ui.ctrls.define(controlName, {
     _defineOption: function() {
         return {
             // 要包含的日历视图，YearView: 年视图, MonthView: 月视图, WeekView: 周视图, DayView: 天视图
@@ -2802,9 +2802,9 @@ ui.ctrls.define("ui.ctrls.CalendarView", {
     /** 获取周的名称 */
     getWeekNames: function() {
         if (this.isSundayFirst()) {
-            return sundayFirstWeek;
+            return language.sundayFirstWeek;
         } else {
-            return mondayFirstWeek;
+            return language.mondayFirstWeek;
         }
     },
     /** 将周视图和日视图中的索引转换成对应的时间 */

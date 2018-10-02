@@ -312,6 +312,14 @@ ui.i18n.language.control["ui.ctrls.DateChooser"] = {
     weeks: ["日", "一", "二", "三", "四", "五", "六"],
     months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
 };
+
+ui.i18n.language.control["ui.ctrls.CalendarView"] = {
+    sundayFirstWeek: ["日", "一", "二", "三", "四", "五", "六"],
+    mondayFirstWeek: ["一", "二", "三", "四", "五", "六", "日"],
+    yearUnit: "年",
+    monthUnit: "月"
+};
+
 // language of core
 
 // language of effect
@@ -1857,7 +1865,7 @@ KeyArray.prototype.remove = function (key) {
     var index;
     if (this.containsKey(key)) {
         index = this._keys[key];
-        arrayInstance.splice.apply(this, [index, 1]);
+        arrayInstance.splice.call(this, index, 1);
         rebuildIndex(this._keys, key);
         delete this._keys[key];
     }
@@ -4533,11 +4541,19 @@ ui.StyleSheet = StyleSheet;
 
 (function($, ui) {
 // sorter introsort
-var core = ui.core,
-    size_threshold = 16;
+var size_threshold = 16;
 
-function isSortItems(items) {
-    return items && items.length;
+function defaultComparer(a, b) {
+    if (ui.core.isString(a)) {
+        return a.localeCompare(b);
+    }
+    if (a < b) {
+        return -1;
+    } else if (b > a) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 function Introsort () {
@@ -4552,38 +4568,36 @@ Introsort.prototype = {
     initialize: function() {
         this.keys = null;
         this.items = null;
-        this.comparer = function (a, b) {
-            if (ui.core.isString(a)) {
-                return a.localeCompare(b);
-            }
-            if (a < b) {
-                return -1;
-            } else if (b > a) {
-                return 1;
-            } else {
-                return 0;
-            }
-        };
+        this.comparer = null;
     },
-    sort: function (arr) {
+    sort: function (arr, comparer) {
+        var len;
         if (ui.core.isFunction(arr)) {
-            this.comparer = arr;
+            arr = null;
+            comparer = arr;
         } else {
             this.keys = arr;
             if (ui.core.isFunction(arguments[1])) {
                 this.comparer = arguments[1];
             }
         }
-        if (!isSortItems(this.keys)) {
+        this.keys = arr;
+        if (!Array.isArray(this.keys)) {
             return;
         }
-        if (this.keys.length < 2) {
+        if(!ui.core.isFunction(comparer)) {
+            comparer = defaultComparer;
+        }
+        this.comparer = comparer;
+
+        len = this.keys.length;
+        if (len < 2) {
             return;
         }
-        if (!isSortItems(this.items)) {
+        if (!Array.isArray(this.items)) {
             this.items = null;
         }
-        this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));
+        this._introsort(0, len - 1, 2 * this._floorLog2(len));
     },
     //introsort
     _introsort: function (lo, hi, depthLimit) {
@@ -4606,8 +4620,7 @@ Introsort.prototype = {
                 }
                 this._insertionsort(lo, hi);
                 return;
-            }
-            else {
+            } else {
                 if (depthLimit === 0) {
                     this._heapsort(lo, hi);
                     return;
@@ -8388,11 +8401,10 @@ columnFormatter = {
     /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        checkbox.click(this.onCheckboxAllClickHandler);
-        this.resetColumnStateHandlers.checkboxAllCancel = function () {
+        //checkbox.click(this.onCheckboxAllClickHandler);
+        this.columnResetter.add(function () {
             checkbox.removeClass("fa-check-square").addClass("fa-square");
-            this._checkedCount = 0;
-        };
+        });
         return checkbox;
     },
     /** 列头文本 */
@@ -8871,6 +8883,24 @@ cellParameterFormatter = {
 };
 
 ui.ColumnStyle = {
+    emptyColumn: {
+        text: columnFormatter.empty,
+        formatter: cellFormatter.empty
+    },
+    multipleEmptyColumn: function(rowSpan) {
+        var emptyColumn = {
+            text: columnFormatter.empty,
+            formatter: cellFormatter.empty
+        };
+        if(ui.core.isNumber(rowSpan) && rowSpan > 1) {
+            emptyColumn.rowspan = rowSpan;
+        }
+        return emptyColumn;
+    },
+    isEmpty: function(column) {
+        return column === this.emptyColumn || 
+            (column && column.text === columnFormatter.empty && column.formatter === cellFormatter.empty);
+    },
     cnfn: columnFormatter,
     cfn: cellFormatter,
     cfnp: cellParameterFormatter
@@ -14676,12 +14706,12 @@ $.fn.autocompleteSelectionTree = function(option) {
 
 (function($, ui) {
 // CalendarView
-var timeTitleWidth = 80,
+var controlName = "ui.ctrls.CalendarView",
+    timeTitleWidth = 80,
     hourHeight = 25,
     currentTimeLineHeight = 17,
-    sundayFirstWeek = ["日", "一", "二", "三", "四", "五", "六"],
-    mondayFirstWeek = ["一", "二", "三", "四", "五", "六", "日"],
-    viewTypes;
+    viewTypes,
+    language = ui.i18n("control", controlName);
 
 function noop() {}
 function twoNumberFormatter(number) {
@@ -14708,7 +14738,7 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + sundayFirstWeek[date.getDay()] + "）";
+    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
 }
 
 // 事件处理
@@ -14816,7 +14846,7 @@ YearView.prototype = {
             div = $("<div class='year-month-panel' />");
             div.append(
                 $("<div class='year-month-title' />")
-                    .append("<span class='font-highlight'>" + (i + 1) + "月" + "</span>"));
+                    .append("<span class='font-highlight'>" + (i + 1) + language.monthUnit + "</span>"));
             div.append("<div class='year-month-content' />");
             this.yearPanel.append(div);
         }
@@ -15245,7 +15275,7 @@ YearView.prototype = {
     },
     /** 获取标题 */
     getTitle: function() {
-        return this.year + "年";
+        return this.year + language.yearUnit;
     },
     /** 重写toString */
     toString: function() {
@@ -17225,7 +17255,7 @@ viewTypes = {
     "WEEKVIEW": WeekView,
     "DAYVIEW": DayView
 };
-ui.ctrls.define("ui.ctrls.CalendarView", {
+ui.ctrls.define(controlName, {
     _defineOption: function() {
         return {
             // 要包含的日历视图，YearView: 年视图, MonthView: 月视图, WeekView: 周视图, DayView: 天视图
@@ -17479,9 +17509,9 @@ ui.ctrls.define("ui.ctrls.CalendarView", {
     /** 获取周的名称 */
     getWeekNames: function() {
         if (this.isSundayFirst()) {
-            return sundayFirstWeek;
+            return language.sundayFirstWeek;
         } else {
-            return mondayFirstWeek;
+            return language.mondayFirstWeek;
         }
     },
     /** 将周视图和日视图中的索引转换成对应的时间 */
@@ -18880,24 +18910,17 @@ function isGroupItem() {
 function renderGroupItemCell(data, column, index, td) {
     td.isFinale = true;
     td.attr("colspan", this.option.columns.length);
-    td.click(this.group.onGroupRowClickHandler);
+    td.addClass("group-cell");
     this.group["_last_group_index_"] = data.groupIndex;
     return this.group.groupItemFormatter.apply(this, arguments);
 }
 
-function onGropRowClick(e) {
+function onGropRowClick(e, element) {
     var viewData,
         td,
         groupItem;
 
-    e.stopPropagation();
-    td = $(e.target);
-    while(!td.isNodeName("td")) {
-        if(td.isNodeName("tr")) {
-            return;
-        }
-        td = td.parent();
-    }
+    td = element;
 
     viewData = this.gridview.getViewData();
     groupItem = viewData[td.parent()[0].rowIndex];
@@ -18925,7 +18948,6 @@ GridViewGroup.prototype = {
     constructor: GridViewGroup,
     initialize: function() {
         this.gridview = null;
-        this.onGroupRowClickHandler = onGropRowClick.bind(this);
     },
     _operateChildren: function (list, action) {
         var viewData,
@@ -18934,7 +18956,7 @@ GridViewGroup.prototype = {
             i, len;
 
         viewData = this.gridview.getViewData();
-        rows = this.gridview.tableBody[0].rows;
+        rows = this.gridview.bodyTable[0].rows;
         for (i = 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
             item = viewData[rowIndex];
@@ -18945,9 +18967,21 @@ GridViewGroup.prototype = {
     /// API
     /** 绑定GridView */
     setGridView: function(gridview) {
+        var onBodyClick;
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
             this.gridview.group = this;
+            // 添加分组展开关闭的事件
+            if(gridview.clickHandlers) {
+                if(gridview.clickHandlers.has("group-cell")) {
+                    return;
+                }
+                // 由于group-cell和ui-table-body-cell重叠，group-cell要先执行，所以要做特殊处理
+                onBodyClick = gridview.clickHandlers.classEventMap.get("ui-table-body-cell");
+                gridview.clickHandlers.remove("ui-table-body-cell");
+                gridview.clickHandlers.add("group-cell", onGropRowClick.bind(this));
+                gridview.clickHandlers.add("ui-table-body-cell", onBodyClick);
+            }
         }
     },
     /** 数据结构转换 */
@@ -19040,14 +19074,12 @@ function getValue(field) {
 function isTreeNode (item) {
     return !!item[childrenField];
 }
-function onFoldButtonClick(e) {
+function onFoldButtonClick(e, element) {
     var btn,
         rowIndex,
         rowData;
 
-    e.stopPropagation();
-
-    btn = $(e.target),
+    btn = element;
     rowIndex = btn.parent().parent()[0].rowIndex;
     rowData = this.gridview.getRowData(rowIndex);
 
@@ -19080,8 +19112,6 @@ GridViewTree.prototype = {
         this.loadChildrenHandler = null;
         this.gridview = null;
         this.isTreeNode = isTreeNode;
-        
-        this.onFoldButtonClickHandler = onFoldButtonClick.bind(this);
     },
     //修正父级元素的子元素索引
     _fixParentIndexes: function (rowData, rowIndex, count) {
@@ -19154,7 +19184,7 @@ GridViewTree.prototype = {
         }
         
         viewData = this.gridview.getViewData();
-        rows = this.gridview.tableBody[0].rows;
+        rows = this.gridview.bodyTable[0].rows;
         for (i= 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
             item = viewData[rowIndex];
@@ -19174,7 +19204,7 @@ GridViewTree.prototype = {
         rowData._level = level;
         
         var	column = this.gridview.option.columns[cellIndex],
-            cell = $(this.gridview.tableBody.get(0).rows[rowIndex].cells[cellIndex]);
+            cell = $(this.gridview.bodyTable.get(0).rows[rowIndex].cells[cellIndex]);
         cell.empty();
         cell.append(
             column.handler.call(
@@ -19209,6 +19239,13 @@ GridViewTree.prototype = {
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
             this.gridview.tree = this;
+            // 添加节点展开关闭的事件
+            if(gridview.clickHandlers) {
+                if(gridview.clickHandlers.has("fold")) {
+                    return;
+                }
+                gridview.clickHandlers.add("fold", onFoldButtonClick.bind(this));
+            }
         }
     },
     /** 转换数据结构 */
@@ -19332,7 +19369,6 @@ GridViewTree.prototype = {
                 fold = $("<i class='fold unfold font-highlight-hover fa fa-angle-down' />");
             }
             fold.css("margin-left", (item._level * (12 + 5) + 5) + "px");
-            fold.click(this.tree.onFoldButtonClickHandler);
             span[0] = fold[0];
         } else {
             span.css("margin-left", ((item._level + 1) * (12 + 5) + 5) + "px");
@@ -19379,9 +19415,9 @@ GridViewTree.prototype = {
             viewData.splice(currRowIndex, 0, item);
             this.gridview._createRowCells(row, item, currRowIndex);
             if (currRowIndex < viewData.length - 1) {
-                $(this.gridview.tableBody[0].rows[currRowIndex]).before(row);
+                $(this.gridview.bodyTable[0].rows[currRowIndex]).before(row);
             } else {
-                this.gridview.tableBody.append(row);
+                this.gridview.bodyTable.append(row);
             }
 
             currRowIndex++;
@@ -19438,7 +19474,9 @@ ui.ctrls.GridViewTree = GridViewTree;
 
 var cellCheckbox = "grid-checkbox",
     cellCheckboxAll = "grid-checkbox-all",
+    bodyCell = "ui-table-body-cell",
     lastCell = "last-cell",
+    sortColumn = "sort-column",
     sortClass = "fa-sort",
     asc = "fa-sort-asc",
     desc = "fa-sort-desc";
@@ -19475,95 +19513,186 @@ function preparePager(option) {
     this.pageIndex = this.pager.pageIndex;
     this.pageSize = this.pager.pageSize;
 }
-function reverse(arr1, arr2) {
-    var temp,
-        i = 0, 
-        j = arr1.length - 1,
-        len = arr1.length / 2;
-    for (; i < len; i++, j--) {
-        temp = arr1[i];
-        arr1[i] = arr1[j];
-        arr1[j] = temp;
 
-        temp = arr2[i];
-        arr2[i] = arr2[j];
-        arr2[j] = temp;
-    }
+// 排序器
+function Sorter(view) {
+    this.view = view;
+    this.currentSortColumn = null;
+    this.sorter = new ui.Introsort();
+    this.sortAfterFn = null;
+    this._resetSortColumnStateHandler = (function() {
+        this.resetSortColumnState();
+    }).bind(this);
 }
-function sorting(v1, v2) {
-    var column,
-        fn,
-        val1, val2;
-    column = this._lastSortColumn;
-    fn = column.sort;
-    if(!ui.core.isFunction(fn)) {
-        fn = defaultSortFn;
-    }
-
-    val1 = this._prepareValue(v1, column);
-    val2 = this._prepareValue(v2, column);
-    return fn(val1, val2);
-}
-function defaultSortFn(v1, v2) {
-    var val, i, len;
-    if (Array.isArray(v1)) {
-        val = 0;
-        for (i = 0, len = v1.length; i < len; i++) {
-            val = defaultSorting(v1[i], v2[i]);
-            if (val !== 0) {
-                return val;
+Sorter.prototype = {
+    constructor: Sorter,
+    prepareHead: function() {
+        this.sortCells = [];
+        this._isAddedResetSortColumnState = false;
+        this.view.columnResetter.remove(this._resetSortColumnStateHandler);
+    },
+    setSortColumn: function(cell, column, index) {
+        if (column.sort === true || ui.core.isFunction(column.sort)) {
+            cell.addClass(sortColumn);
+            cell.append("<i class='fa fa-sort' />");
+            this.sortCells.push(cell);
+            if(!this._isAddedResetSortColumnState) {
+                this.view.columnResetter.add(this._resetSortColumnStateHandler);
+                this._isAddedResetSortColumnState = true;
             }
         }
-        return val;
-    } else {
-        return defaultSorting(v1, v2);
-    }
-}
-function defaultSorting(v1, v2) {
-    if (typeof v1 === "string") {
-        return v1.localeCompare(v2);
-    }
-    if (v1 < v2) {
-        return -1;
-    } else if (v1 > v2) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-function resetColumnState() {
-    var fn, key;
-    for(key in this.resetColumnStateHandlers) {
-        if(this.resetColumnStateHandlers.hasOwnProperty(key)) {
-            fn = this.resetColumnStateHandlers[key];
-            if(ui.core.isFunction(fn)) {
-                try {
-                    fn.call(this);
-                } catch (e) { }
-            }
-        }
-    }
-}
-function resetSortColumnState (tr) {
-    var icon, 
-        cells,
-        i, 
-        len;
-
-    if (!tr) {
-        tr = this.tableHead.find("tr");
-    }
-
-    cells = tr.children();
-    for (i = 0, len = this._sorterIndexes.length; i < len; i++) {
-        icon = $(cells[this._sorterIndexes[i]]);
-        icon = icon.find("i");
-        if (!icon.hasClass(sortClass)) {
-            icon.attr("class", "fa fa-sort");
+    },
+    resetSortColumnState: function() {
+        var icon, i, len;
+        if(!this.sortCells) {
             return;
         }
+        for (i = 0, len = this.sortCells.length; i < len; i++) {
+            icon = this.sortCells[i].find("i");
+            if (!icon.hasClass(sortClass)) {
+                icon.attr("class", "fa fa-sort");
+                return;
+            }
+        }
+    },
+    sort: function(viewData, elem, column) {
+        var view,
+            isSelf,
+            comparer, fn,
+            tempTbody, rows, rowsMapper, icon;
+
+        view = this.view;
+        if (viewData.length === 0) {
+            return;
+        }
+
+        if (this.currentSortColumn !== column) {
+            this.resetSortColumnState();
+        }
+
+        isSelf = this.currentSortColumn === column;
+        this.currentSortColumn = column;
+
+        tempTbody = view.bodyTable.children("tbody");
+        rows = tempTbody.children().get();
+        if(ui.core.isFunction(this.sortAfterFn)) {
+            // 保留排序前的副本，以后根据索引和rowIndex调整其它表格的顺序
+            rowsMapper = rows.slice(0);
+        }
+        if (!Array.isArray(rows) || rows.length !== viewData.length) {
+            throw new Error("data row error");
+        }
+
+        icon = elem.find("i");
+        if (icon.hasClass(asc)) {
+            this.reverse(viewData, rows);
+            icon.removeClass(sortClass).removeClass(asc).addClass(desc);
+        } else {
+            if (isSelf) {
+                this.reverse(viewData, rows);
+            } else {
+                fn = column.sort;
+                if(!ui.core.isFunction(fn)) {
+                    fn = (function(v1, v2) {
+                        return this.defaultComparer(v1, v2);
+                    }).bind(this);
+                }
+                comparer = function(v1, v2) {
+                    v1 = view._prepareValue(v1, column);
+                    v2 = view._prepareValue(v2, column);
+                    return fn(v1, v2);
+                };
+
+                this.sorter.items = rows;
+                this.sorter.sort(viewData, comparer);
+            }
+            icon.removeClass(sortClass).removeClass(desc).addClass(asc);
+        }
+        tempTbody.append(rows);
+
+        if(rowsMapper) {
+            // 执行排序后的其他操作
+            this.sortAfterFn(rowsMapper);
+        }
+
+        view._refreshRowNumber();
+    },
+    defaultComparer: function(v1, v2) {
+        var val, i, len;
+        if (Array.isArray(v1)) {
+            val = 0;
+            for (i = 0, len = v1.length; i < len; i++) {
+                val = this.sorting(v1[i], v2[i]);
+                if (val !== 0) {
+                    return val;
+                }
+            }
+            return val;
+        } else {
+            return this.sorting(v1, v2);
+        }
+    },
+    sorting: function(v1, v2) {
+        if (typeof v1 === "string") {
+            return v1.localeCompare(v2);
+        }
+        if (v1 < v2) {
+            return -1;
+        } else if (v1 > v2) {
+            return 1;
+        } else {
+            return 0;
+        }
+    },
+    reverse: function(arr1, arr2) {
+        var temp, i, j, len;
+        for (i = 0, j = arr1.length - 1, len = arr1.length / 2; i < len; i++, j--) {
+            temp = arr1[i];
+            arr1[i] = arr1[j];
+            arr1[j] = temp;
+
+            temp = arr2[i];
+            arr2[i] = arr2[j];
+            arr2[j] = temp;
+        }
+    },
+    reset: function() {
+        this.currentSortColumn = null;
+        this.sorter.keys = null;
+        this.sorter.items = null;
     }
+};
+
+// 列还原器
+function ColumnResetter(view) {
+    this.handlers = [];
+    this.view = view;
 }
+ColumnResetter.prototype = {
+    constructor: ColumnResetter,
+    add: function(fn) {
+        if(ui.core.isFunction(fn)) {
+            this.handlers.push(fn);
+        }
+    },
+    remove: function(fn) {
+        var i;
+        for(i = this.handlers.length - 1; i >= 0; i--) {
+            if(this.handlers[i] === fn) {
+                this.handlers.splice(i, 1);
+                break;
+            }
+        }
+    },
+    reset: function() {
+        var view = this.view;
+        this.handlers.forEach(function(fn) {
+            try {
+                fn.call(view);
+            } catch(e) { }
+        });
+    }
+};
 function setChecked(cbx, checked) {
     if(checked) {
         cbx.removeClass("fa-square")
@@ -19575,15 +19704,17 @@ function setChecked(cbx, checked) {
 }
 function changeChecked(cbx) {
     var checked = !cbx.hasClass("fa-check-square"),
-        colIndex;
+        columnInfo,
+        headRows;
     setChecked(cbx, checked);
     if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
-        if(colIndex === -1) {
+        columnInfo = this._getColumnIndexByFormatter(columnCheckboxAllFormatter, "text");
+        if(columnInfo.columnIndex === -1) {
             return;
         }
+        headRows = columnInfo.headTable[0].tHead.rows;
         this._gridCheckboxAll = 
-            $(this.tableHead[0].tHead.rows[0].cells[colIndex])
+            $(headRows[headRows.length - 1].cells[columnInfo.columnIndex])
                 .find("." + cellCheckboxAll);
     }
     if(checked) {
@@ -19598,67 +19729,109 @@ function changeChecked(cbx) {
     }
 }
 
-// 事件处理函数
-// 排序点击事件处理
-function onSort(e) {
-    var viewData,
-        elem,
-        nodeName,
-        columnIndex, column,
-        fn, isSelf,
-        tempTbody, rows, icon;
+// 事件代理
+function ClassEventDelegate() {
+    this.classEventMap = new ui.KeyArray();
+    this.length = 0;
+}
+ClassEventDelegate.prototype = {
+    getClassNames: function() {
+        return this.classEventMap.keys();
+    },
+    call: function(className) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            handler = this.classEventMap.get(className);
+        if(Array.isArray(handler)) {
+            handler.forEach(function(h) {
+                h.apply(null, args);
+            });
+        } else {
+            handler.apply(null, args);
+        }
+    },
+    add: function(className, handler, isMultiple) {
+        var old;
+        if(!ui.core.isFunction(handler)) {
+            throw new TypeError("the delegate event handler is not a function.");
+        }
 
-    e.stopPropagation();
-    viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length === 0) {
+        old = this.classEventMap.get(className);
+        if(isMultiple) {
+            if(Array.isArray(old)) {
+                old.push(handler);
+                handler = old;
+            } else if(ui.core.isFunction(old)) {
+                handler = [old, handler];
+            }
+        }
+        this.classEventMap.set(className, handler);
+        this.length = this.classEventMap.length;
+    },
+    remove: function(className, handler) {
+        var old;
+        if(ui.core.isFunction(handler)) {
+            old = this.classEventMap.get(className);
+            if(Array.isArray(old)) {
+                this.classEventMap.set(className, old.filter(function(item) {
+                    return item === handler;
+                }));
+            } else {
+                this.classEventMap.remove(className);
+            }
+        } else {
+            this.classEventMap.remove(className);
+        }
+        this.length = this.classEventMap.length;
+    },
+    has: function(className) {
+        return this.classEventMap.containsKey(className);
+    }
+};
+
+// 事件处理函数
+// 点击事件代理
+function clickDelegate(e) {
+    var elem = $(e.target),
+        i, len, classNames, className;
+    
+    len = this.clickHandlers ? this.clickHandlers.length : 0;
+    if(len === 0) {
         return;
     }
-    elem = $(e.target);
-    while ((nodeName = elem.nodeName()) !== "TH") {
-        if (nodeName === "TR") {
+    classNames = this.clickHandlers.getClassNames();
+    while (true) {
+        if (elem.length === 0 || elem.hasClass("ui-grid-view")) {
             return;
+        }
+        for(i = 0; i < len; i++) {
+            className = classNames[i];
+            if(elem.hasClass(className)) {
+                this.clickHandlers.call(className, e, elem);
+                return;
+            }
         }
         elem = elem.parent();
     }
+}
+// 排序点击事件处理
+function onSort(e, element) {
+    var viewData,
+        columnIndex, column;
 
-    columnIndex = elem[0].cellIndex;
-    column = this.option.columns[columnIndex];
-
-    if (this._lastSortColumn !== column) {
-        resetSortColumnState.call(this, elem.parent());
+    viewData = this.getViewData();
+    if (viewData.length === 0) {
+        return;
     }
 
-    fn = sorting.bind(this);
-    isSelf = this._lastSortColumn == column;
-    this._lastSortColumn = column;
+    columnIndex = element[0].cellIndex;
+    column = this._getColumn(columnIndex);
 
-    tempTbody = this.tableBody.children("tbody");
-    rows = tempTbody.children().get();
-    if (!Array.isArray(rows) || rows.length != viewData.length) {
-        throw new Error("data row error");
-    }
-
-    icon = elem.find("i");
-    if (icon.hasClass(asc)) {
-        reverse(viewData, rows);
-        icon.removeClass(sortClass).removeClass(asc).addClass(desc);
-    } else {
-        if (isSelf) {
-            reverse(viewData, rows);
-        } else {
-            this.sorter.items = rows;
-            this.sorter.sort(viewData, fn);
-        }
-        icon.removeClass(sortClass).removeClass(desc).addClass(asc);
-    }
-    tempTbody.append(rows);
-    this._refreshRowNumber();
+    this.sorter.sort(viewData, element, column);
 }
 // 表格内容点击事件处理
-function onTableBodyClick(e) {
-    var elem, tagName, selectedClass,
-        exclude, result,
-        nodeName;
+function onBodyClick(e, element) {
+    var elem, selectedClass,
+        exclude, result;
 
     if(!this.isSelectable()) {
         return;
@@ -19684,34 +19857,31 @@ function onTableBodyClick(e) {
         }
     }
 
-    tagName = this.option.selection.type === "cell" ? "TD" : "TR";
+    if(this.option.selection.type === "row") {
+        element = element.parent();
+    }
     selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
-    while((nodeName = elem.nodeName()) !== tagName) {
-        if(nodeName === "TBODY") {
-            return;
-        }
-        elem = elem.parent();
-    }
+    element.context = e.target;
 
-    if(elem[0] !== e.target) {
-        elem.context = e.target;
-    }
-
-    this._selectItem(elem, selectedClass);
+    this._selectItem(element, selectedClass);
 }
 // 横向滚动条跟随事件处理
-function onScrollingX(e) {
-    this.gridHead.scrollLeft(
-        this.gridBody.scrollLeft());
+function onScrolling(e) {
+    this.head.scrollLeft(
+        this.body.scrollLeft());
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
     var cbxAll, cbx, cell,
         checkedValue, cellIndex,
         rows, selectedClass, fn, 
-        i, len;
+        i, len,
+        container;
 
     e.stopPropagation();
+    if(this.count() === 0) {
+        return;
+    }
 
     cbxAll = $(e.target);
     cellIndex = cbxAll.parent().prop("cellIndex");
@@ -19747,7 +19917,23 @@ function onCheckboxAllClick(e) {
         }
     }
 
-    rows = this.tableBody[0].tBodies[0].rows;
+    container = cbxAll.parent();
+    while(true) {
+        if(container.hasClass("ui-grid-view")) {
+            return;
+        }
+        if(container.hasClass("ui-grid-head")) {
+            container = container.next();
+            container = container.find("table");
+            if(container.length === 0) {
+                rows = [];
+            } else {
+                rows = container[0].tBodies[0].rows;
+            }
+            break;
+        }
+        container = container.parent();
+    }
     for(i = 0, len = rows.length; i < len; i++) {
         cell = $(rows[i].cells[cellIndex]);
         cbx = cell.find("." + cellCheckbox);
@@ -19766,6 +19952,45 @@ function onCheckboxAllClick(e) {
     }
 }
 
+// 提示信息
+function Prompt(view, text) {
+    this.view = view;
+    this.enabled = true;
+    if(!text) {
+        this.enabled = false;
+    }
+    this.element = $("<div class='data-prompt' />");
+    this.setText(text);
+    this.view.body.append(this.element);
+}
+Prompt.prototype = {
+    constructor: Prompt,
+    isShow: function() {
+        return this.enabled && this.element.css("display") === "block";
+    },
+    show: function() {
+        if(this.enabled) {
+            this.element.css("display", "block");
+        }
+    },
+    hide: function() {
+        if(this.enabled) {
+            this.element.css("display", "none");
+        }
+    },
+    setText: function(text) {
+        if(!this.enabled) {
+            return;
+        }
+        if (ui.core.isString(text) && text.length > 0) {
+            this.element.html("<span class='font-highlight'>" + text + "</span>");
+        } else if (ui.core.isFunction(text)) {
+            text = text();
+            this.element.append(text);
+        }
+    }
+};
+
 
 ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
@@ -19783,7 +20008,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             // 视图数据
             viewData: null,
             // 没有数据时显示的提示信息
-            promptText: "没有数据",
+            prompt: "没有数据",
             // 高度
             height: false,
             // 宽度
@@ -19825,15 +20050,22 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     _create: function() {
         this._selectList = [];
-        this._sorterIndexes = [];
-        this._hasPrompt = !!this.option.promptText;
-        // 存放列头状态重置方法
-        this.resetColumnStateHandlers = {};
+
+        // 存放列头状态重置器
+        this.columnResetter = new ColumnResetter(this);
+        // 排序器
+        this.sorter = new Sorter(this);
         
-        this.gridHead = null;
-        this.gridBody = null;
-        this.columnHeight = 30;
-        this.pagerHeight = 30;
+        this.head = null;
+        this.body = null;
+        this.foot = null;
+        
+        this.rowHeight = 30;
+        this.headHeight = this.rowHeight;
+        this.bodyHeight = 0;
+        this.footHeight = 30;
+        // checkbox勾选计数器
+        this._checkedCount = 0;
         
         if(this.option.pager) {
             preparePager.call(this, this.option.pager);
@@ -19865,49 +20097,53 @@ ui.ctrls.define("ui.ctrls.GridView", {
             this.option.height = false;
         }
 
-        // 排序器
-        this.sorter = ui.Introsort();
-        // checkbox勾选计数器
-        this._checkedCount = 0;
-
         // event handlers
-        // 排序按钮点击事件
-        this.onSortHandler = onSort.bind(this);
-        // 行或者单元格点击事件
-        this.onTableBodyClickHandler = onTableBodyClick.bind(this);
+        this.clickHandlers = new ClassEventDelegate();
+        // 排序列点击事件
+        this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
-        // 横向滚动条同步事件
-        this.onScrollingXHandler = onScrollingX.bind(this);
+        this.clickHandlers.add(cellCheckboxAll, onCheckboxAllClick.bind(this));
+        // 行或者单元格点击事件
+        this.clickHandlers.add(bodyCell, onBodyClick.bind(this));
+        
+        // 滚动条同步事件
+        this.onScrollingHandler = onScrolling.bind(this);
     },
     _render: function() {
+        if(!this.element) {
+            throw new Error("the element is null.");
+        }
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
+        this.element.click((function(e) {
+            clickDelegate.call(this, e);
+        }).bind(this));
         this._initBorderWidth();
 
         // 表头
-        this.gridHead = $("<div class='ui-grid-head' />");
-        this.element.append(this.gridHead);
+        this.head = $("<div class='ui-grid-head' />");
+        this.element.append(this.head);
         // 表体
-        this.gridBody = $("<div class='ui-grid-body' />");
-        this._initDataPrompt();
-        this.gridBody.scroll(this.onScrollingXHandler);
-        this.element.append(this.gridBody);
+        this.body = $("<div class='ui-grid-body' />");
+        this.body.scroll(this.onScrollingHandler);
+        this.element.append(this.body);
+        // 信息提示
+        this.prompt = new Prompt(this, this.option.prompt);
         // 分页栏
         this._initPagerPanel();
-        // 设置容器大小
-        this.setSize(this.option.width, this.option.height);
 
         // 创建表头
-        this.createGridHead();
+        this.createHead(this.option.columns);
         // 创建表体
         if (Array.isArray(this.option.viewData)) {
-            this.createGridBody(
+            this.createBody(
                 this.option.viewData, this.option.viewData.length);
         } else {
             this.option.viewData = [];
         }
+        // 设置容器大小
+        this.setSize(this.option.width, this.option.height);
     },
     _initBorderWidth: function() {
         var getBorderWidth = function(key) {
@@ -19922,34 +20158,20 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.borderHeight += getBorderWidth.call(this, "border-top-width");
         this.borderHeight += getBorderWidth.call(this, "border-bottom-width");
     },
-    _initDataPrompt: function() {
-        var text;
-        if(this._hasPrompt) {
-            this._dataPrompt = $("<div class='data-prompt' />");
-            text = this.option.promptText;
-            if (ui.core.isString(text) && text.length > 0) {
-                this._dataPrompt.html("<span class='font-highlight'>" + text + "</span>");
-            } else if (ui.core.isFunction(text)) {
-                text = text();
-                this._dataPrompt.append(text);
-            }
-            this.gridBody.append(this._dataPrompt);
-        }
-    },
     _initPagerPanel: function() {
         if(this.pager) {
-            this.gridFoot = $("<div class='ui-grid-foot clear' />");
-            this.element.append(this.gridFoot);
+            this.foot = $("<div class='ui-grid-foot clear' />");
+            this.element.append(this.foot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
             if (this.option.pager.displayDataInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.gridFoot.append(this.pager.pageInfoPanel);
+                this.foot.append(this.pager.pageInfoPanel);
             } else {
                 this.pager.pageNumPanel.css("width", "100%");
             }
 
-            this.gridFoot.append(this.pager.pageNumPanel);
+            this.foot.append(this.pager.pageNumPanel);
             this.pager.pageChanged(function(pageIndex, pageSize) {
                 this.pageIndex = pageIndex;
                 this.pageSize = pageSize;
@@ -19958,36 +20180,49 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
     },
     // 创建一行的所有单元格
-    _createRowCells: function(tr, rowData, rowIndex) {
+    _createRowCells: function(tr, rowData, rowIndex, columns, filter) {
         var i, len, 
-            c, cval, td, el,
+            column, cval, td, el,
             formatter,
+            hasFilter,
             isRowHover;
-        
+            
         isRowHover = this.option.selection.type !== "cell";
-        if(isRowHover) {
+        if(!this._noBodyHover && isRowHover) {
             tr.addClass("table-body-row-hover");
         }
-        for (i = 0, len = this.option.columns.length; i < len; i++) {
-            c = this.option.columns[i];
-            formatter = c.formatter;
+
+        if(ui.core.isFunction(columns)) {
+            columns = null;
+            filter = columns;
+        }
+        if(!Array.isArray(columns)) {
+            columns = this.option.columns;
+        }
+        hasFilter = ui.core.isFunction(filter);
+        for (i = 0, len = columns.length; i < len; i++) {
+            column = columns[i];
+            formatter = column.formatter;
             // 自定义格式化器
-            if (!ui.core.isFunction(c.formatter)) {
+            if (!ui.core.isFunction(column.formatter)) {
                 formatter = this.option.textFormatter;
             }
             // option默认格式化器
             if(!ui.core.isFunction(formatter)) {
                 formatter = textFormatter;
             }
-            cval = this._prepareValue(rowData, c);
-            td = this._createCell("td", c);
+            cval = this._prepareValue(rowData, column);
+            td = this._createCell("td", column);
             td.addClass("ui-table-body-cell");
-            if(!isRowHover) {
+            if(!this._noBodyHover && !isRowHover) {
                 td.addClass("table-body-cell-hover");
             }
-            el = formatter.call(this, cval, c, rowIndex, td);
+            el = formatter.call(this, cval, column, rowIndex, td);
             if (td.isAnnulment) {
                 continue;
+            }
+            if(hasFilter) {
+                el = filter.call(this, el, column, rowData);
             }
             if (el) {
                 td.append(el);
@@ -19996,45 +20231,12 @@ ui.ctrls.define("ui.ctrls.GridView", {
                 td.addClass(lastCell);
             }
             tr.append(td);
+            // group-table使用，合并一行单元格时使用
             if(td.isFinale) {
                 td.addClass(lastCell);
                 break;
             }
         }
-    },
-    // 获得并组装值
-    _prepareValue: function(rowData, c) {
-        var value,
-            i, len;
-        if (Array.isArray(c.column)) {
-            value = {};
-            for (i = 0, len = c.column.length; i < len; i++) {
-                value[i] = value[c.column[i]] = 
-                    this._getValue(rowData, c.column[i], c);
-            }
-        } else {
-            value = this._getValue(rowData, c.column, c);
-        }
-        return value;
-    },
-    // 获取值
-    _getValue: function(rowData, column, c) {
-        var arr, i = 0, value;
-        if (!ui.core.isString(column)) {
-            return null;
-        }
-        if (!c._columnKeys.hasOwnProperty(column)) {
-            c._columnKeys[column] = column.split(".");
-        }
-        arr = c._columnKeys[column];
-        value = rowData[arr[i]];
-        for (i = 1; i < arr.length; i++) {
-            value = value[arr[i]];
-            if (value === undefined || value === null) {
-                return value;
-            }
-        }
-        return value;
     },
     _createCol: function(column) {
         var col = $("<col />");
@@ -20053,26 +20255,56 @@ ui.ctrls.define("ui.ctrls.GridView", {
 
         return cell;
     },
-    _setSorter: function(cell, column, index) {
-        if (column.sort === true || ui.core.isFunction(column.sort)) {
-            cell.click(this.onSortHandler);
-            cell.addClass("sorter");
-            cell.append("<i class='fa fa-sort' />");
-            this._sorterIndexes.push(index);
+    // 获得并组装值
+    _prepareValue: function(rowData, columnObj) {
+        var value,
+            i, len;
+        if (Array.isArray(columnObj.column)) {
+            value = {};
+            for (i = 0, len = columnObj.column.length; i < len; i++) {
+                value[i] = value[columnObj.column[i]] = 
+                    this._getValue(rowData, columnObj.column[i], columnObj);
+            }
+        } else {
+            value = this._getValue(rowData, columnObj.column, columnObj);
         }
+        return value;
+    },
+    // 获取值
+    _getValue: function(rowData, column, columnObj) {
+        var arr, i = 0, value;
+        if (!ui.core.isString(column)) {
+            return null;
+        }
+        if (!columnObj._columnKeys.hasOwnProperty(column)) {
+            columnObj._columnKeys[column] = column.split(".");
+        }
+        arr = columnObj._columnKeys[column];
+        value = rowData[arr[i]];
+        for (i = 1; i < arr.length; i++) {
+            value = value[arr[i]];
+            if (value === undefined || value === null) {
+                return value;
+            }
+        }
+        return value;
+    },
+    // 获取column对象
+    _getColumn: function(index) {
+        return this.option.columns[index];
     },
     _renderPageList: function(rowCount) {
         if (!this.pager) {
             return;
         }
-        this.pager.data = this.option.viewData;
+        this.pager.data = this.getViewData();
         this.pager.pageIndex = this.pageIndex;
         this.pager.pageSize = this.pageSize;
         this.pager.renderPageList(rowCount);
     },
     _updateScrollState: function() {
-        if (!this.tableHead) return;
-        if(this.gridBody[0].scrollHeight > this.gridBody.height()) {
+        if (!this.headTable) return;
+        if(this.body[0].scrollHeight > this.body.height()) {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
@@ -20080,54 +20312,62 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     _refreshRowNumber: function(startRowIndex, endRowIndex) {
         var viewData,
-            colIndex, rowNumber,
+            columnInfo, rowNumber,
             rows, cell,
             column, i, len;
 
-        viewData = this.option.viewData;
-        if(!viewData || viewData.length === 0) {
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return;
         }
 
         rowNumber = rowNumberFormatter;
-        colIndex = this._getColumnIndexByFormatter(rowNumber);
+        columnInfo = this._getColumnIndexByFormatter(rowNumber);
         
-        if (colIndex == -1) return;
+        if (columnInfo.columnIndex == -1) return;
         if (!ui.core.isNumber(startRowIndex)) {
             startRowIndex = 0;
         }
-        rows = this.tableBody[0].rows;
-        column = this.option.columns[colIndex];
+        rows = columnInfo.bodyTable[0].rows;
+        column = columnInfo.columns[columnInfo.columnIndex];
         len = ui.core.isNumber(endRowIndex) ? endRowIndex + 1 : rows.length;
         for (i = startRowIndex; i < len; i++) {
-            cell = $(rows[i].cells[colIndex]);
+            cell = $(rows[i].cells[columnInfo.columnIndex]);
             cell.html("");
             cell.append(rowNumber.call(this, null, column, i));
         }
     },
     _getColumnIndexByFormatter: function(formatter, field) {
-        var i, 
-            len = this.option.columns.length;
+        var result, i, len;
+
+        result = {
+            columnIndex: -1,
+            columns: this.option.columns,
+            headTable: this.headTable,
+            bodyTable: this.bodyTable
+        };
         if(!field) {
             field = "formatter";
         }
-        for(i = 0; i < len; i++) {
-            if(this.option.columns[i][field] === formatter) {
-                return i;
+        for(i = 0, len = result.columns.length; i < len; i++) {
+            if(result.columns[i][field] === formatter) {
+                result.columnIndex = i;
+                return result;
             }
         }
-        return -1;
+        return result;
     },
     _getSelectionData: function(elem) {
-        var data = {};
+        var data = {},
+            viewData = this.getViewData();
         if(this.option.selection.type === "cell") {
             data.rowIndex = elem.parent().prop("rowIndex");
             data.cellIndex = elem.prop("cellIndex");
-            data.rowData = this.option.viewData[data.rowIndex];
-            data.column = this.option.columns[data.cellIndex].column;
+            data.rowData = viewData[data.rowIndex];
+            data.column = this._getColumn(data.cellIndex).column;
         } else {
             data.rowIndex = elem.prop("rowIndex");
-            data.rowData = this.option.viewData[data.rowIndex];
+            data.rowData = viewData[data.rowIndex];
         }
         return data;
     },
@@ -20151,10 +20391,22 @@ ui.ctrls.define("ui.ctrls.GridView", {
             }
         }
     },
+    _addSelectedState: function(elem, selectedClass, eventData) {
+        elem.addClass(selectedClass).addClass("background-highlight");
+        if(eventData) {
+            this.fire("selected", eventData);
+        }
+    },
+    _removeSelectedState: function(elem, selectedClass, eventData) {
+        elem.removeClass(selectedClass).removeClass("background-highlight");
+        if(eventData) {
+            this.fire("deselected", eventData);
+        }
+    },
     _selectItem: function(elem, selectedClass, selectValue) {
         var eventData, result,
-            colIndex, checkbox,
-            i, len;
+            columnInfo, checkbox,
+            i, len, isFire;
 
         eventData = this._getSelectionData(elem);
         eventData.element = elem;
@@ -20181,8 +20433,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
                         break;
                     }
                 }
-                elem.removeClass(selectedClass).removeClass("background-highlight");
-                this.fire("deselected", eventData);
+                this._removeSelectedState(elem, selectedClass, eventData);
             } else {
                 // 现在要选中
                 // 如果selectValue定义了取消，则不要执行选中逻辑
@@ -20192,8 +20443,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
                 selectValue = true;
 
                 this._selectList.push(elem[0]);
-                elem.addClass(selectedClass).addClass("background-highlight");
-                this.fire("selected", eventData);
+                this._addSelectedState(elem, selectedClass, eventData);
             }
 
             // 同步checkbox状态
@@ -20202,13 +20452,13 @@ ui.ctrls.define("ui.ctrls.GridView", {
                 if(eventData.originElement && eventData.originElement.hasClass(cellCheckbox)) {
                     checkbox = eventData.originElement;
                 }
-                // 如果用户点击的不是checkbox则找出对于的checkbox
+                // 如果用户点击的不是checkbox则找出对应的checkbox
                 if(!checkbox) {
-                    colIndex = this._getColumnIndexByFormatter(checkboxFormatter);
-                    if(colIndex > -1) {
+                    columnInfo = this._getColumnIndexByFormatter(checkboxFormatter);
+                    if(columnInfo.columnIndex > -1) {
                         checkbox = this.option.selection.type === "cell" ? 
-                            $(elem.parent()[0].cells[colIndex]) : 
-                            $(elem[0].cells[colIndex]);
+                            $(elem.parent()[0].cells[columnInfo.columnIndex]) : 
+                            $(elem[0].cells[columnInfo.columnIndex]);
                         checkbox = checkbox.find("." + cellCheckbox);
                     }
                 }
@@ -20219,75 +20469,56 @@ ui.ctrls.define("ui.ctrls.GridView", {
         } else {
             // 单选
             if(this._current) {
-                this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this._current[0] === elem[0]) {
+                isFire = this._current[0] === elem[0];
+                this._removeSelectedState(this._current, selectedClass, (isFire ? eventData : null));
+                if(isFire) {
                     this._current = null;
-                    this.fire("deselected", eventData);
                     return;
                 }
             }
             this._current = elem;
-            elem.addClass(selectedClass).addClass("background-highlight");
-            this.fire("selected", eventData);
+            this._addSelectedState(elem, selectedClass, eventData);
         }
     },
-    _promptIsShow: function() {
-        return this._hasPrompt && this._dataPrompt.css("display") === "block";
-    },
-    _setPromptLocation: function() {
-        var height = this._dataPrompt.height();
-        this._dataPrompt.css("margin-top", -(height / 2) + "px");
-    },
-    _showDataPrompt: function() {
-        if(!this._hasPrompt) return;
-        this._dataPrompt.css("display", "block");
-        this._setPromptLocation();
-    },
-    _hideDataPrompt: function() {
-        if(!this._hasPrompt) return;
-        this._dataPrompt.css("display", "none");
-    },
-
 
     /// API
     /** 创建表头 */
-    createGridHead: function(columns) {
+    createHead: function(columns) {
         var colGroup, thead,
             tr, th,
-            c, i;
+            columnObj, i;
 
         if(Array.isArray(columns)) {
             this.option.columns = columns;
-        } else {
-            columns = this.option.columns;
         }
 
-        if (!this.tableHead) {
-            this.tableHead = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' />");
-            this.gridHead.append(this.tableHead);
+        this.sorter.prepareHead();
+        if (!this.headTable) {
+            this.headTable = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' />");
+            this.head.append(this.headTable);
         } else {
-            this.tableHead.html("");
+            this.headTable.html("");
         }
 
         colGroup = $("<colgroup />");
         thead = $("<thead />");
         tr = $("<tr />");
         for (i = 0; i < columns.length; i++) {
-            c = columns[i];
-            if (!c._columnKeys) {
-                c._columnKeys = {};
+            columnObj = columns[i];
+            if (!columnObj._columnKeys) {
+                columnObj._columnKeys = {};
             }
-            colGroup.append(this._createCol(c));
-            th = this._createCell("th", c);
+            colGroup.append(this._createCol(columnObj));
+            th = this._createCell("th", columnObj);
             th.addClass("ui-table-head-cell");
-            if (ui.core.isFunction(c.text)) {
-                th.append(c.text.call(this, c, th));
+            if (ui.core.isFunction(columnObj.text)) {
+                th.append(columnObj.text.call(this, columnObj, th));
             } else {
-                if(c.text) {
-                    th.append(columnTextFormatter.call(this, c, th));
+                if(columnObj.text) {
+                    th.append(columnTextFormatter.call(this, columnObj, th));
                 }
             }
-            this._setSorter(th, c, i);
+            this.sorter.setSortColumn(th, columnObj, i);
             if (i == columns.length - 1) {
                 th.addClass(lastCell);
             }
@@ -20299,51 +20530,53 @@ ui.ctrls.define("ui.ctrls.GridView", {
         tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);
 
-        this.tableHead.append(colGroup);
-        this.tableHead.append(thead);
+        this.headTable.append(colGroup);
+        this.headTable.append(thead);
     },
     /** 创建内容 */
-    createGridBody: function(viewData, rowCount) {
+    createBody: function(viewData, rowCount) {
         var colGroup, tbody,
-            tr, i, j, c,
+            tr, i, j, len,
+            columns, 
+            column,
             isRebind = false;
         
-        if (!this.tableBody) {
-            this.tableBody = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
-            this.tableBody.click(this.onTableBodyClickHandler);
-            this.gridBody.append(this.tableBody);
+        if (!this.bodyTable) {
+            this.bodyTable = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
+            this.body.append(this.bodyTable);
         } else {
-            this.gridBody.scrollTop(0);
+            this.body.scrollTop(0);
             this.clear(false);
             isRebind = true;
         }
 
+        columns = this.option.columns;
         if(!Array.isArray(viewData)) {
             viewData = [];
         }
         this.option.viewData = viewData;
 
         if(viewData.length === 0) {
-            this._showDataPrompt();
+            this.prompt.show();
             return;
         } else {
-            this._hideDataPrompt();
+            this.prompt.hide();
         }
 
         colGroup = $("<colgroup />"),
         tbody = $("<tbody />");
-        this.tableBody.append(colGroup);
+        this.bodyTable.append(colGroup);
 
-        for (j = 0; j < this.option.columns.length; j++) {
-            c = this.option.columns[j];
-            colGroup.append(this._createCol(c));
+        for (j = 0, len = columns.length; j < len; j++) {
+            column = columns[j];
+            colGroup.append(this._createCol(column));
         }
-        for (i = 0; i < viewData.length; i++) {
+        for (i = 0, len = viewData.length; i < len; i++) {
             tr = $("<tr />");
-            this._createRowCells(tr, viewData[i], i);
+            this._createRowCells(tr, viewData[i], i, columns);
             tbody.append(tr);
         }
-        this.tableBody.append(tbody);
+        this.bodyTable.append(tbody);
 
         this._updateScrollState();
         //update page numbers
@@ -20357,21 +20590,20 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     /** 获取checkbox勾选项的值 */
     getCheckedValues: function() {
-        var columnIndex, rows, elem,
+        var columnInfo, rows, elem,
             checkboxClass = "." + cellCheckbox,
             result = [],
             i, len;
 
-        columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
-        if(columnIndex === -1) {
+        columnInfo = this._getColumnIndexByFormatter(checkboxFormatter);
+        if(columnInfo.columnIndex === -1) {
             return result;
         }
-
-        rows = this.gridBody[0].tBodies[0].rows;
+        rows = columnInfo.bodyTable[0].tBodies[0].rows;
         for(i = 0, len = rows.length; i < len; i++) {
-            elem = $(rows[i].cells[columnIndex]).find(checkboxClass);
+            elem = $(rows[i].cells[columnInfo.columnIndex]).find(checkboxClass);
             if(elem.length > 0) {
-                result.push(ui.str.htmlDecode(elem.attr("data-value")));
+                result.push(ui.str.htmlEncode(elem.attr("data-value")));
             }
         }
         return result;
@@ -20399,7 +20631,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
     /** 取消选中项 */
     cancelSelection: function() {
         var selectedClass, elem, 
-            columnIndex, checkboxClass, fn,
+            columnInfo, checkboxClass, fn,
             i, len;
 
         if (!this.isSelectable()) {
@@ -20409,21 +20641,22 @@ ui.ctrls.define("ui.ctrls.GridView", {
         selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
         if(this.option.selection.isRelateCheckbox) {
             checkboxClass = "." + cellCheckbox;
-            columnIndex = this._getColumnIndexByFormatter(checkboxFormatter);
+            columnInfo = this._getColumnIndexByFormatter(checkboxFormatter);
             fn = function(elem) {
-                var checkbox;
-                if(columnIndex !== -1) {
-                    checkbox = this.option.selection.type === "cell" ? 
-                        $(elem.parent()[0].cells[columnIndex]) : 
-                        $(elem[0].cells[columnIndex]);
-                    checkbox = checkbox.find(checkboxClass);
+                var checkbox,
+                    cell;
+                if(columnInfo.columnIndex !== -1) {
+                    cell = this.option.selection.type === "cell" ? 
+                        $(elem.parent()[0].cells[columnInfo.columnIndex]) : 
+                        $(elem[0].cells[columnInfo.columnIndex]);
+                    checkbox = cell.find(checkboxClass);
                     setChecked(checkbox, false);
                 }
-                elem.removeClass(selectedClass).removeClass("background-highlight");
+                this._removeSelectedState(elem, selectedClass);
             };
         } else {
             fn = function(elem) {
-                elem.removeClass(selectedClass).removeClass("background-highlight");
+                this._removeSelectedState(elem, selectedClass);
             };
         }
 
@@ -20456,8 +20689,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
             type,
             removeSelectItemFn;
 
-        viewData = this.option.viewData;
-        if(!viewData) {
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return;
         }
         len = arguments.length;
@@ -20473,6 +20706,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
         len = indexes.length;
         if(len > 0) {
+            // 降序
             indexes.sort(function(a, b) {
                 return b - a;
             });
@@ -20519,7 +20753,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             }
             for(i = 0; i < len; i++) {
                 rowIndex = indexes[i];
-                row = $(this.tableBody[0].rows[rowIndex]);
+                row = $(this.bodyTable[0].rows[rowIndex]);
                 row.remove();
                 viewData.splice(rowIndex, 1);
                 if(removeSelectItemFn) {
@@ -20533,54 +20767,65 @@ ui.ctrls.define("ui.ctrls.GridView", {
     /** 更新行 */
     updateRow: function(rowIndex, rowData) {
         var viewData,
-            row;
+            row,
+            _columns = arguments[2],
+            _cellFilter = arguments[3];
 
-        viewData = this.option.viewData;
-        if(!viewData) {
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
             return;
         }
         if(rowIndex < 0 || rowIndex > viewData.length) {
             return;
         }
 
-        row = $(this.tableBody[0].rows[rowIndex]);
+        row = $(this.bodyTable[0].rows[rowIndex]);
         if(row.length === 0) {
             return;
         }
         row.empty();
         viewData[rowIndex] = rowData;
-        this._createRowCells(row, rowData, rowIndex);
+        this._createRowCells(row, rowData, rowIndex, _columns, _cellFilter);
     },
     /** 增加行 */
     addRow: function(rowData) {
         var viewData,
-            row;
-        if(!rowData) return;
-        viewData = this.option.viewData;
+            row,
+            len,
+            _columns = arguments[1],
+            _cellFilter = arguments[2];
 
-        if(!Array.isArray(viewData) || viewData.length === 0) {
-            if(this.tableBody) {
-                this.tableBody.remove();
-                this.tableBody = null;
+        if(!rowData) return;
+
+        viewData = this.getViewData();
+        len = viewData.length;
+        if(len === 0) {
+            if(this.bodyTable) {
+                this.bodyTable.remove();
+                this.bodyTable = null;
             }
-            this.createGridBody([rowData]);
+            this.createBody([rowData]);
             return;
         }
 
         row = $("<tr />");
-        this._createRowCells(row, rowData, viewData.length);
-        $(this.tableBody[0].tBodies[0]).append(row);
+        this._createRowCells(row, rowData, len, _columns, _cellFilter);
+        $(this.bodyTable[0].tBodies[0]).append(row);
         viewData.push(rowData);
         this._updateScrollState();
     },
     /** 插入行 */
     insertRow: function(rowIndex, rowData) {
         var viewData,
-            row;
+            row,
+            len,
+            _columns = arguments[2],
+            _cellFilter = arguments[3];
         if(!rowData) return;
-        viewData = this.option.viewData;
 
-        if(!Array.isArray(viewData) || viewData.length === 0) {
+        viewData = this.getViewData();
+        len = viewData.length;
+        if(len === 0) {
             this.addRow(rowData);
             return;
         }
@@ -20589,8 +20834,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
         if(rowIndex < viewData.length) {
             row = $("<tr />");
-            this._createRowCells(row, rowData, rowIndex);
-            $(this.tableBody[0].rows[rowIndex]).before(row);
+            this._createRowCells(row, rowData, rowIndex, _columns, _cellFilter);
+            $(this.bodyTable[0].rows[rowIndex]).before(row);
             viewData.splice(rowIndex, 0, rowData);
             this._updateScrollState();
             this._refreshRowNumber();
@@ -20637,7 +20882,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             destRow,
             tempData;
         
-        viewData = this.option.viewData;
+        viewData = this.getViewData();
         if(viewData.length === 0) {
             return;
         }
@@ -20651,9 +20896,9 @@ ui.ctrls.define("ui.ctrls.GridView", {
             return;
         }
 
-        rows = this.tableBody[0].tBodies[0].rows;
+        rows = this.bodyTable[0].tBodies[0].rows;
         destRow = $(rows[destIndex]);
-        if(destIndex > rowIndex) {
+        if(destIndex > sourceIndex) {
             destRow.after($(rows[sourceIndex]));
             this._refreshRowNumber(sourceIndex, destIndex);
         } else {
@@ -20666,8 +20911,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     /** 获取行数据 */
     getRowData: function(rowIndex) {
-        var viewData = this.option.viewData;
-        if(!Array.isArray(viewData) || viewData.length === 0) {
+        var viewData = this.getViewData();
+        if(viewData.length === 0) {
             return null;
         }
         if(!ui.core.isNumber(rowIndex) || rowIndex < 0 || rowIndex >= viewData.length) {
@@ -20681,7 +20926,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     /** 获取项目数 */
     count: function() {
-        return Array.isArray(this.option.viewData) ? this.option.viewData.length : 0;
+        return this.getViewData().length;
     },
     /** 是否可以选择 */
     isSelectable: function() {
@@ -20694,22 +20939,23 @@ ui.ctrls.define("ui.ctrls.GridView", {
     },
     /** 清空表格数据 */
     clear: function() {
-        if (this.tableBody) {
-            this.tableBody.html("");
-            this.option.listView = null;
-            this._selectList = [];
-            this._current = null;
-            resetColumnState.call(this);
+        this.option.viewData = null;
+        this._selectList = [];
+        this._current = null;
+        this._checkedCount = 0;
+
+        if (this.bodyTable) {
+            this.bodyTable.html("");
         }
-        if (this.tableHead) {
-            resetSortColumnState.call(this);
-            this._lastSortColumn = null;
+        if (this.headTable) {
+            this.columnResetter.reset();
         }
         if (this.pager) {
             this.pager.empty();
         }
+        this.sorter.reset();
         if (arguments[0] !== false) {
-            this._showDataPrompt();
+            this.prompt.show();
         }
     },
     /** 设置表格的尺寸, width: 宽度, height: 高度 */
@@ -20719,20 +20965,28 @@ ui.ctrls.define("ui.ctrls.GridView", {
             width = null;
         }
         if(ui.core.isNumber(height)) {
-            height -= this.columnHeight + this.borderHeight;
+            this.height = height;
+            this.innerHeight = height - this.borderHeight;
+            height = this.innerHeight - this.headHeight;
             if(this.pager) {
-                height -= this.pagerHeight;
+                height -= this.footHeight;
             }
-            this.gridBody.css("height", height + "px");
+            this.bodyHeight = height;
+            this.body.css("height", this.bodyHeight + "px");
+        } else {
+            this.innerHeight = this.element.height();
+            this.height = this.innerHeight + this.borderHeight;
         }
         if(ui.core.isNumber(width)) {
-            width -= this.borderWidth;
-            this.element.css("width", width + "px");
+            this.width = width;
+            this.innerWidth = width - this.borderWidth;
+            this.bodyWidth = this.innerWidth;
+            this.element.css("width", this.innerWidth + "px");
+        } else {
+            this.innerWidth = this.element.width();
+            this.width = this.innerWidth + this.borderWidth;
         }
         this._updateScrollState();
-        if(this._promptIsShow()) {
-            this._setPromptLocation();
-        }
     }
 });
 
@@ -21392,644 +21646,384 @@ $.fn.listView = function(option) {
 (function($, ui) {
 // Report View
 
-var cellCheckbox = "grid-checkbox",
-    cellCheckboxAll = "grid-checkbox-all",
-    lastCell = "last-cell",
-    sortClass = "fa-sort",
-    asc = "fa-sort-asc",
-    desc = "fa-sort-desc",
-    emptyRow = "empty-row";
-
-var DATA_BODY = "DataBody",
-    // 默认行高30像素
-    rowHeight = 30,
-    // 最小不能小于40像素
+var lastCell = "last-cell",
+    sortColumn = "sort-column",
+    emptyRow = "empty-row",
+    fixedEmpty = "ui-report-fixed-empty";
+    fixedShadow = "border-highlight";
+var // 最小不能小于40像素
     defaultFixedCellWidth = 40;
 
-var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
-    attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
-
-var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
-    checkboxFormatter = ui.ColumnStyle.cfn.check,
-    columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
+var columnTextFormatter = ui.ColumnStyle.cnfn.columnText,
     textFormatter = ui.ColumnStyle.cfn.text,
-    rowNumberFormatter = ui.ColumnStyle.cfn.rowNumber;
+    columnStyle = ui.ColumnStyle;
 
-function preparePager(option) {
-    if(option.showPageInfo === true) {
-        if(!option.pageInfoFormatter) {
-            option.pageInfoFormatter = {
-                currentRowNum: function(val) {
-                    return "<span>本页" + val + "行</span>";
-                },
-                rowCount: function(val) {
-                    return "<span class='font-highlight'>共" + val + "行</span>";
-                },
-                pageCount: function(val) {
-                    return "<span>" + val + "页</span>";
+function ReportFixed(view, parent, css) {
+    this.view = view;
+    this.parent = parent;
+    this.panel = $("<div class='ui-report-fixed' />");
+    if(css) {
+        this.panel.css(css);
+    }
+    this.head = $("<div class='ui-grid-head ui-report-fixed-head' />");
+    this.head.css("height", this.view.headHeight + "px");
+    this.body = $("<div class='ui-grid-body ui-report-fixed-body' />");
+    this.body.css("height", this.view.bodyHeight + "px");
+    this.width = 0;
+    this.height = 0;
+    // 偏移的列索引
+    this.offsetCellIndex = 0;
+
+    this.panel
+        .append(this.head)
+        .append(this.body);
+    this.parent.append(this.panel);
+}
+ReportFixed.prototype = {
+    constructor: ReportFixed,
+    setHead: function(groupColumns) {
+        var width = 0;
+        this.columns = [];
+        this.headTable = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' style='left:0' />");
+        this.view._createHeadTable(this.headTable, this.columns, groupColumns, true,
+            function(column) {
+                if(!column.len) {
+                    column.len = defaultFixedCellWidth;
                 }
+                width += column.len;
+            }
+        );
+        this.width = width;
+        this.head.html("").append(this.headTable);
+        this.head.css("width", this.width + "px");
+    },
+    setBody: function(viewData) {
+        this.bodyTable = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' style='left:0' />");
+        this.view._createBodyTable(this.bodyTable, viewData, this.columns);
+        this.body.scrollTop(0);
+        this.body.html("").append(this.bodyTable);
+        this.body.css("width", this.width + "px");
+        this.panel.removeClass(fixedEmpty);
+    },
+    clear: function() {
+        if(this.bodyTable) {
+            this.bodyTable.remove();
+            delete this.bodyTable;
+        }
+        this.panel.removeClass(fixedShadow).addClass(fixedEmpty);
+    },
+    destroy: function() {
+        this.panel.remove();
+    },
+    findColumnInfo: function(formatter, field) {
+        var i, len;
+        for(i = 0, len = this.columns.length; i < len; i++) {
+            if(this.columns[i][field] === formatter) {
+                return {
+                    columnIndex: i,
+                    columns: this.columns,
+                    headTable: this.headTable,
+                    bodyTable: this.bodyTable
+                };
+            }
+        }
+    },
+    getElement: function(rowIndex, cellIndex) {
+        var element = $(this.bodyTable[0].tBodies[0].rows[rowIndex]);
+        if(ui.core.isNumber(cellIndex)) {
+            cellIndex = cellIndex - this.offsetCellIndex;
+            if(cellIndex < 0 || cellIndex >= element[0].cells.length) {
+                element = null;
+            } else {
+                element = $(element[0].cells[cellIndex]);
+            }
+        }
+        return element;
+    },
+    updateRow: function(rowIndex, rowData) {
+        var row = $(this.bodyTable[0].rows[rowIndex]);
+        if(row.length === 0) return;
+
+        row.empty();
+        this.view._createRowCells(row, rowData, rowIndex, this.columns);
+    },
+    appendRow: function(rowData) {
+        var row = $("<tr />"),
+            len = this.view.count();
+        this.view._createRowCells(row, rowData, len, this.columns);
+        $(this.bodyTable[0].tBodies[0]).append(row);
+    },
+    insertRow: function(rowIndex, rowData) {
+        var row = $("<tr />");
+        this.view._createRowCells(row, rowData, rowIndex, this.columns);
+        $(this.bodyTable[0].rows[rowIndex]).before(row);
+    },
+    moveRow: function(sourceIndex, destIndex) {
+        var rows = this.bodyTable[0].tBodies[0].rows,
+            sourceRow = $(rows[sourceIndex]),
+            destRow = $(rows[destIndex]);
+        if(destIndex > sourceIndex) {
+            destRow.after(sourceRow);
+        } else {
+            destRow.before(sourceRow);
+        }
+    }
+};
+
+function ReportFixedWrapper(view) {
+    this.view = view;
+    this.left = null;
+    this.right = null;
+}
+ReportFixedWrapper.prototype = {
+    constructor: ReportFixedWrapper,
+    clear: function() {
+        if(this.left) {
+            this.left.clear();
+        }
+        if(this.right) {
+            this.right.clear();
+        }
+    },
+    setBodyHeight: function(bodyHeight) {
+        if(this.left) {
+            this.left.body.css("height", bodyHeight + "px");
+        }
+        if(this.right) {
+            this.right.body.css("height", bodyHeight + "px");
+        }
+    },
+    reset: function() {
+        if(this.left) {
+            this.left.destroy();
+            this.left = null;
+        }
+        if(this.right) {
+            this.right.destroy();
+            this.right = null;
+        }
+    },
+    findColumnInfo: function(formatter, field) {
+        var columnInfo;
+        if(this.left) {
+            columnInfo = this.left.findColumnInfo(formatter, field);
+            if(columnInfo != null) {
+                return columnInfo;
+            }
+        }
+        if(this.right) {
+            columnInfo = this.right.findColumnInfo(formatter, field);
+        }
+        return columnInfo;
+    },
+    syncScroll: function(scrollTop, scrollLeft, scrollWidth) {
+        if(this.left) {
+            this.left.body.scrollTop(scrollTop);
+            if(scrollLeft > 0) {
+                this.left.panel.addClass(fixedShadow);
+            } else {
+                this.left.panel.removeClass(fixedShadow);
+            }
+        }
+        if(this.right) {
+            this.right.body.scrollTop(scrollTop);
+            if(this.view.innerWidth + scrollLeft < scrollWidth) {
+                this.right.panel.addClass(fixedShadow);
+            } else {
+                this.right.panel.removeClass(fixedShadow);
+            }
+        }
+    },
+    syncSelectedState: function(dataElement, selectedClass, state) {
+        var rowIndex, cellIndex, setStateFn, fn;
+
+        if(!this.left || !this.right) {
+            return;
+        }
+        if(this.view.option.selection.type === "row") {
+            rowIndex = dataElement[0].rowIndex;
+        } else {
+            cellIndex = dataElement[0].cellIndex;
+            rowIndex = dataElement.parent()[0].rowIndex;
+        }
+
+        setStateFn = function(node, action) {
+            var element;
+            if(node) {
+                element = node.getElement(rowIndex, cellIndex);
+                if(element) {
+                    action(element);
+                }
+            }
+        };
+        
+        if(state) {
+            fn = function(element) {
+                element.addClass(selectedClass).addClass("background-highlight");
             };
-        }
-    }
-
-    this.pager = ui.ctrls.Pager(option);
-    this.pageIndex = this.pager.pageIndex;
-    this.pageSize = this.pager.pageSize;
-}
-function reverse(arr1, arr2) {
-    var temp,
-        i = 0, 
-        j = arr1.length - 1,
-        len = arr1.length / 2;
-    for (; i < len; i++, j--) {
-        temp = arr1[i];
-        arr1[i] = arr1[j];
-        arr1[j] = temp;
-
-        temp = arr2[i];
-        arr2[i] = arr2[j];
-        arr2[j] = temp;
-    }
-}
-function sorting(v1, v2) {
-    var column,
-        fn,
-        val1, val2;
-    column = this._lastSortColumn;
-    fn = column.sort;
-    if(!ui.core.isFunction(fn)) {
-        fn = defaultSortFn;
-    }
-
-    val1 = this._prepareValue(v1, column);
-    val2 = this._prepareValue(v2, column);
-    return fn(val1, val2);
-}
-function defaultSortFn(v1, v2) {
-    var val, i, len;
-    if (Array.isArray(v1)) {
-        val = 0;
-        for (i = 0, len = v1.length; i < len; i++) {
-            val = defaultSorting(v1[i], v2[i]);
-            if (val !== 0) {
-                return val;
-            }
-        }
-        return val;
-    } else {
-        return defaultSorting(v1, v2);
-    }
-}
-function defaultSorting(v1, v2) {
-    if (typeof v1 === "string") {
-        return v1.localeCompare(v2);
-    }
-    if (v1 < v2) {
-        return -1;
-    } else if (v1 > v2) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-function resetColumnState() {
-    var fn, key;
-    for(key in this.resetColumnStateHandlers) {
-        if(this.resetColumnStateHandlers.hasOwnProperty(key)) {
-            fn = this.resetColumnStateHandlers[key];
-            if(ui.core.isFunction(fn)) {
-                try {
-                    fn.call(this);
-                } catch (e) { }
-            }
-        }
-    }
-}
-function resetSortColumnState() {
-    var cells, cells1, cells2,
-        icon, i, len,
-        lastIndex, index;
-
-    if (this.tableFixedHead) {
-        cells1 = this.fixedColumns;
-    }
-    if (this.tableDataHead) {
-        cells2 = this.dataColumns;
-    }
-
-    cells = cells1;
-    if(!cells) {
-        cells = cells2;
-    }
-    if(!cells) {
-        return;
-    }
-
-    lastIndex = -1;
-    for (i = 0, len = this._sorterIndexes.length; i < len; i++) {
-        index = this._sorterIndexes[i];
-        if (index <= lastIndex || !cells[index]) {
-            cells = cells2;
-            lastIndex = -1;
+            setStateFn(this.left, fn);
+            setStateFn(this.right, fn);
         } else {
-            lastIndex = index;
+            fn = function(element) {
+                element.removeClass(selectedClass).removeClass("background-highlight");
+            };
+            setStateFn(this.left, fn);
+            setStateFn(this.right, fn);
         }
-
-        icon = cells[index].cell;
-        icon = icon.find("i");
-        if (!icon.hasClass(sortClass)) {
-            icon.attr("class", "fa fa-sort");
+    },
+    sortSync: function(sortMapper) {
+        var leftRows, rightRows,
+            leftNewRows, rightNewRows,
+            leftTbody, rightTbody,
+            i, len;
+        if(!this.left && !this.right) {
             return;
         }
-    }
-}
-function setChecked(cbx, checked) {
-    if(checked) {
-        cbx.removeClass("fa-square")
-            .addClass("fa-check-square").addClass("font-highlight");
-    } else {
-        cbx.removeClass("fa-check-square").removeClass("font-highlight")
-            .addClass("fa-square");
-    }
-}
-function changeChecked(cbx) {
-    var checked = !cbx.hasClass("fa-check-square"),
-        colIndex;
-    setChecked(cbx, checked);
-    if(!this._gridCheckboxAll) {
-        colIndex = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
-        if(colIndex === -1) {
-            return;
+        if(this.left) {
+            leftTbody = this.left.bodyTable.children("tbody");
+            leftRows = leftTbody[0].rows;
+            leftNewRows = new Array(leftRows.length);
         }
-        this._gridCheckboxAll = 
-            $(this.tableHead[0].tBodies[0].rows[0].cells[colIndex])
-                .find("." + cellCheckboxAll);
-    }
-    if(checked) {
-        this._checkedCount++;
-    } else {
-        this._checkedCount--;
-    }
-    if(this._checkedCount === this.count()) {
-        setChecked(this._gridCheckboxAll, true);
-    } else {
-        setChecked(this._gridCheckboxAll, false);
-    }
-}
-function getExcludeValue(elem) {
-    var exclude = this.option.selection.exclude,
-        result = true;
-    if(exclude) {
-        if(ui.core.isString(exclude)) {
-            result = this._excludeElement(elem, exclude);
-        } else if(ui.core.isFunction(exclude)) {
-            result = exclude.call(this, elem);
+        if(this.right) {
+            rightTbody = this.right.bodyTable.children("tbody");
+            rightRows = rightTbody[0].rows;
+            rightNewRows = new Array(rightRows.length);
+        }
+        for(i = 0, len = sortMapper.length; i < len; i++) {
+            if(leftNewRows) {
+                leftNewRows[sortMapper[i].rowIndex] = leftRows[i];
+            }
+            if(rightNewRows) {
+                rightNewRows[sortMapper[i].rowIndex] = rightRows[i];
+            }
         }
     }
-    return result;
-}
+};
 
-/// 事件函数
 // 排序点击事件处理
-function onSort(e) {
+function onSort(e, element) {
     var viewData,
-        elem, nodeName,
-        table, columnIndex, column,
-        fn, isSelf,
-        tempTbody, icon, 
-        rows, oldRows, 
-        newRows, i, len;
+        columnIndex, column;
 
-    e.stopPropagation();
-    viewData = this.option.viewData;
-    if (!Array.isArray(viewData) || viewData.length === 0) {
+    viewData = this.getViewData();
+    if (viewData.length === 0) {
         return;
     }
-    elem = $(e.target);
-    while ((nodeName = elem.nodeName()) !== "TH") {
-        if (nodeName === "TR") {
-            return;
-        }
-        elem = elem.parent();
-    }
 
-    table = elem.parent().parent().parent();
-    columnIndex = elem.data("data-columnIndex") || elem[0].cellIndex;
-    if(table.hasClass("table-fixed-head")) {
-        column = this.fixedColumns[columnIndex];
-    } else {
-        column = this.dataColumns[columnIndex];
-    }
+    columnIndex = parseInt(element.attr("data-columnIndex"), 10) || element[0].cellIndex;
+    column = this._getColumn(columnIndex);
 
-    if (this._lastSortColumn !== column) {
-        resetSortColumnState.call(this, elem.parent());
-    }
-
-    fn = sorting.bind(this);
-    isSelf = this._lastSortColumn == column;
-    this._lastSortColumn = column;
-
-    if(this.tableFixedBody) {
-        // 如果有固定列表，则先排固定列表
-        tempTbody = this.tableFixedBody.children("tbody");
-    } else {
-        tempTbody = this.tableDataBody.children("tbody");
-    }
-    rows = tempTbody.children().get();
-    if (!Array.isArray(rows) || rows.length != viewData.length) {
-        throw new Error("data row error");
-    }
-    // 保留排序前的副本，以后根据索引和rowIndex调整其它表格的顺序
-    oldRows = rows.slice(0);
-
-    icon = elem.find("i");
-    if (icon.hasClass(asc)) {
-        reverse(viewData, rows);
-        icon.removeClass(sortClass).removeClass(asc).addClass(desc);
-    } else {
-        if (isSelf) {
-            reverse(viewData, rows);
-        } else {
-            this.sorter.items = rows;
-            this.sorter.sort(viewData, fn);
-        }
-        icon.removeClass(sortClass).removeClass(desc).addClass(asc);
-    }
-    tempTbody.append(rows);
-
-    if(this.tableFixedBody) {
-        // 根据排好序的固定列表将数据列表也排序
-        if(this.tableDataBody) {
-            tempTbody = this.tableDataBody.find("tbody");
-            rows = tempTbody.children().get();
-            newRows = new Array(rows.length);
-            for(i = 0, len = oldRows.length; i < len; i++) {
-                newRows[oldRows[i].rowIndex] = rows[i];
-            }
-            tempTbody.append(newRows);
-        }
-    }
-    
-    // 刷新行号
-    this._refreshRowNumber();
+    this.sorter.sort(viewData, element, column);
 }
 // 滚动条同步事件
 function onScrolling(e) {
-    this.reportDataHead.scrollLeft(
-        this.reportDataBody.scrollLeft());
-    this.reportFixedBody.scrollTop(
-        this.reportDataBody.scrollTop());
-}
-// 全选按钮点击事件处理
-function onCheckboxAllClick(e) {
-    var cbxAll, cbx, 
-        checkedValue, columnInfo,
-        rows, dataRows, dataCell,
-        selectedClass, fn, 
-        i, len;
-
-    e.stopPropagation();
-
-    columnInfo = this._getColumnIndexAndTableByFormatter(columnCheckboxAllFormatter, "text");
-    if(!columnInfo) {
-        return;
-    }
-
-    cbxAll = $(e.target);
-    checkedValue = !cbxAll.hasClass("fa-check-square");
-    setChecked.call(this, cbxAll, checkedValue);
-
-    if(this.option.selection.isRelateCheckbox === true && this.isMultiple()) {
-        selectedClass = this.option.seletion.type === "cell" ? "cell-selected" : "row-selected";
-        
-        if(checkedValue) {
-            // 如果是要选中，需要同步行状态
-            fn = function(td, checkbox) {
-                var elem;
-                if(this.option.selection.type === "cell") {
-                    elem = td;
-                } else {
-                    elem = td.parent();
-                }
-                elem.context = checkbox[0];
-                this._selectItem(elem, selectedClass, checkedValue);
-            };
-        } else {
-            // 如果是取消选中，直接清空选中行状态
-            for(i = 0, len = this._selectList.length; i < len; i++) {
-                $(this._selectList[i])
-                    .removeClass(selectedClass)
-                    .removeClass("background-highlight");
-            }
-            this._selectList = [];
-        }
-    }
-    
-    rows = columnInfo.bodyTable[0].tBodies[0].rows;
-    for(i = 0, len = rows.length; i < len; i++) {
-        cbx = $(rows[i].cells[columnInfo.columnIndex]).find("." + cellCheckbox);
-        if(cbx.length > 0) {
-            if(ui.core.isFunction(fn)) {
-                if(!dataRows) {
-                    dataRows = this.tableDataBody[0].tBodies[0].rows; 
-                }
-                dataCell = $(dataRows[i].cells[0]);
-                fn.call(this, dataCell, cbx);
-            } else {
-                setChecked.call(this, cbx, checkedValue);
-            }
-        }
-    }
-    if(checkedValue) {
-        this._checkedCount = this.count();
-    } else {
-        this._checkedCount = 0;
-    }
-}
-// 固定行点击事件
-function onTableFixedBodyClick(e) {
-    var elem,
-        rowIndex,
-        nodeName;
-
-    elem = $(e.target);
-    // 如果该元素已经被标记为排除项
-    if(getExcludeValue.call(this, elem) === false) {
-        return;
-    }
-
-    if(elem.hasClass(cellCheckbox)) {
-        // 如果checkbox和选中行不联动
-        if(!this.option.selection.isRelateCheckbox) {
-            changeChecked.call(this, elem);
-            return;
-        }
-    }
-
-    // 如果是单元格选择模式则不用设置联动
-    if (this.option.selection.type === "cell") {
-        return;
-    }
-
-    if(this.tableDataBody) {
-        while((nodeName = elem.nodeName()) !== "TR") {
-            if(nodeName === "TBODY") {
-                return;
-            }
-            elem = elem.parent();
-        }
-        rowIndex = elem[0].rowIndex;
-        elem = $(this.tableDataBody[0].rows[rowIndex]);
-        elem.context = e.target;
-
-        this._selectItem(elem, "row-selected");
-    }
-}
-// 数据行点击事件
-function onTableDataBodyClick(e) {
-    var elem, 
-        tagName, 
-        selectedClass,
-        nodeName;
-    
-    elem = $(e.target);
-    // 如果该元素已经被标记为排除项
-    if(getExcludeValue.call(this, elem) === false) {
-        return;
-    }
-
-    if(elem.hasClass(cellCheckbox)) {
-        // 如果checkbox和选中行不联动
-        if(!this.option.selection.isRelateCheckbox) {
-            changeChecked.call(this, elem);
-            return;
-        }
-    }
-
-    tagName = this.option.selection.type === "cell" ? "TD" : "TR";
-    selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
-    while((nodeName = elem.nodeName()) !== tagName) {
-        if(nodeName === "TBODY") {
-            return;
-        }
-        elem = elem.parent();
-    }
-
-    if(elem[0] !== e.target) {
-        elem.context = e.target;
-    }
-
-    this._selectItem(elem, selectedClass);
+    var scrollTop = this.reportDataBody.scrollTop(),
+        scrollLeft = this.reportDataBody.scrollLeft();
+    this.reportDataHead.scrollLeft(scrollLeft);
+    this.fixed.syncScroll(scrollTop, scrollLeft, this.reportDataBody[0].scrollWidth);
 }
 
-ui.ctrls.define("ui.ctrls.ReportView", {
+ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
     _defineOption: function() {
-        return {
-                /*
-                column property
-                text:       string|function     列名，默认为null
-                column:     string|Array        绑定字段名，默认为null
-                len:        number              列宽度，默认为auto
-                align:      center|left|right   列对齐方式，默认为left(但是表头居中)
-                formatter:  function            格式化器，默认为null
-                sort:       boolean|function    是否支持排序，true支持，false不支持，默认为false
-            */
-            // 固定列
-            fixedGroupColumns: null,
-            // 数据列
-            dataGroupColumns: null,
-            // 视图数据
-            viewData: null,
-            // 没有数据时显示的提示信息
-            promptText: "没有数据",
-            // 高度
-            height: false,
-            // 宽度
-            width: false,
-            // 调节列宽
-            suitable: true,
-            // 默认格式化器
-            textFormatter: null,
-            // 分页参数
-            pager: {
-                // 当前页码，默认从第1页开始
-                pageIndex: 1,
-                // 记录数，默认100条
-                pageSize: 100,
-                // 显示按钮数量，默认显示10个按钮
-                pageButtonCount: 10,
-                // 是否显示分页统计信息，true|false，默认不显示
-                showPageInfo: false,
-                // 格式化器，包含currentRowNum, rowCount, pageCount的显示
-                pageInfoFormatter: null
-            },
-            // 选择设置
-            selection: {
-                // cell|row|disabled
-                type: "row",
-                // string 排除的标签类型，标记后点击这些标签将不会触发选择事件
-                exclude: false,
-                // 是否可以多选
-                multiple: false,
-                // 多选时是否和checkbox关联
-                isRelateCheckbox: true
-            }
-        };
-    },
-    _defineEvents: function() {
-        var events = ["selecting", "selected", "deselected", "rebind", "cancel"];
-        if(this.option.pager) {
-            events.push("pagechanging");
-        }
-        return events;
+        /*
+            column property
+            text:       string|function     列名，默认为null
+            column:     string|Array        绑定字段名，默认为null
+            len:        number              列宽度，默认为auto
+            align:      center|left|right   列对齐方式，默认为left(但是表头居中)
+            formatter:  function            格式化器，默认为null
+            sort:       boolean|function    是否支持排序，true-支持，false-不支持，默认为false
+            fixed:      boolean             是否为固定列，true-是，false-否，默认否
+        */
+        var option = this._super();
+        // 可调节列宽
+        option.adjustable = true;
+        return option;
     },
     _create: function() {
-        this._selectList = [];
-        this._sorterIndexes = [];
-        this._hasPrompt = !!this.option.promptText;
-        // 存放列头状态重置方法
-        this.resetColumnStateHandlers = {};
+        var view = this;
+        this._super();
 
-        // 列头对象
-        this.reportHead = null;
-        this.reportFixedHead = null;
-        this.reportDataHead = null;
-        // 表体对象
-        this.reportBody = null;
-        this.reportFixedBody = null;
-        this.reportDataBody = null;
+        // 滚动条占位符对象
+        this._headScrollColumn = {
+            addScrollCol: function(tr, colGroup) {
+                var rows,
+                    rowspan,
+                    th;
 
-        this.columnHeight = this.rowHeight = rowHeight;
-        this.pagerHeight = 30;
-
-        if(this.option.pager) {
-            preparePager.call(this, this.option.pager);
-        }
-
-        // 修正selection设置项
-        if(!this.option.selection) {
-            this.option.selection = {
-                type: "disabled"
-            };
-        } else {
-            if(ui.core.isString(this.option.selection.type)) {
-                this.option.selection.type = this.option.selection.type.toLowerCase();
-            } else {
-                this.option.selection.type = "disabled";
+                this.scrollCol = $("<col style='width:0' />");
+                colGroup.append(this.scrollCol);
+            
+                rows = tr.parent().children();
+                rowspan = rows.length;
+                th = $("<th class='ui-table-head-cell scroll-cell' />");
+                if (rowspan > 1) {
+                    th.attr("rowspan", rowspan);
+                }
+                $(rows[0]).append(th);
+            },
+            addFixedScrollColumn: function(div) {
+                this.scrollBlock = $("<div class='ui-report-fixed-block' />");
+                this.scrollBlock.css({
+                    "width": ui.scrollbarWidth + "px",
+                    "height": view.headHeight - 2 + "px"
+                });
+                div.append(this.scrollBlock);
+            },
+            show: function() {
+                if(this.scrollCol) {
+                    //滚动条默认是17像素，在IE下会显示为16.5，有效值为16。为了修正此问题设置为17.1
+                    this.scrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
+                }
+                if(this.scrollBlock) {
+                    this.scrollBlock.css("display", "block");
+                    view.fixed.right.panel.css("right", ui.scrollbarWidth + "px");
+                }
+            },
+            hide: function() {
+                if(this.scrollCol) {
+                    this.scrollCol.css("width", 0);
+                }
+                if(this.scrollBlock) {
+                    this.scrollBlock.css("display", "none");
+                    view.fixed.right.panel.css("right", 0);
+                }
             }
-            if(!this.option.selection.multiple) {
-                this.option.selection.isRelateCheckbox = false;
-            }
-        }
+        };
 
-        if(!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
-            this.option.width = false;
-        }
-        if(!ui.core.isNumber(this.option.height) || this.option.height <= 0) {
-            this.option.height = false;
-        }
-
+        // 固定列管理器
+        this.fixed = new ReportFixedWrapper(this);
         // 排序器
-        this.sorter = ui.Introsort();
-        // checkbox勾选计数器
-        this._checkedCount = 0;
+        this.sorter.sortAfterFn = (function(rowsMapper) {
+            this.fixed.sortSync(rowsMapper);
+        }).bind(this);
 
         // 事件初始化
-        // 排序按钮点击事件
-        this.onSortHandler = onSort.bind(this);
-        // 全选按钮点击事件
-        this.onCheckboxAllClickHandler = onCheckboxAllClick.bind(this);
+        // 排序列点击事件
+        this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 滚动条同步事件
         this.onScrollingHandler = onScrolling.bind(this);
-        // 固定行点击事件
-        this.onTableFixedBodyClickHandler = onTableFixedBodyClick.bind(this);
-        // 数据行点击事件
-        this.onTableDataBodyClickHandler = onTableDataBodyClick.bind(this);
     },
     _render: function() {
-        if(!this.element.hasClass("ui-report-view")) {
-            this.element.addClass("ui-report-view");
-        }
+        this._super();
 
-        this._initBorderWidth();
-
-        // 表头
-        this.reportHead = $("<div class='ui-report-head' />");
-        this.reportFixedHead = $("<div class='fixed-head' />");
-        this.reportDataHead = $("<div class='data-head'>");
-        this.reportHead
-            .append(this.reportFixedHead)
-            .append(this.reportDataHead);
-        this.element.append(this.reportHead);
-        // 定义列宽调整
-        this._initSuitable();
-        // 表体
-        this.reportBody = $("<div class='ui-report-body' />");
-        this.reportFixedBody = $("<div class='fixed-body' />");
-        this._fixedBodyScroll = $("<div class='fixed-body-scroll' />")
-            .css("height", ui.scrollbarHeight);
-        this.reportDataBody = $("<div class='data-body' />");
-        this._initDataPrompt();
-        this.reportDataBody.scroll(this.onScrollingHandler);
-        this.reportBody
-            .append(this.reportFixedBody)
-            .append(this._fixedBodyScroll)
-            .append(this.reportDataBody);
-        this.element.append(this.reportBody);
-        // 分页栏
-        this._initPagerPanel();
-        // 设置容器大小
-        this.setSize(this.option.width, this.option.height);
-
-        // 创建表头
-        this.createReportHead(
-            this.option.fixedGroupColumns, 
-            this.option.dataGroupColumns);
-        // 创建表体
-        if (Array.isArray(this.option.viewData)) {
-            this.createReportBody(
-                this.option.viewData, 
-                this.option.viewData.length);
-        }
+        this.element.addClass("ui-report-view");
+        this.head.addClass("ui-report-head");
+        this.body.addClass("ui-report-body");
         
+        // 定义列宽调整
+        this._initAdjustColumn();
     },
-    _initBorderWidth: function() {
-        var getBorderWidth = function(key) {
-            return parseInt(this.element.css(key), 10) || 0;
-        };
-        this.borderWidth = 0;
-        this.borderHeight = 0;
-
-        this.borderWidth += getBorderWidth.call(this, "border-left-width");
-        this.borderWidth += getBorderWidth.call(this, "border-right-width");
-
-        this.borderHeight += getBorderWidth.call(this, "border-top-width");
-        this.borderHeight += getBorderWidth.call(this, "border-bottom-width");
-    },
-    _initDataPrompt: function() {
-        var text;
-        if(this._hasPrompt) {
-            this._dataPrompt = $("<div class='data-prompt' />");
-            text = this.option.promptText;
-            if (ui.core.isString(text) && text.length > 0) {
-                this._dataPrompt.html("<span class='font-highlight'>" + text + "</span>");
-            } else if (ui.core.isFunction(text)) {
-                text = text();
-                this._dataPrompt.append(text);
-            }
-            this.reportDataBody.append(this._dataPrompt);
-        }
-    },
-    _initSuitable: function() {
-        if(!this.option.suitable) {
+    _initAdjustColumn: function() {
+        if(!this.option.adjustable) {
             return;
         }
-        this._fitLine = $("<hr class='fit-line background-highlight' />");
-        this.element.append(this._fitLine);
+        this._adjustLine = $("<hr class='adjust-line background-highlight' />");
+        this.element.append(this._adjustLine);
         this.dragger = ui.MouseDragger({
             context: this,
-            target: this._fitLine,
-            handle: this.reportDataHead,
+            target: this._adjustLine,
+            handle: this.head,
             onBeginDrag: function(arg) {
                 var elem, that, option,
                     elemOffset, panelOffset, left;
@@ -22058,7 +22052,6 @@ ui.ctrls.define("ui.ctrls.ReportView", {
             },
             onMoving: function(arg) {
                 var option,
-                    that,
                     left;
                 
                 option = this.option;
@@ -22086,8 +22079,8 @@ ui.ctrls.define("ui.ctrls.ReportView", {
                 that = option.context;
                 option.target.css("display", "none");
 
-                colIndex = option.th.data("data-columnIndex");
-                column = that.dataColumns[colIndex];
+                colIndex = parseInt(option.th.attr("data-columnIndex"), 10);
+                column = that._getColumn(colIndex);
                 if(!column) {
                     return;
                 }
@@ -22109,154 +22102,180 @@ ui.ctrls.define("ui.ctrls.ReportView", {
                         }
                     }
                 };
-                setWidthFn(that.tableDataHead);
-                setWidthFn(that.tableDataBody);
+                setWidthFn(that.headTable);
+                setWidthFn(that.bodyTable);
                 that._updateScrollState();
             }
         });
         this.dragger.on();
     },
-    _initPagerPanel: function() {
-        if(this.pager) {
-            this.reportFoot = $("<div class='ui-report-foot clear' />");
-            this.element.append(this.reportFoot);
-            
-            this.pager.pageNumPanel = $("<div class='page-panel' />");
-            if (this.option.pager.displayDataInfo) {
-                this.pager.pageInfoPanel = $("<div class='data-info' />");
-                this.reportFoot.append(this.pager.pageInfoPanel);
-            } else {
-                this.pager.pageNumPanel.css("width", "100%");
-            }
+    _createFixedHead: function (groupColumns) {
+        var leftFixedGroupColumns = [],
+            rightFixedGroupColumns = [],
+            i, len, j, len2,
+            columns, leftColumns, rightColumns;
+        
+        for(i = 0, len = groupColumns.length; i < len; i++) {
+            columns = groupColumns[i];
+            len2 = columns.length;
 
-            this.reportFoot.append(this.pager.pageNumPanel);
-            this.pager.pageChanged(function(pageIndex, pageSize) {
-                this.pageIndex = pageIndex;
-                this.pageSize = pageSize;
-                this.fire("pagechanging", pageIndex, pageSize);
-            }, this);
-        }
-    },
-    _createFixedHead: function (fixedColumns, fixedGroupColumns) {
-        if (!this.tableFixedHead) {
-            this.tableFixedHead = $("<table class='table-fixed-head' cellspacing='0' cellpadding='0' />");
-            this.reportFixedHead.append(this.tableFixedHead);
-        } else {
-            this.tableFixedHead.html("");
-        }
-        this._fixedColumnWidth = 0;
-        this._createHeadTable(this.tableFixedHead, fixedColumns, fixedGroupColumns,
-            function (c) {
-                if (!c.len) {
-                    c.len = defaultFixedCellWidth;
+            leftColumns = [];
+            j = 0;
+            while(true) {
+                if(j >= len2 || !columns[j].fixed) {
+                    break;
                 }
-                this._fixedColumnWidth += c.len + 1;
+                leftColumns.push(columns[j]);
+                j++;
             }
-        );
-        this.reportFixedHead.css("width", this._fixedColumnWidth + "px");
-    },
-    _createDataHead: function (dataColumns, dataGroupColumns) {
-        if (!this.tableDataHead) {
-            this.tableDataHead = $("<table class='table-data-head' cellspacing='0' cellpadding='0' />");
-            this.reportDataHead.append(this.tableDataHead);
-            this.reportDataHead.css("left", this._fixedColumnWidth + "px");
-        } else {
-            this.tableDataHead.html("");
+            if(leftColumns.length > 0) {
+                leftFixedGroupColumns.push(leftColumns);
+
+                if(leftColumns.length < len2) {
+                    rightColumns = [];
+                    j = len2;
+                    while(j >= 0) {
+                        j--;
+                        if(j < 0) {
+                            break;
+                        }
+                        if(columnStyle.isEmpty(columns[j])) {
+                            continue;
+                        }
+                        if(!columns[j].fixed) {
+                            break;
+                        }
+                        rightColumns.push(columns[j]);
+                    }
+                    if(rightColumns.length > 0) {
+                        rightFixedGroupColumns.push(rightColumns);
+                    }
+                }
+            }
         }
-        this._createHeadTable(this.tableDataHead, dataColumns, dataGroupColumns,
+
+        this._noBodyHover = false;
+        if(leftFixedGroupColumns.length > 0) {
+            this._noBodyHover = true;
+            if(!this.fixed.left) {
+                this.fixed.left = new ReportFixed(this, this.element, {
+                    "border-right-width": "1px",
+                    "border-right-style": "solid",
+                    "left": 0
+                });
+            }
+            this.fixed.left.setHead(leftFixedGroupColumns);
+        }
+
+        if(rightFixedGroupColumns.length > 0) {
+            this._noBodyHover = true;
+            if(!this.fixed.right) {
+                this.fixed.right = new ReportFixed(this, this.element, {
+                    "border-left-width": "1px",
+                    "border-left-style": "solid",
+                    "right": 0
+                });
+                // 右边的索引需要一个偏移值能和DataColumns对应
+                this.fixed.right.offsetCellIndex = j + 1;
+                // 创建滚动条块
+                this._headScrollColumn.addFixedScrollColumn(this.head);
+            }
+            this.fixed.right.setHead(rightFixedGroupColumns);
+        }
+    },
+    _createDataHead: function (columns, groupColumns) {
+        if (!this.reportDataHead) {
+            this.reportDataHead = $("<div class='data-head'>");
+            this.head.append(this.reportDataHead);
+        } else {
+            this.reportDataHead.html("");
+        }
+
+        this.headTable = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' />");
+        this._createHeadTable(this.headTable, columns, groupColumns, false,
             // 创建最后的列
-            function (c, th, cidx, len) {
-                if (cidx == len - 1) {
+            function (column, th, columnIndex, len) {
+                if (columnIndex == len - 1) {
                     th.addClass(lastCell);
                 }
             },
             // 创建滚动条适应列
-            function(headTable, tr, colGroup) {
-                var rows,
-                    rowspan,
-                    th;
-
-                this._dataHeadScrollCol = $("<col style='width:0' />");
-                colGroup.append(this._dataHeadScrollCol);
-
-                rows = tr.parent().children();
-                rowspan = rows.length;
-                th = $("<th class='ui-report-head-cell scroll-cell' />");
-                if (rowspan > 1) {
-                    th.attr("rowspan", rowspan);
-                }
-                $(rows[0]).append(th);
+            function(table, tr, groupCol) {
+                this._headScrollColumn.addScrollCol(tr, groupCol);
             });
+        this.reportDataHead.append(this.headTable);
     },   
-    _createFixedBody: function (viewData, columns) {
-        if (!this.tableFixedBody) {
-            this.tableFixedBody = $("<table class='table-fixed-body' cellspacing='0' cellpadding='0' />");
-            if (this.isSelectable()) {
-                this.tableFixedBody.click(this.onTableFixedBodyClickHandler);
-            }
-            this.reportFixedBody.append(this.tableFixedBody);
-        } else {
-            this.reportFixedBody.scrollTop(0);
-            this._emptyFixed();
-        }
-
+    _createFixedBody: function (viewData) {
         if (viewData.length === 0) {
             return;
         }
 
-        this._createBodyTable(this.tableFixedBody, viewData, columns);
-
-        this.reportFixedBody.css("width", this._fixedColumnWidth + "px");
-        this._fixedBodyScroll.css("width", this._fixedColumnWidth + "px");
+        // 左边的固定列
+        if(this.fixed.left) {
+            this.fixed.left.setBody(viewData);
+        }
+        // 右边的固定列
+        if(this.fixed.right) {
+            this.fixed.right.setBody(viewData);
+        }
     },
     _createDataBody: function (viewData, columns, rowCount) {
         var isRebind = false;
-        if (!this.tableDataBody) {
-            this.tableDataBody = $("<table class='table-data-body' cellspacing='0' cellpadding='0' />");
-            if (this.isSelectable()) {
-                this.tableDataBody.click(this.onTableDataBodyClickHandler);
-            }
-            this.reportDataBody.append(this.tableDataBody);
-            this.reportDataBody.css("left", this._fixedColumnWidth + "px");
+        if (!this.reportDataBody) {
+            this.reportDataBody = $("<div class='data-body' />");
+            this.reportDataBody.scroll(this.onScrollingHandler);
+            this.body.append(this.reportDataBody);
         } else {
-            this.reportDataBody.scrollTop(0);
-            this._emptyData();
+            this.reportDataBody.html("");
             isRebind = true;
         }
 
+        this.bodyTable = $("<table class='ui-table-body' cellspacing='0' cellpadding='0' />");
+
         if (viewData.length === 0) {
-            this._showDataPrompt();
+            this.prompt.show();
             return;
         } else {
-            this._hideDataPrompt();
+            this.prompt.hide();
         }
 
-        this._createBodyTable(this.tableDataBody, viewData, columns, { type: DATA_BODY });
+        this._createBodyTable(this.bodyTable, viewData, columns, 
+            function(el, column) {
+                return column.fixed ? null : el;
+            }
+        );
+        this.reportDataBody.append(this.bodyTable);
 
-        this._updateScrollState();
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
         }
 
+        // 初始化滚动条状态
+        this._updateScrollState();
+        ui.setTask((function() {
+            var scrollLeft = this.reportDataBody.scrollLeft(),
+                scrollWidth = this.reportDataBody[0].scrollWidth;
+            this.fixed.syncScroll(0, scrollLeft, scrollWidth);
+        }).bind(this));
+
         if (isRebind) {
             this.fire("rebind");
         }
     },
-    _createHeadTable: function (headTable, columns, groupColumns, eachFn, colFn) {
+    _createHeadTable: function (headTable, columns, groupColumns, renderFixed, eachFn, colFn) {
         var hasFn,
             colGroup, thead,
-            tr, th, c, el,
-            i, j, row,
-            cHeight = 0,
-            args, columnIndex, isDataHeadTable;
+            tr, th, columnObj, elem,
+            i, j, row, totalRow,
+            args, columnIndex;
         
         hasFn = ui.core.isFunction(eachFn);
-        isDataHeadTable = headTable.hasClass("table-data-head");
 
         thead = $("<thead />");
         if (Array.isArray(groupColumns)) {
-            for (i = 0; i < groupColumns.length; i++) {
+            totalRow = groupColumns.length;
+            for (i = 0; i < totalRow; i++) {
                 row = groupColumns[i];
                 tr = $("<tr />");
                 if (!row || row.length === 0) {
@@ -22264,55 +22283,65 @@ ui.ctrls.define("ui.ctrls.ReportView", {
                 }
                 columnIndex = 0;
                 for (j = 0; j < row.length; j++) {
-                    c = row[j];
-                    th = this._createCell("th", c);
-                    th.addClass("ui-report-head-cell");
-                    if (ui.core.isFunction(c.text)) {
-                        el = c.text.call(this, c, th);
-                    } else {
-                        if(c.text) {
-                            el = columnTextFormatter.call(this, c, th);
-                        }
+                    columnObj = row[j];
+                    if(columnObj.rowspan > totalRow) {
+                        columnObj.rowspan = totalRow;
                     }
-                    if (el) {
-                        th.append(el);
-                    }
-
-                    if (c.column || ui.core.isFunction(c.formatter)) {
-                        if (!c._columnKeys) {
-                            c._columnKeys = {};
+                    th = this._createCell("th", columnObj);
+                    th.addClass("ui-table-head-cell");
+                    
+                    // 计算当前的列索引
+                    if ((columnObj.rowspan + i) === totalRow || i === totalRow - 1) {
+                        if (!columnObj._columnKeys) {
+                            columnObj._columnKeys = {};
                         }
                         while (columns[columnIndex]) {
                             columnIndex++;
                         }
-                        this._setSorter(th, c, columnIndex);
 
-                        delete c.rowspan;
-                        delete c.colspan;
-                        th.data("data-columnIndex", columnIndex);
-                        c.cell = th;
-                        c.columnIndex = columnIndex;
-                        columns[columnIndex] = c;
+                        if(columnObj.hasOwnProperty("columnIndex")) {
+                            th.attr("data-columnIndex", columnObj.columnIndex);
+                        } else {
+                            th.attr("data-columnIndex", columnIndex);
+                            columnObj.columnIndex = columnIndex;
+                        }
+                        columnObj.cell = th;
+                        columns[columnIndex] = columnObj;
                     }
-                    if(this.option.fitColumns && isDataHeadTable) {
-                        th.append("<b class='fit-column-handle' />");
+
+                    if(!columnObj.fixed || renderFixed) {
+                        // 设置单元格的值
+                        if (ui.core.isFunction(columnObj.text)) {
+                            elem = columnObj.text.call(this, columnObj, th);
+                        } else {
+                            if(columnObj.text) {
+                                elem = columnTextFormatter.call(this, columnObj, th);
+                            }
+                        }
+                        if (elem) {
+                            th.append(elem);
+                        }
+                        this.sorter.setSortColumn(th, columnObj, j);
+                        // 设置列宽拖动把手
+                        if(this.option.adjustable && !renderFixed) {
+                            th.append("<b class='adjust-column-handle' />");
+                        }
+                        
                     }
                     tr.append(th);
-
-                    columnIndex += c.colspan || 1;
+                    columnIndex += columnObj.colspan || 1;
                 }
                 thead.append(tr);
-                cHeight += this.rowHeight;
             }
         }
 
         colGroup = $("<colgroup />");
         for (i = 0; i < columns.length; i++) {
-            c = columns[i];
-            c.cellIndex = i;
-            colGroup.append(this._createCol(c));
+            columnObj = columns[i];
+            colGroup.append(this._createCol(columnObj));
 
-            args = [c, c.cell];
+            args = [columnObj, columnObj.cell];
+            delete columnObj.cell;
             if (hasFn) {
                 args.push(i);
                 args.push(columns.length);
@@ -22322,22 +22351,19 @@ ui.ctrls.define("ui.ctrls.ReportView", {
         if (ui.core.isFunction(colFn)) {
             colFn.call(this, headTable, tr, colGroup);
         }
-        if (cHeight > this.columnHeight) {
-            this.columnHeight = cHeight;
-        }
         
         headTable.append(colGroup);
         headTable.append(thead);
     },
-    _createBodyTable: function (bodyTable, viewData, columns, tempData, afterFn) {
+    _createBodyTable: function (bodyTable, viewData, columns, cellFilter, rowFilter) {
         var colGroup, tbody,
-            obj, tr, c, i, j,
+            rowData, 
+            tr, c, i, j,
             columnLength,
-            lastCellFlag;
+            hasRowFilter;
 
         columnLength = columns.length;
-        lastCellFlag = (tempData && tempData.type === DATA_BODY);
-        this._tempHandler = null;
+        hasRowFilter = ui.core.isFunction(rowFilter);
 
         colGroup = $("<colgroup />");
         for (j = 0; j < columnLength; j++) {
@@ -22348,104 +22374,20 @@ ui.ctrls.define("ui.ctrls.ReportView", {
         tbody = $("<tbody />");
         for (i = 0; i < viewData.length; i++) {
             tr = $("<tr />");
-            obj = viewData[i];
-            this._createRowCells(tr, obj, i, columns, lastCellFlag);
+            rowData = viewData[i];
+            this._createRowCells(tr, rowData, i, columns, cellFilter);
+
+            if (hasRowFilter && rowFilter.call(this, tr, rowData) === false) {
+                continue;
+            }
             tbody.append(tr);
         }
 
         bodyTable.append(colGroup);
         bodyTable.append(tbody);
-
-        if (ui.core.isFunction(afterFn)) {
-            afterFn.call(this, bodyTable);
-        }
-    },
-    _createRowCells: function (tr, rowData, rowIndex, columns, lastCellFlag) {
-        var columnLength,
-            formatter,
-            isRowHover,
-            i, c, cval, td, el;
-
-        isRowHover = this.option.selection.type !== "cell";
-        if(isRowHover) {
-            tr.addClass("table-body-row-hover");
-        }
-
-        columnLength = columns.length;
-        for (i = 0; i < columnLength; i++) {
-            c = columns[i];
-            formatter = c.formatter;
-            // 自定义格式化器
-            if (!ui.core.isFunction(c.formatter)) {
-                formatter = this.option.textFormatter;
-            }
-            // option默认格式化器
-            if(!ui.core.isFunction(formatter)) {
-                formatter = textFormatter;
-            }
-            cval = this._prepareValue(rowData, c);
-            td = this._createCell("td", c);
-            td.addClass("ui-table-body-cell");
-            if(!isRowHover) {
-                td.addClass("table-body-cell-hover");
-            }
-            el = formatter.call(this, cval, c, rowIndex, td);
-            if (td.isAnnulment) {
-                continue;
-            }
-            if (el) {
-                td.append(el);
-            }
-            if (lastCellFlag && i === columnLength - 1) {
-                td.addClass(lastCell);
-            }
-            tr.append(td);
-        }
-    },
-    // 获得并组装值
-    _prepareValue: function (rowData, c) {
-        var value,
-            i, len;
-        if (Array.isArray(c.column)) {
-            value = {};
-            for (i = 0, len = c.column.length; i < len; i++) {
-                value[i] = value[c.column[i]] = 
-                    this._getValue(rowData, c.column[i], c);
-            }
-        } else {
-            value = this._getValue(rowData, c.column, c);
-        }
-        return value;
-    },
-    // 获取值
-    _getValue: function(rowData, column, c) {
-        var arr, i = 0, value;
-        if (!ui.core.isString(column)) {
-            return null;
-        }
-        if (!c._columnKeys.hasOwnProperty(column)) {
-            c._columnKeys[column] = column.split(".");
-        }
-        arr = c._columnKeys[column];
-        value = rowData[arr[i]];
-        for (i = 1; i < arr.length; i++) {
-            value = value[arr[i]];
-            if (value === undefined || value === null) {
-                return value;
-            }
-        }
-        return value;
-    },
-    _createCol: function(column) {
-        var col = $("<col />");
-        if (ui.core.isNumber(column.len)) {
-            col.css("width", column.len + "px");
-        }
-        return col;
     },
     _createCell: function(tagName, column) {
-        var cell = $("<" + tagName + " />"),
-            css = {};
+        var cell = this._super(tagName, column);
         if (ui.core.isNumber(column.colspan)) {
             cell.prop("colspan", column.colspan);
         }
@@ -22455,418 +22397,154 @@ ui.ctrls.define("ui.ctrls.ReportView", {
                 cell.css("height", column.rowspan * this.rowHeight - 1);
             }
         }
-        if (column.align) {
-            css["text-align"] = column.align;
-        }
-        cell.css(css);
-
         return cell;
     },
-    _setSorter: function(cell, column, index) {
-        if (column.sort === true || ui.core.isFunction(column.sort)) {
-            cell.click(this.onSortHandler);
-            cell.addClass("sorter");
-            cell.append("<i class='fa fa-sort' />");
-            this._sorterIndexes.push(index);
-        }
-    },
-    _renderPageList: function(rowCount) {
-        if (!this.pager) {
-            return;
-        }
-        this.pager.data = this.option.viewData;
-        this.pager.pageIndex = this.pageIndex;
-        this.pager.pageSize = this.pageSize;
-        this.pager.renderPageList(rowCount);
+    // 获取column对象
+    _getColumn: function(index) {
+        return this.dataColumns[index];
     },
     _updateScrollState: function() {
-        var h, w, sh, sw;
-        if (!this.reportDataBody || !this.tableDataHead) {
+        var width,
+            height, 
+            scrollWidth,
+            scrollHeight;
+        if (!this.reportDataBody || !this.headTable) {
             return;
         }
 
-        h = this.reportDataBody.height();
-        w = this.reportDataBody.width();
-        sh = this.reportDataBody[0].scrollHeight;
-        sw = this.reportDataBody[0].scrollWidth;
+        width = this.reportDataBody.width();
+        height = this.reportDataBody.height();
+        scrollWidth = this.reportDataBody[0].scrollWidth;
+        scrollHeight = this.reportDataBody[0].scrollHeight;
 
-        if (sh > h) {
-            //滚动条默认是17像素，在IE下会显示为16.5，有效值为16。为了修正此问题设置为17.1
-            this._dataHeadScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
+        if (scrollHeight > height) {
+            // Y轴滚动条出现
+            this._headScrollColumn.show();
         } else {
-            this._dataHeadScrollCol.css("width", "0");
+            this._headScrollColumn.hide();
         }
 
-        if (sw > w) {
-            this.reportFixedBody.css("height", h - ui.scrollbarWidth + "px");
-            this._fixedBodyScroll.css("display", "block");
+        if(scrollWidth > width) {
+            // X轴滚动条出现
+            this.fixed.setBodyHeight(this.bodyHeight - ui.scrollbarWidth);
         } else {
-            this.reportFixedBody.css("height", h + "px");
-            this._fixedBodyScroll.css("display", "none");
+            this.fixed.setBodyHeight(this.bodyHeight);
         }
     },
-    _refreshRowNumber: function(startRowIndex, endRowIndex) {
-        var viewData,
-            columnInfo, rowNumber,
-            rows, cell,
-            column, i, len;
-
-        viewData = this.option.viewData;
-        if(!viewData || viewData.length === 0) {
-            return;
-        }
-
-        rowNumber = rowNumberFormatter;
-        columnInfo = this._getColumnIndexAndTableByFormatter(rowNumber);
-        
-        if (!columnInfo) return;
-        if (!ui.core.isNumber(startRowIndex)) {
-            startRowIndex = 0;
-        }
-        rows = columnInfo.bodyTable[0].rows;
-        column = columnInfo.columns[columnInfo.columnIndex];
-        len = ui.core.isNumber(endRowIndex) ? endRowIndex + 1 : rows.length;
-        for (i = startRowIndex; i < len; i++) {
-            cell = $(rows[i].cells[columnInfo.columnIndex]);
-            cell.html("");
-            cell.append(rowNumber.call(this, null, column, i));
-        }
-    },
-    _emptyFixed: function() {
-        if (this.tableFixedBody) {
-            this.tableFixedBody.html("");
-            resetColumnState.call(this);
-            this._lastSortColumn = null;
-        }
-    },
-    _emptyData: function() {
-        if (this.tableDataBody) {
-            this.tableDataBody.html("");
-            this._selectList = [];
-            this._current = null;
-        }
-        if (this.pager) {
-            this.pager.empty();
-        }
-    },
-    _getColumnIndexAndTableByFormatter: function(formatter, field) {
-        var result, i, len;
-        result = {
-            columnIndex: -1,
-            columns: null,
-            headTable: null,
-            bodyTable: null
-        };
+    _getColumnIndexByFormatter: function(formatter, field) {
+        var i, len, columnInfo;
 
         if(!field) {
             field = "formatter";
         }
 
-        if(this.fixedColumns) {
-            for(i = 0, len = this.fixedColumns.length; i < len; i++) {
-                if(this.fixedColumns[i][field] === formatter) {
-                    result.columnIndex = i;
-                    result.columns = this.fixedColumns;
-                    result.headTable = this.tableFixedHead;
-                    result.bodyTable = this.tableFixedBody;
-                    return result;
-                }
-            }
+        // 从固定列中查找
+        columnInfo = this.fixed.findColumnInfo(formatter, field);
+        if(columnInfo) {
+            return columnInfo;
         }
+        
         if(this.dataColumns) {
+            // 从数据列中查找
             for(i = 0, len = this.dataColumns.length; i < len; i++) {
                 if(this.dataColumns[i][field] === formatter) {
-                    result.columnIndex = i;
-                    result.columns = this.dataColumns;
-                    result.headTable = this.tableDataHead;
-                    result.bodyTable = this.tableDataBody;
-                    return result;
+                    return {
+                        columnIndex: i,
+                        columns: this.dataColumns,
+                        headTable: this.headTable,
+                        bodyTable: this.bodyTable
+                    };
                 }
             }
         }
-        if(result.columnIndex === -1) {
-            return null;
-        }
+        return {
+            columnIndex: -1
+        };
     },
-    _getSelectionData: function(elem) {
-        var data = {};
-        if(this.option.selection.type === "cell") {
-            data.rowIndex = elem.parent().prop("rowIndex");
-            data.cellIndex = elem.prop("cellIndex");
-            data.rowData = this.option.viewData[data.rowIndex];
-            data.column = this.option.columns[data.cellIndex].column;
-        } else {
-            data.rowIndex = elem.prop("rowIndex");
-            data.rowData = this.option.viewData[data.rowIndex];
-        }
-        return data;
+    _addSelectedState: function(elem, selectedClass, eventData) {
+        this.fixed.syncSelectedState(elem, selectedClass, true);
+        this._super(elem, selectedClass, eventData);
     },
-    _excludeElement: function(elem, exclude) {
-        var tagName = elem.nodeName().toLowerCase(),
-            exArr = exclude.split(","),
-            ex, match,
-            i, len;
-        for(i = 0, len = exArr.length; i < len; i++) {
-            ex = ui.str.trim(exArr[i]);
-            match = ex.match(attributes);
-            if(match) {
-                ex = ex.match(tag)[1];
-                if(ex === tagName) {
-                    return elem.attr(match[1]) !== match[4];
-                }
-            } else {
-                if(ex.toLowerCase() === tagName) {
-                    return false;
-                }
-            }
-        }
+    _removeSelectedState: function(elem, selectedClass, eventData) {
+        this.fixed.syncSelectedState(elem, selectedClass, false);
+        this._super(elem, selectedClass, eventData);
     },
     _selectItem: function(elem, selectedClass, selectValue) {
-        var eventData, result,
-            columnInfo, checkbox,
-            i, len;
-
-        eventData = this._getSelectionData(elem);
-        eventData.element = elem;
-        eventData.originElement = elem.context ? $(elem.context) : null;
-
-        result = this.fire("selecting", eventData);
-        if(result === false) {
-            return;
+        var container = elem,
+            rowIndex, cellIndex;
+        
+        while(true) {
+            if(container.isNodeName("div")) {
+                break;
+            }
+            container = container.parent();
         }
-
-        if(this.isMultiple()) {
-            // 多选
-            if(elem.hasClass(selectedClass)) {
-                // 现在要取消
-                // 如果selectValue定义了选中，则不要执行取消逻辑
-                if(selectValue === true) {
-                    return;
-                }
-                selectValue = false;
-
-                for(i = 0, len = this._selectList.length; i < len; i++) {
-                    if(this._selectList[i] === elem[0]) {
-                        this._selectList.splice(i, 1);
-                        break;
-                    }
-                }
-                elem.removeClass(selectedClass).removeClass("background-highlight");
-                this.fire("deselected", eventData);
+        if(container.hasClass("ui-report-fixed-body")) {
+            if(this.option.selection.type === "row") {
+                rowIndex = elem[0].rowIndex;
+                elem = $(this.bodyTable[0].tBodies[0].rows[rowIndex]);
             } else {
-                // 现在要选中
-                // 如果selectValue定义了取消，则不要执行选中逻辑
-                if(selectValue === false) {
-                    return;
+                rowIndex = elem.parent()[0].rowIndex;
+                cellIndex = elem[0].cellIndex;
+                if(container[0] === this.fixed.left.body[0]) {
+                    cellIndex += this.fixed.left.offsetCellIndex;
+                } else if(container[0] === this.fixed.right.body[0]) {
+                    cellIndex += this.fixed.right.offsetCellIndex;
                 }
-                selectValue = true;
-
-                this._selectList.push(elem[0]);
-                elem.addClass(selectedClass).addClass("background-highlight");
-                this.fire("selected", eventData);
+                elem = $(this.bodyTable[0].tBodies[0].rows[rowIndex].cells[cellIndex]);
             }
-
-            // 同步checkbox状态
-            if(this.option.selection.isRelateCheckbox) {
-                // 用过用户点击的是checkbox则保存变量，不用重新去获取了
-                if(eventData.originElement && eventData.originElement.hasClass(cellCheckbox)) {
-                    checkbox = eventData.originElement;
-                }
-                // 如果用户点击的不是checkbox则找出对于的checkbox
-                if(!checkbox) {
-                    columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
-                    if(columnInfo) {
-                        checkbox = this.option.selection.type === "cell" ? 
-                            $(elem.parent()[0].cells[colIndex]) : 
-                            $(elem[0].cells[colIndex]);
-                        checkbox = checkbox.find("." + cellCheckbox);
-                    }
-                }
-                if(checkbox && checkbox.length > 0) {
-                    setChecked.call(this, checkbox, selectValue);
-                }
-            }
-        } else {
-            // 单选
-            if(this._current) {
-                this._current.removeClass(selectedClass).removeClass("background-highlight");
-                if(this._current[0] === elem[0]) {
-                    this._current = null;
-                    this.fire("deselected", eventData);
-                    return;
-                }
-            }
-            this._current = elem;
-            elem.addClass(selectedClass).addClass("background-highlight");
-            this.fire("selected", eventData);
         }
+        this._super(elem, selectedClass, selectValue);
     },
-    _promptIsShow: function() {
-        return this._hasPrompt && this._dataPrompt.css("display") === "block";
-    },
-    _setPromptLocation: function() {
-        var height = this._dataPrompt.height();
-        this._dataPrompt.css("margin-top", -(height / 2) + "px");
-    },
-    _showDataPrompt: function() {
-        if(!this._hasPrompt) return;
-        this._dataPrompt.css("display", "block");
-        this._setPromptLocation();
-    },
-    _hideDataPrompt: function() {
-        if(!this._hasPrompt) return;
-        this._dataPrompt.css("display", "none");
-    },
-
 
     /// API
     /** 创建表头 */
-    createReportHead: function(fixedGroupColumns, dataGroupColumns) {
-        if(Array.isArray(fixedGroupColumns)) {
-            this.fixedColumns = [];
-            if(!Array.isArray(fixedGroupColumns[0])) {
-                fixedGroupColumns = [fixedGroupColumns];
-            }
-            this._createFixedHead(this.fixedColumns, fixedGroupColumns);
-        }
-
-        if (Array.isArray(dataGroupColumns)) {
-            this.dataColumns = [];
-            if(!Array.isArray(dataGroupColumns[0])) {
-                dataGroupColumns = [dataGroupColumns];
-            }
-            this._createDataHead(this.dataColumns, dataGroupColumns);
-        }
-
-        this.reportFixedHead.css("height", this.columnHeight + "px");
-        this.reportDataHead.css("height", this.columnHeight + "px");
-        this.reportHead.css("height", this.columnHeight + "px");
-    },
-    /** 创建表体 */
-    createReportBody: function(viewData, rowCount) {
-        if(!Array.isArray(viewData)) {
-            viewData = [];
-        }
-        this.option.viewData = viewData;
-        if (this.fixedColumns && Array.isArray(this.fixedColumns)) {
-            this._createFixedBody(viewData, this.fixedColumns);
-        }
-
-        if (this.dataColumns && Array.isArray(this.dataColumns)) {
-            this._createDataBody(viewData, this.dataColumns, rowCount);
-        }
-    },
-    /** 获取checkbox勾选项的值 */
-    getCheckedValues: function() {
-        var columnInfo, rows, elem,
-            checkboxClass = "." + cellCheckbox,
-            result = [],
-            i, len;
-
-        columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
-        if(!columnInfo) {
-            return result;
-        }
-
-        rows = columnInfo.bodyTable[0].tBodies[0].rows;
-        for(i = 0, len = rows.length; i < len; i++) {
-            elem = $(rows[i].cells[columnInfo.columnIndex]).find(checkboxClass);
-            if(elem.length > 0) {
-                result.push(ui.str.htmlDecode(elem.attr("data-value")));
-            }
-        }
-        return result;
-    },
-    /** 获取选中的数据，单选返回单个对象，多选返回数组 */
-    getSelection: function() {
-        var result,
-            i, len;
-        if(!this.isSelectable()) {
-            return null;
-        }
-        if(this.isMultiple()) {
-            result = [];
-            for(i = 0, len = this._selectList.length; i < len; i++) {
-                result.push(this._getSelectionData($(this._selectList[i])));
-            }
-        } else {
-            result = null;
-            if(this._current) {
-                result = this._getSelectionData(this._current);
-            }
-        }
-        return result;
-    },
-    /** 取消选中项 */
-    cancelSelection: function() {
-        var selectedClass, elem, 
-            columnInfo, checkboxClass, fn,
-            i, len;
-
-        if (!this.isSelectable()) {
+    createHead: function(columns) {
+        if (!Array.isArray(columns)) {
             return;
         }
 
-        selectedClass = this.option.selection.type === "cell" ? "cell-selected" : "row-selected";
-        if(this.option.selection.isRelateCheckbox) {
-            checkboxClass = "." + cellCheckbox;
-            columnInfo = this._getColumnIndexAndTableByFormatter(checkboxFormatter);
-            fn = function(elem) {
-                var checkbox,
-                    rowIndex,
-                    tr;
-                if(columnInfo) {
-                    rowIndex = this.option.selection.type === "cell" ? elem.parent()[0].rowIndex : elem[0].rowIndex;
-                    tr = $(columnInfo.bodyTable[0].tBodies[0].rows[rowIndex]);
-                    checkbox = $(tr[0].cells[columnInfo.columnIndex]);
-                    checkbox = checkbox.find(checkboxClass);
-                    setChecked(checkbox, false);
-                }
-                elem.removeClass(selectedClass).removeClass("background-highlight");
-            };
-        } else {
-            fn = function(elem) {
-                elem.removeClass(selectedClass).removeClass("background-highlight");
-            };
+        this.dataColumns = [];
+        if(!Array.isArray(columns[0])) {
+            columns = [columns];
+        }
+        this.headHeight = this.rowHeight * columns.length;
+        this.fixed.reset();
+        this.sorter.prepareHead();
+        this._createDataHead(this.dataColumns, columns);
+        this._createFixedHead(columns);
+        // 删除，避免在生成数据行的时候被影响
+        this.dataColumns.forEach(function(columnObj) {
+            delete columnObj.rowspan;
+            delete columnObj.colspan;
+        });
+
+        this.head.css("height", this.headHeight + "px");
+    },
+    /** 创建表体 */
+    createBody: function(viewData, rowCount) {
+        if(!Array.isArray(viewData)) {
+            viewData = [];
+        }
+        
+        this.clear();
+        if(viewData.length === 0) {
+            return;
+        }
+        this.option.viewData = viewData;
+        
+        if (this.dataColumns && Array.isArray(this.dataColumns)) {
+            this._createDataBody(viewData, this.dataColumns, rowCount);
         }
 
-        if(this.isMultiple()) {
-            if(this._selectList.length === 0) {
-                return;
-            }
-            for(i = 0, len = this._selectList.length; i < len; i++) {
-                elem = $(this._selectList[i]);
-                fn.call(this, elem);
-            }
-            this._selectList = [];
-        } else {
-            if(!this._current) {
-                return;
-            }
-            fn.call(this, this._current);
-            this._current = null;    
-        }
-        this.fire("cancel");
+        this._createFixedBody(viewData);
     },
     /** 移除行 */
     removeRowAt: function() {
         var rowIndex,
             indexes,
-            viewData,
-            row,
-            i, len,
-            isMultiple,
-            type,
-            removeSelectItemFn;
+            i, len;
 
-        viewData = this.option.viewData;
-        if(!viewData) {
-            return;
-        }
-        len = arguments.length;
-        if(len === 0) {
-            return;
-        }
         indexes = [];
         for(i = 0; i < len; i++) {
             rowIndex = arguments[i];
@@ -22874,201 +22552,111 @@ ui.ctrls.define("ui.ctrls.ReportView", {
                 indexes.push(rowIndex);
             }
         }
+
         len = indexes.length;
-        if(len > 0) {
-            indexes.sort(function(a, b) {
-                return b - a;
-            });
-            type = this.option.selection.type;
-            isMultiple = this.isMultiple();
-            if(type === "row") {
-                removeSelectItemFn = function(idx) {
-                    var i, len, selectItem;
-                    if(isMultiple) {
-                        for(i = 0, len = this._selectList.length; i < len; i++) {
-                            selectItem = this._selectList[i];
-                            if(idx === selectItem.rowIndex) {
-                                this._selectList.splice(i, 1);
-                                return;
-                            }
-                        }
-                    } else {
-                        if(this._current && this._current[0].rowIndex === idx) {
-                            this._current = null;
-                        }
-                    }
-                };
-            } else if(type === "cell") {
-                removeSelectItemFn = function(idx) {
-                    var i, len, row;
-                    if(isMultiple) {
-                        for(i = 0, len = this._selectList.length; i < len; i++) {
-                            row = this._selectList[i];
-                            row = row.parentNode;
-                            if(idx === row.rowIndex) {
-                                this._selectList.splice(i, 1);
-                                return;
-                            }
-                        }
-                    } else {
-                        if(this._current) {
-                            row = this._current.parent();
-                            if(row[0].rowIndex === idx) {
-                                this._current = null;
-                            }
-                        }
-                    }
-                };
-            }
-            for(i = 0; i < len; i++) {
-                rowIndex = indexes[i];
-                row = $(this.tableDataBody[0].rows[rowIndex]);
-                row.remove();
-                if(this.tableFixedBody) {
-                    $(this.tableFixedBody[0].rows[rowIndex]).remove();
-                }
-                viewData.splice(rowIndex, 1);
-                if(removeSelectItemFn) {
-                    removeSelectItemFn.call(this, rowIndex);
-                }
-            }
-            this._updateScrollState();
-            this._refreshRowNumber(rowIndex);
+        if(len === 0) {
+            return;
         }
+
+        // 降序
+        indexes.sort(function(a, b) {
+            return b - a;
+        });
+        for(i = 0; i < len; i++) {
+            rowIndex = indexes[i];
+            if(this.fixed.left) {
+                $(this.fixed.left.bodyTable[0].rows[rowIndex]).remove();
+            }
+            if(this.fixed.right) {
+                $(this.fixed.right.bodyTable[0].rows[rowIndex]).remove();
+            }
+        }
+        this._super.apply(this, indexes);
     },
     /** 更新行 */
     updateRow: function(rowIndex, rowData) {
         var viewData,
-            fixedRow,
-            row;
+            len;
 
-        viewData = this.option.viewData;
-        if(!viewData) {
+        viewData = this.getViewData();
+        len = viewData.length;
+        if(len === 0) {
             return;
         }
-        if(rowIndex < 0 || rowIndex > viewData.length) {
+        if(rowIndex < 0 || rowIndex > len) {
             return;
         }
 
-        row = $(this.tableBody[0].rows[rowIndex]);
-        if(row.length === 0) {
-            return;
+        if(this.fixed.left) {
+            this.fixed.left.updateRow(rowIndex, rowData);
         }
-        if(thsi.tableFixedBody) {
-            fixedRow = $(this.tableFixedBody[0].rows[rowIndex]);
-            fixedRow.empty();
-            this._createRowCells(fixedRow, rowData, rowIndex, this.fixedColumns);
+        if(this.fixed.right) {
+            this.fixed.right.updateRow(rowIndex, rowData);
         }
-        row.empty();
-        viewData[rowIndex] = rowData;
-        this._createRowCells(row, rowData, rowIndex, this.dataColumns, true);
+
+        this._super(rowIndex, rowData, this.dataColumns, 
+            function(el, column) {
+                return column.fixed ? null : el;
+            }
+        );
     },
     /** 增加行 */
     addRow: function(rowData) {
-        var viewData,
-            row;
+        var viewData;
         if(!rowData) return;
-        viewData = this.option.viewData;
-
-        if(!Array.isArray(viewData) || viewData.length === 0) {
-            if (this.tableFixedBody) {
-                this.tableFixedBody.remove();
-                this.tableFixedBody = null;
-            }
-            if (this.tableDataBody) {
-                this.tableDataBody.remove();
-                this.tableDataBody = null;
-            }
-            this.createReportBody([data]);
+        
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
+            this._super(rowData);
             return;
         }
 
-        if(this.tableFixedBody) {
-            row = $("<tr />");
-            this._createRowCells(row, rowData, viewData.length, this.fixedColumns);
-            $(this.tableFixedBody[0].tBodies[0]).append(row);
+        if(this.fixed.left) {
+            this.fixed.left.appendRow(rowData);
         }
-        if(this.tableDataBody) {
-            row = $("<tr />");
-            this._createRowCells(row, rowData, viewData.length, this.dataColumns, true);
-            $(this.tableDataBody[0].tBodies[0]).append(row);
+        if(this.fixed.right) {
+            this.fixed.right.appendRow(rowData);
         }
-        viewData.push(rowData);
-        this._updateScrollState();
+        this._super(rowData, this.dataColumns, 
+            function(el, column) {
+                return column.fixed ? null : el;
+            }
+        );
     },
     /** 插入行 */
     insertRow: function(rowIndex, rowData) {
         var viewData,
-            row;
+            len;
         if(!rowData) return;
-        viewData = this.option.viewData;
 
-        if(!Array.isArray(viewData) || viewData.length === 0) {
+        viewData = this.getViewData();
+        len = viewData.length;
+        if(len === 0) {
             this.addRow(rowData);
             return;
         }
         if(rowIndex < 0) {
             rowIndex = 0;
         }
-        if(rowIndex < viewData.length) {
-            if(this.tableFixedBody) {
-                row = $("<tr />");
-                this._createRowCells(row, rowData, rowIndex, this.fixedColumns);
-                $(this.tableFixedBody[0].rows[rowIndex]).before(row);
-                viewData.splice(rowIndex, 0, rowData);
+        if(rowIndex < len) {
+            if(this.fixed.left) {
+                this.fixed.left.insertRow(rowIndex, rowData);
             }
-            if(this.tableDataBody) {
-                row = $("<tr />");
-                this._createRowCells(row, rowData, rowIndex, this.dataColumns, true);
-                $(this.tableDataBody[0].rows[rowIndex]).before(row);
-                viewData.splice(rowIndex, 0, rowData);
+            if(this.fixed.right) {
+                this.fixed.right.insertRow(rowIndex, rowData);
             }
-            this._updateScrollState();
-            this._refreshRowNumber();
-        } else {
-            this.addRow(rowData);
         }
-    },
-    /** 当前行上移 */
-    currentRowUp: function() {
-        var data;
-        if(this.isMultiple()) {
-            throw new Error("The currentRowUp can not support for multiple selection");
-        }
-        if(this.option.selection.type === "cell") {
-            throw new Error("The currentRowUp can not support for cell selection");
-        }
-        
-        data = this.getSelection();
-        if(!data || data.rowIndex === 0) {
-            return;
-        }
-        this.moveRow(data.rowIndex, data.rowIndex - 1);
-    },
-    /** 当前行下移 */
-    currentRowDown: function() {
-        var data;
-        if(this.isMultiple()) {
-            throw new Error("The currentRowDown can not support for multiple selection");
-        }
-        if(this.option.selection.type === "cell") {
-            throw new Error("The currentRowDown can not support for cell selection");
-        }
-        
-        data = this.getSelection();
-        if(!data || data.rowIndex >= this.count()) {
-            return;
-        }
-        this.moveRow(data.rowIndex, data.rowIndex + 1);
+        this._super(rowIndex, rowData, this.dataColumns, 
+            function(el, column) {
+                return column.fixed ? null : el;
+            }
+        );
     },
     /** 移动行 */
     moveRow: function(sourceIndex, destIndex) {
-        var viewData,
-            rows,
-            destRow,
-            tempData;
+        var viewData;
         
-        viewData = this.option.viewData;
+        viewData = this.getViewData();
         if(viewData.length === 0) {
             return;
         }
@@ -23082,97 +22670,21 @@ ui.ctrls.define("ui.ctrls.ReportView", {
             return;
         }
 
-        if(destIndex > rowIndex) {
-            if(this.tableFixedBody) {
-                rows = this.tableFixedBody[0].tBodies[0].rows;
-                destRow = $(rows[destIndex]);
-                destRow.after($(rows[sourceIndex]));
-            }
-            if(thsi.tableDataBody) {
-                rows = this.tableDataBody[0].tBodies[0].rows;
-                destRow = $(rows[destIndex]);
-                destRow.after($(rows[sourceIndex]));
-            }
-            this._refreshRowNumber(sourceIndex, destIndex);
-        } else {
-            if(this.tableFixedBody) {
-                rows = this.tableFixedBody[0].tBodies[0].rows;
-                destRow = $(rows[destIndex]);
-                destRow.before($(rows[sourceIndex]));
-            }
-            if(thsi.tableDataBody) {
-                rows = this.tableDataBody[0].tBodies[0].rows;
-                destRow = $(rows[destIndex]);
-                destRow.before($(rows[sourceIndex]));
-            }
-            this._refreshRowNumber(destIndex, sourceIndex);
+        if(this.fixed.left) {
+            this.fixed.left.moveRow(sourceIndex, destIndex);
         }
-        tempData = viewData[sourceIndex];
-        viewData.splice(sourceIndex, 1);
-        viewData.splice(destIndex, 0, tempData);
-    },
-    /** 获取行数据 */
-    getRowData: function(rowIndex) {
-        var viewData = this.option.viewData;
-        if(!Array.isArray(viewData) || viewData.length === 0) {
-            return null;
+        if(this.fixed.right) {
+            this.fixed.right.moveRow(sourceIndex, destIndex);
         }
-        if(!ui.core.isNumber(rowIndex) || rowIndex < 0 || rowIndex >= viewData.length) {
-            return null;
-        }
-        return viewData[rowIndex];
-    },
-    /** 获取视图数据 */
-    getViewData: function() {
-        return Array.isArray(this.option.viewData) ? this.option.viewData : [];
-    },
-    /** 获取项目数 */
-    count: function() {
-        return Array.isArray(this.option.viewData) ? 0 : this.option.viewData.length;
-    },
-    /** 是否可以选择 */
-    isSelectable: function() {
-        var type = this.option.selection.type;
-        return type === "row" || type === "cell";
-    },
-    /** 是否支持多选 */
-    isMultiple: function() {
-        return this.option.selection.multiple === true;
+        this._super(sourceIndex, destIndex);
     },
     /** 清空表格数据 */
     clear: function() {
-        this.option.viewData = [];
-        this._checkedCount = 0;
-
-        this._emptyFixed();
-        this._emptyData();
-
-        resetSortColumnState.call(this);
-        this._showDataPrompt();
-    },
-    /** 设置表格的尺寸, width: 宽度, height: 高度 */
-    setSize: function(width, height) {
-        if(arguments.length === 1) {
-            height = width;
-            width = null;
+        this._super();
+        if(this.bodyTable) {
+            delete this.bodyTable;
         }
-        if(ui.core.isNumber(height)) {
-            height -= this.columnHeight + this.borderHeight;
-            if(this.pager) {
-                height -= this.pagerHeight;
-            }
-            this.reportBody.css("height", height + "px");
-            this.reportFixedBody.css("height", height + "px");
-            this.reportDataBody.css("height", height + "px");
-        }
-        if(ui.core.isNumber(width)) {
-            width -= this.borderWidth;
-            this.element.css("width", width + "px");
-        }
-        this._updateScrollState();
-        if(this._promptIsShow()) {
-            this._setPromptLocation();
-        }
+        this.fixed.clear();
     }
 });
 

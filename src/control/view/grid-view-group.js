@@ -11,24 +11,17 @@ function isGroupItem() {
 function renderGroupItemCell(data, column, index, td) {
     td.isFinale = true;
     td.attr("colspan", this.option.columns.length);
-    td.click(this.group.onGroupRowClickHandler);
+    td.addClass("group-cell");
     this.group["_last_group_index_"] = data.groupIndex;
     return this.group.groupItemFormatter.apply(this, arguments);
 }
 
-function onGropRowClick(e) {
+function onGropRowClick(e, element) {
     var viewData,
         td,
         groupItem;
 
-    e.stopPropagation();
-    td = $(e.target);
-    while(!td.isNodeName("td")) {
-        if(td.isNodeName("tr")) {
-            return;
-        }
-        td = td.parent();
-    }
+    td = element;
 
     viewData = this.gridview.getViewData();
     groupItem = viewData[td.parent()[0].rowIndex];
@@ -56,7 +49,6 @@ GridViewGroup.prototype = {
     constructor: GridViewGroup,
     initialize: function() {
         this.gridview = null;
-        this.onGroupRowClickHandler = onGropRowClick.bind(this);
     },
     _operateChildren: function (list, action) {
         var viewData,
@@ -65,7 +57,7 @@ GridViewGroup.prototype = {
             i, len;
 
         viewData = this.gridview.getViewData();
-        rows = this.gridview.tableBody[0].rows;
+        rows = this.gridview.bodyTable[0].rows;
         for (i = 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
             item = viewData[rowIndex];
@@ -76,9 +68,21 @@ GridViewGroup.prototype = {
     /// API
     /** 绑定GridView */
     setGridView: function(gridview) {
+        var onBodyClick;
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
             this.gridview.group = this;
+            // 添加分组展开关闭的事件
+            if(gridview.clickHandlers) {
+                if(gridview.clickHandlers.has("group-cell")) {
+                    return;
+                }
+                // 由于group-cell和ui-table-body-cell重叠，group-cell要先执行，所以要做特殊处理
+                onBodyClick = gridview.clickHandlers.classEventMap.get("ui-table-body-cell");
+                gridview.clickHandlers.remove("ui-table-body-cell");
+                gridview.clickHandlers.add("group-cell", onGropRowClick.bind(this));
+                gridview.clickHandlers.add("ui-table-body-cell", onBodyClick);
+            }
         }
     },
     /** 数据结构转换 */

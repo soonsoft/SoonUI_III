@@ -312,6 +312,14 @@ ui.i18n.language.control["ui.ctrls.DateChooser"] = {
     weeks: ["日", "一", "二", "三", "四", "五", "六"],
     months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
 };
+
+ui.i18n.language.control["ui.ctrls.CalendarView"] = {
+    sundayFirstWeek: ["日", "一", "二", "三", "四", "五", "六"],
+    mondayFirstWeek: ["一", "二", "三", "四", "五", "六", "日"],
+    yearUnit: "年",
+    monthUnit: "月"
+};
+
 // language of core
 
 // language of effect
@@ -1857,7 +1865,7 @@ KeyArray.prototype.remove = function (key) {
     var index;
     if (this.containsKey(key)) {
         index = this._keys[key];
-        arrayInstance.splice.apply(this, [index, 1]);
+        arrayInstance.splice.call(this, index, 1);
         rebuildIndex(this._keys, key);
         delete this._keys[key];
     }

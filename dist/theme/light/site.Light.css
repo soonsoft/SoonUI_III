@@ -25,6 +25,13 @@ body {
   word-wrap: break-word;
 }
 body,
+input,
+textarea,
+select,
+button {
+  -webkit-font-smoothing: antialiased;
+}
+body,
 ol,
 ul,
 li,

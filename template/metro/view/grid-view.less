@@ -1,7 +1,7 @@
 .ui-grid-view {
     border-top-style: solid;
     border-top-width: 1px;
-    border-color: @border-color; 
+    border-color: @border-color;
 }
 
 /* 表头 */
@@ -41,15 +41,15 @@
         margin-right: 5px;
     }
 
-    .ui-table-head .sorter {
+    .ui-table-head .sort-column {
         cursor: pointer;
     }
 
-        .ui-table-head .sorter:hover {
+        .ui-table-head .sort-column:hover {
             background-color: @panel-color;
         }
 
-        .ui-table-head .sorter .fa {
+        .ui-table-head .sort-column .fa {
             display: inline-block;
             width: 8px;
             height: 8px;
@@ -58,11 +58,11 @@
             vertical-align: baseline;
         }
 
-        .ui-table-head .sorter .fa-sort-asc {
+        .ui-table-head .sort-column .fa-sort-asc {
             vertical-align: middle;
         }
 
-        .ui-table-head .sorter .fa-sort-desc {
+        .ui-table-head .sort-column .fa-sort-desc {
             vertical-align: text-top;
         }
 
@@ -85,6 +85,10 @@
         text-align: center;
         display: none;
         font-size: 16px;
+        -ms-transform: translateY(-50%);
+        -moz-transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
     }
 
 .ui-table-body {

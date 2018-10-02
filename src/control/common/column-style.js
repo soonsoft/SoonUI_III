@@ -29,11 +29,10 @@ columnFormatter = {
     /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        checkbox.click(this.onCheckboxAllClickHandler);
-        this.resetColumnStateHandlers.checkboxAllCancel = function () {
+        //checkbox.click(this.onCheckboxAllClickHandler);
+        this.columnResetter.add(function () {
             checkbox.removeClass("fa-check-square").addClass("fa-square");
-            this._checkedCount = 0;
-        };
+        });
         return checkbox;
     },
     /** 列头文本 */
@@ -512,6 +511,24 @@ cellParameterFormatter = {
 };
 
 ui.ColumnStyle = {
+    emptyColumn: {
+        text: columnFormatter.empty,
+        formatter: cellFormatter.empty
+    },
+    multipleEmptyColumn: function(rowSpan) {
+        var emptyColumn = {
+            text: columnFormatter.empty,
+            formatter: cellFormatter.empty
+        };
+        if(ui.core.isNumber(rowSpan) && rowSpan > 1) {
+            emptyColumn.rowspan = rowSpan;
+        }
+        return emptyColumn;
+    },
+    isEmpty: function(column) {
+        return column === this.emptyColumn || 
+            (column && column.text === columnFormatter.empty && column.formatter === cellFormatter.empty);
+    },
     cnfn: columnFormatter,
     cfn: cellFormatter,
     cfnp: cellParameterFormatter

@@ -1,11 +1,13 @@
 @{layout:demo/views/shared/menu-layout.html}
 
 <partial id="title">数据表格-固定列</partial>
-<partial id="header">REPORT TREE FIXED</partial>
+<partial id="header">REPORT FIXED</partial>
 
 <partial id="content">
     <div class="toolbar"></div>
-    <div id="reportView"></div>
+    <div class="report-contianer" style="position:relative;width:100%;overflow:hidden;">
+        <div id="reportView" style="position:absolute;width:1024px;height:500px;top:50%;left:50%;margin-top:-251px;margin-left:-512px;border-width:1px;border-style:solid;"></div>
+    </div>
 </partial>
 
 <partial id="style"></partial>
@@ -24,7 +26,9 @@
                         ui.master.resize(function(e) {
                             var width = ui.master.contentBodyWidth, 
                                 height = ui.master.contentBodyHeight;
-                            pageLogic.reportView.setSize(width, height - 40);
+
+                            $(".report-contianer").css("height", height - 40 + "px");
+                            //pageLogic.reportView.setSize(width, height - 40);
                         });
                     },
                     event: function() {
@@ -38,26 +42,39 @@
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({
-                    fixedGroupColumns: [
-                        { text: "", len: 40, align: "right", formatter: ui.ColumnStyle.cfn.rowNumber },
-                        { column: "name", text: "标题", len: 240 },
-                    ],
-                    dataGroupColumns: [
-                        { column: "artist", text: "艺术家", len: 160 },
-                        { column: "star", text: "等级", len: 120 },
-                        { column: "year", text: "发表时间", len: 100 },
-                        { column: "otherInfo", text: "其它信息", len: 120 },
-                        { column: "otherInfo", text: "其它信息", len: 130 },
-                        { column: "coverSrc", text: "专辑封面路径", len: 360 },
-                        { text: ui.ColumnStyle.cnfn.empty, formatter: ui.ColumnStyle.cfn.empty }
+                    columns: [
+                        [
+                            { text: "操作", colspan: 2, fixed: true },
+                            { text: "歌曲信息", colspan: 5 },
+                            { text: "其他信息", colspan: 2, fixed: true },
+                            ui.ColumnStyle.multipleEmptyColumn(2)
+                        ],
+                        [
+                            { text: "#", len: 40, align: "right", fixed: true, formatter: ui.ColumnStyle.cfn.rowNumber },
+                            { column: "name", text: ui.ColumnStyle.cnfn.checkAll, align: "center", fixed: true, len: 40, formatter: ui.ColumnStyle.cfn.check },
+                            { column: "name", text: "标题", len: 240 },
+                            { column: "artist", text: "艺术家", len: 160 },
+                            { column: "star", text: "等级", len: 120, align: "center", sort: true,  
+                                formatter: function(rate) {
+                                    return "★★★★★☆☆☆☆☆".slice(5 - rate, 10 - rate);
+                                }
+                            },
+                            { column: "year", text: "发表时间", len: 100, align: "center" },
+                            { column: "coverSrc", text: "专辑封面路径", len: 360 },
+                            { column: "otherInfo", text: "其它信息", len: 120, fixed: true },
+                            { column: "otherInfo", text: "其它信息", len: 130, fixed: true }
+                        ]
                     ],
                     pager: {
                         pageIndex: 1,
                         pageSize: 100
                     },
                     selection: {
-                        exclude: "span"
-                    }
+                        type: "row"
+                        //exclude: "span"
+                    },
+                    width: 1024,
+                    height: 502
                 });
                 this.reportView.selecting(function(e, eventData) {
                     //return false;
@@ -90,7 +107,13 @@
                     item.star = ui.random.getNum(1, 6);
                 }
                 var data = jaySongs;
-                pageLogic.reportView.createReportBody(data, data.length);
+                pageLogic.reportView.createBody(data, data.length);
+                // setTimeout(function() {
+                //     pageLogic.reportView.clear();
+                //     setTimeout(function() {
+                //         pageLogic.reportView.createBody(data, data.length);
+                //     }, 10 * 1000);
+                // }, 10 * 1000);
             }
         })();
     </script>

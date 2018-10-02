@@ -10,14 +10,12 @@ function getValue(field) {
 function isTreeNode (item) {
     return !!item[childrenField];
 }
-function onFoldButtonClick(e) {
+function onFoldButtonClick(e, element) {
     var btn,
         rowIndex,
         rowData;
 
-    e.stopPropagation();
-
-    btn = $(e.target),
+    btn = element;
     rowIndex = btn.parent().parent()[0].rowIndex;
     rowData = this.gridview.getRowData(rowIndex);
 
@@ -50,8 +48,6 @@ GridViewTree.prototype = {
         this.loadChildrenHandler = null;
         this.gridview = null;
         this.isTreeNode = isTreeNode;
-        
-        this.onFoldButtonClickHandler = onFoldButtonClick.bind(this);
     },
     //修正父级元素的子元素索引
     _fixParentIndexes: function (rowData, rowIndex, count) {
@@ -124,7 +120,7 @@ GridViewTree.prototype = {
         }
         
         viewData = this.gridview.getViewData();
-        rows = this.gridview.tableBody[0].rows;
+        rows = this.gridview.bodyTable[0].rows;
         for (i= 0, len = list.length; i < len; i++) {
             rowIndex = list[i];
             item = viewData[rowIndex];
@@ -144,7 +140,7 @@ GridViewTree.prototype = {
         rowData._level = level;
         
         var	column = this.gridview.option.columns[cellIndex],
-            cell = $(this.gridview.tableBody.get(0).rows[rowIndex].cells[cellIndex]);
+            cell = $(this.gridview.bodyTable.get(0).rows[rowIndex].cells[cellIndex]);
         cell.empty();
         cell.append(
             column.handler.call(
@@ -179,6 +175,13 @@ GridViewTree.prototype = {
         if(gridview instanceof ui.ctrls.GridView) {
             this.gridview = gridview;
             this.gridview.tree = this;
+            // 添加节点展开关闭的事件
+            if(gridview.clickHandlers) {
+                if(gridview.clickHandlers.has("fold")) {
+                    return;
+                }
+                gridview.clickHandlers.add("fold", onFoldButtonClick.bind(this));
+            }
         }
     },
     /** 转换数据结构 */
@@ -302,7 +305,6 @@ GridViewTree.prototype = {
                 fold = $("<i class='fold unfold font-highlight-hover fa fa-angle-down' />");
             }
             fold.css("margin-left", (item._level * (12 + 5) + 5) + "px");
-            fold.click(this.tree.onFoldButtonClickHandler);
             span[0] = fold[0];
         } else {
             span.css("margin-left", ((item._level + 1) * (12 + 5) + 5) + "px");
@@ -349,9 +351,9 @@ GridViewTree.prototype = {
             viewData.splice(currRowIndex, 0, item);
             this.gridview._createRowCells(row, item, currRowIndex);
             if (currRowIndex < viewData.length - 1) {
-                $(this.gridview.tableBody[0].rows[currRowIndex]).before(row);
+                $(this.gridview.bodyTable[0].rows[currRowIndex]).before(row);
             } else {
-                this.gridview.tableBody.append(row);
+                this.gridview.bodyTable.append(row);
             }
 
             currRowIndex++;

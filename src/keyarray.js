@@ -78,7 +78,7 @@ KeyArray.prototype.remove = function (key) {
     var index;
     if (this.containsKey(key)) {
         index = this._keys[key];
-        arrayInstance.splice.apply(this, [index, 1]);
+        arrayInstance.splice.call(this, index, 1);
         rebuildIndex(this._keys, key);
         delete this._keys[key];
     }

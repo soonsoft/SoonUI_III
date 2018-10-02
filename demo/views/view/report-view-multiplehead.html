@@ -37,9 +37,25 @@
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({
-                    dataGroupColumns: [
-                        [{ text: "", len: 40, align: "right", rowspan: 3, formatter: ui.ColumnStyle.cfn.rowNumber }, { column: "Text1", text: "单位", rowspan: 3, len: 200 }, { text: "超限30%以内", colspan: 9 }, { text: "超限30%以上", colspan: 7 }, { text: ui.ColumnStyle.cnfn.empty, formatter: ui.ColumnStyle.cfn.empty, rowspan: 3 }],
-                        [{ column: "Total1", text: "合计", len: 60, align: "right", sort: true, rowspan: 2 }, { text: "5%以内", colspan: 2 }, { text: "5%-10%", colspan: 2 }, { text: "10%-20%", colspan: 2 }, { text: "20%-30%", colspan: 2 }, { column: "Total2", text: "合计", len: 60, align: "right", sort: true, rowspan: 2 }, { text: "30%-50%", colspan: 2 }, { text: "50%-100%", colspan: 2 }, { text: "100%以上", colspan: 2 }],
+                    columns: [
+                        [
+                            { text: "", len: 40, align: "right", rowspan: 3, formatter: ui.ColumnStyle.cfn.rowNumber }, 
+                            { column: "Text1", text: "单位", rowspan: 3, len: 200 }, 
+                            { text: "超限30%以内", colspan: 9 }, 
+                            { text: "超限30%以上", colspan: 7 }, 
+                            ui.ColumnStyle.multipleEmptyColumn(3)
+                        ],
+                        [
+                            { column: "Total1", text: "合计", len: 60, align: "right", sort: true, rowspan: 2 }, 
+                            { text: "5%以内", colspan: 2 }, 
+                            { text: "5%-10%", colspan: 2 }, 
+                            { text: "10%-20%", colspan: 2 }, 
+                            { text: "20%-30%", colspan: 2 }, 
+                            { column: "Total2", text: "合计", len: 60, align: "right", sort: true, rowspan: 2 }, 
+                            { text: "30%-50%", colspan: 2 }, 
+                            { text: "50%-100%", colspan: 2 }, 
+                            { text: "100%以上", colspan: 2 }
+                        ],
                         [
                             { column: "Num1_1", text: "数量", len: 60, align: "right" },
                             { column: ["Num1_1", "Total1"], text: "百分比", len: 120, formatter: ui.ColumnStyle.cfnp.getProgressFormatter(100) },
@@ -141,7 +157,7 @@
                         Num2_3: 25
                     }
                 ];
-                pageLogic.reportView.createReportBody(data, data.length);
+                pageLogic.reportView.createBody(data, data.length);
             }
         })();
     </script>

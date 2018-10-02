@@ -2,11 +2,19 @@
 
 (function($, ui) {
 // sorter introsort
-var core = ui.core,
-    size_threshold = 16;
+var size_threshold = 16;
 
-function isSortItems(items) {
-    return items && items.length;
+function defaultComparer(a, b) {
+    if (ui.core.isString(a)) {
+        return a.localeCompare(b);
+    }
+    if (a < b) {
+        return -1;
+    } else if (b > a) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 function Introsort () {
@@ -21,38 +29,36 @@ Introsort.prototype = {
     initialize: function() {
         this.keys = null;
         this.items = null;
-        this.comparer = function (a, b) {
-            if (ui.core.isString(a)) {
-                return a.localeCompare(b);
-            }
-            if (a < b) {
-                return -1;
-            } else if (b > a) {
-                return 1;
-            } else {
-                return 0;
-            }
-        };
+        this.comparer = null;
     },
-    sort: function (arr) {
+    sort: function (arr, comparer) {
+        var len;
         if (ui.core.isFunction(arr)) {
-            this.comparer = arr;
+            arr = null;
+            comparer = arr;
         } else {
             this.keys = arr;
             if (ui.core.isFunction(arguments[1])) {
                 this.comparer = arguments[1];
             }
         }
-        if (!isSortItems(this.keys)) {
+        this.keys = arr;
+        if (!Array.isArray(this.keys)) {
             return;
         }
-        if (this.keys.length < 2) {
+        if(!ui.core.isFunction(comparer)) {
+            comparer = defaultComparer;
+        }
+        this.comparer = comparer;
+
+        len = this.keys.length;
+        if (len < 2) {
             return;
         }
-        if (!isSortItems(this.items)) {
+        if (!Array.isArray(this.items)) {
             this.items = null;
         }
-        this._introsort(0, this.keys.length - 1, 2 * this._floorLog2(this.keys.length));
+        this._introsort(0, len - 1, 2 * this._floorLog2(len));
     },
     //introsort
     _introsort: function (lo, hi, depthLimit) {
@@ -75,8 +81,7 @@ Introsort.prototype = {
                 }
                 this._insertionsort(lo, hi);
                 return;
-            }
-            else {
+            } else {
                 if (depthLimit === 0) {
                     this._heapsort(lo, hi);
                     return;
