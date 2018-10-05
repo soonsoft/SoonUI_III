@@ -48,7 +48,7 @@
                     columns: [
                         { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
                         { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
-                        { column: "ProjectName", text: "项目名称", len: 360, formatter: gridTree.treeNode },
+                        { column: "ProjectName", text: "项目名称", len: 480, formatter: gridTree.treeNode },
                         { column: "ProjectTypeName", text: "项目类型", len: 160 },
                         { column: "PMName", text: "项目经理", len: 120 },
                         { column: "BeginTime", text: "开始时间", len: 100, align: "center", formatter: ui.ColumnStyle.cfn.date },
@@ -107,19 +107,20 @@
             }
 
             function createProjectItem(parentID) {
-                var projectTypes = ["商业", "内部生产力提升", "学习", "技术研究"],
-                    Status = ["完成", "进行中"],
+                var projectTypes = ["商业", "内部生产力提升", "学习", "技术研究", "基础工具", "科技前沿技术研究", "文艺活动"],
+                    Status = ["立项", "进行中", "验收", "完成", "维护"],
+                    pmList = ["美国队长", "钢铁侠", "奇异博士", "黑寡妇", "灭霸", "雷神"],
                     projectItem = {
                         ProjectID: ui.random.uuid(),
                         ProjectTypeName: projectTypes[ui.random.getNum(0, projectTypes.length)],
-                        PMName: "美国队长",
+                        PMName: pmList[ui.random.getNum(0, pmList.length)],
                         BeginTime: new Date(),
                         EndTime: new Date(),
-                        ChildrenCount: ui.random.getNum(0, 10),
-                        StatusName: Status[ui.random.getNum(0, Status.length)],
-                        Description: "项目描述"
+                        ChildrenCount: ui.random.getNum(0, 2) ? ui.random.getNum(1, 11) : 0,
+                        StatusName: Status[ui.random.getNum(0, Status.length)]
                     };
                 projectItem.ProjectName = ui.str.format("{0}项目", projectItem.ProjectTypeName);
+                projectItem.Description = projectItem.ProjectName + "的项目描述";
                 if(parentID) {
                     projectItem.ParentID = parentID;
                 }

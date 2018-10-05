@@ -2218,6 +2218,7 @@ div.c_flyingDots div.c_loadingFallback {
   top: 0;
   right: 0;
   height: 100%;
+  border-left: 1px solid #5d5f60;
 }
 /* 表头 */
 .ui-report-head,

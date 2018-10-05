@@ -40,7 +40,7 @@ ReportFixed.prototype = {
         this.columns = [];
         this.headTable = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' style='left:0' />");
         this.view._createHeadTable(this.headTable, this.columns, groupColumns, true,
-            function(column) {
+            function(column, th, columnIndex, len) {
                 if(!column.len) {
                     column.len = defaultFixedCellWidth;
                 }
@@ -181,7 +181,7 @@ ReportFixedWrapper.prototype = {
         }
         if(this.right) {
             this.right.body.scrollTop(scrollTop);
-            if(this.view.innerWidth + scrollLeft < scrollWidth) {
+            if(Math.ceil(this.view.innerWidth + scrollLeft) < scrollWidth) {
                 this.right.panel.addClass(fixedShadow);
             } else {
                 this.right.panel.removeClass(fixedShadow);
@@ -331,7 +331,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                 }
                 if(this.scrollBlock) {
                     this.scrollBlock.css("display", "block");
-                    view.fixed.right.panel.css("right", ui.scrollbarWidth + "px");
+                    view.fixed.right.panel.css("right", (ui.scrollbarWidth + 1) + "px");
                 }
             },
             hide: function() {
@@ -546,13 +546,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         }
 
         this.headTable = $("<table class='ui-table-head' cellspacing='0' cellpadding='0' />");
-        this._createHeadTable(this.headTable, columns, groupColumns, false,
-            // 创建最后的列
-            function (column, th, columnIndex, len) {
-                if (columnIndex == len - 1) {
-                    th.addClass(lastCell);
-                }
-            },
+        this._createHeadTable(this.headTable, columns, groupColumns, false, null, 
             // 创建滚动条适应列
             function(table, tr, groupCol) {
                 this._headScrollColumn.addScrollCol(tr, groupCol);
@@ -621,7 +615,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         var hasFn,
             colGroup, thead,
             tr, th, columnObj, elem,
-            i, j, row, totalRow,
+            i, j, len, row, totalRow,
             args, columnIndex;
         
         hasFn = ui.core.isFunction(eachFn);
@@ -632,17 +626,21 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             for (i = 0; i < totalRow; i++) {
                 row = groupColumns[i];
                 tr = $("<tr />");
-                if (!row || row.length === 0) {
+                len = row.length;
+                if (!row || len === 0) {
                     tr.addClass(emptyRow);
                 }
                 columnIndex = 0;
-                for (j = 0; j < row.length; j++) {
+                for (j = 0; j < len; j++) {
                     columnObj = row[j];
                     if(columnObj.rowspan > totalRow) {
                         columnObj.rowspan = totalRow;
                     }
                     th = this._createCell("th", columnObj);
                     th.addClass("ui-table-head-cell");
+                    if(j === len - 1) {
+                        th.addClass(lastCell);
+                    }
                     
                     // 计算当前的列索引
                     if ((columnObj.rowspan + i) === totalRow || i === totalRow - 1) {
@@ -690,7 +688,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         }
 
         colGroup = $("<colgroup />");
-        for (i = 0; i < columns.length; i++) {
+        for (i = 0, len = columns.length; i < len; i++) {
             columnObj = columns[i];
             colGroup.append(this._createCol(columnObj));
 
@@ -698,7 +696,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             delete columnObj.cell;
             if (hasFn) {
                 args.push(i);
-                args.push(columns.length);
+                args.push(len);
                 eachFn.apply(this, args);
             }
         }
@@ -899,6 +897,14 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             indexes,
             i, len;
 
+        viewData = this.getViewData();
+        if(viewData.length === 0) {
+            return;
+        }
+        len = arguments.length;
+        if(len === 0) {
+            return;
+        }
         indexes = [];
         for(i = 0; i < len; i++) {
             rowIndex = arguments[i];

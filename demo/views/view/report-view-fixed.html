@@ -4,7 +4,27 @@
 <partial id="header">REPORT FIXED</partial>
 
 <partial id="content">
-    <div class="toolbar"></div>
+    <div  id="toolbar" class="toolbar clear">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="up" class="tool-action-button" href="javascript:void(0)" title="上移">
+                    <i class="fa fa-arrow-up"></i>
+                </a>
+                <a id="down" class="tool-action-button" href="javascript:void(0)" title="下移">
+                    <i class="fa fa-arrow-down"></i>
+                </a>
+                <a id="add" class="tool-action-button" href="javascript:void(0)" title="新增">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <a id="edit" class="tool-action-button" href="javascript:void(0)" title="编辑">
+                    <i class="fa fa-pencil"></i>
+                </a>
+                <a id="remove" class="tool-action-button" href="javascript:void(0)" title="移除">
+                    <i class="fa fa-remove"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
     <div class="report-contianer" style="position:relative;width:100%;overflow:hidden;">
         <div id="reportView" style="position:absolute;width:1024px;height:500px;top:50%;left:50%;margin-top:-251px;margin-left:-512px;border-width:1px;border-style:solid;"></div>
     </div>
@@ -20,6 +40,7 @@
             window.pageLogic = {
                 init: {
                     create: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
                         createReportView.call(this);
                     },
                     layout: function() {
@@ -32,7 +53,37 @@
                         });
                     },
                     event: function() {
-
+                        $("#up").click(function(e) {
+                            pageLogic.reportView.currentRowUp();
+                        });
+                        $("#down").click(function(e) {
+                            pageLogic.reportView.currentRowDown();
+                        });
+                        $("#add").click(function(e) {
+                            var index = pageLogic.reportView.count();
+                            if(index >= jaySongs.length) {
+                                ui.messageShow("can not add new song.");
+                                return;
+                            }
+                            var song = getSong(index);
+                            pageLogic.reportView.addRow(song);
+                        });
+                        $("#edit").click(function(e) {
+                            var data = pageLogic.reportView.getSelection();
+                            if(!data) {
+                                return;
+                            }
+                            var song = data.rowData;
+                            song.name = song.name + "-已修改";
+                            pageLogic.reportView.updateRow(data.rowIndex, song);
+                        });
+                        $("#remove").click(function(e) {
+                            var data = pageLogic.reportView.getSelection();
+                            if(!data) {
+                                return;
+                            }
+                            pageLogic.reportView.removeRowAt(data.rowIndex);
+                        });
                     },
                     load: function() {
                         loadReportViewData();
@@ -53,7 +104,8 @@
                             { text: "#", len: 40, align: "right", fixed: true, formatter: ui.ColumnStyle.cfn.rowNumber },
                             { column: "name", text: ui.ColumnStyle.cnfn.checkAll, align: "center", fixed: true, len: 40, formatter: ui.ColumnStyle.cfn.check },
                             { column: "name", text: "标题", len: 240 },
-                            { column: "artist", text: "艺术家", len: 160 },
+                            { column: "artist", text: "艺术家", len: 120, align: "center" },
+                            { column: "album", text: "专辑", len: 160 },
                             { column: "star", text: "等级", len: 120, align: "center", sort: true,  
                                 formatter: function(rate) {
                                     return "★★★★★☆☆☆☆☆".slice(5 - rate, 10 - rate);
@@ -65,10 +117,7 @@
                             { column: "otherInfo", text: "其它信息", len: 130, fixed: true }
                         ]
                     ],
-                    pager: {
-                        pageIndex: 1,
-                        pageSize: 100
-                    },
+                    pager: false,
                     selection: {
                         type: "row"
                         //exclude: "span"
@@ -85,35 +134,31 @@
                 this.reportView.deselected(function(e, eventData) {
 
                 });
-                this.reportView.pagechanging(function(e, pageIndex, pageSize) {
-                    loadReportViewData(pageIndex);
-                });
                 this.reportView.cancel(function(e) {
 
                 });
             }
 
-            function loadReportViewData(pageIndex) {
-                if(ui.core.isNumber(pageIndex)) {
-                    pageIndex = pageLogic.reportView.pageIndex = 1;
+            function loadReportViewData() {
+                var data = [];
+                for(var i = 0; i < 12; i++) {
+                    data.push(getSong(i));
                 }
-                var pageSize = pageLogic.reportView.pageSize;
-                
-                var item;
-                for(var i = 0; i < jaySongs.length; i++) {
-                    item = jaySongs[i];
-                    item.coverSrc = "../../lib/data/album-cover/" + item.album + ".jpg";
-                    item.otherInfo = "其它信息";
-                    item.star = ui.random.getNum(1, 6);
-                }
-                var data = jaySongs;
-                pageLogic.reportView.createBody(data, data.length);
+                pageLogic.reportView.createBody(data);
                 // setTimeout(function() {
                 //     pageLogic.reportView.clear();
                 //     setTimeout(function() {
                 //         pageLogic.reportView.createBody(data, data.length);
                 //     }, 10 * 1000);
                 // }, 10 * 1000);
+            }
+
+            function getSong(i) {
+                var song = jaySongs[i];
+                song.coverSrc = "../../lib/data/album-cover/" + song.album + ".jpg";
+                song.otherInfo = "其它信息";
+                song.star = ui.random.getNum(1, 6);
+                return song;
             }
         })();
     </script>
