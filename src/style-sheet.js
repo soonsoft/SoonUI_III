@@ -21,38 +21,34 @@ function eachRules(rules, action) {
 }
     
 function StyleSheet(elem) {
-    if(this instanceof StyleSheet) {
-        this.initialize(elem);
-    } else {
+    var nodeName,
+        styleElement;
+    if(!(this instanceof StyleSheet)) {
         return new StyleSheet(elem);
+    }
+
+    this.styleSheet = null;
+    if(ui.core.isString(elem) && elem.length > 0) {
+        //通过ID获取
+        styleElement = $("#" + elem);
+        nodeName = styleElement.nodeName();
+        if (nodeName === "STYLE" || nodeName === "LINK") {
+            this.styleSheet = styleElement.prop("sheet");
+            if (!this.styleSheet) {
+                this.styleSheet = styleElement.prop("styleSheet");
+            }
+            if (this.styleSheet) {
+                this.styleSheet = $(this.styleSheet);
+            }
+        }
+    } else if(ui.core.isJQueryObject(elem)) {
+        this.styleSheet = elem;
+    } else if(ui.core.isDomObject(elem)) {
+        this.styleSheet = $(elem);
     }
 }
 StyleSheet.prototype = {
     constructor: StyleSheet,
-    initialize: function(elem) {
-        var nodeName,
-            styleElement;
-
-        this.styleSheet = null;
-        if(ui.core.isString(elem) && elem.length > 0) {
-            //通过ID获取
-            styleElement = $("#" + elem);
-            nodeName = styleElement.nodeName();
-            if (nodeName === "STYLE" || nodeName === "LINK") {
-                this.styleSheet = styleElement.prop("sheet");
-                if (!this.styleSheet) {
-                    this.styleSheet = styleElement.prop("styleSheet");
-                }
-                if (this.styleSheet) {
-                    this.styleSheet = $(this.styleSheet);
-                }
-            }
-        } else if(ui.core.isJQueryObject(elem)) {
-            this.styleSheet = elem;
-        } else if(ui.core.isDomObject(elem)) {
-            this.styleSheet = $(elem);
-        }
-    },
     disabled: function() {
         if(arguments.length === 0) {
             return this.styleSheet.prop("disabled");
