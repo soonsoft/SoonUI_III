@@ -2272,6 +2272,10 @@ TileContainer.prototype = {
     /** 添加组 */
     addGroup: function(groupName, tileInfos) {
         var group;
+        if(Array.isArray(groupName)) {
+            tileInfos = groupName;
+            groupName = null;
+        }
         if(!Array.isArray(tileInfos) || tileInfos.length === 0) {
             return;
         }

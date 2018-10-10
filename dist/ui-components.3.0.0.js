@@ -18,19 +18,16 @@ function defaultComparer(a, b) {
 }
 
 function Introsort () {
-    if(this instanceof Introsort) {
-        this.initialize();
-    } else {
+    if(!(this instanceof Introsort)) {
         return new Introsort();
     }
+
+    this.keys = null;
+    this.items = null;
+    this.comparer = null;
 }
 Introsort.prototype = {
     constructor: Introsort,
-    initialize: function() {
-        this.keys = null;
-        this.items = null;
-        this.comparer = null;
-    },
     sort: function (arr, comparer) {
         var len;
         if (ui.core.isFunction(arr)) {

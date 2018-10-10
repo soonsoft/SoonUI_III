@@ -4395,38 +4395,34 @@ function eachRules(rules, action) {
 }
     
 function StyleSheet(elem) {
-    if(this instanceof StyleSheet) {
-        this.initialize(elem);
-    } else {
+    var nodeName,
+        styleElement;
+    if(!(this instanceof StyleSheet)) {
         return new StyleSheet(elem);
+    }
+
+    this.styleSheet = null;
+    if(ui.core.isString(elem) && elem.length > 0) {
+        //通过ID获取
+        styleElement = $("#" + elem);
+        nodeName = styleElement.nodeName();
+        if (nodeName === "STYLE" || nodeName === "LINK") {
+            this.styleSheet = styleElement.prop("sheet");
+            if (!this.styleSheet) {
+                this.styleSheet = styleElement.prop("styleSheet");
+            }
+            if (this.styleSheet) {
+                this.styleSheet = $(this.styleSheet);
+            }
+        }
+    } else if(ui.core.isJQueryObject(elem)) {
+        this.styleSheet = elem;
+    } else if(ui.core.isDomObject(elem)) {
+        this.styleSheet = $(elem);
     }
 }
 StyleSheet.prototype = {
     constructor: StyleSheet,
-    initialize: function(elem) {
-        var nodeName,
-            styleElement;
-
-        this.styleSheet = null;
-        if(ui.core.isString(elem) && elem.length > 0) {
-            //通过ID获取
-            styleElement = $("#" + elem);
-            nodeName = styleElement.nodeName();
-            if (nodeName === "STYLE" || nodeName === "LINK") {
-                this.styleSheet = styleElement.prop("sheet");
-                if (!this.styleSheet) {
-                    this.styleSheet = styleElement.prop("styleSheet");
-                }
-                if (this.styleSheet) {
-                    this.styleSheet = $(this.styleSheet);
-                }
-            }
-        } else if(ui.core.isJQueryObject(elem)) {
-            this.styleSheet = elem;
-        } else if(ui.core.isDomObject(elem)) {
-            this.styleSheet = $(elem);
-        }
-    },
     disabled: function() {
         if(arguments.length === 0) {
             return this.styleSheet.prop("disabled");
@@ -4557,19 +4553,16 @@ function defaultComparer(a, b) {
 }
 
 function Introsort () {
-    if(this instanceof Introsort) {
-        this.initialize();
-    } else {
+    if(!(this instanceof Introsort)) {
         return new Introsort();
     }
+
+    this.keys = null;
+    this.items = null;
+    this.comparer = null;
 }
 Introsort.prototype = {
     constructor: Introsort,
-    initialize: function() {
-        this.keys = null;
-        this.items = null;
-        this.comparer = null;
-    },
     sort: function (arr, comparer) {
         var len;
         if (ui.core.isFunction(arr)) {
@@ -21649,7 +21642,7 @@ $.fn.listView = function(option) {
 var lastCell = "last-cell",
     sortColumn = "sort-column",
     emptyRow = "empty-row",
-    fixedEmpty = "ui-report-fixed-empty";
+    fixedEmpty = "ui-report-fixed-empty",
     fixedShadow = "border-highlight";
 var // 最小不能小于40像素
     defaultFixedCellWidth = 40;
@@ -22261,97 +22254,100 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         var hasFn,
             colGroup, thead,
             tr, th, columnObj, elem,
-            i, j, len, row, totalRow,
-            args, columnIndex;
+            i, j, len, row, 
+            cellCount, cellIndex,
+            totalRow, columnIndex;
         
         hasFn = ui.core.isFunction(eachFn);
 
         thead = $("<thead />");
-        if (Array.isArray(groupColumns)) {
-            totalRow = groupColumns.length;
-            for (i = 0; i < totalRow; i++) {
-                row = groupColumns[i];
-                tr = $("<tr />");
-                len = row.length;
-                if (!row || len === 0) {
-                    tr.addClass(emptyRow);
+        totalRow = groupColumns.length;
+        cellCount = 0;
+        for (i = 0; i < totalRow; i++) {
+            row = groupColumns[i];
+            tr = $("<tr />");
+            len = row.length;
+            if (!row || len === 0) {
+                tr.addClass(emptyRow);
+            }
+            columnIndex = 0;
+            cellIndex = 0;
+            for (j = 0; j < len; j++) {
+                columnObj = row[j];
+                if(columnObj.rowspan > totalRow) {
+                    columnObj.rowspan = totalRow;
                 }
-                columnIndex = 0;
-                for (j = 0; j < len; j++) {
-                    columnObj = row[j];
-                    if(columnObj.rowspan > totalRow) {
-                        columnObj.rowspan = totalRow;
-                    }
-                    th = this._createCell("th", columnObj);
-                    th.addClass("ui-table-head-cell");
+                th = this._createCell("th", columnObj);
+                th.addClass("ui-table-head-cell");
+                cellIndex += columnObj.colspan || 1;
+                if(i === 0) {
+                    cellCount += cellIndex;
                     if(j === len - 1) {
                         th.addClass(lastCell);
                     }
-                    
-                    // 计算当前的列索引
-                    if ((columnObj.rowspan + i) === totalRow || i === totalRow - 1) {
-                        if (!columnObj._columnKeys) {
-                            columnObj._columnKeys = {};
-                        }
-                        while (columns[columnIndex]) {
-                            columnIndex++;
-                        }
-
-                        if(columnObj.hasOwnProperty("columnIndex")) {
-                            th.attr("data-columnIndex", columnObj.columnIndex);
-                        } else {
-                            th.attr("data-columnIndex", columnIndex);
-                            columnObj.columnIndex = columnIndex;
-                        }
-                        columnObj.cell = th;
-                        columns[columnIndex] = columnObj;
+                } else {
+                    if(cellIndex >= cellCount) {
+                        th.addClass(lastCell);
                     }
-
-                    if(!columnObj.fixed || renderFixed) {
-                        // 设置单元格的值
-                        if (ui.core.isFunction(columnObj.text)) {
-                            elem = columnObj.text.call(this, columnObj, th);
-                        } else {
-                            if(columnObj.text) {
-                                elem = columnTextFormatter.call(this, columnObj, th);
-                            }
-                        }
-                        if (elem) {
-                            th.append(elem);
-                        }
-                        this.sorter.setSortColumn(th, columnObj, j);
-                        // 设置列宽拖动把手
-                        if(this.option.adjustable && !renderFixed) {
-                            th.append("<b class='adjust-column-handle' />");
-                        }
-                        
-                    }
-                    tr.append(th);
-                    columnIndex += columnObj.colspan || 1;
                 }
-                thead.append(tr);
+                
+                // 计算当前的列索引
+                if ((columnObj.rowspan + i) === totalRow || i === totalRow - 1) {
+                    if (!columnObj._columnKeys) {
+                        columnObj._columnKeys = {};
+                    }
+                    while (columns[columnIndex]) {
+                        columnIndex++;
+                    }
+
+                    if(columnObj.hasOwnProperty("columnIndex")) {
+                        th.attr("data-columnIndex", columnObj.columnIndex);
+                    } else {
+                        th.attr("data-columnIndex", columnIndex);
+                        columnObj.columnIndex = columnIndex;
+                    }
+                    columnObj.cell = th;
+                    columns[columnIndex] = columnObj;
+                }
+
+                if(!columnObj.fixed || renderFixed) {
+                    // 设置单元格的值
+                    if (ui.core.isFunction(columnObj.text)) {
+                        elem = columnObj.text.call(this, columnObj, th);
+                    } else {
+                        if(columnObj.text) {
+                            elem = columnTextFormatter.call(this, columnObj, th);
+                        }
+                    }
+                    if (elem) {
+                        th.append(elem);
+                    }
+                    this.sorter.setSortColumn(th, columnObj, j);
+                    // 设置列宽拖动把手
+                    if(this.option.adjustable && !renderFixed) {
+                        th.append("<b class='adjust-column-handle' />");
+                    }
+                    
+                }
+                tr.append(th);
+                columnIndex += columnObj.colspan || 1;
             }
+            thead.append(tr);
         }
 
         colGroup = $("<colgroup />");
         for (i = 0, len = columns.length; i < len; i++) {
             columnObj = columns[i];
             colGroup.append(this._createCol(columnObj));
-
-            args = [columnObj, columnObj.cell];
-            delete columnObj.cell;
             if (hasFn) {
-                args.push(i);
-                args.push(len);
-                eachFn.apply(this, args);
+                eachFn.apply(this, [columnObj, columnObj.cell, i, len]);
             }
+            delete columnObj.cell;
         }
         if (ui.core.isFunction(colFn)) {
             colFn.call(this, headTable, tr, colGroup);
         }
-        
-        headTable.append(colGroup);
-        headTable.append(thead);
+        headTable.append(colGroup).append(thead);
     },
     _createBodyTable: function (bodyTable, viewData, columns, cellFilter, rowFilter) {
         var colGroup, tbody,
@@ -29471,6 +29467,10 @@ TileContainer.prototype = {
     /** 添加组 */
     addGroup: function(groupName, tileInfos) {
         var group;
+        if(Array.isArray(groupName)) {
+            tileInfos = groupName;
+            groupName = null;
+        }
         if(!Array.isArray(tileInfos) || tileInfos.length === 0) {
             return;
         }
