@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, maximum-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-    <link type="text/css" href="../dist/theme/light/site.Light.css" rel="stylesheet" />
-    <link type="text/css" href="../dist/theme/light/metro-light.all.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
     <link id="theme" type="text/css" href="../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
     <style type="text/css">
         html {
@@ -25,10 +26,10 @@
             position: fixed;
             z-index: 9999;
             width: 20px;
-            height: 130px;
+            height: 140px;
             right: 48px;
             top: 50%;
-            margin-top: -65px;
+            margin-top: -70px;
             overflow: hidden;
         }
         .indicator {
@@ -240,14 +241,19 @@
             font-size: 0.813em;
             color: #fff;
         }
+        /* Solution Section */
+        .solution-panel {
+            width: 80%;
+            height: 60%;
+        }
         /* End Section */
-        #bg4 {
+        #bg5 {
             -webkit-transform: scale(1, 1);
             -ms-transform: scale(1, 1);
             -o-transform: scale(1, 1);
             transform: scale(1, 1);
         }
-        #bg4.start-animation {
+        #bg5.start-animation {
             -webkit-transform: scale(1.5, 1.5);
             -webkit-transition: -webkit-transform 20s linear 0s;
             -ms-transform: scale(1.5, 1.5);
@@ -321,7 +327,7 @@
 <body>
     <div class="heighter"></div>
     <div class="indicator-panel"></div>
-    <section class="container-item" style="background-color:rgba(0, 0, 0, .2);z-index:10;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;">
+    <section class="container-item" style="z-index:10;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;">
         <div class="container-panel" style="height:auto;background-color:rgba(160, 205, 230, .24);top:auto;">
             <div class="main-panel">
                 <h1 class="head-title main-header">
@@ -341,9 +347,10 @@
             </div>
         </div>
     </section>
-    <section class="container-item" style="background-color:#99aacc;z-index:9;">
+    <section class="container-item" style="z-index:9;">
         <img id="bg2" class="container-item-bg-image" src="" alt="" />
-        <div class="container-panel" style="opacity:0;background-color:rgba(0, 0, 0, .7);">
+        <div class="container-panel" style="background-color:rgba(0, 0, 0, .2);"></div>
+        <div class="container-panel" style="opacity:0;background-color:rgba(0, 0, 0, .5);">
             <div class="feature-panel">
                 <h1 class="head-title" style="font-size:3em">
                     <span style="opacity:.7">FEATURE</span>
@@ -357,15 +364,24 @@
             </div>
         </div>
     </section>
-    <section class="container-item" style="background-color:#ccc;z-index:8;">
-        <img id="bg3" class="container-item-bg-image" src="" alt="" />
+    <section class="container-item" style="z-index:8;">
         <div id="demoTabPanel" class="container-panel" style="opacity:0">
             <div class="ui-tab-body demo-light"></div>
             <div class="ui-tab-body demo-dark"></div>
         </div>
     </section>
-    <section class="container-item" style="background-color:#f1f1f1;z-index:7;">
-        <img id="bg4" class="container-item-bg-image" src="" alt="" />
+    <section class="container-item" style="z-index:7;">
+        <img id="bg3" class="container-item-bg-image" src="" alt="" />
+        <img id="bg4" class="container-item-bg-image" src="" alt="" style="opacity:0;" />
+        <div class="container-panel" style="opacity:0;">
+            <h1 class="head-title">
+                <span style="opacity:.6;color:#333">SOLUTION</span>
+            </h1>
+            <div id="tileContainer" class="solution-panel"></div>
+        </div>
+    </section>
+    <section class="container-item" style="z-index:6;">
+        <img id="bg5" class="container-item-bg-image" src="" alt="" />
         <div class="container-panel" style="opacity:0;background-color:rgba(0, 0, 0, .7);">
             <div class="end-panel">
                 <h1 class="head-title">
@@ -391,7 +407,7 @@
             var 
                 layer,
                 backgroundImage,
-                wave;
+                highlightColor = "#0F80C1";
             $(document).ready(function(e) {
                 layer.init();
                 function onResize() {
@@ -431,6 +447,7 @@
                     this.initIndicator();
                     featureSection.call(this);
                     demoSection.call(this);
+                    solutionSection.call(this);
                     pagerFootSection.call(this);
                 },
                 initIndicator: function() {
@@ -582,9 +599,15 @@
                             setImageSize(img, loader);
                         });
                     ui.ImageLoader()
-                        .load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
+                        .load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop)
                         .then(function(loader) {
                             var img = $("#bg4");
+                            setImageSize(img, loader);
+                        });
+                    ui.ImageLoader()
+                        .load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
+                        .then(function(loader) {
+                            var img = $("#bg5");
                             setImageSize(img, loader);
                         });
                 },
@@ -718,13 +741,47 @@
                     $("#demoTabPanel").css("opacity", percent);
                 });
             }
-            function pagerFootSection() {
+
+            function solutionSection() {
+                var color = "rgba(15, 128, 193, .6)",
+                    tileContainer = $("#tileContainer"),
+                    tiles = ui.TileContainer(tileContainer);
+                tiles.addGroup([
+                    { type: "large", color: color, title: "数据大屏", icon: "./content/icons/tile/templete.png" },
+                    { type: "wide", color: color, title: "用户登录", icon: "./content/icons/tile/memberManager.png" },
+                    { type: "medium", color: color, title: "菜单管理", icon: "./content/icons/tile/menu.png" },
+                    { type: "medium", color: color, title: "字典管理", icon: "./content/icons/tile/dictionary.png" },
+                    { type: "wide", color: color, title: "系统设置", icon: "./content/icons/tile/Settings.png" },
+                    { type: "medium", color: color, title: "组织机构视图", icon: "./content/icons/tile/organization.png" },
+                    { type: "medium", color: color, title: "员工管理", icon: "./content/icons/tile/department.png" }
+                ]);
+                this.onResize(function(width, height) {
+                    var tileWidth = width * .8,
+                        tileHeight = height * .6;
+                    if(tileHeight + 64 > height) {
+                        tileHeight = height - 64;
+                    }
+                    tiles.layout(tileWidth, tileHeight);
+                });
                 this.move(function(e, index, scrollTop, itemHeight) {
                     if(index !== 2) {
                         return;
                     }
+                    var percent = (scrollTop - (itemHeight * index)) / itemHeight;
+                    var img = $("#bg4"),
+                        containerPanel = img.next();
+                    img.css("opacity", percent);
+                    containerPanel.css("opacity", percent);
+                });
+            }
+
+            function pagerFootSection() {
+                this.move(function(e, index, scrollTop, itemHeight) {
+                    if(index !== 3) {
+                        return;
+                    }
                     var percent = (scrollTop - (itemHeight * index)) / itemHeight,
-                        img = $("#bg4"),
+                        img = $("#bg5"),
                         panel = img.next();
                     panel.css("opacity", percent);
                     if(percent > .333 && !img.hasClass("start-animation")) {
