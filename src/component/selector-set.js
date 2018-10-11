@@ -149,6 +149,10 @@ function findByPrototype(target, proto) {
     }
 }
 
+function sortById(a, b) {
+    return a.id - b.id;
+}
+
 function SelectorSet() {
     if(!(this instanceof SelectorSet)) {
         return new SelectorSet();
@@ -206,5 +210,90 @@ SelectorSet.prototype = {
 
         this.count++;
         this.selectors.push(selector);
+    },
+    remove: function(selector, data) {
+        var types, typeItem,
+            activeTypes, activeType,
+            i, len, j, k,
+            targets, target,
+            removeAll,
+            removeCount = 0;
+        if(!ui.core.isString(selector)) {
+            return;
+        }
+
+        removeAll = arguments.length === 1;
+        types = parseSelectorTypes(this.types, selector);
+        activeTypes = this.activeTypes;
+        for (i = 0, len = types.length; i < len; i++) {
+            typeItem = types[i];
+            j = activeTypes.length;
+            while(j--) {
+                activeType = activeTypes[j];
+                if(typeItem.type.isPrototypeOf(activeType)) {
+                    targets = activeType.map.get(typeItem.key);
+                    if(targets) {
+                        k = targets.length;
+                        while(k--) {
+                            target = targets[k];
+                            if(target.selector === selector && (removeAll || target.data === data)) {
+                                target.splice(k, 1);
+                                removeCount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.count -= removeCount;
+    },
+    matchesSelector: function(element, selector) {
+        return matches.call(element, selector);
+    },
+    querySelectorAll: function(selectors, context) {
+        return context.querySelectorAll(selectors);
+    },
+    queryAll: function(context) {
+        var targets, target,
+            results,
+            elements, element,
+            i, len, j, jlen, matches, match;
+        if(this.selectors.length === 0) {
+            return [];
+        }
+
+        targets = {};
+        results = [];
+        elements = this.querySelectorAll(this.selectors.join[", "], context);
+
+        for(i = 0, len = elements.length; i < len; i++) {
+            element = elements[i];
+            matches = this.matches(element);
+            for(j = 0, jlen = matches.length; j < jlen; j++) {
+                match = m[j];
+                if(!targets[match.id]) {
+                    target = {
+                        id: match.id,
+                        selector: match.selector,
+                        data: match.data,
+                        elements: []
+                    };
+                    targets[match.id] = target;
+                    results.push(target);
+                } else {
+                    target = targets[match.id];
+                }
+                target.elements.push(element);
+            }
+        }
+        
+        return results.sort(sortById);
+    },
+    matches: function(element) {
+        if(!element) {
+            return [];
+        }
     }
 };
+
+ui.SelectorSet = SelectorSet;
