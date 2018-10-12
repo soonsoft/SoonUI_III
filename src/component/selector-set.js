@@ -2,6 +2,26 @@
 // 参考 https://github.com/josh/selector-set/blob/master/selector-set.js
 // 针对SOON.UI的代码风格进行了重构
 // 修改了部分变量名称，便于自己的理解
+/*
+    数据结构
+    [
+        {
+            name: String,
+            getSelector: Function,
+            getElementKeys: Function,
+            map: Map {
+                selector: Array [
+                    {
+                        id: String,
+                        selector: String,
+                        data: Object,
+                        elements: Array
+                    }
+                ]
+            }
+        }
+    ]
+*/
 var 
     // selector匹配
     chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
@@ -28,7 +48,7 @@ defaultSelectorTypes = {
     getSelector: function() {
         return true;
     },
-    getElements: function() {
+    getElementKeys: function() {
         return [true];
     }
 };
@@ -43,7 +63,7 @@ selectorTypes.push({
         }
         return null;
     },
-    getElements: function(element) {
+    getElementKeys: function(element) {
         if (element.id) {
             return [element.id];
         }
@@ -61,7 +81,7 @@ selectorTypes.push({
         }
         return null;
     },
-    getElements: function(element) {
+    getElementKeys: function(element) {
         var className = element.className;
         if(className) {
             if (typeof className === "string") {
@@ -85,7 +105,7 @@ selectorTypes.push({
         }
         return null;
     },
-    getElements: function(element) {
+    getElementKeys: function(element) {
         return [element.nodeName.toUpperCase()];
     }
 });
@@ -290,9 +310,36 @@ SelectorSet.prototype = {
         return results.sort(sortById);
     },
     matches: function(element) {
+        var activeTypes, activeType,
+            i, len, j, jlen, k, klen, keys,
+            targets, target,
+            matchedIds, matches;
         if(!element) {
             return [];
         }
+
+        matchedIds = {};
+        matches = [];
+        activeTypes = this.activeTypes;
+        for (i = 0, len = activeTypes.length; i < len; i++) {
+            activeType = activeTypes[i];
+            keys = activeType.getElementKeys(element);
+            if(keys) {
+                for(j = 0, jlen = keys.length; j < jlen; j++) {
+                    targets = activeType.map.get(keys[i]);
+                    if(targets) {
+                        for(k = 0, klen = targets.length; k < klen; k++) {
+                            target = targets[k];
+                            if (!matchedIds[id] && this.matchesSelector(element, target.selector)) {
+                                matchedIds[id] = true;
+                                matches.push(obj);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return matches.sort(sortById);
     }
 };
 
