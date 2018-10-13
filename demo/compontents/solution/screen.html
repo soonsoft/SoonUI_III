@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width"/>
+
+    <title>指挥大屏</title>
+
+    <!-- Common styles -->
+    <link type="text/css" rel="stylesheet" href="../../../dist/theme/dark/site.dark.css" />
+    <link type="text/css" rel="stylesheet" href="../../../dist/theme/dark/metro-dark.all.css" />
+    <link type="text/css" rel="stylesheet" href="../../../dist/theme/color/ui.metro.Screen.css" />
+    <link type="text/css" rel="stylesheet" href="../../content/font-awesome.min.css" />
+    
+    <style type="text/css">
+        /* 大屏页面样式 */
+        html {
+            background-color: #050D3C;
+        }
+
+        .bg-color-layer {
+            display: block;
+            position: absolute;
+            top: -65%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse farthest-side, rgba(236, 89, 153, .5) 1%, #050D3C);
+        }
+
+        .screen-header {
+            width: 360px;
+            height: 64px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .screen-title {
+            position: absolute;
+            left: 0;
+            top: -50%;
+            border: 2px solid rgb(86, 192, 242);
+            background-color: rgba(255,255,255,.1);
+            border-radius: 15px;
+            color: rgba(86, 192, 242, .6);
+            font-size: 2.3em;
+            width: 356px;
+            height: 108px;
+            text-align: center;
+            line-height: 108px;
+            font-weight: bolder;
+            transform: perspective(64px) rotateX(-18deg);
+        }
+
+        .screen-subtitle {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 24px;
+            text-align: center;
+            color: rgba(86, 192, 242, .6);
+            line-height: 24px;
+        }
+
+        .screen-body {
+            position: absolute;
+            left: 25%;
+            top: 64px;
+            bottom: 64px;
+            width: 50%;
+            overflow: hidden;
+        }
+
+        /* dialog样式 */
+        .ui-dialog-box {
+            background-color: transparent;
+            border: none 0;
+        }
+
+        .ui-dialog-box-title .title-inner-panel {
+            padding-left: 0;
+            padding-right: 0;
+            background-color: rgba(0, 0, 0, 0);
+            transition: background-color .3s ease-out 0s;
+        }
+
+        .ui-dialog-box-title .title-inner-panel:hover {
+            background-color: rgba(0, 0, 0, .3);
+        }
+
+        .ui-dialog-box-title .title-inner-panel .title-text {
+            margin-left: 1px;
+            line-height: 30px;
+            font-size: 1em;
+        }
+
+        .ui-dialog-box-content {
+            box-sizing: border-box;
+            border: solid 1px rgba(86, 192, 242, .6);
+        }
+
+        .panel-content {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            transition: background-color .3s ease-out 0s;
+        }
+
+        .panel-content-cover {
+            background-color: rgba(0, 0, 0, .5);
+        }
+
+        /* MessageList */
+        .ui-message-list {
+            position: relative;
+            overflow: auto;
+        }
+        .ui-message-container {
+            width: 100%;
+            height: auto;
+        }
+        .ui-message-list-item {
+            width: 90%;
+            height: 24px;
+            line-height: 24px;
+            margin: 10px auto;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+            position: relative;
+        }
+        .ui-message-list-item-border {
+            position: absolute;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        .ui-message-list-item-text {
+            margin-left: 10px;
+        }
+        .alarm-message-level1 {
+            background-color: #8C346B;
+            color: #F6C0D5;
+        }
+        .alarm-message-level1 > .ui-message-list-item-border {
+            background-color: #E64E89;
+        }
+        .alarm-message-level2 {
+            background-color: #6D5B34;
+            color: #FFECB6;
+        }
+        .alarm-message-level2 > .ui-message-list-item-border {
+            background-color: #FFC828;
+        }
+        .alarm-message-level3 {
+            background-color: #4D0A7E;
+            color: #E5AAF3;
+        }
+        .alarm-message-level3 > .ui-message-list-item-border {
+            background-color: #B306DC;
+        }
+        .alarm-message-level4 {
+            background-color: #0B657F;
+            color: #AFF5F3;
+        }
+        .alarm-message-level4 > .ui-message-list-item-border {
+            background-color: #14E2DD;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="body">
+        <b class="bg-color-layer"></b>
+        <header class="screen-header">
+            <h1 class="screen-title">某某系统大屏监控总览</h1>
+            <h4 class="screen-subtitle"></h4>
+        </header>
+        <div id="wuhanMap" class="screen-body"></div>
+    </section>
+
+    <script src="../../../vender/jquery-3.3.1.slim.min.js"></script>
+    <script src="../../../dist/SOON.UI.3.0.0.all.js"></script>
+    <script src="../../../vender/echarts.min.js"></script>
+    
+    <script src="../../lib/data/wuhan.js"></script>
+    <!-- 页面逻辑 -->
+    <script src="../../lib/compontents/screen.js"></script>
+
+</body>
+
+</html>
