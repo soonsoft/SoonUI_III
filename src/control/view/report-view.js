@@ -3,7 +3,7 @@
 var lastCell = "last-cell",
     sortColumn = "sort-column",
     emptyRow = "empty-row",
-    fixedEmpty = "ui-report-fixed-empty";
+    fixedEmpty = "ui-report-fixed-empty",
     fixedShadow = "border-highlight";
 var // 最小不能小于40像素
     defaultFixedCellWidth = 40;

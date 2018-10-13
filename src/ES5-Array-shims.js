@@ -1,4 +1,4 @@
-// 为ECMAScript3 添加ECMAScript5的方法
+// 为ECMAScript3 添加ECMAScript6的方法
 
 function isFunction(fn) {
     return ui.core.isFunction(fn);

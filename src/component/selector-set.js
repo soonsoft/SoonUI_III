@@ -43,7 +43,7 @@ var
     defaultSelectorType;
 
 // 默认值
-defaultSelectorTypes = {
+defaultSelectorType = {
     name: 'UNIVERSAL',
     getSelector: function() {
         return true;
@@ -332,7 +332,7 @@ SelectorSet.prototype = {
                             target = targets[k];
                             if (!matchedIds[id] && this.matchesSelector(element, target.selector)) {
                                 matchedIds[id] = true;
-                                matches.push(obj);
+                                matches.push(target);
                             }
                         }
                     }
