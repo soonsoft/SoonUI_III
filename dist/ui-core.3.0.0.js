@@ -332,7 +332,7 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 // Source: src/ES5-Array-shims.js
 
 (function($, ui) {
-// 为ECMAScript3 添加ECMAScript5的方法
+// 为ECMAScript3 添加ECMAScript6的方法
 
 function isFunction(fn) {
     return ui.core.isFunction(fn);
@@ -540,7 +540,7 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 // Source: src/ES6-Array-shims.js
 
 (function($, ui) {
-// 为ECMAScript3 添加ECMAScript5的方法
+// 为ECMAScript3 添加ECMAScript6的方法
 
 function isFunction(fn) {
     return ui.core.isFunction(fn);
