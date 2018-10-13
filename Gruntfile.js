@@ -111,6 +111,7 @@ module.exports = function(grunt) {
         "src/ES6-Number-shims.js",
         "src/ES5-Object-shims.js",
         "src/ES6-Promise.shims.js",
+        "src/ES6-Map.shims.js",
 
         "src/array-like.js",
         "src/keyarray.js",
@@ -139,6 +140,8 @@ module.exports = function(grunt) {
     let componentFiles = [
         "src/component/introsort.js",
         "src/component/animation.js",
+        "src/component/selector-set.js",
+        "src/component/event-delegate.js",
         "src/component/custom-event.js",
         "src/component/ajax.js",
         "src/component/ajax-extends.js",
