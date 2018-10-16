@@ -7,9 +7,6 @@
         districts = ["江岸区","江汉区","硚口区","汉阳区","武昌区","青山区","洪山区","东西湖区","汉南区","蔡甸区","江夏区","黄陂区","新洲区"],
         alarmTypes = ["倒地", "移动", "撞击", "歪斜", "离线"];
 
-    // main方法
-    ui.master.init();
-
     ui.ctrls.DialogBox.prototype._defineEvents = function() {
         return ["showing", "shown", "hiding", "hidden", "resize", "moved"];
     };
@@ -330,7 +327,6 @@
         }
     };
 
-
     function defaultMessageTemplate(item, index) {
         var html = [],
             alarmClass = "alarm-message-level" + item.level;
@@ -481,7 +477,8 @@
         }
     });
 
-    var pageLogic = window.pageLogic = {
+    // main方法
+    var pageLogic = ui.master.init({
         // init下面的方法会按照顺序在页面的加载时执行，且只会执行一次
         init: {
             // 创建需要初始化布局的页面元素
@@ -522,7 +519,7 @@
                 }, 300);
             }
         }
-    };
+    });
 
     function initScreenCenter() {
         var mapChart, i,
@@ -819,7 +816,7 @@
             content: content,
             title: "异常预警",
             width: 320,
-            height: 200
+            height: 212
         });
         content.css({
             "width": panel.contentWidth - 2 + "px",
@@ -972,7 +969,7 @@
             content: content,
             title: "一周异常分析",
             width: 320,
-            height: 180
+            height: 170
         });
 
         content.css({

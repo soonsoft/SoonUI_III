@@ -50,8 +50,7 @@ function initMenu() {
 function layoutSize() {
     var bodyMinHeight,
         clientWidth,
-        clientHeight,
-        that;
+        clientHeight;
 
     if(this.menu) {
         // 如果菜单屏蔽了布局尺寸计算，那么就不做计算了
@@ -293,35 +292,44 @@ var master = {
         }
         this[optionName] = option;
     },
-    init: function(configFn) {
-        var that = this;
-
+    init: function(pager, configFn) {
         this.head = $("#head");
         this.body = $("#body");
         this.foot = $("#foot");
 
-        ui.page.ready(function (e) {
+        if(ui.core.isFunction(pager)) {
+            configFn = pager;
+            pager = null;
+        }
+        if(window.pageLogic) {
+            pager = window.pageLogic;
+        }
+        if(!pager) {
+            pager = {};
+        }
+
+        ui.page.ready((function (e) {
             if(ui.core.isFunction(configFn)) {
-                configFn.call(that);
+                configFn.call(this);
             }
-            partial.call(that);
-            layoutSize.call(that);
-            userSettings.call(that);
+            partial.call(this);
+            layoutSize.call(this);
+            userSettings.call(this);
             ui.page.resize(function (e, clientWidth, clientHeight) {
-                layoutSize.call(that);
+                layoutSize.call(this);
             }, ui.eventPriority.bodyResize);
             
-            if(window.pageLogic) {
-                that.pageInit(pageLogic.init, pageLogic);
-            }
-            that.body.css("visibility", "visible");
-        }, ui.eventPriority.masterReady);
+            this.pageInit(pager.init, pager);
+            this.body.css("visibility", "visible");
+        }).bind(this), ui.eventPriority.masterReady);
+
+        return pager;
     },
     /** 初始化页面方法 */
     pageInit: function (initObj, caller) {
         var func = null,
-            caller = caller || this;
-        var message = ["页面初始化时在[", "", "]阶段发生错误，", ""];
+            caller = caller || this,
+            message = ["页面初始化时在[", "", "]阶段发生错误，", ""];
         if (ui.core.isPlainObject(initObj)) {
             for (var key in initObj) {
                 func = initObj[key];
