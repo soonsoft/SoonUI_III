@@ -98,8 +98,12 @@ function userSettings() {
         config,
         that;
 
+    if(!this.userSettingsConfig) {
+        return;
+    }
+
     userProtrait = $("#user");
-    if(!this.userSettingsConfig || userProtrait.length === 0) {
+    if(userProtrait.length === 0) {
         return;
     }
 
@@ -147,7 +151,7 @@ function userSettings() {
         }
         htmlBuilder.push("</div>");
         highlightPanel.append(htmlBuilder.join(""));
-        setTimeout(function() {
+        ui.setTask(function() {
             that._currentHighlightItem = highlightPanel.find(".highlight-item-selected");
             if(that._currentHighlightItem.length === 0) {
                 that._currentHighlightItem = null;
@@ -293,6 +297,8 @@ var master = {
         this[optionName] = option;
     },
     init: function(pager, configFn) {
+        var global = ui.core.global();
+
         this.head = $("#head");
         this.body = $("#body");
         this.foot = $("#foot");
@@ -301,25 +307,33 @@ var master = {
             configFn = pager;
             pager = null;
         }
-        if(window.pageLogic) {
-            pager = window.pageLogic;
-        }
         if(!pager) {
             pager = {};
         }
 
         ui.page.ready((function (e) {
+            var keys;
+
             if(ui.core.isFunction(configFn)) {
                 configFn.call(this);
             }
             partial.call(this);
             layoutSize.call(this);
             userSettings.call(this);
+
             ui.page.resize(function (e, clientWidth, clientHeight) {
                 layoutSize.call(this);
             }, ui.eventPriority.bodyResize);
             
+            if(global.pageLogic) {
+                keys = Object.keys(global.pageLogic);
+                keys.forEach(function(key) {
+                    pager[key] = global.pageLogic[key];
+                });
+                global.pageLogic = pager;
+            }
             this.pageInit(pager.init, pager);
+
             this.body.css("visibility", "visible");
         }).bind(this), ui.eventPriority.masterReady);
 

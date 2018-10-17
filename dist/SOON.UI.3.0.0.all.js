@@ -5518,7 +5518,7 @@ function parseSelectorTypes(allTypes, selector) {
             if (matches[2] || !rest) {
                 for (i = 0; i < len; i++) {
                     type = allTypes[i];
-                    key = type.getSelector(m[1]);
+                    key = type.getSelector(matches[1]);
                     if(key) {
                         j = types.length;
                         shouldCancel = false;
@@ -5642,7 +5642,7 @@ SelectorSet.prototype = {
                         while(k--) {
                             target = targets[k];
                             if(target.selector === selector && (removeAll || target.data === data)) {
-                                target.splice(k, 1);
+                                targets.splice(k, 1);
                                 removeCount++;
                             }
                         }
@@ -5715,8 +5715,8 @@ SelectorSet.prototype = {
                     if(targets) {
                         for(k = 0, klen = targets.length; k < klen; k++) {
                             target = targets[k];
-                            if (!matchedIds[id] && this.matchesSelector(element, target.selector)) {
-                                matchedIds[id] = true;
+                            if (!matchedIds[target.id] && this.matchesSelector(element, target.selector)) {
+                                matchedIds[target.id] = true;
                                 matches.push(target);
                             }
                         }
@@ -5831,7 +5831,7 @@ function dispatch(event) {
         return;
     }
 
-    queue = matches(selectors, event.target, event.eventPhase === 1);
+    queue = matches(selectorSet, event.target, event.eventPhase === 1);
     len = queue.length;
     if(len === 0) {
         return;
@@ -27838,8 +27838,12 @@ function userSettings() {
         config,
         that;
 
+    if(!this.userSettingsConfig) {
+        return;
+    }
+
     userProtrait = $("#user");
-    if(!this.userSettingsConfig || userProtrait.length === 0) {
+    if(userProtrait.length === 0) {
         return;
     }
 
@@ -27887,7 +27891,7 @@ function userSettings() {
         }
         htmlBuilder.push("</div>");
         highlightPanel.append(htmlBuilder.join(""));
-        setTimeout(function() {
+        ui.setTask(function() {
             that._currentHighlightItem = highlightPanel.find(".highlight-item-selected");
             if(that._currentHighlightItem.length === 0) {
                 that._currentHighlightItem = null;
@@ -28033,6 +28037,8 @@ var master = {
         this[optionName] = option;
     },
     init: function(pager, configFn) {
+        var global = ui.core.global();
+
         this.head = $("#head");
         this.body = $("#body");
         this.foot = $("#foot");
@@ -28041,25 +28047,33 @@ var master = {
             configFn = pager;
             pager = null;
         }
-        if(window.pageLogic) {
-            pager = window.pageLogic;
-        }
         if(!pager) {
             pager = {};
         }
 
         ui.page.ready((function (e) {
+            var keys;
+
             if(ui.core.isFunction(configFn)) {
                 configFn.call(this);
             }
             partial.call(this);
             layoutSize.call(this);
             userSettings.call(this);
+
             ui.page.resize(function (e, clientWidth, clientHeight) {
                 layoutSize.call(this);
             }, ui.eventPriority.bodyResize);
             
+            if(global.pageLogic) {
+                keys = Object.keys(global.pageLogic);
+                keys.forEach(function(key) {
+                    pager[key] = global.pageLogic[key];
+                });
+                global.pageLogic = pager;
+            }
             this.pageInit(pager.init, pager);
+
             this.body.css("visibility", "visible");
         }).bind(this), ui.eventPriority.masterReady);
 

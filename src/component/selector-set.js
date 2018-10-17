@@ -133,7 +133,7 @@ function parseSelectorTypes(allTypes, selector) {
             if (matches[2] || !rest) {
                 for (i = 0; i < len; i++) {
                     type = allTypes[i];
-                    key = type.getSelector(m[1]);
+                    key = type.getSelector(matches[1]);
                     if(key) {
                         j = types.length;
                         shouldCancel = false;
@@ -257,7 +257,7 @@ SelectorSet.prototype = {
                         while(k--) {
                             target = targets[k];
                             if(target.selector === selector && (removeAll || target.data === data)) {
-                                target.splice(k, 1);
+                                targets.splice(k, 1);
                                 removeCount++;
                             }
                         }
@@ -330,8 +330,8 @@ SelectorSet.prototype = {
                     if(targets) {
                         for(k = 0, klen = targets.length; k < klen; k++) {
                             target = targets[k];
-                            if (!matchedIds[id] && this.matchesSelector(element, target.selector)) {
-                                matchedIds[id] = true;
+                            if (!matchedIds[target.id] && this.matchesSelector(element, target.selector)) {
+                                matchedIds[target.id] = true;
                                 matches.push(target);
                             }
                         }
