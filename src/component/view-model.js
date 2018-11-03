@@ -149,7 +149,7 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
         },
         set: function(newVal) {
             var oldVal = getter ? getter.call(obj) : val,
-                notice;
+                newChildNotice;
             if(oldVal === newVal || (newVal !== newVal && val !== val)) {
                 return;
             }
@@ -160,11 +160,11 @@ function defineNotifyProperty(obj, propertyName, val, shallow, path) {
                 val = newVal;
             }
 
-            if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
-                notice = new NotifyObject(newVal);
-                notice.dependency.depMap = childNotice.dependency.depMap;
+            if(!shallow  && (ui.core.isObject(newVal) || Array.isArray(newVal))) {
+                newChildNotice = new NotifyObject(newVal);
+                newChildNotice.dependency.depMap = childNotice.dependency.depMap;
                 // 更新通知对象
-                childNotice = notice;
+                childNotice = newChildNotice;
             }
             notice.dependency.notify(propertyName);
         }

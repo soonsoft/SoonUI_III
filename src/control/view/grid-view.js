@@ -543,6 +543,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
             width: false,
             // 默认格式化器
             textFormatter: null,
+            // 鼠标悬停反馈
+            mouseHoverReaction: true,
             // 分页参数
             pager: {
                 // 当前页码，默认从第1页开始

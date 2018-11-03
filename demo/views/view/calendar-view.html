@@ -3,7 +3,7 @@
 
 <partial id="style">
     <style type="text/css">
-        .filter-tools-item-text {
+        .filter-button-item-text {
             margin-left: 20px;
             margin-right: 20px;
         }
@@ -333,7 +333,7 @@
                     }
                     view.selector
                             .setSelectionByTime(eventData.index, "08:00:00", "18:00:00")
-                            .done(function() {
+                            .then(function() {
                                 selectorInfo = view.selector.getSelectorInfo();
                                 if (that.isView(view, "WeekView")) {
                                     showWeekCtrlPanel(view, selectorInfo.element, {
