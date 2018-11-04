@@ -28260,8 +28260,7 @@ function initMenu() {
 
 // 布局尺寸计算
 function layoutSize() {
-    var bodyMinHeight,
-        clientWidth,
+    var clientWidth,
         clientHeight;
 
     if(this.menu) {
@@ -28279,17 +28278,18 @@ function layoutSize() {
     } else {
         this.head = null;
     }
-    if(this.foot.length > 0) {
+    if(this.foot && this.foot.length > 0) {
         clientHeight -= this.foot.height();
+    } else {
+        this.foot = null;
     }
-    bodyMinHeight = clientHeight;
     if(this.body && this.body.length > 0) {
-        this.body.css("height", bodyMinHeight + "px");
+        this.body.css("height", clientHeight + "px");
     } else {
         this.body = null;
     }
 
-    this.contentBodyHeight = bodyMinHeight;
+    this.contentBodyHeight = clientHeight;
     this.contentBodyWidth = clientWidth;
 
     if(this.menu && this.menu.isShow()) {
@@ -28533,9 +28533,9 @@ var master = {
             layoutSize.call(this);
             userSettings.call(this);
 
-            ui.page.resize(function (e, clientWidth, clientHeight) {
+            ui.page.resize((function (e, clientWidth, clientHeight) {
                 layoutSize.call(this);
-            }, ui.eventPriority.bodyResize);
+            }).bind(this), ui.eventPriority.bodyResize);
             
             if(global.pageLogic) {
                 keys = Object.keys(global.pageLogic);
