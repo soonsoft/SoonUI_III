@@ -1,0 +1,528 @@
+
+<partial id="title">视图模型</partial>
+<partial id="header">VIEW MODEL</partial>
+
+<partial id="content">
+    <div id="list" class="album-list border-highlight">
+        <div class="album-cover">
+            <img src="" alt='张信哲-挚爱' style="width:100%;" />
+            <div class="play-panel">
+                <b class="progress-bar">
+                    <span class="progress background-highlight"></span>
+                </b>
+                <span class="control-bar">
+                    <span class="control-bar-middle">
+                        <a id="backward" class="play-button" href="javascript:">
+                            <i class="fa fa-step-backward"></i>
+                        </a>
+                        <a id="play" class="play-button" href="javascript:" style="margin-left:20px;margin-right:16px;font-size:24px !important;">
+                            <i class="fa fa-play"></i>
+                        </a>
+                        <a id="forward" class="play-button" href="javascript:">
+                            <i class="fa fa-step-forward"></i>
+                        </a>
+                    </span>
+                    <span class="control-bar-left">
+                        <a id="mode" class="play-button play-button-inactive" href="javascript:">
+                            <i class="fa fa-random"></i>
+                        </a>
+                    </span>
+                    <span class="control-bar-right">
+                        00:00
+                    </span>
+                </span>
+            </div>
+        </div>
+        <ul class="song-list theme-panel"></ul>
+    </div>
+</partial>
+
+<partial id="style">
+    <style type="text/css">
+        .album-list {
+            overflow: auto;
+            margin: 20px auto 20px auto;
+            border: solid 1px;
+        }
+
+        .album-cover {
+            position: relative;
+        }
+
+        .song-list {
+            width: 100%;
+            overflow: auto;
+        }
+
+        .play-panel {
+            width: 100%;
+            height: 44px;
+            background-color: rgba(0, 0, 0, .5);
+            position: absolute;
+            left: 0;
+            bottom: 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            display: block;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .2);
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            display: block;
+        }
+
+        .control-bar {
+            width: 100%;
+            height: 40px;
+            overflow: hidden;
+            display: block;
+            position: relative;
+        }
+
+        .control-bar-left {
+            display: block;
+            text-align: center;
+            line-height: 40px;
+            width: 40px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .control-bar-middle {
+            display: block;
+            flex: 1 1 auto;
+            text-align: center;
+            line-height: 40px;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .control-bar-right {
+            display: block;
+            text-align: center;
+            line-height: 40px;
+            width: 60px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .play-button {
+            display: inline-block;
+            vertical-align: top;
+            line-height: 40px;
+            height: 40px;
+            font-size: 14px !important;
+            color: #fff;
+        }
+
+        .play-button:hover {
+            text-decoration: none;
+        }
+
+        .play-button-inactive {
+            opacity: .5;
+        }
+
+        .song-item {
+            height: 40px;
+            width: 100%;
+            overflow: hidden;
+            line-height: 40px;
+            display: flex;
+            flex-flow: row nowrap;
+        }
+
+        .track-num {
+            display: inline-block;
+            vertical-align: top;
+            line-height: 40px;
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
+            text-align: center;
+        }
+
+        .track-name {
+            display: inline-block;
+            vertical-align: top;
+            line-height: 40px;
+            flex: 1 1 auto;
+        }
+
+        .track-time {
+            display: inline-block;
+            vertical-align: top;
+            line-height: 40px;
+            height: 40px;
+            width: 60px;
+            text-align: center;
+            flex: 0 0 auto;
+        }
+
+        .album-song-name {
+            margin-left: 10px;
+        }
+    </style>
+</partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            var vm = ui.ViewModel({
+                size: {
+                    width: 320,
+                    height: 0,
+                },
+                playInfo: {
+                    progress: 0,
+                    status: "stop",
+                    currentTime: 0,
+                    volume: 100,
+                    mode: "order"
+                },
+                albumCover: "",
+                items: []
+            });
+
+            function Player(vm) {
+                if(!(this instanceof Player)) {
+                    return new Player(vm);
+                }
+
+                this.viewModel = vm;
+                this.audio = document.createElement("audio");
+                this.audio.autoPlay = false;
+                this.audio.width = 0;
+                this.audio.height = 0;
+
+                this.playIndex = -1;
+
+                document.body.appendChild(this.audio);
+
+                this.audio.addEventListener("timeupdate", (function(e) {
+                    var changeTime;
+                    if(this.viewModel.playInfo.status === "stop") {
+                        return;
+                    }
+
+                    if(this.audio.currentTime === this.audio.duration) {
+                        this.next();
+                        return;
+                    }
+
+                    changeTime = this.audio.currentTime - this.viewModel.playInfo.currentTime;
+                    if(changeTime >= 1) {
+                        this.viewModel.playInfo.currentTime = this.audio.currentTime;
+                        this.viewModel.playInfo.progress = this.audio.currentTime / this.audio.duration;
+                    }
+                }).bind(this), false);
+            }
+            Player.prototype.play = function() {
+                var playSong;
+                if(this.playIndex !== -1) {
+                    playSong = this.viewModel.items[this.playIndex];
+                    this.audio.src = playSong.url;
+                    this.audio.play();
+
+                    this.viewModel.playInfo.status = playSong.status = "play";
+                }
+            };
+            Player.prototype.pause = function() {
+                var playSong;
+                if(this.playIndex !== -1) {
+                    playSong = this.viewModel.items[this.playIndex];
+                    this.audio.pause();
+                    this.viewModel.playInfo.status = playSong.status = "stop";
+                    this.viewModel.playInfo.currentTime = 0;
+                    this.viewModel.playInfo.progress = 0;
+                }
+            };
+            Player.prototype.stop = function() {
+                var playSong;
+
+                this.pause();
+                this.audio.src = "";
+                this.playIndex = -1;
+            };
+            Player.prototype.next = function() {
+                var index;
+                if(this.viewModel.playInfo.mode === "random") {
+                    index = ui.random.getNum(0, this.viewModel.items.length);
+                } else {
+                    index = this.playIndex + 1;
+                }
+                this.pause();
+                if(index >= 0 && index < this.viewModel.items.length) {
+                    this.playIndex = index;
+                    this.play();
+                }
+            };
+            Player.prototype.previous = function() {
+                var index;
+                if(this.viewModel.playInfo.mode === "random") {
+                    index = ui.random.getNum(0, this.viewModel.items.length);
+                } else {
+                    index = this.playIndex - 1;
+                }
+                this.pause();
+                if(index >= 0 && index < this.viewModel.items.length) {
+                    this.playIndex = index;
+                    this.play();
+                }
+            };
+
+            function initAlbumList(vm) {
+                var album = document.getElementById("list"),
+                    cover = album.children[0],
+                    songList = album.children[1];
+
+                var that = this;
+                
+                ui.ViewModel.bindOneWay(vm, "albumCover", function(value) {
+                    var img = cover.children[0];
+                    img.src = value;
+                });
+                ui.ViewModel.bindOneWay(vm, "items", function(value) {
+                    that.player.stop();
+                    songList.innerHTML = "";
+
+                    value.forEach(function(item, i) {
+                        var song = new Song(item);
+                        var element = song.render();
+                        element.setAttribute("data-index", i);
+                        songList.appendChild(element);
+                    });
+                });
+
+                ui.ViewModel.bindOneWay(vm.size, "width", function(value) {
+                    if(value > 0) {
+                        album.style.width = value + "px";
+                        cover.style.width = value + "px";
+                        cover.style.height = value + "px";
+                    }
+                });
+                ui.ViewModel.bindOneWay(vm.size, "height", function(value) {
+                    if(value > 0) {
+                        songList.style.height =  value - vm.size.width + "px";
+                    }
+                });
+
+                ui.ViewModel.bindOneWay(vm.playInfo, "status", function(value) {
+                    var playButton = document.getElementById("play"),
+                        icon = playButton.getElementsByClassName("fa")[0];
+                    if(value === "stop") {
+                        if(icon) {
+                            icon.classList.remove("fa-pause");
+                            icon.classList.add("fa-play");
+                        }
+                    } else if(value === "play") {
+                        if(icon) {
+                            icon.classList.remove("fa-play");
+                            icon.classList.add("fa-pause");
+                        }
+                    }
+                });
+                ui.ViewModel.bindOneWay(vm.playInfo, "progress", function(value) {
+                    var progress = cover.getElementsByClassName("progress")[0];
+                    progress.style.width = value * 100 + "%";
+                });
+                ui.ViewModel.bindOneWay(vm.playInfo, "currentTime", function(value) {
+                    var time = cover.getElementsByClassName("control-bar-right")[0];
+                    var minutes = Math.floor(value / 60);
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    var seconds = Math.floor(value % 60);
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+                    time.innerText = minutes + ":" + seconds;
+                });
+
+                vm.refresh();
+            }
+
+            function Song(vm) {
+                this.viewModel = vm;
+                var that = this;
+                ui.ViewModel.bindOneWay(vm, "status", function(value) {
+                    if(value === "stop") {
+                        that.element.classList.remove("background-highlight");
+                    } else if(value === "play") {
+                        that.element.classList.add("background-highlight");
+                    }
+                });
+            }
+            Song.prototype.render = function() {
+                var htmlBuilder = [];
+                this.element = document.createElement("li");
+                this.element.classList.add("song-item");
+                this.element.classList.add("theme-panel-hover");
+
+                htmlBuilder.push("<span class='track-num'>", this.viewModel.trackNum, "</span>");
+                htmlBuilder.push("<span class='track-name'>", this.viewModel.name, "</span>");
+                htmlBuilder.push("<span class='track-time'>", this.viewModel.time, "</span>");
+                this.element.innerHTML = htmlBuilder.join("");
+
+                return this.element;
+            };
+
+            window.pageLogic = {
+                init: {
+                    load: function() {
+                        // 初始化播放器
+                        var player = this.player = new Player(vm);
+
+                        ui.on("dblclick", ".song-item", function(e) {
+                            var playingSong,
+                                index = this.getAttribute("data-index");
+                            index = parseInt(index);
+                            if(index === player.playIndex) {
+                                return;
+                            }
+                            player.pause();
+                            player.playIndex = index;
+                            player.play();
+                        });
+                        ui.on("click", "#mode", function(e) {
+                            if(vm.playInfo.mode === "order") {
+                                vm.playInfo.mode = "random";
+                                this.classList.remove("play-button-inactive");
+                            } else {
+                                vm.playInfo.mode = "order";
+                                this.classList.add("play-button-inactive");
+                            }
+                        });
+                        ui.on("click", "#play", function(e) {
+                            if(vm.playInfo.status === "play") {
+                                player.pause();
+                            } else {
+                                if(player.playIndex === -1) {
+                                    player.playIndex = 0;
+                                }
+                                player.play();
+                            }
+                        });
+                        ui.on("click", "#forward", function(e) {
+                            player.next();
+                        });
+                        ui.on("click", "#backward", function(e) {
+                            player.previous();
+                        });
+
+                        initAlbumList.call(this, vm);
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            vm.size.height = height - 41;
+                        });
+
+                        // 设置歌曲信息
+                        vm.albumCover = "https://y.gtimg.cn/music/photo_new/T002R300x300M000000oI0IK2rvClS.jpg?max_age=2592000";
+                        vm.items = [
+                            {
+                                trackNum: 1,
+                                name: "用情",
+                                artist: "张信哲",
+                                time: "05:08",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400000TLVmF0Io0VX.m4a?guid=7695892980&vkey=CE2E03D98FAF93F276FC2E6D29821976EB2BCEBAA366FE8C284CD782E3B6910EAC012192F7A406C6260C65CFF0A40B05000B19E25A590D99&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 2,
+                                name: "背叛",
+                                artist: "张信哲",
+                                time: "03:52",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400003a3wal2yjmqp.m4a?guid=7695892980&vkey=08406BB9A8CF6EA3C92C3503C058476EEC3CA5B9AFCFB84AFFF5722BB6F367C049D2E67605E375F195A0AF12B6551B69DC017BD2DC229155&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 3,
+                                name: "多想",
+                                artist: "张信哲",
+                                time: "04:57",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400002PRgVr3u8ktl.m4a?guid=7695892980&vkey=87FE73EA8103DC8DD983736CBE6C2B9AF5BB66006DE36108ADE0BD7BF8BC37987CA8274BB5B3DBF15D79B8B20918C869A2F5E8B5A63D8446&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 4,
+                                name: "Good Love",
+                                artist: "张信哲",
+                                time: "04:45",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400002rJ8xb1XIxrp.m4a?guid=7695892980&vkey=56A6F2C853D3D97581DE9D2ADA76D042E4B9BD40790D73E5C45778C25742ADB2F98D6C2273E66F8C78F3B1FE70D3B14BA8F35E08C4826A43&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 5,
+                                name: "放手",
+                                artist: "张信哲",
+                                time: "03:51",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400000ck4uU0MmaCG.m4a?guid=7695892980&vkey=14CA029606CA87B89FC9909DBB653A01E7BD6B5AB740DD0BDDFCEF3DE753BB73332E7A19EB6193815784BAACBD8F0B69E5E1B400F12961EF&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 6,
+                                name: "受罪",
+                                artist: "张信哲",
+                                time: "05:08",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400000tN4oy19dd9e.m4a?guid=7695892980&vkey=3B4F84C52F1143C00C3810292551566813C8DA4CD1CFADDADA6B2877A8AD6CD5151D230A822A1C411E7D2EFA3F016A4FBA938B9165A573A5&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 7,
+                                name: "改变",
+                                artist: "张信哲",
+                                time: "04:36",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400001qPIPW3e6P3Y.m4a?guid=7695892980&vkey=A3D8812B75B3F1255B8CB060C3BA4F648E7AD15017F42C63FADDA9C53D679C0C232547ABB40BF1C25C57526EA394EFE29D06C895C052A7F0&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 8,
+                                name: "等你",
+                                artist: "张信哲",
+                                time: "04:36",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400003NiFyC46ANas.m4a?guid=7695892980&vkey=77373B3E1ADA9224FC810A9F41FC93BE0E93D456645503CB8A537A06BA47DEFB7C8BEF598CA6C853EE4FD175AD0A768EEEF18B73A8F73D6C&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 9,
+                                name: "快乐",
+                                artist: "张信哲",
+                                time: "03:51",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C400001TE2R12tl0HS.m4a?guid=7695892980&vkey=AA8ECB061B1E59932BEA0EDABD087F53B030EB8334A1DAEB3CFA8AFA194071C7A71D59A15A25A2AD20F0029111AEC269EB195BF7AD5F12AD&uin=0&fromtag=66"
+                            },
+                            {
+                                trackNum: 10,
+                                name: "游戏",
+                                artist: "张信哲",
+                                time: "04:26",
+                                year: 1997,
+                                status: "stop",
+                                url: "http://isure.stream.qqmusic.qq.com/C4000027PQ5s3cqe3q.m4a?guid=7695892980&vkey=466D7C13E04C853A1495EEE7D384BAB0F2A11D7C638802C49E15A874BDF59FAFC8FBF24C023CA676BABD79D5EBDE39CEDD93060A11C18310&uin=0&fromtag=66"
+                            }
+                        ];
+                    }
+                }
+            };
+        })();
+    </script>
+</partial>

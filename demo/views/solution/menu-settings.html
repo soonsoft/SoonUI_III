@@ -1,0 +1,107 @@
+<partial id="title">菜单设置</partial>
+<partial id="header">MENU SETTINGS</partial>
+
+<partial id="content">
+    <div id="toolbar" class="toolbar clear">
+        <ul class="tools" style="float:right">
+            <li class="tool-item action-buttons">
+                <a id="menuAdd" class="tool-action-button" href="javascript:void(0)" title="新建">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <a id="menuSort" class="tool-action-button" href="javascript:void(0)" title="排序">
+                    <i class="fa fa-sort-amount-asc"></i>
+                </a>
+            </li>
+            <li id="menuSortActions" class="action-buttons" style="display:none">
+                <a id="menuUp" class="tool-action-button" href="javascript:void(0)" title="上移">
+                    <i class="fa fa-arrow-up"></i>
+                </a>
+                <a id="menuDown" class="tool-action-button" href="javascript:void(0)" title="下移">
+                    <i class="fa fa-arrow-down"></i>
+                </a>
+                <a id="menuLevelUp" class="tool-action-button" href="javascript:void(0)" title="升级">
+                    <i class="fa fa-outdent"></i>
+                </a>
+                <a id="menuLevelDown" class="tool-action-button" href="javascript:void(0)" title="降级">
+                    <i class="fa fa-indent"></i>
+                </a>
+                <a id="menuSortSave" class="tool-action-button" href="javascript:void(0)" title="保存">
+                    <i class="fa fa-save"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="gridview"></div>
+</partial>
+
+<partial id="style"></partial>
+
+<partial id="script">
+    <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    before: function() {
+                        this.toolbar = ui.master.createToolbar("toolbar");
+                        //createGridTree.call(this);
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                            //pageLogic.gridview.setSize(height - 40);
+                        });
+                    },
+                    after: function() {
+
+                    },
+                    events: function() {
+
+                    },
+                    load: function() {
+                        //loadGridTreeData();
+                    }
+                }
+            };
+
+            function createGridTree() {
+                var gridTree = new ui.ctrls.GridViewTree();
+                this.gridview = $("#gridview").gridView({
+                    columns: [
+                        { text: "#", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
+                        { text: "部门名称", column: "DeptName", len: 320, formatter: gridTree.treeNode },
+                        { text: "类型", column: "DeptTypeName", len: 100 },
+                        { text: "层级", column: "Level", len: 100 },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    // 树形表格一般不分页
+                    pager: false,
+                    selection: {
+                        type: "row",
+                        multiple: false,
+                        isRelateCheckbox: false
+                    }
+                });
+                gridTree.setGridView(this.gridview);
+                this.gridview.selecting(function(e, eventData) {
+                    //return false;
+                });
+                this.gridview.selected(function(e, eventData) {
+
+                });
+                this.gridview.deselected(function(e, eventData) {
+
+                });
+                this.gridview.cancel(function(e) {
+
+                });
+            }
+
+            var menuManager = {
+                
+            };
+        })();
+    </script>
+</partial>
