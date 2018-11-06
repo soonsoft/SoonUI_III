@@ -743,17 +743,17 @@
             }
 
             function solutionSection() {
-                var color = "rgba(15, 128, 193, .6)",
+                var color = "rgba(255, 255, 255, .2)",
                     tileContainer = $("#tileContainer"),
                     tiles = ui.TileContainer(tileContainer);
                 tiles.addGroup([
-                    { type: "large", color: color, title: "数据大屏", icon: "./content/icons/tile/templete.png", link: "./compontents/solution/screen.html" },
-                    { type: "wide", color: color, title: "用户登录", icon: "./content/icons/tile/memberManager.png" },
-                    { type: "medium", color: color, title: "菜单管理", icon: "./content/icons/tile/menu.png" },
-                    { type: "medium", color: color, title: "字典管理", icon: "./content/icons/tile/dictionary.png" },
-                    { type: "wide", color: color, title: "系统设置", icon: "./content/icons/tile/Settings.png" },
+                    { type: "large", color: "rgba(15, 128, 193, .6)", title: "数据大屏", icon: "./content/icons/tile/templete.png", link: "./compontents/solution/screen.html" },
+                    { type: "wide", color: color, title: "用户登录", icon: "./content/icons/tile/user.png" },
                     { type: "medium", color: color, title: "组织机构视图", icon: "./content/icons/tile/organization.png" },
-                    { type: "medium", color: color, title: "员工管理", icon: "./content/icons/tile/department.png" }
+                    { type: "medium", color: color, title: "员工管理", icon: "./content/icons/tile/department.png" },
+                    { type: "wide", color: color, title: "系统设置", icon: "./content/icons/tile/Settings.png" },
+                    { type: "medium", color: color, title: "菜单管理", icon: "./content/icons/tile/menu.png" },
+                    { type: "medium", color: "rgba(15, 128, 193, .6)", title: "MVVM", icon: "./content/icons/tile/dictionary.png", link: "./compontents/solution/view-model.html" }
                 ]);
                 this.onResize(function(width, height) {
                     var tileWidth = width * .8,
