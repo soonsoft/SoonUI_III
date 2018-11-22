@@ -26437,11 +26437,11 @@ if(global.FormData) {
                 i, key, sliceNames;
         
             files = this._inputFile[0].files;
-            file = files[0];
             if (!files || files.length === 0) {
                 return;
             }
 
+            file = files[0];
             fileName = file.fileName || file.name;
             index = 0;
             total = file.size;
@@ -28533,7 +28533,7 @@ var master = {
             layoutSize.call(this);
             userSettings.call(this);
 
-            ui.page.resize((function (e, clientWidth, clientHeight) {
+            ui.page.resize((function () {
                 layoutSize.call(this);
             }).bind(this), ui.eventPriority.bodyResize);
             
@@ -28552,24 +28552,32 @@ var master = {
         return pager;
     },
     /** 初始化页面方法 */
-    pageInit: function (initObj, caller) {
-        var func = null,
-            caller = caller || this,
-            message = ["页面初始化时在[", "", "]阶段发生错误，", ""];
-        if (ui.core.isPlainObject(initObj)) {
-            for (var key in initObj) {
-                func = initObj[key];
-                if (ui.core.isFunction(func)) {
-                    try {
-                        func.call(caller);
-                    } catch (e) {
-                        message[1] = key;
-                        message[3] = e.message;
-                        ui.errorShow(message.join(""));
-                        throw e;
-                    }
+    pageInit: function (initFn, caller) {
+        caller = caller || this;
+        if(!initFn) {
+            return;
+        }
+
+        function callInitFn(fn) {
+            if(ui.core.isFunction(fn)) {
+                try {
+                    fn.call(caller);
+                } catch(e) {
+                    ui.errorShow(ui.str.format("页面初始化时发生错误，{0}", e.message));
                 }
             }
+        }
+
+        if(Array.isArray(initFn)) {
+            initFn.forEach(function(f) {
+                callInitFn(f);
+            });
+        } else if(ui.core.isPlainObject(initFn)) {
+            Object.keys(initFn).forEach(function(k) {
+                callInitFn(initFn[k]);
+            });
+        } else {
+            callInitFn(initFn);
         }
     },
     /** 托管dom ready事件 */

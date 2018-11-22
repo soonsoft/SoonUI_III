@@ -17770,11 +17770,11 @@ if(global.FormData) {
                 i, key, sliceNames;
         
             files = this._inputFile[0].files;
-            file = files[0];
             if (!files || files.length === 0) {
                 return;
             }
 
+            file = files[0];
             fileName = file.fileName || file.name;
             index = 0;
             total = file.size;
