@@ -567,7 +567,7 @@
                 load: function() {
                     var width = document.documentElement.clientWidth,
                         height = document.documentElement.clientHeight,
-                        that;
+                        that = this;
                     function setImageSize(img, imgInfo) {
                         img.css({
                             "width": imgInfo.displayWidth + "px",
@@ -582,35 +582,23 @@
                         img.prop("src", imgInfo.src);
                     }
                     
-                    that = this;
-                    ui.ImageLoader()
-                        .load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop)
-                        .then(function(loader) {
-                            var img = $("#bg2");
-                            setImageSize(img, loader);
-                            // chrome会不执行动画，需要一个MacroTask做延迟
-                            setTimeout(function() {
-                                img.addClass("start-animation");
-                            }, 16);
+                    Promise.all([
+                        ui.ImageLoader().load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop),
+                        ui.ImageLoader().load("./content/pictures/29.jpg", width, height, ui.ImageLoader.centerCrop),
+                        ui.ImageLoader().load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop),
+                        ui.ImageLoader().load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
+                    ]).then(function(loaders) {
+                        ["bg2", "bg3", "bg4", "bg5"].forEach(function(item, index) {
+                            var img = $("#" + item);
+                            setImageSize(img, loaders[index]);
+                            if(index === 0) {
+                                // chrome会不执行动画，需要一个MacroTask做延迟
+                                setTimeout(function() {
+                                    img.addClass("start-animation");
+                                }, 16);
+                            }
                         });
-                    ui.ImageLoader()
-                        .load("./content/pictures/29.jpg", width, height, ui.ImageLoader.centerCrop)
-                        .then(function(loader) {
-                            var img = $("#bg3");
-                            setImageSize(img, loader);
-                        });
-                    ui.ImageLoader()
-                        .load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop)
-                        .then(function(loader) {
-                            var img = $("#bg4");
-                            setImageSize(img, loader);
-                        });
-                    ui.ImageLoader()
-                        .load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
-                        .then(function(loader) {
-                            var img = $("#bg5");
-                            setImageSize(img, loader);
-                        });
+                    });
                 },
                 resize: function(width, height) {
                     this.images.forEach(function(item) {
