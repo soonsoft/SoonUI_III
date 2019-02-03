@@ -396,8 +396,8 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                 option.th = elem.parent();
                 option.beginLeft = left;
                 option.endLeft = left;
-                option.leftLimit = panelOffset.left;
-                option.rightLimit = panelOffset.left + that.element.outerWidth();
+                option.leftLimit = 0;
+                option.rightLimit = that.element.width();
                 
                 option.target.css({
                     "left": left + "px",
