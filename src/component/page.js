@@ -1,4 +1,3 @@
-
 // 事件优先级
 ui.eventPriority = {
     masterReady: 3,
@@ -19,7 +18,8 @@ var page = ui.page = {
         "htmlclick", 
         "docmouseup", 
         "resize", 
-        "hashchange"
+        "hashchange",
+        "keydown"
     ]
 };
 page.event = new ui.CustomEvent(page);
@@ -27,12 +27,16 @@ page.event.initEvents();
 
 $(document)
     //注册全局ready事件
-    .ready(function (e) {
+    .on("ready", function (e) {
         page.fire("ready");
     })
     //注册全局click事件
-    .click(function (e) {
+    .on("click", function (e) {
         page.fire("htmlclick");
+    })
+    //注册全局keydown事件
+    .on("keydown", function(e) {
+        page.fire("keydown");
     });
 
 $(window)
