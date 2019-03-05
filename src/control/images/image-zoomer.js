@@ -45,7 +45,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         return ["hided"];
     },
     _create: function () {
-        var that;
+        var that = this;
 
         this.parentContent = this.option.parentContent;
         this.closeButton = null;
@@ -62,8 +62,9 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
+        // 键盘事件是否有效
+        this._isKeydownEnabled = false;
 
-        that = this;
         ["getNext", "getPrev", "hasNext", "hasPrev"].forEach(function(key) {
             var fn = that.option[key];
             if(ui.core.isFunction(fn)) {
@@ -110,6 +111,20 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.page.resize(function(e) {
             that.resizeZoomImage();
         }, ui.eventPriority.ctrlResize);
+
+        ui.page.keydown(function(e) {
+            if(!that._isKeydownEnabled) {
+                return;
+            }
+
+            if(e.which === ui.keyCode.LEFT) {
+                that._doNextView();
+            } else if(e.which === ui.keyCode.RIGHT) {
+                that._doPrevView();
+            } else if(e.which === ui.keyCode.ESCAPE) {
+                that.hide();
+            }   
+        });
 
         this.zoomAnimator = ui.animator({
             ease: ui.AnimationStyle.easeFromTo,
@@ -195,6 +210,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             width: this.target.width(),
             height: this.target.height()
         };
+
+        this._isKeydownEnabled = true;
         
         img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
@@ -253,6 +270,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             width: this.target.width(),
             height: this.target.height()
         };
+
+        this._isKeydownEnabled = false;
 
         ui.mask.close();
 
