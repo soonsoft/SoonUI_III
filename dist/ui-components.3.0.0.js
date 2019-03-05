@@ -4068,7 +4068,6 @@ ui.theme = {
 // Source: src/component/page.js
 
 (function($, ui) {
-
 // 事件优先级
 ui.eventPriority = {
     masterReady: 3,
@@ -4089,7 +4088,8 @@ var page = ui.page = {
         "htmlclick", 
         "docmouseup", 
         "resize", 
-        "hashchange"
+        "hashchange",
+        "keydown"
     ]
 };
 page.event = new ui.CustomEvent(page);
@@ -4103,7 +4103,7 @@ $(document)
     //注册全局click事件
     .click(function (e) {
         page.fire("htmlclick");
-    });
+    })
 
 $(window)
     //注册全局resize事件

@@ -112,15 +112,15 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             that.resizeZoomImage();
         }, ui.eventPriority.ctrlResize);
 
-        ui.page.keydown(function(e) {
+        $(document).keydown(function(e) {
             if(!that._isKeydownEnabled) {
                 return;
             }
 
             if(e.which === ui.keyCode.LEFT) {
-                that._doNextView();
-            } else if(e.which === ui.keyCode.RIGHT) {
                 that._doPrevView();
+            } else if(e.which === ui.keyCode.RIGHT) {
+                that._doNextView();
             } else if(e.which === ui.keyCode.ESCAPE) {
                 that.hide();
             }   

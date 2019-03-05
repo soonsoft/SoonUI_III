@@ -2086,6 +2086,11 @@ delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
 
+/** 元素是否有滚动条 */
+ui.hasScrollBar = function() {
+    return false;
+}
+
 // TODO 统一的异常处理函数
 ui.handleError = function(e) {
     console.log(e);
@@ -8603,7 +8608,6 @@ ui.theme = {
 // Source: src/component/page.js
 
 (function($, ui) {
-
 // 事件优先级
 ui.eventPriority = {
     masterReady: 3,
@@ -8624,7 +8628,8 @@ var page = ui.page = {
         "htmlclick", 
         "docmouseup", 
         "resize", 
-        "hashchange"
+        "hashchange",
+        "keydown"
     ]
 };
 page.event = new ui.CustomEvent(page);
@@ -8638,7 +8643,7 @@ $(document)
     //注册全局click事件
     .click(function (e) {
         page.fire("htmlclick");
-    });
+    })
 
 $(window)
     //注册全局resize事件
@@ -27563,7 +27568,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         return ["hided"];
     },
     _create: function () {
-        var that;
+        var that = this;
 
         this.parentContent = this.option.parentContent;
         this.closeButton = null;
@@ -27580,8 +27585,9 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         } else {
             this._getLargeImageSrc = getLargeImageSrc;
         }
+        // 键盘事件是否有效
+        this._isKeydownEnabled = false;
 
-        that = this;
         ["getNext", "getPrev", "hasNext", "hasPrev"].forEach(function(key) {
             var fn = that.option[key];
             if(ui.core.isFunction(fn)) {
@@ -27628,6 +27634,20 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         ui.page.resize(function(e) {
             that.resizeZoomImage();
         }, ui.eventPriority.ctrlResize);
+
+        $(document).keydown(function(e) {
+            if(!that._isKeydownEnabled) {
+                return;
+            }
+
+            if(e.which === ui.keyCode.LEFT) {
+                that._doPrevView();
+            } else if(e.which === ui.keyCode.RIGHT) {
+                that._doNextView();
+            } else if(e.which === ui.keyCode.ESCAPE) {
+                that.hide();
+            }   
+        });
 
         this.zoomAnimator = ui.animator({
             ease: ui.AnimationStyle.easeFromTo,
@@ -27713,6 +27733,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             width: this.target.width(),
             height: this.target.height()
         };
+
+        this._isKeydownEnabled = true;
         
         img = this.currentView.children("img");
         img.prop("src", this.target.prop("src"));
@@ -27771,6 +27793,8 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             width: this.target.width(),
             height: this.target.height()
         };
+
+        this._isKeydownEnabled = false;
 
         ui.mask.close();
 

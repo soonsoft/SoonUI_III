@@ -27,17 +27,13 @@ page.event.initEvents();
 
 $(document)
     //注册全局ready事件
-    .on("ready", function (e) {
+    .ready(function (e) {
         page.fire("ready");
     })
     //注册全局click事件
-    .on("click", function (e) {
+    .click(function (e) {
         page.fire("htmlclick");
     })
-    //注册全局keydown事件
-    .on("keydown", function(e) {
-        page.fire("keydown");
-    });
 
 $(window)
     //注册全局resize事件

@@ -15,6 +15,11 @@ delete ui.tempWidth;
 delete ui.tempInnerDiv;
 delete ui.tempDiv;
 
+/** 元素是否有滚动条 */
+ui.hasScrollBar = function() {
+    return false;
+}
+
 // TODO 统一的异常处理函数
 ui.handleError = function(e) {
     console.log(e);
