@@ -3030,6 +3030,7 @@ var themeStyle,
     isCalendarViewThemeInitialized = false;
 function initCalendarViewTheme(colorInfo) {
     var baseColor,
+        highlightColor,
         color,
         styleHelper;
 
@@ -3046,12 +3047,13 @@ function initCalendarViewTheme(colorInfo) {
         styleHelper = ui.StyleSheet(themeStyle);
     }
     if(!colorInfo) {
-        colorInfo = ui.theme.currentHighlight;
+        colorInfo = ui.theme.currentHighlight || { color: "#3E5A99" };
     }
 
     baseColor = ui.theme.backgroundColor || "#FFFFFF";
+    highlightColor = colorInfo.Color || colorInfo.color;
 
-    color = ui.color.overlay(colorInfo.Color, baseColor, .4);
+    color = ui.color.overlay(highlightColor, baseColor, .4);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-selector", {
         "background-color": color
@@ -3060,7 +3062,7 @@ function initCalendarViewTheme(colorInfo) {
         "background-color": color
     });
     styleHelper.setRule(".ui-calendar-hour-panel .schedule-item-panel:hover", {
-        "background-color": colorInfo.Color
+        "background-color": highlightColor
     });
     styleHelper.setRule(".ui-calendar-month-day-view .month-days-table .selected", {
         "background-color": color
@@ -3069,19 +3071,19 @@ function initCalendarViewTheme(colorInfo) {
         "background-color": color
     });
 
-    color = ui.color.overlay(colorInfo.Color, baseColor, .85);
+    color = ui.color.overlay(highlightColor, baseColor, .85);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-hour-panel .week-hour-cell-today", {
         "background-color": color
     });
 
-    color = ui.color.overlay(colorInfo.Color, baseColor, .7);
+    color = ui.color.overlay(highlightColor, baseColor, .7);
     color = ui.color.rgb2hex(color.red, color.green, color.blue);
     styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-item", {
         "background-color": color
     });
     styleHelper.setRule(".ui-calendar-month-day-view .month-days-cell .schedule-border", {
-        "background-color": colorInfo.Color
+        "background-color": highlightColor
     });
 }
 ui.page.hlchanged(function(e, colorInfo) {

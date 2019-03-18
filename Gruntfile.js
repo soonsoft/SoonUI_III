@@ -67,7 +67,7 @@ module.exports = function(grunt) {
             }
         }
         // 构建输出文件
-        let key = "dist/theme/" + item.name.toLowerCase() + "/site." + item.name + ".css";
+        let key = "dist/theme/" + item.name.toLowerCase() + "/site-" + item.name + ".css";
         let value = "theme/site." + item.name + ".less";
         item = {};
         item[key] = value;

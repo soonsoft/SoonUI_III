@@ -68,12 +68,14 @@ ui.theme = {
         var sheet,
             styleUrl,
             highlight;
-        sheet = $("#" + ui.theme.highlightSheetId);
-        if(sheet.length > 0) {
-            styleUrl = sheet.prop("href");
+        sheet = document.getElementById(this.highlightSheetId);
+        if(sheet) {
+            styleUrl = sheet.href;
             highlight = ui.url.getParams(styleUrl).highlight;
         }
-        this.currentHighlight = this.getHighlight(highlight);
-        ui.page.fire("hlchanged", this.currentHighlight);
+        this.currentHighlight = this.getHighlight(highlight) || null;
+        if(this.currentHighlight) {
+            ui.page.fire("hlchanged", this.currentHighlight);
+        }
     }
 };
