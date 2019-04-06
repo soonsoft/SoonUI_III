@@ -269,7 +269,7 @@
                 // 默认显示第一个tab页，不要动画效果
                 this.viewTab.showIndex(0, false);
 
-                this.filterView = $("#filterView").filterTool({
+                this.filterButton = $("#filterView").filterButton({
                     viewData: [
                         { text: "工具", value: "tool" },
                         { text: "网络", value: "network" },
@@ -277,7 +277,7 @@
                         { text: "电影", value: "film" }
                     ]
                 });
-                this.filterView.selected(function(e, eventData) {
+                this.filterButton.selected(function(e, eventData) {
                     pageLogic.viewTab.showIndex(eventData.itemIndex);
                 });
                 

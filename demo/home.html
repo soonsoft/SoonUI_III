@@ -567,8 +567,14 @@
                 load: function() {
                     var width = document.documentElement.clientWidth,
                         height = document.documentElement.clientHeight,
-                        that = this;
+                        that = this,
+                        loadImages = [];
                     function setImageSize(img, imgInfo) {
+                        if(ui.core.isFunction(imgInfo)) {
+                            imgInfo.call(null, img);
+                            return;
+                        }
+
                         img.css({
                             "width": imgInfo.displayWidth + "px",
                             "height": imgInfo.displayHeight + "px",
@@ -581,13 +587,19 @@
                         });
                         img.prop("src", imgInfo.src);
                     }
+
+                    loadImages.push(ui.ImageLoader().load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop));
+                    loadImages.push(ui.ImageLoader().load("./content/pictures/29.jpg", width, height, ui.ImageLoader.centerCrop));
+                    loadImages.push(ui.ImageLoader().load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop));
+                    // loadImages.push(new Promise(function(resolve, reject) {
+                    //     resolve(function(img) {
+                    //         console.log("前端计算模糊效果");
+                    //         blurImage($("#bg3"), img);
+                    //     });
+                    // }));
+                    loadImages.push(ui.ImageLoader().load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop));
                     
-                    Promise.all([
-                        ui.ImageLoader().load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop),
-                        ui.ImageLoader().load("./content/pictures/29.jpg", width, height, ui.ImageLoader.centerCrop),
-                        ui.ImageLoader().load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop),
-                        ui.ImageLoader().load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop)
-                    ]).then(function(loaders) {
+                    Promise.all(loadImages).then(function(loaders) {
                         ["bg2", "bg3", "bg4", "bg5"].forEach(function(item, index) {
                             var img = $("#" + item);
                             setImageSize(img, loaders[index]);
@@ -614,6 +626,21 @@
                     });
                 }
             };
+            function blurImage(sourceImage, canvas) {
+                if(!sourceImage && !sourceImage.length) {
+                    return;
+                }
+
+                var imgDisplayCss = {
+                    "width": sourceImage.css("width"),
+                    "height": sourceImage.css("height"),
+                    "top": sourceImage.css("top"),
+                    "left": sourceImage.css("left")
+                };
+
+                canvas.css(imgDisplayCss);
+                ui.effect.blurImage(sourceImage[0], canvas[0], 22);
+            }
             function featureSection() {
                 var content = $(".feature-panel"),
                     panel = content.parent();

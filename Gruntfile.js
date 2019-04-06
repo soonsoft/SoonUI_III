@@ -273,7 +273,7 @@ module.exports = function(grunt) {
                     coreTempFile,
                     componentDestFile,
                     controlDestFile,
-                    effectDestFile,
+                    // effectDestFile, // 特效不打入all.js
                     viewDestFile
                 ],
                 // 合并后的JS文件的存放位置
