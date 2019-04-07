@@ -139,7 +139,8 @@ ui.ctrls.define = define;
 
 (function($, ui) {
 var htmlClickHideHandler = [],
-    dropdownPanelBorderWidth = 1;
+    dropdownPanelBorderWidth = 1,
+    cancelHtmlClickFlag = "cancel-dropdown-html-click";
 
 function hideControls (currentCtrl) {
     var handler, retain;
@@ -164,7 +165,11 @@ function hideControls (currentCtrl) {
 }
 
 // 注册document点击事件
-ui.page.htmlclick(function (e) {
+ui.page.htmlclick(function (e, element) {
+    var elem = $(element);
+    if(elem.isNodeName("body") || elem.hasClass(cancelHtmlClickFlag)) {
+        return;
+    }
     hideControls();
 });
 // 添加隐藏的处理方法
@@ -335,7 +340,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         } else {
             currentCss.display = "block";
         }
-        var wrapElem = $("<div class='dropdown-wrap' />").css(currentCss);
+        var wrapElem = $("<div class='dropdown-wrap cancel-dropdown-html-click' />").css(currentCss);
         elem.css({
             "margin": "0px"
         }).wrap(wrapElem);
@@ -456,10 +461,16 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         option.begin = this.panelLocation.topOffset;
         option.end = 0;
 
-        panel.css("display", "block");
+        panel
+            .css("display", "block")
+            .addClass(cancelHtmlClickFlag);
         this.fadeAnimator.onEnd = callback;
 
-        this.fadeAnimator.start();
+        this.fadeAnimator
+                .start()
+                .then(function() {
+                    panel.removeClass(cancelHtmlClickFlag);
+                });
     },
     hide: function(callback) {
         if (this.isShow()) {

@@ -634,7 +634,7 @@
   height: 195px;
   background-color: #f1f1f1;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   display: none;
   z-index: 10000;
 }

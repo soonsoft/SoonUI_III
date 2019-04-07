@@ -32,7 +32,7 @@ $(document)
     })
     //注册全局click事件
     .click(function (e) {
-        page.fire("htmlclick");
+        page.fire("htmlclick", e.target);
     })
 
 $(window)

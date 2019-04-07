@@ -5209,9 +5209,9 @@ Animator.prototype.start = function (duration) {
         _resolve = resolve;
         _reject = reject;
     });
+    promise._resolve = _resolve;
+    promise._reject = _reject;
     this.promise = promise;
-    this.promise._resolve = _resolve;
-    this.promise._reject = _reject;
 
     if (!this.isStarted) {
         if(ui.core.isNumber(duration) && duration > 0) {
@@ -5224,16 +5224,16 @@ Animator.prototype.start = function (duration) {
 
         that = this;
         if (flag) {
-            setTimeout(function() {
+            ui.setTask(function() {
                 that.onEnd.call(that);
-                promise._resolve(that);
+                _resolve.call(null, that);
             });
         } else {
             fn = this.onEnd;
             this.onEnd = function () {
                 this.onEnd = fn;
                 fn.call(this);
-                promise._resolve(this);
+                _resolve.call(null, this);
             };
             this.doAnimation();
         }
@@ -5241,13 +5241,16 @@ Animator.prototype.start = function (duration) {
     return promise;
 };
 Animator.prototype.stop = function () {
+    var promise;
     cancelAnimationFrame(this.stopHandle);
     this.isStarted = false;
     this.stopHandle = null;
     
-    if(this.promise) {
-        this.promise._reject("stop");
+    promise = this.promise;
+    if(promise) {
         this.promise = null;
+        promise.catch(noop);
+        promise._reject.call(null, "stop");
     }
 };
 Animator.prototype.back = function() {
@@ -8644,7 +8647,7 @@ $(document)
     })
     //注册全局click事件
     .click(function (e) {
-        page.fire("htmlclick");
+        page.fire("htmlclick", e.target);
     })
 
 $(window)
@@ -8813,7 +8816,8 @@ ui.ctrls.define = define;
 
 (function($, ui) {
 var htmlClickHideHandler = [],
-    dropdownPanelBorderWidth = 1;
+    dropdownPanelBorderWidth = 1,
+    cancelHtmlClickFlag = "cancel-dropdown-html-click";
 
 function hideControls (currentCtrl) {
     var handler, retain;
@@ -8838,7 +8842,11 @@ function hideControls (currentCtrl) {
 }
 
 // 注册document点击事件
-ui.page.htmlclick(function (e) {
+ui.page.htmlclick(function (e, element) {
+    var elem = $(element);
+    if(elem.isNodeName("body") || elem.hasClass(cancelHtmlClickFlag)) {
+        return;
+    }
     hideControls();
 });
 // 添加隐藏的处理方法
@@ -9009,7 +9017,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         } else {
             currentCss.display = "block";
         }
-        var wrapElem = $("<div class='dropdown-wrap' />").css(currentCss);
+        var wrapElem = $("<div class='dropdown-wrap cancel-dropdown-html-click' />").css(currentCss);
         elem.css({
             "margin": "0px"
         }).wrap(wrapElem);
@@ -9130,10 +9138,16 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         option.begin = this.panelLocation.topOffset;
         option.end = 0;
 
-        panel.css("display", "block");
+        panel
+            .css("display", "block")
+            .addClass(cancelHtmlClickFlag);
         this.fadeAnimator.onEnd = callback;
 
-        this.fadeAnimator.start();
+        this.fadeAnimator
+                .start()
+                .then(function() {
+                    panel.removeClass(cancelHtmlClickFlag);
+                });
     },
     hide: function(callback) {
         if (this.isShow()) {

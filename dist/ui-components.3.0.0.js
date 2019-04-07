@@ -669,9 +669,9 @@ Animator.prototype.start = function (duration) {
         _resolve = resolve;
         _reject = reject;
     });
+    promise._resolve = _resolve;
+    promise._reject = _reject;
     this.promise = promise;
-    this.promise._resolve = _resolve;
-    this.promise._reject = _reject;
 
     if (!this.isStarted) {
         if(ui.core.isNumber(duration) && duration > 0) {
@@ -684,16 +684,16 @@ Animator.prototype.start = function (duration) {
 
         that = this;
         if (flag) {
-            setTimeout(function() {
+            ui.setTask(function() {
                 that.onEnd.call(that);
-                promise._resolve(that);
+                _resolve.call(null, that);
             });
         } else {
             fn = this.onEnd;
             this.onEnd = function () {
                 this.onEnd = fn;
                 fn.call(this);
-                promise._resolve(this);
+                _resolve.call(null, this);
             };
             this.doAnimation();
         }
@@ -701,13 +701,16 @@ Animator.prototype.start = function (duration) {
     return promise;
 };
 Animator.prototype.stop = function () {
+    var promise;
     cancelAnimationFrame(this.stopHandle);
     this.isStarted = false;
     this.stopHandle = null;
     
-    if(this.promise) {
-        this.promise._reject("stop");
+    promise = this.promise;
+    if(promise) {
         this.promise = null;
+        promise.catch(noop);
+        promise._reject.call(null, "stop");
     }
 };
 Animator.prototype.back = function() {
@@ -4104,7 +4107,7 @@ $(document)
     })
     //注册全局click事件
     .click(function (e) {
-        page.fire("htmlclick");
+        page.fire("htmlclick", e.target);
     })
 
 $(window)
