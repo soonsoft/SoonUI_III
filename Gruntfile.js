@@ -288,16 +288,16 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    // ui.core.min.js
-                    "dist/ui.core.<%= pkg.version %>.min.js": ["<%= concat.core.dest %>"],
-                    // ui.components.min.js
-                    "dist/ui.components.<%= pkg.version %>.min.js": ["<%= concat.components.dest %>"],
-                    // ui.controls.min.js
-                    "dist/ui.controls.<%= pkg.version %>.min.js": ["<%= concat.controls.dest %>"],
-                    // ui.effect.min.js
-                    "dist/ui.effect.<%= pkg.version %>.min.js": ["<%= concat.effects.dest %>"],
-                    // ui.viewpages.min.js
-                    "dist/ui.viewpages.<%= pkg.version %>.min.js": ["<%= concat.viewpages.dest %>"],
+                    // ui-core.min.js
+                    "dist/ui-core.<%= pkg.version %>.min.js": ["<%= concat.core.dest %>"],
+                    // ui-components.min.js
+                    "dist/ui-components.<%= pkg.version %>.min.js": ["<%= concat.components.dest %>"],
+                    // ui-controls.min.js
+                    "dist/ui-controls.<%= pkg.version %>.min.js": ["<%= concat.controls.dest %>"],
+                    // ui-effects.min.js
+                    "dist/ui-effects.<%= pkg.version %>.min.js": ["<%= concat.effects.dest %>"],
+                    // ui-viewpages.min.js
+                    "dist/ui-viewpages.<%= pkg.version %>.min.js": ["<%= concat.viewpages.dest %>"],
                     // SOON.UI.all.min.js
                     "dist/<%= pkg.title %>.<%= pkg.version %>.all.min.js": ["<%= concat.dist.dest %>"]
                 }
