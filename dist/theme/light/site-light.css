@@ -1,6 +1,6 @@
 /*
-	Color: #1d1f21
-	Name: 暗夜
+	Color: #ffffff
+	Name: 光明
 */
 html {
   margin: 0;
@@ -8,7 +8,7 @@ html {
   overflow: hidden;
   width: 100%;
   height: 100%;
-  background-color: #1d1f21;
+  background-color: #ffffff;
 }
 body {
   font-size: 0.813em;
@@ -16,7 +16,7 @@ body {
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  color: #cccccc;
+  color: #333333;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -77,7 +77,7 @@ h6 {
 hr {
   height: 1px;
   border: none 0;
-  background-color: #505253;
+  background-color: #dedede;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -118,61 +118,61 @@ a:active {
 }
 /* 主题颜色 */
 .theme-bg {
-  background-color: #1d1f21;
+  background-color: #ffffff;
 }
 .theme-bg1 {
-  background-color: #2e3032;
+  background-color: #f6f6f6;
 }
 .theme-bg2 {
-  background-color: #37383a;
+  background-color: #eaeaea;
 }
 .theme-bg3 {
-  background-color: #434547;
+  background-color: #e1e1e1;
 }
 .theme-bg4 {
-  background-color: #505253;
+  background-color: #dedede;
 }
 .theme-panel {
-  background-color: #3c3f41;
+  background-color: #f1f1f1;
 }
 .theme-panel-hover:hover {
-  background-color: #5d5f60;
+  background-color: #dcdcdc;
 }
 .theme-border {
-  border-color: #5d5f60;
+  border-color: #dcdcdc;
 }
 .theme-border1 {
-  border-color: #3c3f41;
+  border-color: #cccccc;
 }
 .theme-border2 {
-  border-color: #4b4d4f;
+  border-color: #efefef;
 }
 .theme-font {
-  color: #cccccc;
+  color: #333333;
 }
 .theme-font1 {
-  color: #949494;
+  color: #525252;
 }
 .theme-font2 {
-  color: #808080;
+  color: #747474;
 }
 .theme-font3 {
-  color: #737373;
+  color: #979797;
 }
 .theme-font4 {
-  color: #676767;
+  color: #bababa;
 }
 .theme-tool {
-  background-color: #888888;
-  color: #888888;
+  background-color: #666666;
+  color: #666666;
 }
 .theme-tool1 {
-  background-color: #999999;
-  color: #999999;
+  background-color: #777777;
+  color: #777777;
 }
 .theme-tool2 {
-  background-color: #aaaaaa;
-  color: #aaaaaa;
+  background-color: #888888;
+  color: #888888;
 }
 /* 头部 */
 #head {
@@ -274,7 +274,7 @@ a:active {
   border-top-color: transparent;
   border-right-color: transparent;
   border-left-color: transparent;
-  border-bottom-color: #3c3f41;
+  border-bottom-color: #f1f1f1;
   border-style: dashed dashed solid dashed;
 }
 .head-tab-title .ui-tab-selection {
@@ -336,8 +336,8 @@ a:active {
 .toolbar {
   width: 100%;
   height: 40px;
-  background-color: #3c3f41;
-  color: #888888;
+  background-color: #f1f1f1;
+  color: #666666;
   overflow: hidden;
 }
 .toolbar .tools {
@@ -363,20 +363,20 @@ a:active {
   text-align: center;
   cursor: pointer;
   font-size: 18px;
-  color: #888888;
+  color: #666666;
   overflow: hidden;
 }
 .toolbar .tool-action-button:hover {
-  background-color: #5d5f60;
+  background-color: #dcdcdc;
   text-decoration: none;
 }
 .toolbar .tool-action-button:active {
-  background-color: #1d1f21;
+  background-color: #aaaaaa;
 }
 .toolbar .toolbar-extend {
   width: 100%;
   height: 120px;
-  background-color: #434547;
+  background-color: #e1e1e1;
   position: absolute;
   z-index: 999;
 }
@@ -391,7 +391,7 @@ a:active {
   line-height: 24px;
   z-index: 1000;
   text-align: center;
-  color: #888888;
+  color: #666666;
 }
 .toolbar .extend-spliter {
   margin-top: 0;
@@ -401,7 +401,7 @@ a:active {
   padding: 0;
   border: none 0;
   width: 1px;
-  background-color: #888888;
+  background-color: #666666;
   height: 100%;
 }
 /* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
@@ -414,8 +414,8 @@ a:active {
   min-width: 24px;
   border-style: solid;
   border-width: 2px;
-  border-color: #888888;
-  color: #888888;
+  border-color: #666666;
+  color: #666666;
   overflow: hidden;
   background-color: transparent;
   cursor: pointer;
@@ -446,7 +446,7 @@ a:active {
   line-height: 22px;
 }
 .icon-button:hover {
-  background-color: #999999;
+  background-color: #434343;
 }
 .icon-button:focus,
 .tool-button:focus {
@@ -454,8 +454,8 @@ a:active {
 }
 .icon-button:disabled,
 .tool-button:disabled {
-  color: #5d5f60 !important;
-  border-color: #5d5f60 !important;
+  color: #aaaaaa !important;
+  border-color: #aaaaaa !important;
   background-color: transparent !important;
 }
 /* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
@@ -477,8 +477,8 @@ input[type="tel"],
 textarea {
   box-sizing: border-box;
   background-color: transparent;
-  border: 1px solid #888888;
-  color: #888888;
+  border: 1px solid #666666;
+  color: #666666;
   margin: 0;
   padding: 0 1px 0 1px;
   height: 24px;
@@ -495,7 +495,7 @@ input[type="radio"] {
   vertical-align: middle;
   margin: 0;
   padding: 2px;
-  border: 2px solid #888888;
+  border: 2px solid #666666;
   border-radius: 50%;
   background-clip: content-box;
   background-color: transparent;
@@ -505,14 +505,14 @@ input[type="radio"] {
   appearance: none;
 }
 input[type="radio"]:checked {
-  border-color: #888888;
-  background-color: #888888;
+  border-color: #666666;
+  background-color: #666666;
 }
 input[type="radio"]:disabled {
-  border-color: #5d5f60 !important;
+  border-color: #aaaaaa !important;
 }
 input[type="radio"]:checked:disabled {
-  background-color: #5d5f60 !important;
+  background-color: #aaaaaa !important;
 }
 input[type="checkbox"] {
   display: inline-block;
@@ -530,23 +530,23 @@ input[type="checkbox"] {
   appearance: none;
 }
 input[type="checkbox"]:checked {
-  background-color: #888888;
+  background-color: #666666;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMTJweDsgaGVpZ2h0OiAxMnB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNIDk1NC44NTcgMzIzLjQyOSBxIDAgMjIuODU3MSAtMTYgMzguODU3MSBsIC00MTMuNzE0IDQxMy43MTQgbCAtNzcuNzE0MyA3Ny43MTQzIHEgLTE2IDE2IC0zOC44NTcxIDE2IHQgLTM4Ljg1NzEgLTE2IGwgLTc3LjcxNDMgLTc3LjcxNDMgbCAtMjA2Ljg1NyAtMjA2Ljg1NyBxIC0xNiAtMTYgLTE2IC0zOC44NTcxIHQgMTYgLTM4Ljg1NzEgbCA3Ny43MTQzIC03Ny43MTQzIHEgMTYgLTE2IDM4Ljg1NzEgLTE2IHQgMzguODU3MSAxNiBsIDE2OCAxNjguNTcxIGwgMzc0Ljg1NyAtMzc1LjQyOSBxIDE2IC0xNiAzOC44NTcxIC0xNiB0IDM4Ljg1NzEgMTYgbCA3Ny43MTQzIDc3LjcxNDMgcSAxNiAxNiAxNiAzOC44NTcxIFoiIHAtaWQ9IjU3MjAiIC8+PC9zdmc+");
 }
 input[type="checkbox"]:disabled {
-  border-color: #5d5f60 !important;
+  border-color: #aaaaaa !important;
 }
 input[type="checkbox"]:checked:disabled {
-  background-color: #5d5f60 !important;
+  background-color: #aaaaaa !important;
 }
 select {
-  color: #888888;
+  color: #666666;
   margin: 0;
   padding: 0 24px 0 1px;
   height: 24px;
   line-height: 24px;
-  background-color: #1d1f21;
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjODg4ODg4IiBkPSJNIDkyNy44MDQgMzUyLjE5MyBsIC00MTUuODA0IDQxNS42MzIgbCAtNDE1LjgwMyAtNDE1LjYzMiBsIDYzLjYxNiAtNjMuNDQ1IGwgMzUyLjIwOSAzNTIuMDE3IGwgMzUyLjEwMiAtMzUyLjAxNyBaIiBwLWlkPSIxNjQwIiAvPjwvc3ZnPg==");
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjNjY2NjY2IiBkPSJNIDkyNy44MDQgMzUyLjE5MyBsIC00MTUuODA0IDQxNS42MzIgbCAtNDE1LjgwMyAtNDE1LjYzMiBsIDYzLjYxNiAtNjMuNDQ1IGwgMzUyLjIwOSAzNTIuMDE3IGwgMzUyLjEwMiAtMzUyLjAxNyBaIiBwLWlkPSIxNjQwIiAvPjwvc3ZnPg==");
   background-repeat: no-repeat;
   background-position: right;
   -webkit-appearance: none;
@@ -560,22 +560,22 @@ input[type="number"]:focus,
 input[type="tel"]:focus,
 textarea:focus,
 select:focus {
-  color: #cccccc;
-  border-color: #cccccc;
+  color: #333333;
+  border-color: #333333;
   text-decoration: none;
   outline: none 0;
 }
 input[type="text"][readonly],
 textarea[readonly] {
-  color: #888888 !important;
-  border-color: #888888 !important;
+  color: #666666 !important;
+  border-color: #666666 !important;
   cursor: default;
 }
 input:disabled,
 textarea:disabled,
 select:disabled {
-  color: #5d5f60 !important;
-  border-color: #5d5f60 !important;
+  color: #aaaaaa !important;
+  border-color: #aaaaaa !important;
   cursor: not-allowed;
 }
 textarea {
@@ -598,19 +598,19 @@ textarea {
   height: 24px;
   line-height: 24px;
   border: 0 none;
-  color: #1d1f21;
-  background-color: #cccccc;
+  color: #ffffff;
+  background-color: #666666;
   font-size: 0.813em;
   padding-top: 0;
   padding-bottom: 0;
 }
 .button:active {
-  background-color: #ffffff !important;
-  color: #1d1f21 !important;
+  background-color: #333333 !important;
+  color: #ffffff !important;
 }
 .button:disabled {
-  background-color: #5d5f60 !important;
-  color: #888888 !important;
+  background-color: #aaaaaa !important;
+  color: #666666 !important;
 }
 /* 通用遮罩层 */
 .mask-panel {
@@ -634,7 +634,7 @@ textarea {
   width: 14px;
   height: 14px;
   line-height: 12px;
-  color: #888888;
+  color: #666666;
   cursor: pointer;
 }
 .closable-button:hover {
@@ -651,102 +651,24 @@ textarea {
   user-select: none;
 }
 /*滚动条样式*/
-/*IE*/
-html {
-  /*滑块*/
-  scrollbar-face-color: #5d5f60;
-  -ms-scrollbar-face-color: #5d5f60;
-  /*高亮色*/
-  scrollbar-highlight-color: #3c3f41;
-  -ms-scrollbar-highlight-color: #3c3f41;
-  /*3D高亮色 win8下无效*/
-  scrollbar-3dlight-color: #3c3f41;
-  -ms-scrollbar-3dlight-color: #3c3f41;
-  /*阴影 win8下无效*/
-  scrollbar-darkshadow-color: #3c3f41;
-  -ms-scrollbar-darkshadow-color: #3c3f41;
-  /*阴影 win8下无效*/
-  scrollbar-shadow-color: #3c3f41;
-  -ms-scrollbar-shadow-color: #3c3f41;
-  /*箭头*/
-  scrollbar-arrow-color: #888888;
-  -ms-scrollbar-arrow-color: #888888;
-  /*滚动条*/
-  scrollbar-track-color: #3c3f41;
-  -ms-scrollbar-track-color: #3c3f41;
-  /*基础*/
-  scrollbar-base-color: #3c3f41;
-  -ms-scrollbar-base-color: #3c3f41;
-}
 /*Webkit chrome opera safari*/
+/* https://webkit.org/blog/363/styling-scrollbars/ */
 /* 滚动条宽度 */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
 }
+/* 滚动条轨道颜色 */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+/* 滚动条滑块的颜色 */
+::-webkit-scrollbar-thumb {
+  height: 12px;
+  border: 4px solid #f1f1f1;
+  background-color: #dcdcdc;
+}
 /* 横向纵向同时出现是角的样式 */
 ::-webkit-scrollbar-corner {
-  background-color: #3c3f41;
-}
-/* 定义滚动条渐增按扭的样式 */
-/* 向下 */
-::-webkit-scrollbar-button:vertical:increment {
-  height: 0;
-  background-color: #3c3f41;
-  border: none 0px;
-}
-::-webkit-scrollbar-button:vertical:increment:hover {
-  background-position: 0px -60px;
-}
-/* 向上 */
-::-webkit-scrollbar-button:vertical:decrement {
-  height: 0;
-  background-color: #3c3f41;
-  border: none 0px;
-}
-::-webkit-scrollbar-button:vertical:decrement:hover {
-  background-position: 0px -24px;
-}
-/* 向右 */
-::-webkit-scrollbar-button:horizontal:increment {
-  width: 0;
-  background-color: #3c3f41;
-  border: none 0px;
-}
-::-webkit-scrollbar-button:horizontal:increment:hover {
-  background-position: 0px -132px;
-}
-/* 向左 */
-::-webkit-scrollbar-button:horizontal:decrement {
-  width: 0;
-  background-color: #3c3f41;
-  border: none 0px;
-}
-::-webkit-scrollbar-button:horizontal:decrement:hover {
-  background-position: 0px -96px;
-}
-/* 垂直滚动条的第一层轨道*/
-::-webkit-scrollbar-track:vertical {
-  background-color: #3c3f41;
-  border: 1px solid #3c3f41;
-}
-::-webkit-scrollbar-track:horizontal {
-  background-color: #3c3f41;
-  border: 1px solid #3c3f41;
-}
-/* 垂直滚动条的滑动块 */
-::-webkit-scrollbar-thumb:vertical {
-  height: 12px;
-  background-color: #5d5f60;
-}
-::-webkit-scrollbar-thumb:horizontal {
-  height: 12px;
-  background-color: #5d5f60;
-}
-/*滚动条交汇处*/
-::-webkit-scrollbar-corner:vertical {
-  background-color: #3c3f41;
-}
-::-webkit-scrollbar-resizer:vertical {
-  background-color: #3c3f41;
+  background-color: #f1f1f1;
 }
