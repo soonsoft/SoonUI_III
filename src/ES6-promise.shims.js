@@ -35,17 +35,17 @@ ui.PromiseEmpty = {
     catch: noop
 };
 
-// if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
-//     // 原生支持Promise
-//     if(!isFunction(Promise.prototype.finally)) {
-//         Promise.prototype.finally = _finally;
-//     }
-//     if(!isFunction(Promise.prototype.try)) {
-//         // 增加Promise.try提案的方法
-//         Promise.prototype.try = _try;
-//     }
-//     return;
-// }
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // 原生支持Promise
+    if(!isFunction(Promise.prototype.finally)) {
+        Promise.prototype.finally = _finally;
+    }
+    if(!isFunction(Promise.prototype.try)) {
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = _try;
+    }
+    return;
+}
 
 // 生成Promise垫片
 
