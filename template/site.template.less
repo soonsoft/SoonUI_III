@@ -714,109 +714,28 @@ textarea {
 }
 
 /*滚动条样式*/
-/*IE*/
-html
-{
-    /*滑块*/
-    scrollbar-face-color: @border-color;
-    -ms-scrollbar-face-color: @border-color;
-    /*高亮色*/
-    scrollbar-highlight-color :@panel-color;
-    -ms-scrollbar-highlight-color :@panel-color;
-    /*3D高亮色 win8下无效*/
-    scrollbar-3dlight-color: @panel-color;
-    -ms-scrollbar-3dlight-color: @panel-color;
-    /*阴影 win8下无效*/
-    scrollbar-darkshadow-color: @panel-color;
-    -ms-scrollbar-darkshadow-color: @panel-color;
-    /*阴影 win8下无效*/
-    scrollbar-shadow-color: @panel-color;
-    -ms-scrollbar-shadow-color: @panel-color;
-    /*箭头*/
-    scrollbar-arrow-color: @tool-color;
-    -ms-scrollbar-arrow-color: @tool-color;
-    /*滚动条*/
-    scrollbar-track-color: @panel-color;
-    -ms-scrollbar-track-color: @panel-color;
-    /*基础*/
-    scrollbar-base-color: @panel-color;
-    -ms-scrollbar-base-color: @panel-color;
-}
 
 /*Webkit chrome opera safari*/
+/* https://webkit.org/blog/363/styling-scrollbars/ */
 /* 滚动条宽度 */
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
 }
 
+/* 滚动条轨道颜色 */
+::-webkit-scrollbar-track {
+    background-color: @panel-color;
+}
+
+/* 滚动条滑块的颜色 */
+::-webkit-scrollbar-thumb {
+    height: 12px;
+    border: 4px solid @panel-color;
+    background-color: @border-color;
+}
+
 /* 横向纵向同时出现是角的样式 */
 ::-webkit-scrollbar-corner {
     background-color: @panel-color;
-}
-
-/* 定义滚动条渐增按扭的样式 */
-/* 向下 */
-::-webkit-scrollbar-button:vertical:increment {
-    height: 0;
-    background-color: @panel-color;
-    border: none 0px;
-}
-::-webkit-scrollbar-button:vertical:increment:hover {
-    background-position: 0px -60px;
-}
-/* 向上 */
-::-webkit-scrollbar-button:vertical:decrement {
-    height: 0;
-    background-color: @panel-color;
-    border: none 0px;
-}
-::-webkit-scrollbar-button:vertical:decrement:hover {
-    background-position: 0px -24px;
-}
-/* 向右 */
-::-webkit-scrollbar-button:horizontal:increment {
-    width: 0;
-    background-color: @panel-color;
-    border: none 0px;
-}
-::-webkit-scrollbar-button:horizontal:increment:hover {
-    background-position: 0px -132px;
-}
-/* 向左 */
-::-webkit-scrollbar-button:horizontal:decrement {
-    width: 0;
-    background-color: @panel-color;
-    border: none 0px;
-}
-::-webkit-scrollbar-button:horizontal:decrement:hover {
-    background-position: 0px -96px;
-}
-
-/* 垂直滚动条的第一层轨道*/ 
-::-webkit-scrollbar-track:vertical {
-    background-color: @panel-color;
-    border: 1px solid @panel-color; 
-}
-::-webkit-scrollbar-track:horizontal {
-    background-color: @panel-color;
-    border: 1px solid @panel-color; 
-}
-
-/* 垂直滚动条的滑动块 */ 
-::-webkit-scrollbar-thumb:vertical {
-    height: 12px;
-    background-color: @border-color; 
-}
-::-webkit-scrollbar-thumb:horizontal {
-    height: 12px;
-    background-color: @border-color; 
-}
-
-/*滚动条交汇处*/
-::-webkit-scrollbar-corner:vertical { 
-    background-color: @panel-color;
-} 
-::-webkit-scrollbar-resizer:vertical { 
-    background-color: @panel-color; 
 }

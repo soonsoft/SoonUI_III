@@ -35,24 +35,24 @@ ui.PromiseEmpty = {
     catch: noop
 };
 
-if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
-    // 原生支持Promise
-    if(!isFunction(Promise.prototype.finally)) {
-        Promise.prototype.finally = _finally;
-    }
-    if(!isFunction(Promise.prototype.try)) {
-        // 增加Promise.try提案的方法
-        Promise.prototype.try = _try;
-    }
-    return;
-}
+// if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+//     // 原生支持Promise
+//     if(!isFunction(Promise.prototype.finally)) {
+//         Promise.prototype.finally = _finally;
+//     }
+//     if(!isFunction(Promise.prototype.try)) {
+//         // 增加Promise.try提案的方法
+//         Promise.prototype.try = _try;
+//     }
+//     return;
+// }
 
 // 生成Promise垫片
 
 // 确定Promise对象的状态，并且执行回调函数
-function transmit(promise, value, isResolved) {
+function fire(promise, value, isResolved) {
     promise._result = value;
-    promise._state = isResolved ? "fulfilled" : "rejected";
+    promise._state = isResolved ? "resolved" : "rejected";
     ui.setMicroTask(function() {
         var data, i, len;
         for(i = 0, len = promise._callbacks.length; i < len; i++) {
@@ -138,14 +138,14 @@ PromiseShim = function(executor) {
                 // 如果value是Promise对象则把callbacks转移到value的then当中
                 value[method](
                     function (val) {
-                        transmit(promise, val, true);
-                }, 
-                function (reason) {
-                    transmit(promise, reason, false);
-                }
+                        fire(promise, val, true);
+                    },
+                    function (reason) {
+                        fire(promise, reason, false);
+                    }
                 );
             } else {
-                transmit(promise, value, true);
+                fire(promise, value, true);
             }
         }, 
         // reject
@@ -153,7 +153,7 @@ PromiseShim = function(executor) {
             if (promise._state !== "pending") {
                 return;
             }
-            transmit(promise, reason, false);
+            fire(promise, reason, false);
         }
     );
 };
@@ -194,7 +194,7 @@ PromiseShim.prototype = {
         onSuccess = isFunction(onSuccess) ? onSuccess : success;
         onFail = isFunction(onFail) ? onFail : failed;
 
-        // 用于衔接then
+        // 用于衔接then，实现promise.then().catch()
         nextPromise = new PromiseShim(function (resolve, reject) {
             that._then(
                 function (value) {
