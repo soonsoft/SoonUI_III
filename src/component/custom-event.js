@@ -1,4 +1,26 @@
 // custom event
+
+function CustomEventArgs(args) {
+    if(!(this instanceof CustomEventArgs)) {
+        return new CustomEventArgs(args);
+    }
+
+    this.copyTo.call(args, this);
+}
+CustomEventArgs.prototype = {
+    constructor: CustomEventArgs,
+    copyTo: function(target) {
+        if(!target) {
+            return;
+        }
+
+        var that = this;
+        Object.keys(that).forEach(function(key) {
+            target[key] = that[key];
+        });
+    }
+};
+
 function CustomEvent (target) {
     this._listeners = {};
     this._eventTarget = target || this;
