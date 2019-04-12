@@ -70,10 +70,14 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
-            location.top = -panelHeight;
+            location.top = -panelHeight - 1 // 上移1px留白;
             location.topOffset = height;
         }
+    } else {
+        // 下移1px留白
+        location.top += 1;
     }
+
     if(elementPosition.left + panelWidth > layoutPanelWidth) {
         if(elementPosition.left - (elementPosition.left + panelWidth - layoutPanelWidth) > 0) {
             location.left = -(elementPosition.left + panelWidth - layoutPanelWidth);
@@ -277,7 +281,12 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
                 location.topOffset = -height;
                 offset = this.element.offset();
                 if(location.top < offset.top) {
+                    // 上移1px留白
+                    location.top -= 1;
                     location.topOffset = height;
+                } else {
+                    // 下移1px留白
+                    location.top += 1;
                 }
             }
 

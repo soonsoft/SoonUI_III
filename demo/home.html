@@ -408,6 +408,7 @@
                 layer,
                 backgroundImage,
                 highlightColor = "#0F80C1";
+
             $(document).ready(function(e) {
                 layer.init();
                 function onResize() {
@@ -626,21 +627,21 @@
                     });
                 }
             };
-            function blurImage(sourceImage, canvas) {
-                if(!sourceImage && !sourceImage.length) {
-                    return;
-                }
+            // function blurImage(sourceImage, canvas) {
+            //     if(!sourceImage && !sourceImage.length) {
+            //         return;
+            //     }
 
-                var imgDisplayCss = {
-                    "width": sourceImage.css("width"),
-                    "height": sourceImage.css("height"),
-                    "top": sourceImage.css("top"),
-                    "left": sourceImage.css("left")
-                };
+            //     var imgDisplayCss = {
+            //         "width": sourceImage.css("width"),
+            //         "height": sourceImage.css("height"),
+            //         "top": sourceImage.css("top"),
+            //         "left": sourceImage.css("left")
+            //     };
 
-                canvas.css(imgDisplayCss);
-                ui.effect.blurImage(sourceImage[0], canvas[0], 22);
-            }
+            //     canvas.css(imgDisplayCss);
+            //     ui.effect.blurImage(sourceImage[0], canvas[0], 22);
+            // }
             function featureSection() {
                 var content = $(".feature-panel"),
                     panel = content.parent();

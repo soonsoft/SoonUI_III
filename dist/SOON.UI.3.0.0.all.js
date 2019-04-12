@@ -5934,6 +5934,28 @@ ui.fire = fire;
 
 (function($, ui) {
 // custom event
+
+function CustomEventArgs(args) {
+    if(!(this instanceof CustomEventArgs)) {
+        return new CustomEventArgs(args);
+    }
+
+    this.copyTo.call(args, this);
+}
+CustomEventArgs.prototype = {
+    constructor: CustomEventArgs,
+    copyTo: function(target) {
+        if(!target) {
+            return;
+        }
+
+        var that = this;
+        Object.keys(that).forEach(function(key) {
+            target[key] = that[key];
+        });
+    }
+};
+
 function CustomEvent (target) {
     this._listeners = {};
     this._eventTarget = target || this;
@@ -8887,10 +8909,14 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
-            location.top = -panelHeight;
+            location.top = -panelHeight - 1 // 上移1px留白;
             location.topOffset = height;
         }
+    } else {
+        // 下移1px留白
+        location.top += 1;
     }
+
     if(elementPosition.left + panelWidth > layoutPanelWidth) {
         if(elementPosition.left - (elementPosition.left + panelWidth - layoutPanelWidth) > 0) {
             location.left = -(elementPosition.left + panelWidth - layoutPanelWidth);
@@ -9094,7 +9120,12 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
                 location.topOffset = -height;
                 offset = this.element.offset();
                 if(location.top < offset.top) {
+                    // 上移1px留白
+                    location.top -= 1;
                     location.topOffset = height;
+                } else {
+                    // 下移1px留白
+                    location.top += 1;
                 }
             }
 
