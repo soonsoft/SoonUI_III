@@ -22,6 +22,14 @@
             top: 0;
             left: 0;
         }
+        #loadingElement {
+            top:0;
+            left:0;
+            position:fixed;
+            display:none;
+            width:100%;
+            z-index: 10000;
+        }
         .indicator-panel {
             position: fixed;
             z-index: 9999;
@@ -327,6 +335,28 @@
 <body>
     <div class="heighter"></div>
     <div class="indicator-panel"></div>
+    <div id="loadingElement" class="c_flyingDots c_loadingDots">
+        <div class="c_loadingFallback">
+            <img style="width:100%;height:4px;" alt="" src="./content/images/flyingdots.gif">
+        </div>
+        <div class="c_loadingTracks">
+            <div class="c_loadingTracks c_loadingTrack1">
+                <div class="c_loadingDot"></div>
+            </div>
+            <div class="c_loadingTracks c_loadingTrack2">
+                <div class="c_loadingDot"></div>
+            </div>
+            <div class="c_loadingTracks c_loadingTrack3">
+                <div class="c_loadingDot"></div>
+            </div>
+            <div class="c_loadingTracks c_loadingTrack4">
+                <div class="c_loadingDot"></div>
+            </div>
+            <div class="c_loadingTracks c_loadingTrack5">
+                <div class="c_loadingDot"></div>
+            </div>
+        </div>
+    </div>
     <section class="container-item" style="z-index:10;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;">
         <div class="container-panel" style="height:auto;background-color:rgba(160, 205, 230, .24);top:auto;">
             <div class="main-panel">
@@ -600,18 +630,25 @@
                     // }));
                     loadImages.push(ui.ImageLoader().load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop));
                     
-                    Promise.all(loadImages).then(function(loaders) {
-                        ["bg2", "bg3", "bg4", "bg5"].forEach(function(item, index) {
-                            var img = $("#" + item);
-                            setImageSize(img, loaders[index]);
-                            if(index === 0) {
-                                // chrome会不执行动画，需要一个MacroTask做延迟
-                                setTimeout(function() {
-                                    img.addClass("start-animation");
-                                }, 16);
-                            }
+                    ui.loadingShow();
+                    Promise
+                        .all(loadImages)
+                        .then(function(loaders) {
+                            ui.loadingHide();
+                            ["bg2", "bg3", "bg4", "bg5"].forEach(function(item, index) {
+                                var img = $("#" + item);
+                                setImageSize(img, loaders[index]);
+                                if(index === 0) {
+                                    // chrome会不执行动画，需要一个MacroTask做延迟
+                                    setTimeout(function() {
+                                        img.addClass("start-animation");
+                                    }, 16);
+                                }
+                            });
+                        })
+                        .catch(function() {
+                            ui.loadingHide();
                         });
-                    });
                 },
                 resize: function(width, height) {
                     this.images.forEach(function(item) {
