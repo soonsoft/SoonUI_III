@@ -6114,6 +6114,8 @@ var msie = 0,
     rjsonp = /(=)\?(?=&|$)|\?\?/,
     rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg,
     rnoContent = /^(?:GET|HEAD)$/,
+    rnewLine = /\n/g,
+    rcarriageReturn = /\r/g,
     requestIDSeed = parseInt((Math.random() + "").substring(2), 10),
     jsonpCallbackSeed = parseInt((Math.random() + "").substring(2), 10);
 
@@ -6534,6 +6536,10 @@ ajaxConverter = {
         return ui.parseHTML(text);
     },
     json: function(text) {
+        if(!text) {
+            return text;
+        }
+        text = text.replace(rnewLine, "\\\\n").replace(rcarriageReturn, "\\\\r");
         return JSON.parse(text);
     },
     script: function(text) {
@@ -6541,8 +6547,7 @@ ajaxConverter = {
         return text;
     },
     jsonp: function() {
-        var jsonpData,
-            callback;
+        var jsonpData;
         try {
             jsonpData = this.getJsonpCallBack();
         } catch(e) {
