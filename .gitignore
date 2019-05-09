@@ -1,5 +1,10 @@
 node_modules/**
 .vscode/**
 theme/**
-demo/page/**
-
+demo/pages/**
+demo/content/**
+demo/light/**
+demo/dark/**
+demo/compontents/**
+demo/lib/**
+vender/**

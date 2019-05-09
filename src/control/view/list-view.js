@@ -4,7 +4,7 @@ var indexAttr = "data-index";
 var selectedClass = "ui-list-view-selection";
 // 默认的格式化器
 function defaultItemFormatter(item, index) {
-    return "<span class='ui-list-view-item-text'>" + item + "</span>";
+    return "<span class='ui-list-view-item-text'>" + ui.str.htmlEncode(item) + "</span>";
 }
 // 默认排序逻辑
 function defaultSortFn(a, b) {
@@ -47,7 +47,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             multiple: false,
             // 数据集
             viewData: null,
-            // 数据项格式化器 返回HTML Text或者 { css: "", class: [], html: ""}，样式会作用到每一个LI上面
+            // 数据项格式化器 返回HTML Text或者 { css: "", class: [], html: "" }，样式会作用到每一个LI上面
             itemFormatter: false,
             // 是否要显示删除按钮
             hasRemoveButton: false,
