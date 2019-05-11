@@ -20,6 +20,9 @@ var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
 
 var defaultPageSize = 100;
 
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 function preparePager(option) {
     if(option.showPageInfo === true) {
         if(!option.pageInfoFormatter) {
@@ -511,7 +514,7 @@ Prompt.prototype = {
             return;
         }
         if (ui.core.isString(text) && text.length > 0) {
-            this.element.html("<span class='font-highlight'>" + text + "</span>");
+            this.element.html("<span class='font-highlight'>" + encode(text) + "</span>");
         } else if (ui.core.isFunction(text)) {
             text = text();
             this.element.append(text);
@@ -1133,7 +1136,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         for(i = 0, len = rows.length; i < len; i++) {
             elem = $(rows[i].cells[columnInfo.columnIndex]).find(checkboxClass);
             if(elem.length > 0) {
-                result.push(ui.str.htmlEncode(elem.attr("data-value")));
+                result.push(encode(elem.attr("data-value")));
             }
         }
         return result;

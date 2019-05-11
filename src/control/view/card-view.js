@@ -6,6 +6,9 @@ var selectedClass = "ui-card-view-selection",
     frameBorderWidth = 4;
 
 function noop() {}
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 function prepareGroup(option) {
     var type;
     type = ui.core.type(option);
@@ -47,7 +50,7 @@ function defaultGroupHeadFormatter(groupItem, margin) {
     return ui.str.format(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
-        groupItem[this.option.group.groupField]);
+        encode(groupItem[this.option.group.groupField]));
 }
 
 function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
@@ -232,7 +235,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
             this._dataPrompt = $("<div class='data-prompt' />");
             text = this.option.promptText;
             if (ui.core.isString(text) && text.length > 0) {
-                this._dataPrompt.html("<span class='font-highlight'>" + text + "</span>");
+                this._dataPrompt.html("<span class='font-highlight'>" + encode(text) + "</span>");
             } else if (ui.core.isFunction(text)) {
                 text = text();
                 this._dataPrompt.append(text);

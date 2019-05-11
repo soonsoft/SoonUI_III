@@ -2,9 +2,12 @@
 
 var indexAttr = "data-index";
 var selectedClass = "ui-list-view-selection";
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 // 默认的格式化器
 function defaultItemFormatter(item, index) {
-    return "<span class='ui-list-view-item-text'>" + ui.str.htmlEncode(item) + "</span>";
+    return "<span class='ui-list-view-item-text'>" + encode(item) + "</span>";
 }
 // 默认排序逻辑
 function defaultSortFn(a, b) {
