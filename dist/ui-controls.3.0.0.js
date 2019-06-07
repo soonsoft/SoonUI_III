@@ -10172,6 +10172,9 @@ var selectedClass = "ui-card-view-selection",
     frameBorderWidth = 4;
 
 function noop() {}
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 function prepareGroup(option) {
     var type;
     type = ui.core.type(option);
@@ -10213,7 +10216,7 @@ function defaultGroupHeadFormatter(groupItem, margin) {
     return ui.str.format(
         "<span style='margin-left:{0}px;margin-right:{0}px' class='item-head-title font-highlight'>{1}</span>", 
         margin, 
-        groupItem[this.option.group.groupField]);
+        encode(groupItem[this.option.group.groupField]));
 }
 
 function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
@@ -10398,7 +10401,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
             this._dataPrompt = $("<div class='data-prompt' />");
             text = this.option.promptText;
             if (ui.core.isString(text) && text.length > 0) {
-                this._dataPrompt.html("<span class='font-highlight'>" + text + "</span>");
+                this._dataPrompt.html("<span class='font-highlight'>" + encode(text) + "</span>");
             } else if (ui.core.isFunction(text)) {
                 text = text();
                 this._dataPrompt.append(text);
@@ -11855,6 +11858,9 @@ var columnCheckboxAllFormatter = ui.ColumnStyle.cnfn.checkAll,
 
 var defaultPageSize = 100;
 
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 function preparePager(option) {
     if(option.showPageInfo === true) {
         if(!option.pageInfoFormatter) {
@@ -12346,7 +12352,7 @@ Prompt.prototype = {
             return;
         }
         if (ui.core.isString(text) && text.length > 0) {
-            this.element.html("<span class='font-highlight'>" + text + "</span>");
+            this.element.html("<span class='font-highlight'>" + encode(text) + "</span>");
         } else if (ui.core.isFunction(text)) {
             text = text();
             this.element.append(text);
@@ -12968,7 +12974,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         for(i = 0, len = rows.length; i < len; i++) {
             elem = $(rows[i].cells[columnInfo.columnIndex]).find(checkboxClass);
             if(elem.length > 0) {
-                result.push(ui.str.htmlEncode(elem.attr("data-value")));
+                result.push(encode(elem.attr("data-value")));
             }
         }
         return result;
@@ -13372,9 +13378,12 @@ $.fn.gridView = function(option) {
 
 var indexAttr = "data-index";
 var selectedClass = "ui-list-view-selection";
+function encode(input) {
+    return input ? ui.str.htmlEncode(input) : input;
+}
 // 默认的格式化器
 function defaultItemFormatter(item, index) {
-    return "<span class='ui-list-view-item-text'>" + item + "</span>";
+    return "<span class='ui-list-view-item-text'>" + encode(item) + "</span>";
 }
 // 默认排序逻辑
 function defaultSortFn(a, b) {
@@ -13417,7 +13426,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             multiple: false,
             // 数据集
             viewData: null,
-            // 数据项格式化器 返回HTML Text或者 { css: "", class: [], html: ""}，样式会作用到每一个LI上面
+            // 数据项格式化器 返回HTML Text或者 { css: "", class: [], html: "" }，样式会作用到每一个LI上面
             itemFormatter: false,
             // 是否要显示删除按钮
             hasRemoveButton: false,
@@ -13516,7 +13525,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         content = this.option.itemFormatter.call(this, item, index);
         if(ui.core.isString(content)) {
             builder.push("<div class='ui-list-view-container'>");
-            builder.push(content);
+            builder.push(ui.str.htmlEncode(content));
             builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
@@ -13545,7 +13554,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             builder.push("<div class='ui-list-view-container'>");
             // 放入html
             if(content.html) {
-                builder.push(content.html);
+                builder.push(ui.str.htmlEncode(content.html));
             }
             builder.push("</div>");
         }

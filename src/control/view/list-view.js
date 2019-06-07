@@ -149,7 +149,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         content = this.option.itemFormatter.call(this, item, index);
         if(ui.core.isString(content)) {
             builder.push("<div class='ui-list-view-container'>");
-            builder.push(content);
+            builder.push(ui.str.htmlEncode(content));
             builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
@@ -178,7 +178,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             builder.push("<div class='ui-list-view-container'>");
             // 放入html
             if(content.html) {
-                builder.push(content.html);
+                builder.push(ui.str.htmlEncode(content.html));
             }
             builder.push("</div>");
         }

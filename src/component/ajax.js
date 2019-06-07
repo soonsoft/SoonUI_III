@@ -184,7 +184,7 @@ httpRequestProcessor = {
             if(this._timeoutID && this.xhr.timeout === 0) {
                 clearTimeout(this._timeoutID);
                 delete this._timeoutID;
-                this.xhr.timeout = option.timeout;
+                this.xhr.timeout = this.option.timeout;
                 this.xhr.ontimeout = function() {
                     that.dispatch(0, "timeout");
                 };
