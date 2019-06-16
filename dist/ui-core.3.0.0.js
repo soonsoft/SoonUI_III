@@ -4013,7 +4013,7 @@ ui.clearMicroTask = function(index) {
 
 })(jQuery, ui);
 
-// Source: src/jquery-extends.js
+// Source: src/jquery-extend.js
 
 (function($, ui) {
 // jquery extends

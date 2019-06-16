@@ -13525,7 +13525,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         content = this.option.itemFormatter.call(this, item, index);
         if(ui.core.isString(content)) {
             builder.push("<div class='ui-list-view-container'>");
-            builder.push(ui.str.htmlEncode(content));
+            builder.push(content);
             builder.push("</div>");
         } else if(ui.core.isPlainObject(content)) {
             temp = builder[builder.length - 1];
@@ -13554,7 +13554,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             builder.push("<div class='ui-list-view-container'>");
             // 放入html
             if(content.html) {
-                builder.push(ui.str.htmlEncode(content.html));
+                builder.push(content.html);
             }
             builder.push("</div>");
         }
@@ -17223,6 +17223,31 @@ function onMouseup(e) {
     };
     moving.call(this, arg);
 }
+function onMouseWheel(e) {
+    var lengthValue,
+        arg,
+        stepValue;
+
+    e.stopPropagation();
+    if(this.mouseDragger._isDragStart) {
+        return;
+    }
+    arg = {};
+    stepValue = (-e.delta) * 5;
+
+    if(this.isHorizontal()) {
+        lengthValue = this.track.width();
+        arg.x = stepValue;
+    } else {
+        lengthValue = this.track.height();
+        arg.y = stepValue;
+    }
+    
+    arg.option = {
+        lengthValue: lengthValue
+    };
+    moving.call(this, arg);
+}
 function calculatePercent(location, min, max) {
     var percent;
     if(location > max) {
@@ -17268,6 +17293,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this.defineProperty("percentValue", this.getPercent, this.setPercent);
 
         this.onMouseupHandler = onMouseup.bind(this);
+        this.onMouseWheelHandler = onMouseWheel.bind(this);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
@@ -17280,6 +17306,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this._initScale();
         this._initMouseDragger();
         this.track.on("mouseup", this.onMouseupHandler);
+        this.element.mousewheel(this.onMouseWheelHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;
