@@ -2480,7 +2480,11 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     if (ui.core.isFunction(errorFn)) {
         context.errorFn = errorFn;
         ajaxOption.error = function(ajaxError) {
-            errorHandler(context, ajaxError.ajaxRequest, ajaxError.statusText, ajaxError.error);
+            if(ajaxError instanceof TypeError) {
+                context.errorFn(ajaxError);
+            } else {
+                errorHandler(context, ajaxError.ajaxRequest, ajaxError.statusText, ajaxError.error);
+            }
         };
     }
     return ui.ajax(ajaxOption);
