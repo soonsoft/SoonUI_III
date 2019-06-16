@@ -1377,18 +1377,23 @@
   margin-left: 0;
   margin-right: 0;
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: auto;
+  height: 20px;
   text-align: center;
-  color: #ffffff;
+  color: #fff;
   line-height: 18px;
   font-size: 12px;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
 }
 .ui-table-body .state-true {
-  background-color: #54c70c;
+  background-color: #8fc76c;
+  border-color: #54c70c;
 }
 .ui-table-body .state-false {
-  background-color: #ff2968;
+  background-color: #ff85a9;
+  border-color: #ff2968;
 }
 /* 进度条样式 */
 .ui-table-body .cell-progress-panel {
