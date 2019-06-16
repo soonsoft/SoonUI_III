@@ -14,26 +14,20 @@
     <script type="text/javascript" src="../../lib/menu/report-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        createReportView.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            pageLogic.reportView.setSize(width, height - 40);
-                        });
-                    },
-                    event: function() {
-
-                    },
-                    load: function() {
-                        loadReportViewData();
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                created: function() {
+                    createReportView.call(this);
+                },
+                layout: function() {
+                    this.reportView.setSize(
+                        this.contentBodyWidth, 
+                        this.contentBodyHeight - 40);
+                },
+                load: function() {
+                    loadReportViewData();
                 }
-            };
+            });
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({

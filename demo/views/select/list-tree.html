@@ -128,36 +128,22 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.contentPanel = $(".content-panel");
+            ui.page.init({
+                created: function() {
+                    this.contentPanel = $(".content-panel");
 
-                        createSimpleSelectionList.call(this);
-                        createMultipleSelectionList.call(this);
-                        createCustomStyleSelectionList.call(this);
+                    createSimpleSelectionList.call(this);
+                    createMultipleSelectionList.call(this);
+                    createCustomStyleSelectionList.call(this);
 
-                        createSimpleSelectionTree.call(this);
-                        createMultipleSelectionTree.call(this);
-                        createLazySelectionTree.call(this);
-                        createAutoCompleteTree.call(this);
+                    createSimpleSelectionTree.call(this);
+                    createMultipleSelectionTree.call(this);
+                    createLazySelectionTree.call(this);
+                    createAutoCompleteTree.call(this);
 
-                        $(".ui-fold-view").foldView();
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                        });
-                    },
-                    event: function() {
-
-                    },
-                    load: function() {
-                        
-                    }
+                    $(".ui-fold-view").foldView();
                 }
-            };
+            });
 
             function createSimpleSelectionList() {
                 this.simpleList = $("#simpleList").selectionList({

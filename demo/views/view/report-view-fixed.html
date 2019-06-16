@@ -37,59 +37,50 @@
     <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.toolbar = ui.master.createToolbar("toolbar");
-                        createReportView.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-
-                            $(".report-contianer").css("height", height - 40 + "px");
-                            //pageLogic.reportView.setSize(width, height - 40);
-                        });
-                    },
-                    event: function() {
-                        $("#up").click(function(e) {
-                            pageLogic.reportView.currentRowUp();
-                        });
-                        $("#down").click(function(e) {
-                            pageLogic.reportView.currentRowDown();
-                        });
-                        $("#add").click(function(e) {
-                            var index = pageLogic.reportView.count();
-                            if(index >= jaySongs.length) {
-                                ui.messageShow("can not add new song.");
-                                return;
-                            }
-                            var song = getSong(index);
-                            pageLogic.reportView.addRow(song);
-                        });
-                        $("#edit").click(function(e) {
-                            var data = pageLogic.reportView.getSelection();
-                            if(!data) {
-                                return;
-                            }
-                            var song = data.rowData;
-                            song.name = song.name + "-已修改";
-                            pageLogic.reportView.updateRow(data.rowIndex, song);
-                        });
-                        $("#remove").click(function(e) {
-                            var data = pageLogic.reportView.getSelection();
-                            if(!data) {
-                                return;
-                            }
-                            pageLogic.reportView.removeRowAt(data.rowIndex);
-                        });
-                    },
-                    load: function() {
-                        loadReportViewData();
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                toolbar: "toolbar",
+                created: function() {
+                    createReportView.call(this);
+                    $("#up").click(function(e) {
+                        pageLogic.reportView.currentRowUp();
+                    });
+                    $("#down").click(function(e) {
+                        pageLogic.reportView.currentRowDown();
+                    });
+                    $("#add").click(function(e) {
+                        var index = pageLogic.reportView.count();
+                        if(index >= jaySongs.length) {
+                            ui.messageShow("can not add new song.");
+                            return;
+                        }
+                        var song = getSong(index);
+                        pageLogic.reportView.addRow(song);
+                    });
+                    $("#edit").click(function(e) {
+                        var data = pageLogic.reportView.getSelection();
+                        if(!data) {
+                            return;
+                        }
+                        var song = data.rowData;
+                        song.name = song.name + "-已修改";
+                        pageLogic.reportView.updateRow(data.rowIndex, song);
+                    });
+                    $("#remove").click(function(e) {
+                        var data = pageLogic.reportView.getSelection();
+                        if(!data) {
+                            return;
+                        }
+                        pageLogic.reportView.removeRowAt(data.rowIndex);
+                    });
+                },
+                layout: function() {
+                    $(".report-contianer").css("height", this.contentBodyHeight - 40 + "px");
+                },
+                load: function() {
+                    loadReportViewData();
                 }
-            };
+            });
 
             function createReportView() {
                 this.reportView = $("#reportView").reportView({

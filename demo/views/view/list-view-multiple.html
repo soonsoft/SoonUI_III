@@ -33,41 +33,32 @@
     <script type="text/javascript" src="../../lib/menu/list-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.toolbar = ui.master.createToolbar("toolbar");
-                        this.listView = createListView.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            $("#listView").css("height", height - 82 + "px");
-                        });
-                    },
-                    event: function() {
-                        $("#setSelection").click(function(e) {
-                            pageLogic.listView.setSelection([0, 3]);
-                        });
-                        $("#showSelection").click(function(e) {
-                            var arr = pageLogic.listView.getSelection(),
-                                result;
-                            if(arr.length === 0) {
-                                ui.warnShow("还没有选中的项目");
-                            } else {
-                                result = [];
-                                arr.forEach(function (item) {
-                                    result.push(item.itemData);
-                                });
-                                ui.messageShow(result.toString());
-                            }
-                        });
-                    },
-                    load: function() {
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                toolbar: "toolbar",
+                created: function() {
+                    this.listView = createListView.call(this);
+                    $("#setSelection").click(function(e) {
+                        pageLogic.listView.setSelection([0, 3]);
+                    });
+                    $("#showSelection").click(function(e) {
+                        var arr = pageLogic.listView.getSelection(),
+                            result;
+                        if(arr.length === 0) {
+                            ui.warnShow("还没有选中的项目");
+                        } else {
+                            result = [];
+                            arr.forEach(function (item) {
+                                result.push(item.itemData);
+                            });
+                            ui.messageShow(result.toString());
+                        }
+                    });
+                },
+                layout: function() {
+                    $("#listView").css("height", this.contentBodyHeight - 82 + "px");
                 }
-            };
+            });
 
             function createListView() {
                 var listView = $("#listView").listView({

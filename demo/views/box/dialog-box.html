@@ -150,42 +150,31 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        createSimpleDialog.call(this);
-                        createIframeDialog.call(this);
-                        createStyleDialog.call(this);
-                        createCustomingDialog.call(this);
-                        initBoxParent.call(this);
+            var pageLogic = ui.page;
+            pageLogic.init({
+                created: function() {
+                    createSimpleDialog.call(this);
+                    createIframeDialog.call(this);
+                    createStyleDialog.call(this);
+                    createCustomingDialog.call(this);
+                    initBoxParent.call(this);
 
-                        $(".ui-fold-view").foldView();
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                        });
-                    },
-                    event: function() {
-                        $("#showSimpleDialogBox").click(function(e) {
-                            pageLogic.simpleDialogBox.show();
-                        });
-                        $("#showIframeDialogBox").click(function(e) {
-                            pageLogic.iframeDialogBox.show();
-                        });
-                        $("#showStyleDialogBox").click(function(e) {
-                            pageLogic.styleDialogBox.show();
-                        });
-                        $("#showCustomingDialogBox").click(function(e) {
-                            pageLogic.customingDialogBox.show();
-                        });
-                    },
-                    load: function() {
-                        
-                    }
+                    $(".ui-fold-view").foldView();
+
+                    $("#showSimpleDialogBox").click(function(e) {
+                        pageLogic.simpleDialogBox.show();
+                    });
+                    $("#showIframeDialogBox").click(function(e) {
+                        pageLogic.iframeDialogBox.show();
+                    });
+                    $("#showStyleDialogBox").click(function(e) {
+                        pageLogic.styleDialogBox.show();
+                    });
+                    $("#showCustomingDialogBox").click(function(e) {
+                        pageLogic.customingDialogBox.show();
+                    });
                 }
-            };
+            });
 
             function createSimpleDialog() {
                 var content,

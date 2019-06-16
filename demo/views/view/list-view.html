@@ -45,57 +45,48 @@
     <script type="text/javascript" src="../../lib/menu/list-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.toolbar = ui.master.createToolbar("toolbar");
-                        createListView.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            $("#listView").css("height", height - 82 + "px");
-                        });
-                    },
-                    event: function() {
-                        $("#addItem").click(function(e) {
-                            var viewData = pageLogic.listView.getViewData();
-                            if(viewData.indexOf("CEO") === -1) {
-                                pageLogic.listView.add("CEO");
-                            } else {
-                                ui.messageShow("已经添加了名为CEO的项目");
-                            }
-                        });
-                        $("#removeItem").click(function(e) {
-                            pageLogic.listView.remove("CEO");
-                        });
-                        $("#insertItem").click(function(e) {
-                            var viewData = pageLogic.listView.getViewData();
-                            if(viewData.indexOf("CTO") === -1) {
-                                pageLogic.listView.insert("CTO", 1);
-                            } else {
-                                ui.messageShow("已经插入了名为CTO的项目");
-                            }
-                        });
-                        $("#up").click(function(e) {
-                            pageLogic.listView.currentUp();
-                        });
-                        $("#down").click(function(e) {
-                            pageLogic.listView.currentDown();
-                            //pageLogic.listView.sort();
-                        });
-                        $("#jump").click(function(e) {
-                            var viewData = pageLogic.listView.getViewData();
-                            if(viewData.length > 2) {
-                                pageLogic.listView.moveTo(0, ui.random.getNum(1, viewData.length));
-                            }
-                        });
-                    },
-                    load: function() {
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                toolbar: "toolbar",
+                created: function() {
+                    createListView.call(this);
+                    $("#addItem").click(function(e) {
+                        var viewData = pageLogic.listView.getViewData();
+                        if(viewData.indexOf("CEO") === -1) {
+                            pageLogic.listView.add("CEO");
+                        } else {
+                            ui.messageShow("已经添加了名为CEO的项目");
+                        }
+                    });
+                    $("#removeItem").click(function(e) {
+                        pageLogic.listView.remove("CEO");
+                    });
+                    $("#insertItem").click(function(e) {
+                        var viewData = pageLogic.listView.getViewData();
+                        if(viewData.indexOf("CTO") === -1) {
+                            pageLogic.listView.insert("CTO", 1);
+                        } else {
+                            ui.messageShow("已经插入了名为CTO的项目");
+                        }
+                    });
+                    $("#up").click(function(e) {
+                        pageLogic.listView.currentUp();
+                    });
+                    $("#down").click(function(e) {
+                        pageLogic.listView.currentDown();
+                        //pageLogic.listView.sort();
+                    });
+                    $("#jump").click(function(e) {
+                        var viewData = pageLogic.listView.getViewData();
+                        if(viewData.length > 2) {
+                            pageLogic.listView.moveTo(0, ui.random.getNum(1, viewData.length));
+                        }
+                    });
+                },
+                layout: function() {
+                    $("#listView").css("height", this.contentBodyHeight - 82 + "px");
                 }
-            };
+            });
 
             function createListView() {
                 this.listView = $("#listView").listView({

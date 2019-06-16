@@ -95,31 +95,18 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.contentPanel = $(".content-panel");
+            var pageLogic = ui.page;
+            pageLogic.init({
+                created: function() {
+                    this.contentPanel = $(".content-panel");
 
-                        createChooser.call(this);
-                        createCustomChooser.call(this);
-                        createColorPicker.call(this);
+                    createChooser.call(this);
+                    createCustomChooser.call(this);
+                    createColorPicker.call(this);
 
-                        $(".ui-fold-view").foldView();
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                        });
-                    },
-                    event: function() {
-
-                    },
-                    load: function() {
-                        
-                    }
+                    $(".ui-fold-view").foldView();
                 }
-            };
+            });
 
             function createChooser() {
                 this.yearMonthChooser = $("#yearMonthChooser").chooser({

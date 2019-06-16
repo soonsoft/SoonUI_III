@@ -41,18 +41,21 @@
     <script type="text/javascript">
         ui.theme.currentTheme = "Dark";
         ui.theme.backgroundColor = "#1d1f21";
-        ui.master.init(function() {
-            ui.master.config("userSettings", {
-                changeHighlightUrl: function(highlight) {
-                    $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
-                    ui.theme.setHighlight(highlight);
-                }
-            });
-            this.config("menu");
+        ui.page.init({
+            master: true,
+            menu: true,
+            userPanel: function() {
+                return {
+                    changeHighlightUrl: function(highlight) {
+                        $("#highlight").prop("href", ui.str.format("../../../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                        ui.theme.setHighlight(highlight);
+                    }
+                };
+            }
         });
-        ui.master.ready(function() {
-            if(pageLogic && menus) {
-                ui.master.menu.setMenuList(menus);
+        ui.page.ready(function() {
+            if(menus) {
+                ui.page.menu.setMenuList(menus);
             }
         });
     </script>

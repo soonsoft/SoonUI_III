@@ -117,6 +117,7 @@
             position: absolute;
             top: 0;
             right: 0;
+            color: #fff;
         }
 
         .play-button {
@@ -376,153 +377,150 @@
                 return this.element;
             };
 
-            window.pageLogic = {
-                init: {
-                    load: function() {
-                        // 初始化播放器
-                        var player = this.player = new Player(vm);
+            ui.page.init({
+                created: function() {
+                    // 初始化播放器
+                    var player = this.player = new Player(vm);
 
-                        ui.on("dblclick", ".song-item", function(e) {
-                            var playingSong,
-                                index = this.getAttribute("data-index");
-                            index = parseInt(index);
-                            if(index === player.playIndex) {
-                                return;
-                            }
+                    ui.on("dblclick", ".song-item", function(e) {
+                        var playingSong,
+                            index = this.getAttribute("data-index");
+                        index = parseInt(index);
+                        if(index === player.playIndex) {
+                            return;
+                        }
+                        player.pause();
+                        player.playIndex = index;
+                        player.play();
+                    });
+                    ui.on("click", "#mode", function(e) {
+                        if(vm.playInfo.mode === "order") {
+                            vm.playInfo.mode = "random";
+                            this.classList.remove("play-button-inactive");
+                        } else {
+                            vm.playInfo.mode = "order";
+                            this.classList.add("play-button-inactive");
+                        }
+                    });
+                    ui.on("click", "#play", function(e) {
+                        if(vm.playInfo.status === "play") {
                             player.pause();
-                            player.playIndex = index;
+                        } else {
+                            if(player.playIndex === -1) {
+                                player.playIndex = 0;
+                            }
                             player.play();
-                        });
-                        ui.on("click", "#mode", function(e) {
-                            if(vm.playInfo.mode === "order") {
-                                vm.playInfo.mode = "random";
-                                this.classList.remove("play-button-inactive");
-                            } else {
-                                vm.playInfo.mode = "order";
-                                this.classList.add("play-button-inactive");
-                            }
-                        });
-                        ui.on("click", "#play", function(e) {
-                            if(vm.playInfo.status === "play") {
-                                player.pause();
-                            } else {
-                                if(player.playIndex === -1) {
-                                    player.playIndex = 0;
-                                }
-                                player.play();
-                            }
-                        });
-                        ui.on("click", "#forward", function(e) {
-                            player.next();
-                        });
-                        ui.on("click", "#backward", function(e) {
-                            player.previous();
-                        });
+                        }
+                    });
+                    ui.on("click", "#forward", function(e) {
+                        player.next();
+                    });
+                    ui.on("click", "#backward", function(e) {
+                        player.previous();
+                    });
 
-                        initAlbumList.call(this, vm);
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            vm.size.height = height - 41;
-                        });
-
-                        // 设置歌曲信息
-                        vm.albumCover = "https://y.gtimg.cn/music/photo_new/T002R300x300M000000oI0IK2rvClS.jpg?max_age=2592000";
-                        vm.items = [
-                            {
-                                trackNum: 1,
-                                name: "用情",
-                                artist: "张信哲",
-                                time: "05:08",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186686.mp3"
-                            },
-                            {
-                                trackNum: 2,
-                                name: "背叛",
-                                artist: "张信哲",
-                                time: "03:52",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186690.mp3"
-                            },
-                            {
-                                trackNum: 3,
-                                name: "多想",
-                                artist: "张信哲",
-                                time: "04:57",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186694.mp3"
-                            },
-                            {
-                                trackNum: 4,
-                                name: "Good Love",
-                                artist: "张信哲",
-                                time: "04:45",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186697.mp3"
-                            },
-                            {
-                                trackNum: 5,
-                                name: "放手",
-                                artist: "张信哲",
-                                time: "03:51",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186700.mp3"
-                            },
-                            {
-                                trackNum: 6,
-                                name: "受罪",
-                                artist: "张信哲",
-                                time: "05:08",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186702.mp3"
-                            },
-                            {
-                                trackNum: 7,
-                                name: "改变",
-                                artist: "张信哲",
-                                time: "04:36",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186705.mp3"
-                            },
-                            {
-                                trackNum: 8,
-                                name: "等你",
-                                artist: "张信哲",
-                                time: "04:36",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186708.mp3"
-                            },
-                            {
-                                trackNum: 9,
-                                name: "快乐",
-                                artist: "张信哲",
-                                time: "03:51",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186712.mp3"
-                            },
-                            {
-                                trackNum: 10,
-                                name: "游戏",
-                                artist: "张信哲",
-                                time: "04:26",
-                                year: 1997,
-                                status: "stop",
-                                url: "https://link.hhtjim.com/163/186716.mp3"
-                            }
-                        ];
-                    }
+                    initAlbumList.call(this, vm);
+                },
+                layout: function() {
+                    vm.size.height = this.contentBodyHeight - 41;
+                },
+                load: function() {
+                    // 设置歌曲信息
+                    vm.albumCover = "https://y.gtimg.cn/music/photo_new/T002R300x300M000000oI0IK2rvClS.jpg?max_age=2592000";
+                    vm.items = [
+                        {
+                            trackNum: 1,
+                            name: "用情",
+                            artist: "张信哲",
+                            time: "05:08",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186686.mp3"
+                        },
+                        {
+                            trackNum: 2,
+                            name: "背叛",
+                            artist: "张信哲",
+                            time: "03:52",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186690.mp3"
+                        },
+                        {
+                            trackNum: 3,
+                            name: "多想",
+                            artist: "张信哲",
+                            time: "04:57",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186694.mp3"
+                        },
+                        {
+                            trackNum: 4,
+                            name: "Good Love",
+                            artist: "张信哲",
+                            time: "04:45",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186697.mp3"
+                        },
+                        {
+                            trackNum: 5,
+                            name: "放手",
+                            artist: "张信哲",
+                            time: "03:51",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186700.mp3"
+                        },
+                        {
+                            trackNum: 6,
+                            name: "受罪",
+                            artist: "张信哲",
+                            time: "05:08",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186702.mp3"
+                        },
+                        {
+                            trackNum: 7,
+                            name: "改变",
+                            artist: "张信哲",
+                            time: "04:36",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186705.mp3"
+                        },
+                        {
+                            trackNum: 8,
+                            name: "等你",
+                            artist: "张信哲",
+                            time: "04:36",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186708.mp3"
+                        },
+                        {
+                            trackNum: 9,
+                            name: "快乐",
+                            artist: "张信哲",
+                            time: "03:51",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186712.mp3"
+                        },
+                        {
+                            trackNum: 10,
+                            name: "游戏",
+                            artist: "张信哲",
+                            time: "04:26",
+                            year: 1997,
+                            status: "stop",
+                            url: "https://link.hhtjim.com/163/186716.mp3"
+                        }
+                    ];
                 }
-            };
+            });
         })();
     </script>
 </partial>

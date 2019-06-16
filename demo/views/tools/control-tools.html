@@ -158,54 +158,42 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        createSlidebar.call(this);
-                        createHoverView.call(this);
-                        createProgress.call(this);
+            ui.page.init({
+                created: function() {
+                    createSlidebar.call(this);
+                    createHoverView.call(this);
+                    createProgress.call(this);
 
-                        $(".ui-fold-view").foldView();
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                        });
-                    },
-                    event: function() {
-                        $("#showComplexSample").click(function(e) {
-                            var complexProgress = pageLogic.complexProgress,
-                                shadow = $("#complexShadow");
-                            if(complexProgress.percent > 0) {
-                                return;
-                            }
+                    $(".ui-fold-view").foldView();
 
-                            function changePercent() {
-                                complexProgress.percent += 20;
-                                
-                                if(complexProgress.percent >= 100) {
-                                    setTimeout(function() {
-                                        shadow.css("opacity", 0);
-                                        complexProgress.percent = 0;
-                                        complexProgress.hide();
-                                    }, 1000);
-                                } else {
-                                    setTimeout(changePercent, 1000);
-                                }
-                            }
+                    $("#showComplexSample").click(function(e) {
+                        var complexProgress = ui.page.complexProgress,
+                            shadow = $("#complexShadow");
+                        if(complexProgress.percent > 0) {
+                            return;
+                        }
 
-                            shadow.css("opacity", .6);
-                            complexProgress.show();
+                        function changePercent() {
+                            complexProgress.percent += 20;
                             
-                            setTimeout(changePercent, 300);
-                        });
-                    },
-                    load: function() {
+                            if(complexProgress.percent >= 100) {
+                                setTimeout(function() {
+                                    shadow.css("opacity", 0);
+                                    complexProgress.percent = 0;
+                                    complexProgress.hide();
+                                }, 1000);
+                            } else {
+                                setTimeout(changePercent, 1000);
+                            }
+                        }
+
+                        shadow.css("opacity", .6);
+                        complexProgress.show();
                         
-                    }
+                        setTimeout(changePercent, 300);
+                    });
                 }
-            };
+            });
 
             function createSlidebar() {
                 this.slidebar = $("#slidebar").slidebar();

@@ -14,29 +14,18 @@
     <script type="text/javascript" src="../../lib/menu/grid-view-menus.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    before: function() {
-                        createGridTree.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            pageLogic.gridview.setSize(height - 40);
-                        });
-                    },
-                    after: function() {
-
-                    },
-                    events: function() {
-
-                    },
-                    load: function() {
-                        loadGridTreeData();
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                created: function() {
+                    createGridTree.call(this);
+                },
+                layout: function() {
+                    this.gridview.setSize(this.contentBodyHeight - 40);
+                },
+                load: function() {
+                    loadGridTreeData();
                 }
-            };
+            });
 
             function createGridTree() {
                 var gridTree = new ui.ctrls.GridViewTree();

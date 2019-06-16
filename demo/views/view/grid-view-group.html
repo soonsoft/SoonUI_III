@@ -48,26 +48,19 @@
     <script type="text/javascript" src="../../lib/data/jay-album.js"></script>
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        createGridGroup.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            pageLogic.gridview.setSize(height - 40);
-                        });
-                    },
-                    event: function() {
-
-                    },
-                    load: function() {
-                        loadGridGroupData();
-                    }
+            var pageLogic = ui.page;
+            pageLogic.init({
+                created: function() {
+                    createGridGroup.call(this);
+                },
+                layout: function() {
+                    this.gridview.setSize(
+                        this.contentBodyHeight - 40);
+                },
+                load: function() {
+                    loadGridGroupData();
                 }
-            };
+            });
 
             function createGridGroup() {
                 var gridGroup = new ui.ctrls.GridViewGroup();

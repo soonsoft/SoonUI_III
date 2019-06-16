@@ -61,68 +61,64 @@
                 { album: "Westlife - Greatest Hits", year: "2011-11-01", artist: "Westlife" }
             ];
             var westlifeInsertItem = { album: "Unbreakable - The Greatest Hits", year: "2002-11-02", artist: "Westlife" };
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.toolbar = ui.master.createToolbar("toolbar");
-                        createCardView.call(this);
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                            pageLogic.cardView.setSize(height - pageLogic.toolbar.height);
+            var pageLogic = ui.page;
+            pageLogic.init({
+                toolbar: "toolbar",
+                created: function() {
+                    createCardView.call(this);
+
+                    $("#addItem").click(function(e) {
+                        if(removeItems.length === 0) {
+                            ui.messageShow("没有被移除的项目，请先移除一个项目");
+                            return;
+                        }
+                        while(removeItems.length > 0) {
+                            pageLogic.cardView.addItem(removeItems.shift());
+                        }
+                    });
+                    $("#addGroup").click(function(e) {
+                        if(westlifeGroup.length === 0) {
+                            ui.messageShow("没新分组");
+                            return;
+                        }
+                        westlifeGroup.forEach(function(item) {
+                            item.picture = "../../lib/data/album-cover/" + item.album + ".jpg";
+                            pageLogic.cardView.addItem(item);
                         });
-                    },
-                    event: function() {
-                        $("#addItem").click(function(e) {
-                            if(removeItems.length === 0) {
-                                ui.messageShow("没有被移除的项目，请先移除一个项目");
-                                return;
-                            }
-                            while(removeItems.length > 0) {
-                                pageLogic.cardView.addItem(removeItems.shift());
-                            }
+                        westlifeGroup = [];
+                    });
+                    $("#insertItem").click(function(e) {
+                        if(!westlifeInsertItem) {
+                            ui.messageShow("没有需要插入的元素");
+                            return;
+                        }
+                        westlifeInsertItem.picture = "../../lib/data/album-cover/" + westlifeInsertItem.album + ".jpg";
+                        pageLogic.cardView.insertItem(36, westlifeInsertItem);
+                        westlifeInsertItem = null;
+                    });
+                    $("#deleteItem").click(function(e) {
+                        var selectList = pageLogic.cardView.getSelection();
+                        if(selectList.length === 0) {
+                            ui.messageShow("您还没有选择要删除的内容");
+                            return;
+                        }
+                        var indexes = [];
+                        selectList.forEach(function(item) {
+                            removeItems.push(item.itemData);
+                            indexes.push(item.itemIndex);
                         });
-                        $("#addGroup").click(function(e) {
-                            if(westlifeGroup.length === 0) {
-                                ui.messageShow("没新分组");
-                                return;
-                            }
-                            westlifeGroup.forEach(function(item) {
-                                item.picture = "../../lib/data/album-cover/" + item.album + ".jpg";
-                                pageLogic.cardView.addItem(item);
-                            });
-                            westlifeGroup = [];
-                        });
-                        $("#insertItem").click(function(e) {
-                            if(!westlifeInsertItem) {
-                                ui.messageShow("没有需要插入的元素");
-                                return;
-                            }
-                            westlifeInsertItem.picture = "../../lib/data/album-cover/" + westlifeInsertItem.album + ".jpg";
-                            pageLogic.cardView.insertItem(36, westlifeInsertItem);
-                            westlifeInsertItem = null;
-                        });
-                        $("#deleteItem").click(function(e) {
-                            var selectList = pageLogic.cardView.getSelection();
-                            if(selectList.length === 0) {
-                                ui.messageShow("您还没有选择要删除的内容");
-                                return;
-                            }
-                            var indexes = [];
-                            selectList.forEach(function(item) {
-                                removeItems.push(item.itemData);
-                                indexes.push(item.itemIndex);
-                            });
-                            pageLogic.cardView.removeAt.apply(pageLogic.cardView, indexes);
-                        });
-                    },
-                    load: function() {
-                        loadCardViewData();
-                    }
+                        pageLogic.cardView.removeAt.apply(pageLogic.cardView, indexes);
+                    });
+                },
+                layout: function() {
+                    var width = this.contentBodyWidth, 
+                        height = this.contentBodyHeight;
+                    this.cardView.setSize(height - pageLogic.toolbar.height);
+                },
+                load: function() {
+                    loadCardViewData();
                 }
-            };
+            });
 
             function createCardView() {
                 this.cardView = $("#cardView").cardView({

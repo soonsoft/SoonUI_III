@@ -478,46 +478,42 @@
     });
 
     // main方法
-    var pageLogic = ui.master.init({
-        // init下面的方法会按照顺序在页面的加载时执行，且只会执行一次
-        init: {
-            // 创建需要初始化布局的页面元素
-            create: function() {
-                this.mapChart = initScreenCenter();
+    ui.page.init({
+        // 创建需要初始化布局的页面元素
+        created: function() {
+            this.mapChart = initScreenCenter();
 
-                this.panels = new Layout({
-                    container: $("#body")
-                });
-                // 左边
-                initAlarmTypePanel(this.panels);
-                initBarrierInstallPanel(this.panels);
-                
-                // 右边
-                initRealtimeAlarmPanel(this.panels);
-                initBarrierAlarmPanel(this.panels);
-                initAlarmInWeekPanel(this.panels);
-            },
-            layout: function() {
-                ui.master.resize(function(e) {
-                    var width = ui.master.contentBodyWidth, 
-                        height = ui.master.contentBodyHeight;
+            this.panels = new Layout({
+                container: $("#body")
+            });
+            // 左边
+            initAlarmTypePanel(this.panels);
+            initBarrierInstallPanel(this.panels);
+            
+            // 右边
+            initRealtimeAlarmPanel(this.panels);
+            initBarrierAlarmPanel(this.panels);
+            initAlarmInWeekPanel(this.panels);
 
-                    pageLogic.mapChart.setSize(width, height);
-                    pageLogic.panels.arrange(width, height, true);
-                }, false);
-            },
-            // 数据加载
-            load: function() {
-                $(".screen-subtitle").text(
-                    ui.date.format(new Date(), "yyyy-MM-dd, EEEE"));
+            ui.page.resize(function() {
+                var width = ui.page.contentBodyWidth, 
+                    height = ui.page.contentBodyHeight;
 
-                this.panels.arrange(
-                    ui.master.contentBodyWidth,
-                    ui.master.contentBodyHeight);
-                setTimeout(function() {
-                    pageLogic.panels.show();
-                }, 300);
-            }
+                ui.page.mapChart.setSize(width, height);
+                ui.page.panels.arrange(width, height, true);
+            });
+        },
+        // 数据加载
+        load: function() {
+            $(".screen-subtitle").text(
+                ui.date.format(new Date(), "yyyy-MM-dd, EEEE"));
+
+            this.panels.arrange(
+                ui.page.contentBodyWidth,
+                ui.page.contentBodyHeight);
+            setTimeout(function() {
+                ui.page.panels.show();
+            }, 300);
         }
     });
 
@@ -646,8 +642,8 @@
         }
 
         mapChart.setSize(
-            ui.master.contentBodyWidth, 
-            ui.master.contentBodyHeight);
+            ui.page.contentBodyWidth, 
+            ui.page.contentBodyHeight);
 
         mapChart.chart = echarts.init(mapChart.container[0]);
         echarts.registerMap("wuhanMap", mapChart.mapData);
@@ -851,7 +847,7 @@
             function add() {
                 var alarms = getAlarms();
                 that.messageList.add(alarms);
-                pageLogic.mapChart.addAlarms(alarms);
+                ui.page.mapChart.addAlarms(alarms);
                 setTimeout(add, ui.random.getNum(1000, 5000))
             }
             setTimeout(function() {

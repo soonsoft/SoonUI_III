@@ -169,64 +169,55 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        this.toolbar = ui.master.createToolbar("toolbar");
-                        
-                        initializeCalendarView.call(this);
+            var pageLogic = ui.page;
+            pageLogic.init({
+                toolbar: "toolbar",
+                created: function() {
+                    initializeCalendarView.call(this);
 
-                        // 创建过滤器对象
-                        this.viewFilter = $("#viewFilter").filterButton({
-                            viewData: [
-                                { text: "年", value: "YearView", selected: true },
-                                { text: "月", value: "MonthView" },
-                                { text: "周", value: "WeekView" },
-                                { text: "日", value: "DayView" }
-                            ]
-                        });
-                        this.viewFilter.selected(function(e, eventData) {
-                            pageLogic.calendarView.changeView(eventData.itemData.value);
-                        });
-                        $("#calendarTitle").text(pageLogic.calendarView.getTitle());
-                    },
-                    layout: function() {
-                        // 注册resize事件
-                        ui.master.resize(function(e) {
-                            var width, 
-                                height,
-                                calendarViewHeight;
-                            
-                            // 有master自动计算的内容区域的宽度和高度
-                            width = ui.master.contentBodyWidth;
-                            height = ui.master.contentBodyHeight;
+                    // 创建过滤器对象
+                    this.viewFilter = $("#viewFilter").filterButton({
+                        viewData: [
+                            { text: "年", value: "YearView", selected: true },
+                            { text: "月", value: "MonthView" },
+                            { text: "周", value: "WeekView" },
+                            { text: "日", value: "DayView" }
+                        ]
+                    });
+                    this.viewFilter.selected(function(e, eventData) {
+                        pageLogic.calendarView.changeView(eventData.itemData.value);
+                    });
+                    $("#calendarTitle").text(pageLogic.calendarView.getTitle());
 
-                            calendarViewHeight = height - pageLogic.toolbar.height;
-                            pageLogic.calendarView.setSize(width, calendarViewHeight);
-                        });
-                    },
-                    event: function() {
-                        // 视图内容切换
-                        $("#previous").click(function(e) {
-                            pageLogic.calendarView.previous();
-                        });
-                        $("#today").click(function(e) {
-                            pageLogic.calendarView.today();
-                        });
-                        $("#next").click(function(e) {
-                            pageLogic.calendarView.next();
-                        });
-                        
-                        bindYearEvents();
-                        bindMonthEvents();
-                        bindWeekEvents();
-                        bindDayEvents();
-                    },
-                    load: function() {
+                    // 视图内容切换
+                    $("#previous").click(function(e) {
+                        pageLogic.calendarView.previous();
+                    });
+                    $("#today").click(function(e) {
+                        pageLogic.calendarView.today();
+                    });
+                    $("#next").click(function(e) {
+                        pageLogic.calendarView.next();
+                    });
+                    
+                    bindYearEvents();
+                    bindMonthEvents();
+                    bindWeekEvents();
+                    bindDayEvents();
+                },
+                layout: function() {
+                    var width, 
+                        height,
+                        calendarViewHeight;
+                    
+                    // 自动计算的内容区域的宽度和高度
+                    width = this.contentBodyWidth;
+                    height = this.contentBodyHeight;
 
-                    }
+                    calendarViewHeight = height - this.toolbar.height;
+                    this.calendarView.setSize(width, calendarViewHeight);
                 }
-            };
+            });
 
             // 初始化CalendarView视图
             function initializeCalendarView() {

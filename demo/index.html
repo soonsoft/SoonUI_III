@@ -38,28 +38,20 @@
     <script type="text/javascript" src="./lib/data/highlights.js"></script>
     <script type="text/javascript">
         (function() {
-            ui.master.init();
-
-            var pageLogic = window.pageLogic = {
-                init: {
-                    before: function() {
-                        initWave();
-                    },
-                    layout: function() {
-                        ui.master.resize(function() {
-                            wave.resize();
-                        });
-                    },
-                    load: function() {
-                        wave.start();
-                    }
+            var wave;
+            ui.page.init({
+                created: function() {
+                    initWave();
+                    ui.page.resize(function() {
+                        wave.resize();
+                    });
+                    wave.start();
                 }
-            };
+            });
 
             var requestAnimationFrame = ui.getRequestAnimationFrame();
             var cancelAnimationFrame = ui.getCancelAnimationFrame();
             function demoSection() {
-                
                 sectionOperators[2] = {
                     start: function() {
                         wave.start();

@@ -126,30 +126,16 @@
 <partial id="script">
     <script type="text/javascript">
         (function() {
-            window.pageLogic = {
-                init: {
-                    create: function() {
-                        createImageZoomer.call(this);
-                        createImageWather.call(this);
-                        createImageViewer.call(this);
-                        createImagePreview.call(this);
+            ui.page.init({
+                created: function() {
+                    createImageZoomer.call(this);
+                    createImageWather.call(this);
+                    createImageViewer.call(this);
+                    createImagePreview.call(this);
 
-                        $(".ui-fold-view").foldView();
-                    },
-                    layout: function() {
-                        ui.master.resize(function(e) {
-                            var width = ui.master.contentBodyWidth, 
-                                height = ui.master.contentBodyHeight;
-                        });
-                    },
-                    event: function() {
-
-                    },
-                    load: function() {
-                        
-                    }
+                    $(".ui-fold-view").foldView();
                 }
-            };
+            });
 
             function createImageZoomer() {
                 var imageZoomer,
