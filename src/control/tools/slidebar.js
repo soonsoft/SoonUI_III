@@ -80,6 +80,31 @@ function onMouseup(e) {
     };
     moving.call(this, arg);
 }
+function onMouseWheel(e) {
+    var lengthValue,
+        arg,
+        stepValue;
+
+    e.stopPropagation();
+    if(this.mouseDragger._isDragStart) {
+        return;
+    }
+    arg = {};
+    stepValue = (-e.delta) * 5;
+
+    if(this.isHorizontal()) {
+        lengthValue = this.track.width();
+        arg.x = stepValue;
+    } else {
+        lengthValue = this.track.height();
+        arg.y = stepValue;
+    }
+    
+    arg.option = {
+        lengthValue: lengthValue
+    };
+    moving.call(this, arg);
+}
 function calculatePercent(location, min, max) {
     var percent;
     if(location > max) {
@@ -125,6 +150,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this.defineProperty("percentValue", this.getPercent, this.setPercent);
 
         this.onMouseupHandler = onMouseup.bind(this);
+        this.onMouseWheelHandler = onMouseWheel.bind(this);
     },
     _render: function() {
         this.track = $("<div class='ui-slidebar-track' />");
@@ -137,6 +163,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this._initScale();
         this._initMouseDragger();
         this.track.on("mouseup", this.onMouseupHandler);
+        this.element.mousewheel(this.onMouseWheelHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;

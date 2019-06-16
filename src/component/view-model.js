@@ -434,7 +434,7 @@ function createBinder(viewModel, propertyName, bindData, handler, option) {
 
 ui.ViewModel = createNotifyObject;
 ui.ViewModel.bindOnce = function(viewModel, propertyName, bindData, fn) {
-    var binder = createBinder(viewModel, propertyName, bindData, fn);
+    createBinder(viewModel, propertyName, bindData, fn);
 };
 ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
     var binder,
