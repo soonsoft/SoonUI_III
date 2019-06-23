@@ -1816,6 +1816,8 @@ KeyArray.prototype = {
     isArray: base.isArray,
     setArray: base.setArray,
     makeArray: base.makeArray,
+    forEach: base.forEach,
+    filter: base.filter,
     toArray: base.toArray,
     toString: base.toString,
     valueOf: base.valueOf

@@ -2,6 +2,7 @@
 	Color: #ffffff
 	Name: 光明
 */
+/* 基准字号13px-0.813em */
 html {
   margin: 0;
   padding: 0;
@@ -57,22 +58,22 @@ h6 {
   padding: 0;
 }
 h1 {
-  font-size: 3em;
+  font-size: 3.692em;
 }
 h2 {
-  font-size: 2.25em;
+  font-size: 2.769em;
 }
 h3 {
-  font-size: 1.5em;
+  font-size: 1.846em;
 }
 h4 {
-  font-size: 1.125em;
+  font-size: 1.385em;
 }
 h5 {
-  font-size: 1em;
+  font-size: 1.231em;
 }
 h6 {
-  font-size: 0.875em;
+  font-size: 1.077em;
 }
 hr {
   height: 1px;
@@ -216,6 +217,18 @@ a:active {
 #headBackButton:hover {
   opacity: 1;
 }
+.ui-home-button {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  opacity: .7;
+}
+.ui-home-button:hover {
+  opacity: 1;
+}
 /* 标题 */
 .head-system-title {
   display: block;
@@ -225,7 +238,7 @@ a:active {
   position: relative;
   font-weight: normal;
   overflow: hidden;
-  font-size: 1.5em;
+  font-size: 1.385em;
 }
 .head-system-title-text {
   color: #fff;
@@ -241,7 +254,7 @@ a:active {
   list-style: none;
 }
 .head-tab-title .ui-tab-button {
-  font-size: 1.125em;
+  font-size: 1.231em;
   margin-left: 20px;
   list-style: none;
   overflow: hidden;
@@ -408,12 +421,12 @@ a:active {
 .tool-button {
   text-align: center;
   height: 24px;
-  line-height: 20px;
+  line-height: 22px;
   margin: 0;
   padding: 0;
   min-width: 24px;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   border-color: #666666;
   color: #666666;
   overflow: hidden;
@@ -423,7 +436,7 @@ a:active {
 }
 .tool-button {
   min-width: 60px;
-  font-size: 0.813em;
+  font-size: 1em;
   line-height: 22px;
 }
 .icon-button {
@@ -442,7 +455,7 @@ a:active {
   outline: 0 none;
 }
 .icon-button .fa {
-  font-size: 1em;
+  font-size: 1.077em;
   line-height: 22px;
 }
 .icon-button:hover {
@@ -460,7 +473,7 @@ a:active {
 }
 /* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
 .tool-text-button {
-  font-size: 0.875em;
+  font-size: 1.077em;
   opacity: .8;
   cursor: pointer;
 }
@@ -483,7 +496,7 @@ textarea {
   padding: 0 1px 0 1px;
   height: 24px;
   line-height: 24px;
-  font-size: 0.813em;
+  font-size: 1em;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   border-radius: 0;
@@ -600,7 +613,7 @@ textarea {
   border: 0 none;
   color: #ffffff;
   background-color: #666666;
-  font-size: 0.813em;
+  font-size: 1em;
   padding-top: 0;
   padding-bottom: 0;
 }

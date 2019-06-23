@@ -1816,6 +1816,8 @@ KeyArray.prototype = {
     isArray: base.isArray,
     setArray: base.setArray,
     makeArray: base.makeArray,
+    forEach: base.forEach,
+    filter: base.filter,
     toArray: base.toArray,
     toString: base.toString,
     valueOf: base.valueOf
@@ -7007,7 +7009,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     if (option) {
         ajaxOption = ui.extend(ajaxOption, option);
     }
-    if(ajaxOption.type === "POST") {
+    if(ajaxOption.type === "POST" && !ajaxOption.contentType) {
         ajaxOption.contentType = "application/json; charset=utf-8";
     }
 
@@ -10781,7 +10783,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
-            // TODO 父级容器，默认是Body
+            // 父级容器，默认是Body
             parent: null,
             // 内容是否包含iframe
             hasIframe: false,
@@ -28883,6 +28885,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
         this.hasMenuButton = this.option.menuButton && this.option.menuButton.length;
         if(this.hasMenuButton) {
             this._menuButtonBg = $("<b class='menu-button-background title-color'></b>");
+            this.option.menuButton.addClass("ui-menu-button");
             this.option.menuButton.append(this._menuButtonBg);
             this.option.menuButton
                     .append("<b class='menu-inner-line a'></b>")
@@ -29313,7 +29316,8 @@ ui.ctrls.define("ui.ctrls.Menu", {
     }
  */
 
-var rank = 10;
+var rank = 10,
+    homeButtonClass = ".ui-home-button";
 
 /** 获取一个有效的url */
 ui.page.getUrl = function(url) {
@@ -29402,20 +29406,40 @@ plugin({
     }
 });
 
+// 主按钮逻辑
+plugin({
+    name: "homeButton",
+    handler: function(arg) {
+        var button = $(homeButtonClass);
+
+        if(button.length === 0) {
+            return;
+        }
+
+        if(ui.core.isFunction(arg)) {
+            arg.call(this, button);
+        }
+    }
+});
+
 // 菜单插件
 plugin({
     name: "menu",
     handler: function(arg) {
-        var page = this;
+        var page = this,
+            homeButton;
         if(ui.core.isFunction(arg)) {
             this.menu = arg.call(this);
         } else if(arg) {
+            homeButton = $(homeButtonClass);
+            homeButton.empty();
+
             this.menu = ui.ctrls.Menu({
                 style: "normal",
                 menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
                 extendMethod: "cover",
-                menuButton: $(".ui-menu-button")
+                menuButton: homeButton.length > 0 ? homeButton : null
             });
             this.menu.shown(function(e) {
                 if(this.isExtrusion()) {
@@ -29779,7 +29803,13 @@ tileUpdater = {
             this.updatePanel = $("<div class='update-panel' />");
             this.tileInnerBack
                     .append(this.updatePanel)
-                    .append("<div class='tile-title'><span class='tile-title-text'>" + this.title + "</span></div>");
+                    .append((function() {
+                        var div = $("<div class='tile-title' />"),
+                            span = $("<span class='tile-title-text' />");
+                        span.text(this.title);
+                        div.append(span);
+                        return div;
+                    }).call(this));
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
@@ -29797,8 +29827,7 @@ tileUpdater = {
             setRotateFn = function(val) {
                 var cssObj = {},
                     prefix = ["-ms-", "-moz-", "-webkit-", "-o-", ""],
-                    rotateValue;
-                rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
+                    rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
                 prefix.forEach(function(p) {
                     cssObj[p + "transform"] = rotateValue;
                 });

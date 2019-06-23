@@ -1889,7 +1889,7 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
             done: "up",
             // box内容是否是一个url，可以支持iframe外链
             src: null,
-            // TODO 父级容器，默认是Body
+            // 父级容器，默认是Body
             parent: null,
             // 内容是否包含iframe
             hasIframe: false,

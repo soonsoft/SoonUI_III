@@ -12,7 +12,8 @@
     }
  */
 
-var rank = 10;
+var rank = 10,
+    homeButtonClass = ".ui-home-button";
 
 /** 获取一个有效的url */
 ui.page.getUrl = function(url) {
@@ -101,20 +102,40 @@ plugin({
     }
 });
 
+// 主按钮逻辑
+plugin({
+    name: "homeButton",
+    handler: function(arg) {
+        var button = $(homeButtonClass);
+
+        if(button.length === 0) {
+            return;
+        }
+
+        if(ui.core.isFunction(arg)) {
+            arg.call(this, button);
+        }
+    }
+});
+
 // 菜单插件
 plugin({
     name: "menu",
     handler: function(arg) {
-        var page = this;
+        var page = this,
+            homeButton;
         if(ui.core.isFunction(arg)) {
             this.menu = arg.call(this);
         } else if(arg) {
+            homeButton = $(homeButtonClass);
+            homeButton.empty();
+
             this.menu = ui.ctrls.Menu({
                 style: "normal",
                 menuPanel: $(".ui-menu-panel"),
                 contentContainer: $(".content-container"),
                 extendMethod: "cover",
-                menuButton: $(".ui-menu-button")
+                menuButton: homeButton.length > 0 ? homeButton : null
             });
             this.menu.shown(function(e) {
                 if(this.isExtrusion()) {

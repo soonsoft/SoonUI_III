@@ -1,14 +1,14 @@
-
-@font-normal: 0.813em;
-@font-small: 0.750em;
-@font-middle: 1.000em;
-@font-large: 1.250em;
-@font-h1: 3.000em;
-@font-h2: 2.250em;
-@font-h3: 1.500em;
-@font-h4: 1.125em;
-@font-h5: 1.000em;
-@font-h6: 0.875em;
+/* 基准字号13px-0.813em */
+@font-normal: 1em;
+@font-small: 0.923em;
+@font-middle: 1.231em;
+@font-large: 1.538em;
+@font-h1: 3.692em;
+@font-h2: 2.769em;
+@font-h3: 1.846em;
+@font-h4: 1.385em;
+@font-h5: 1.231em;
+@font-h6: 1.077em;
 
 html {
     margin: 0;
@@ -20,7 +20,7 @@ html {
 }
 
 body {
-    font-size: @font-normal;
+    font-size: 0.813em;
     font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
     font-style: normal;
     font-variant: normal;
@@ -223,6 +223,20 @@ a {
         opacity: 1;
     }
 
+.ui-home-button {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    opacity: .7;
+}
+
+    .ui-home-button:hover {
+        opacity: 1;
+    }
+
 /* 标题 */
 .head-system-title {
     display: block;
@@ -232,7 +246,7 @@ a {
     position: relative;
     font-weight: normal;
     overflow: hidden;
-    font-size: @font-h3;
+    font-size: @font-h4;
 }
 
 .head-system-title-text {
@@ -251,7 +265,7 @@ a {
 }
 
     .head-tab-title .ui-tab-button {
-        font-size: @font-h4;
+        font-size: @font-h5;
         margin-left: 20px;
         list-style: none;
         overflow: hidden;
@@ -440,12 +454,12 @@ a {
 .tool-button {
     text-align: center;
     height: 24px;
-    line-height: 20px;
+    line-height: 22px;
     margin: 0;
     padding: 0;
     min-width: 24px;
     border-style: solid;
-    border-width: 2px;
+    border-width: 1px;
     border-color: @tool-color;
     color: @tool-color;
     overflow: hidden;
@@ -477,7 +491,7 @@ a {
 }
 
     .icon-button .fa {
-        font-size: @font-h5;
+        font-size: @font-h6;
         line-height: 22px;
     }
 

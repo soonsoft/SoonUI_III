@@ -549,6 +549,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
         this.hasMenuButton = this.option.menuButton && this.option.menuButton.length;
         if(this.hasMenuButton) {
             this._menuButtonBg = $("<b class='menu-button-background title-color'></b>");
+            this.option.menuButton.addClass("ui-menu-button");
             this.option.menuButton.append(this._menuButtonBg);
             this.option.menuButton
                     .append("<b class='menu-inner-line a'></b>")

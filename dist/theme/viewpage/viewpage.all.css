@@ -1,16 +1,4 @@
 /* 菜单按钮 */
-.ui-menu-button {
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  opacity: .7;
-}
-.ui-menu-button:hover {
-  opacity: 1;
-}
 .ui-menu-button .menu-button-img {
   position: relative;
   margin-left: 8px;

@@ -29,7 +29,13 @@ tileUpdater = {
             this.updatePanel = $("<div class='update-panel' />");
             this.tileInnerBack
                     .append(this.updatePanel)
-                    .append("<div class='tile-title'><span class='tile-title-text'>" + this.title + "</span></div>");
+                    .append((function() {
+                        var div = $("<div class='tile-title' />"),
+                            span = $("<span class='tile-title-text' />");
+                        span.text(this.title);
+                        div.append(span);
+                        return div;
+                    }).call(this));
 
             this.smallIconImg = $("<img class='tile-small-icon' />");
             this.smallIconImg.prop("src", this.icon);
@@ -47,8 +53,7 @@ tileUpdater = {
             setRotateFn = function(val) {
                 var cssObj = {},
                     prefix = ["-ms-", "-moz-", "-webkit-", "-o-", ""],
-                    rotateValue;
-                rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
+                    rotateValue = "perspective(" + perspective + "px) rotateX(" + val + "deg)";
                 prefix.forEach(function(p) {
                     cssObj[p + "transform"] = rotateValue;
                 });

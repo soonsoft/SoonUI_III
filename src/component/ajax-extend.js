@@ -96,7 +96,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     if (option) {
         ajaxOption = ui.extend(ajaxOption, option);
     }
-    if(ajaxOption.type === "POST") {
+    if(ajaxOption.type === "POST" && !ajaxOption.contentType) {
         ajaxOption.contentType = "application/json; charset=utf-8";
     }
 
