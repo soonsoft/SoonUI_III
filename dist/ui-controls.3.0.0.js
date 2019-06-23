@@ -533,7 +533,8 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
     _defineOption: function() {
         return {
             parent: null,
-            width: 240
+            width: 240,
+            hasCloseButton: true
         };
     },
     _defineEvents: function () {
@@ -556,22 +557,13 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
-        this._closeButton = $("<button class='icon-button background-highlight-active' />");
-        this._closeButton.append("<i class='fa fa-chevron-right'></i>");
-        this._closeButton.css({
-            "position": "absolute",
-            "border": "none 0",
-            "width": "20px",
-            "height": "20px",
-            "min-width": "auto",
-            "top": "5px",
-            "right": "5px",
-            "z-index": 999,
-            "background-color": "transparent"
-        });
-        this._closeButton.click(function(e) {
-            that.hide();
-        });
+        if(this.option.hasCloseButton) {
+            this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
+            this._closeButton.append("<i class='fa fa-angle-right'></i>");
+            this._closeButton.click(function(e) {
+                that.hide();
+            });
+        }
 
         if(this.element) {
             this._panel.append(this.element);
@@ -2817,7 +2809,6 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.buttons = [];
 
         this.opacityOption = {
-            target: this.panel,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val, elem) {
                 elem.css("opacity", val / 100);
@@ -2828,11 +2819,15 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this._super();
 
         this._panel.addClass("ui-option-box-panel");
+
         this.titlePanel = $("<section class='ui-option-box-title' />");
         this.contentPanel = $("<section class='ui-option-box-content' />");
 
         this.contentPanel.append(this.element);
         this.contentHeight = this.element.height();
+
+        this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
+        this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
 
         this._panel
             .append(this.titlePanel)
@@ -2901,12 +2896,14 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     },
     show: function() {
         this.showTimeValue = 240;
+        this.opacityOption.target = this._panel;
         this.opacityOption.begin = 0;
         this.opacityOption.end = 100;
         this._super(this.opacityOption);
     },
     hide: function() {
         this.hideTimeValue = 240;
+        this.opacityOption.target = this._panel;
         this.opacityOption.begin = 100;
         this.opacityOption.end = 0;
         this._super(this.opacityOption);

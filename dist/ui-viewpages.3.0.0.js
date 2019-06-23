@@ -1275,7 +1275,7 @@ plugin({
             parent: "body",
             width: 240
         }, sidebarElement);
-        sidebar._closeButton.css("color", "#ffffff");
+        sidebar._closeButton.attr("style", "color:#fff !important;width:32px;height:32px;");
         sidebarElement.before("<div class='user-settings-background title-color' />");
         sidebar.animator[0].ease = ui.AnimationStyle.easeFromTo;
         sidebar.contentAnimator = ui.animator({

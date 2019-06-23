@@ -5,7 +5,8 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
     _defineOption: function() {
         return {
             parent: null,
-            width: 240
+            width: 240,
+            hasCloseButton: true
         };
     },
     _defineEvents: function () {
@@ -28,22 +29,13 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         this._panel = $("<aside class='ui-sidebar-panel border-highlight' />");
         this._panel.css("width", this.width + "px");
         
-        this._closeButton = $("<button class='icon-button background-highlight-active' />");
-        this._closeButton.append("<i class='fa fa-chevron-right'></i>");
-        this._closeButton.css({
-            "position": "absolute",
-            "border": "none 0",
-            "width": "20px",
-            "height": "20px",
-            "min-width": "auto",
-            "top": "5px",
-            "right": "5px",
-            "z-index": 999,
-            "background-color": "transparent"
-        });
-        this._closeButton.click(function(e) {
-            that.hide();
-        });
+        if(this.option.hasCloseButton) {
+            this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
+            this._closeButton.append("<i class='fa fa-angle-right'></i>");
+            this._closeButton.click(function(e) {
+                that.hide();
+            });
+        }
 
         if(this.element) {
             this._panel.append(this.element);

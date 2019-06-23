@@ -2461,7 +2461,8 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         dataType: "json",
         url: url,
         async: true,
-        timeout: 3000,
+        // 如果是生产环境，则需要设置一个超时时间
+        timeout: 0,
         data: args
     };
     if (option) {

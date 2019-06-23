@@ -19,7 +19,6 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.buttons = [];
 
         this.opacityOption = {
-            target: this.panel,
             ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val, elem) {
                 elem.css("opacity", val / 100);
@@ -30,11 +29,15 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this._super();
 
         this._panel.addClass("ui-option-box-panel");
+
         this.titlePanel = $("<section class='ui-option-box-title' />");
         this.contentPanel = $("<section class='ui-option-box-content' />");
 
         this.contentPanel.append(this.element);
         this.contentHeight = this.element.height();
+
+        this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
+        this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
 
         this._panel
             .append(this.titlePanel)
@@ -103,12 +106,14 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     },
     show: function() {
         this.showTimeValue = 240;
+        this.opacityOption.target = this._panel;
         this.opacityOption.begin = 0;
         this.opacityOption.end = 100;
         this._super(this.opacityOption);
     },
     hide: function() {
         this.hideTimeValue = 240;
+        this.opacityOption.target = this._panel;
         this.opacityOption.begin = 100;
         this.opacityOption.end = 0;
         this._super(this.opacityOption);
