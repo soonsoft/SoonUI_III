@@ -24,7 +24,7 @@ function encode(input) {
     return input ? ui.str.htmlEncode(input) : input;
 }
 function preparePager(option) {
-    if(option.showPageInfo === true) {
+    if(option.showPageInfo) {
         if(!option.pageInfoFormatter) {
             option.pageInfoFormatter = {
                 currentRowNum: function(val) {
@@ -697,7 +697,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             this.element.append(this.foot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
-            if (this.option.pager.displayDataInfo) {
+            if (this.option.pager.showPageInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
                 this.foot.append(this.pager.pageInfoPanel);
             } else {

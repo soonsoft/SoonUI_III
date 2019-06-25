@@ -148,6 +148,9 @@ a:active {
 .theme-border2 {
   border-color: #4b4d4f;
 }
+.theme-border3 {
+  border-color: #888888;
+}
 .theme-font {
   color: #cccccc;
 }
@@ -488,6 +491,8 @@ input[type="email"],
 input[type="number"],
 input[type="tel"],
 textarea {
+  font-size: 12px;
+  font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
   box-sizing: border-box;
   background-color: transparent;
   border: 1px solid #888888;

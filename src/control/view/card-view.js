@@ -65,7 +65,7 @@ function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
 }
 
 function preparePager(option) {
-    if(option.showPageInfo === true) {
+    if(option.showPageInfo) {
         if(!option.pageInfoFormatter) {
             option.pageInfoFormatter = {
                 currentRowNum: function(val) {
@@ -249,7 +249,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
             this.element.append(this.gridFoot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
-            if (this.option.pager.displayDataInfo) {
+            if (this.option.pager.showPageInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
                 this.gridFoot.append(this.pager.pageInfoPanel);
             } else {

@@ -109,13 +109,13 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.opacityOption.target = this._panel;
         this.opacityOption.begin = 0;
         this.opacityOption.end = 100;
-        this._super(this.opacityOption);
+        return this._super(this.opacityOption);
     },
     hide: function() {
         this.hideTimeValue = 240;
         this.opacityOption.target = this._panel;
         this.opacityOption.begin = 100;
         this.opacityOption.end = 0;
-        this._super(this.opacityOption);
+        return this._super(this.opacityOption);
     }
 });

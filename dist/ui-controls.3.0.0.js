@@ -2899,14 +2899,14 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.opacityOption.target = this._panel;
         this.opacityOption.begin = 0;
         this.opacityOption.end = 100;
-        this._super(this.opacityOption);
+        return this._super(this.opacityOption);
     },
     hide: function() {
         this.hideTimeValue = 240;
         this.opacityOption.target = this._panel;
         this.opacityOption.begin = 100;
         this.opacityOption.end = 0;
-        this._super(this.opacityOption);
+        return this._super(this.opacityOption);
     }
 });
 
@@ -10228,7 +10228,7 @@ function defaultHeadRearrangeHandler(itemHead, groupIndex, groupItem, margin) {
 }
 
 function preparePager(option) {
-    if(option.showPageInfo === true) {
+    if(option.showPageInfo) {
         if(!option.pageInfoFormatter) {
             option.pageInfoFormatter = {
                 currentRowNum: function(val) {
@@ -10412,7 +10412,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
             this.element.append(this.gridFoot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
-            if (this.option.pager.displayDataInfo) {
+            if (this.option.pager.showPageInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
                 this.gridFoot.append(this.pager.pageInfoPanel);
             } else {
@@ -11859,7 +11859,7 @@ function encode(input) {
     return input ? ui.str.htmlEncode(input) : input;
 }
 function preparePager(option) {
-    if(option.showPageInfo === true) {
+    if(option.showPageInfo) {
         if(!option.pageInfoFormatter) {
             option.pageInfoFormatter = {
                 currentRowNum: function(val) {
@@ -12532,7 +12532,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             this.element.append(this.foot);
             
             this.pager.pageNumPanel = $("<div class='page-panel' />");
-            if (this.option.pager.displayDataInfo) {
+            if (this.option.pager.showPageInfo) {
                 this.pager.pageInfoPanel = $("<div class='data-info' />");
                 this.foot.append(this.pager.pageInfoPanel);
             } else {
