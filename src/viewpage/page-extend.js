@@ -96,9 +96,9 @@ plugin({
         layoutSize.call(this);
         ui.page.resize(layoutSize.bind(this), ui.eventPriority.bodyResize);
 
-        ui.setTask((function() {
-            this.body.css("visibility", "visible");
-        }).bind(this));
+        if(ui.core.isFunction(arg)) {
+            arg.call(this);
+        }
     }
 });
 

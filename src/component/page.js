@@ -20,7 +20,8 @@ var page = {
             "docmouseup", 
             "resize", 
             "hashchange",
-            "keydown"
+            "keydown",
+            "load"
         ],
         $config: {
             // 模型对象
@@ -196,9 +197,18 @@ page.plugin({
 page.plugin({
     name: "load",
     handler: function(arg) {
+        var result,
+            onload = (function() {
+                this.fire("load");
+            }).bind(this);
         if(ui.core.isFunction(arg)) {
-            arg.call(this);
+            result = arg.call(this);
+            if(ui.core.isFunction(result.then)) {
+                result.then(onload, onload);
+                return;
+            }
         }
+        onload();
     }
 });
 // 销毁

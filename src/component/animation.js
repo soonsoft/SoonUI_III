@@ -590,7 +590,7 @@ ui.animator.fadeIn = function(target) {
         end: 100,
         ease: animationEaseStyle.easeFromTo,
         onChange: function(val) {
-            this.target.css("opacity", val);
+            this.target.css("opacity", val / 100);
         }
     });
     animator.duration = 240;
@@ -627,7 +627,7 @@ ui.animator.fadeOut = function(target) {
         end: 0,
         ease: animationEaseStyle.easeFromTo,
         onChange: function(val) {
-            this.target.css("opacity", val);
+            this.target.css("opacity", val / 100);
         }
     });
     animator.onEnd = function() {

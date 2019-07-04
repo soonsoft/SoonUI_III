@@ -45,16 +45,12 @@ ui.theme = {
     },
     /** 修改高亮色 */
     changeHighlight: function(url, color) {
-        ui.ajax.postJson(url, 
-            { themeId: color.Id },
+        ui.post(url, { themeId: color.Id },
             function(success) {
                 if(success.Result) {
                     setHighlight(color);
                 }
-            },
-            function(error) {
-                ui.msgshow("修改主题失败，" + error.message, true);
-            }
+            }, "json"
         );
     },
     /** 设置高亮色 */

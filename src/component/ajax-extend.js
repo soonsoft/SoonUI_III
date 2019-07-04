@@ -1,5 +1,6 @@
 // ajax 扩展，加入身份验证和权限验证的相关处理逻辑
 var responsedJson = "X-Responded-JSON";
+var _rhtml = /<(\S*?)[^>]*>.*?<\/\1>|<.*? \/>/i;
 
 function unauthorized(ajaxRequest, context) {
     var json = null;
@@ -233,7 +234,7 @@ ui.ajax.postOnce = function (btn, url, params, success, failure, option) {
         };
     } else {
         text = btn.html();
-        if(!ui._rhtml.test(text)) {
+        if(!_rhtml.test(text)) {
             btn.text(ui.str.format(textFormat, text));
             fn = function() {
                 btn.text(text);

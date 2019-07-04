@@ -144,7 +144,7 @@ module.exports = function(grunt) {
         "src/component/event-delegate.js",
         "src/component/custom-event.js",
         "src/component/ajax.js",
-        "src/component/ajax-extend.js",
+        //"src/component/ajax-extend.js",
         "src/component/color.js",
         "src/component/browser.js",
         "src/component/image-loader.js",

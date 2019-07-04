@@ -140,6 +140,9 @@ ui.str = {
         var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
         var i = 0;
 
+        if(!input) {
+            return input;
+        }
         input = _utf8_encode(input);
 
         while (i < input.length) {
@@ -170,6 +173,10 @@ ui.str = {
         var enc1, enc2, enc3, enc4;
         var i = 0;
 
+        if(!input) {
+            return input;
+        }
+
         input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
         while (i < input.length) {
@@ -199,12 +206,47 @@ ui.str = {
         if (this.isEmpty(str)) {
             return textEmpty;
         }
-        if(!htmlEncodeSpan) {
-            htmlEncodeSpan = $("<span />");
-        } else {
-            htmlEncodeSpan.html("");
+        var i, index, len,
+            arr = [], code;
+        i = index = 0;
+        len = str.length;
+        for(; i < len; i++) {
+            code = str.charAt(i);
+            switch(code) {
+                case ">" :
+                    arr.push(str.substring(index, i), "&gt;");
+                    index = i + 1;
+                    break;
+                case "<" :
+                    arr.push(str.substring(index, i), "&lt;");
+                    index = i + 1;
+                    break;
+                case "&" :
+                    arr.push(str.substring(index, i), "&amp;");
+                    index = i + 1;
+                    break;
+                case "'" :
+                    arr.push(str.substring(index, i), "&#39;");
+                    index = i + 1;
+                    break;
+                case '"' :
+                    arr.push(str.substring(index, i), "&quot;");
+                    index = i + 1;
+                    break;
+                case " " :
+                    arr.push(str.substring(index, i), "&nbsp;");
+                    index = i + 1;
+                    break;
+                case "/" :
+                    arr.push(str.substring(index, i), "&frasl;");
+                    index = i + 1;
+                    break;
+            }
         }
-        return htmlEncodeSpan.append(document.createTextNode(str)).html();
+        if(index < len) {
+            arr.push(str.substring(index));
+        }
+        return arr.join("");
     },
     /** html解码 */
     htmlDecode: function(str) {
@@ -212,11 +254,10 @@ ui.str = {
             return textEmpty;
         }
         if(!htmlEncodeSpan) {
-            htmlEncodeSpan = $("<span />");
-        } else {
-            htmlEncodeSpan.html("");
+            htmlEncodeSpan = document.createElement("span");
         }
-        return htmlEncodeSpan.html(str).text();
+        htmlEncodeSpan.innerHTML = str;
+        return htmlEncodeSpan.innerText;
     },
     /** 格式化小数位数 */
     numberScaleFormat: function (num, zeroCount) {

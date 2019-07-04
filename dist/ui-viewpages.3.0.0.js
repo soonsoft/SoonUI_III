@@ -879,26 +879,26 @@ ui.ctrls.define("ui.ctrls.Menu", {
     },
 
     // 设置菜单内容
-    setMenuList: function (menus) {
+    setMenuList: function (menus, resourceCode, parentCode) {
         var htmlBuilder,
             menu, submenu,
-            currClass, 
-            resourceCode,
-            parentCode,
-            i, len, j,
-            that;
+            currClass,
+            i, len, j;
 
         this.menuList.empty();
         if (!Array.isArray(menus) || menus.length === 0) {
             return;
         }
         htmlBuilder = [];
-        resourceCode = ui.url.getLocationParam("_m");
 
-        if (!ui.str.isEmpty(resourceCode)) {
+        if (ui.str.isEmpty(resourceCode)) {
+            resourceCode = ui.url.getLocationParam("_m");
             resourceCode = ui.str.base64Decode(resourceCode);
+        }
+        if (ui.str.isEmpty(parentCode)) {
             parentCode = this._parentCode(resourceCode);
         }
+
         for (i = 0, len = menus.length; i < len; i++) {
             menu = menus[i];
             if (ui.str.isEmpty(parentCode)) {
@@ -939,10 +939,9 @@ ui.ctrls.define("ui.ctrls.Menu", {
         }
         this.menuList.html(htmlBuilder.join(""));
         
-        that = this;
-        setTimeout(function() {
-            that._updateMenuSelectedStatus();
-        });
+        ui.setTask((function() {
+            this._updateMenuSelectedStatus();
+        }).bind(this));
     },
     hasAnimation: function() {
         return !!this.option.animation;
@@ -1067,9 +1066,9 @@ plugin({
         layoutSize.call(this);
         ui.page.resize(layoutSize.bind(this), ui.eventPriority.bodyResize);
 
-        ui.setTask((function() {
-            this.body.css("visibility", "visible");
-        }).bind(this));
+        if(ui.core.isFunction(arg)) {
+            arg.call(this);
+        }
     }
 });
 
