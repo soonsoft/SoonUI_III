@@ -1255,7 +1255,7 @@ plugin({
                     htmlBuilder.push(
                         "<li class='operate-list-li theme-panel-hover'>",
                         "<span class='operate-text'>", ui.str.htmlEncode(item.text), "</span>",
-                        "<a class='operate-list-anchor' href='", ui.str.htmlEncode(item.url), "'></a>",
+                        "<a class='operate-list-anchor' href='", item.url, "'></a>",
                         "</li>"
                     );
                 }

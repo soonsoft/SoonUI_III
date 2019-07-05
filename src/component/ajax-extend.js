@@ -74,9 +74,7 @@ function errorHandler(context, ajaxRequest, textStatus, errorThrown) {
     context.errorFn(context.error);
 }
 function ajaxCall(method, url, args, successFn, errorFn, option) {
-    var type,
-        paramFn,
-        ajaxOption,
+    var ajaxOption,
         context = {
             error: {}
         };
@@ -84,6 +82,11 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         errorFn = successFn;
         successFn = args;
         args = null;
+    }
+
+    if(ui.core.isPlainObject(errorFn)) {
+        option = errorFn;
+        errorFn = null;
     }
 
     ajaxOption = {
@@ -144,7 +147,7 @@ if(!ui.ajax) {
     ui.ajax = function(option) {
         //准备参数
         var type, data,
-            sucess,
+            success,
             error;
         if(ajaxOption.contentType.indexOf("application/json") > -1) {
             data = option.data;
@@ -208,6 +211,12 @@ ui.ajax.postOnce = function (btn, url, params, success, failure, option) {
     if(!btn) {
         throw new TypeError("没有正确设置要禁用的按钮");
     }
+
+    if(ui.core.isPlainObject(failure)) {
+        option = failure;
+        failure = null;
+    }
+
     if(!option) {
         option = {};
     }

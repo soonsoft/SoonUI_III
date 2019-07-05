@@ -22,7 +22,7 @@ var msie = 0,
     ajaxConverter,
 
     eventDispatcher,
-    events = ["start", "end", "success", "error", "complete", "stop"],
+    events = ["start", "success", "error", "complete", "stop"],
     
     acceptsAll,
     accepts,

@@ -559,13 +559,17 @@ ui.getCancelAnimationFrame = function() {
 };
 
 /** 淡入动画 */
-ui.animator.fadeIn = function(target) {
+ui.animator.fadeIn = function(target, duration) {
     var display,
         opacity,
         animator;
 
     if(!target) {
         return;
+    }
+
+    if(!duration || duration <= 0) {
+        duration = 240;
     }
 
     display = target.css("dispaly");
@@ -593,7 +597,7 @@ ui.animator.fadeIn = function(target) {
             this.target.css("opacity", val / 100);
         }
     });
-    animator.duration = 240;
+    animator.duration = duration;
     return animator.start();
 };
 /** 淡出动画 */
@@ -604,6 +608,10 @@ ui.animator.fadeOut = function(target) {
 
     if(!target) {
         return;
+    }
+
+    if(!duration || duration <= 0) {
+        duration = 240;
     }
 
     display = target.css("dispaly");
@@ -633,6 +641,6 @@ ui.animator.fadeOut = function(target) {
     animator.onEnd = function() {
         target.css("display", "none");
     };
-    animator.duration = 240;
+    animator.duration = duration;
     return animator.start();
 };

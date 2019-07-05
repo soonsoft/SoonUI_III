@@ -5350,13 +5350,17 @@ ui.getCancelAnimationFrame = function() {
 };
 
 /** 淡入动画 */
-ui.animator.fadeIn = function(target) {
+ui.animator.fadeIn = function(target, duration) {
     var display,
         opacity,
         animator;
 
     if(!target) {
         return;
+    }
+
+    if(!duration || duration <= 0) {
+        duration = 240;
     }
 
     display = target.css("dispaly");
@@ -5384,7 +5388,7 @@ ui.animator.fadeIn = function(target) {
             this.target.css("opacity", val / 100);
         }
     });
-    animator.duration = 240;
+    animator.duration = duration;
     return animator.start();
 };
 /** 淡出动画 */
@@ -5395,6 +5399,10 @@ ui.animator.fadeOut = function(target) {
 
     if(!target) {
         return;
+    }
+
+    if(!duration || duration <= 0) {
+        duration = 240;
     }
 
     display = target.css("dispaly");
@@ -5424,7 +5432,7 @@ ui.animator.fadeOut = function(target) {
     animator.onEnd = function() {
         target.css("display", "none");
     };
-    animator.duration = 240;
+    animator.duration = duration;
     return animator.start();
 };
 
@@ -6149,7 +6157,7 @@ var msie = 0,
     ajaxConverter,
 
     eventDispatcher,
-    events = ["start", "end", "success", "error", "complete", "stop"],
+    events = ["start", "success", "error", "complete", "stop"],
     
     acceptsAll,
     accepts,
@@ -8425,7 +8433,7 @@ var page = {
             "resize", 
             "hashchange",
             "keydown",
-            "load"
+            "loaded"
         ],
         $config: {
             // 模型对象
@@ -8443,7 +8451,8 @@ var page = {
         }
     },
     handlers = {}, 
-    ranks = {};
+    ranks = {},
+    defaultRankValue = 100;
 
 page.event = new ui.CustomEvent(page);
 page.event.initEvents();
@@ -8458,8 +8467,8 @@ function onError(e) {
 function getKeys(config) {
     var keys = Object.keys(config);
     keys.sort(function(a, b) {
-        var v1 = ranks[a] || 99;
-        var v2 = ranks[b] || 99;
+        var v1 = ranks[a] || defaultRankValue;
+        var v2 = ranks[b] || defaultRankValue;
         if(v1 === v2) {
             return 0;
         }
@@ -8538,7 +8547,7 @@ page.plugin = function(plugin) {
 
     this.$config[plugin.name] = noop;
     handlers[plugin.name] = plugin.handler;
-    ranks[plugin.name] = plugin.rank;
+    ranks[plugin.name] = plugin.rank || ++defaultRankValue;
 };
 page.watch = function(property, fn) {
     var vm = this.model,
@@ -8603,11 +8612,11 @@ page.plugin({
     handler: function(arg) {
         var result,
             onload = (function() {
-                this.fire("load");
+                this.fire("loaded");
             }).bind(this);
         if(ui.core.isFunction(arg)) {
             result = arg.call(this);
-            if(ui.core.isFunction(result.then)) {
+            if(result && ui.core.isFunction(result.then)) {
                 result.then(onload, onload);
                 return;
             }
@@ -29351,7 +29360,7 @@ plugin({
                     htmlBuilder.push(
                         "<li class='operate-list-li theme-panel-hover'>",
                         "<span class='operate-text'>", ui.str.htmlEncode(item.text), "</span>",
-                        "<a class='operate-list-anchor' href='", ui.str.htmlEncode(item.url), "'></a>",
+                        "<a class='operate-list-anchor' href='", item.url, "'></a>",
                         "</li>"
                     );
                 }

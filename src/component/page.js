@@ -21,7 +21,7 @@ var page = {
             "resize", 
             "hashchange",
             "keydown",
-            "load"
+            "loaded"
         ],
         $config: {
             // 模型对象
@@ -39,7 +39,8 @@ var page = {
         }
     },
     handlers = {}, 
-    ranks = {};
+    ranks = {},
+    defaultRankValue = 100;
 
 page.event = new ui.CustomEvent(page);
 page.event.initEvents();
@@ -54,8 +55,8 @@ function onError(e) {
 function getKeys(config) {
     var keys = Object.keys(config);
     keys.sort(function(a, b) {
-        var v1 = ranks[a] || 99;
-        var v2 = ranks[b] || 99;
+        var v1 = ranks[a] || defaultRankValue;
+        var v2 = ranks[b] || defaultRankValue;
         if(v1 === v2) {
             return 0;
         }
@@ -134,7 +135,7 @@ page.plugin = function(plugin) {
 
     this.$config[plugin.name] = noop;
     handlers[plugin.name] = plugin.handler;
-    ranks[plugin.name] = plugin.rank;
+    ranks[plugin.name] = plugin.rank || ++defaultRankValue;
 };
 page.watch = function(property, fn) {
     var vm = this.model,
@@ -199,11 +200,11 @@ page.plugin({
     handler: function(arg) {
         var result,
             onload = (function() {
-                this.fire("load");
+                this.fire("loaded");
             }).bind(this);
         if(ui.core.isFunction(arg)) {
             result = arg.call(this);
-            if(ui.core.isFunction(result.then)) {
+            if(result && ui.core.isFunction(result.then)) {
                 result.then(onload, onload);
                 return;
             }
