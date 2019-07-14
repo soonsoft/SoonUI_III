@@ -368,7 +368,12 @@ module.exports = function(grunt) {
         "html-build": {
             demo: {
                 views: "demo/views/**/*.html",
-                dist: "demo/pages/{0}/{1}.html"
+                dist: "demo/pages/{0}/{1}.html",
+                layoutDirectory: "demo/views/shared",
+                defaultLayout: "demo/views/shared/layout.html",
+                excludes: [
+                    "demo/views/shared/**/*.html"
+                ]
             }
         }
     });

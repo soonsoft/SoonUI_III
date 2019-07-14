@@ -5,6 +5,20 @@
 <partial id="content">
     <div class="content-panel">
         <dl class="ui-fold-view" style="padding:20px;">
+            <dt>ui.ctrls.Tag</dt>
+            <dd class="section-container">
+                <p class="description-paragraph">
+                    标签(<span class="font-highlight">ui.ctrls.Tag</span>)，对状态进行标识，提高可读性。<br />
+                    可以通过<span class="font-highlight">color</span>设置不同的颜色，默认提供highlight(高亮色), green(绿色), red(红色), blue(蓝色), yellow(黄色), purple(紫色), theme(主题色)<br />
+                    如果需要更多的颜色，可以调用API: <span class="font-highlight">ui.ctrls.Tag.addColor("pink", "#E197D6")</span>添加自己想要的颜色，然后配置<span class="font-highlight">color</span>就可以用了。
+                </p>
+                <div id="tagColor" class="box-line" style="height:40px;margin-top:20px;"></div>
+                <p class="description-paragraph">
+                    可以通过<span class="font-highlight">size</span>设置不同尺寸，提供四种尺寸，mini(迷你), small(小), normal(中等), big(大)<br />
+                </p>
+                <div id="tagSize" class="box-line" style="height:40px;margin-top:20px;"></div>
+            </dd>
+
             <dt>ui.ctrls.Slidebar</dt>
             <dd class="section-container">
                 <p class="description-paragraph">
@@ -145,6 +159,10 @@
             background-color: #434343 !important;
         }
 
+        #tagSize .ui-tag {
+            vertical-align: middle;
+        }
+
         .extend-container {
             width: 200px;
             height: 200px;
@@ -160,6 +178,7 @@
         (function() {
             ui.page.init({
                 created: function() {
+                    createTag.call(this);
                     createSlidebar.call(this);
                     createHoverView.call(this);
                     createProgress.call(this);
@@ -194,6 +213,27 @@
                     });
                 }
             });
+
+            function createTag() {
+                var tagColor = $("#tagColor");
+                ui.ctrls.Tag({ text: "默认标签", marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "绿色标签", color: "green", closable: true, marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "红色标签", color: "red", marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "蓝色标签", color: "blue", marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "黄色标签", color: "yellow", marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "紫色标签", color: "purple", marginRight: true }).addTo(tagColor);
+                ui.ctrls.Tag({ text: "主题标签", color: "theme", closable: true, marginRight: true }).addTo(tagColor);
+                
+                // 自定义标签
+                ui.ctrls.Tag.addColor("pink", "#E197D6");
+                ui.ctrls.Tag({ text: "自定义标签", color: "pink", closable: true, marginRight: true }).addTo(tagColor);
+
+                var tagSize = $("#tagSize");
+                ui.ctrls.Tag({ text: "迷你尺寸", size: "mini", closable: true, marginRight: true }).addTo(tagSize);
+                ui.ctrls.Tag({ text: "小尺寸", size: "small", closable: true, marginRight: true }).addTo(tagSize);
+                ui.ctrls.Tag({ text: "默认尺寸", closable: true, marginRight: true }).addTo(tagSize);
+                ui.ctrls.Tag({ text: "大尺寸", size: "big", closable: true }).addTo(tagSize);
+            }
 
             function createSlidebar() {
                 this.slidebar = $("#slidebar").slidebar();

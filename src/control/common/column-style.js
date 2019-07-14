@@ -221,32 +221,24 @@ cellFormatter = {
 cellParameterFormatter = {
     /** 格式化boolean类型 */
     getBooleanFormatter: function(trueText, falseText, nullText) {
-        var width = 16,
-            trueWidth,
-            falseWidth;
         trueText += "";
         falseText += "";
         if (arguments.length === 2) {
-            nullText = "";
+            nullText = "--";
         }
 
-        trueWidth = width * trueText.length || width;
-        falseWidth = width * falseText.length || width;
-
         return function (val, col) {
-            var span = $("<span />");
-            if (val === true) {
-                span.addClass("state-text").addClass("state-true")
-                    .css("width", trueWidth + "px");
-                span.text(trueText);
-            } else if (val === false) {
-                span.addClass("state-text").addClass("state-false")
-                    .css("width", falseWidth + "px");
-                span.text(falseText);
+            var option = {};
+            if(val === true) {
+                option.text = trueText;
+                option.color = "green";
+            } else if(val === false) {
+                option.text = falseText;
+                option.color = "red";
             } else {
-                span.text(nullText);
+                return $("<span />").text(nullText);
             }
-            return span;
+            return ui.ctrls.Tag(option).label;
         };
     },
     /** 数字小数格式化 */

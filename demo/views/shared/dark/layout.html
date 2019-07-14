@@ -39,7 +39,15 @@
         ui.theme.currentTheme = "Dark";
         ui.theme.backgroundColor = "#1d1f21";
         ui.page.init({
-            master: true,
+            master: function() {
+                this.loaded(function() {
+                    this.body.css({
+                        "visibility": "visible",
+                        "opacity": 0
+                    });
+                    ui.animator.fadeIn(this.body, 500);
+                });
+            },
             userPanel: function() {
                 return {
                     changeHighlightUrl: function(highlight) {

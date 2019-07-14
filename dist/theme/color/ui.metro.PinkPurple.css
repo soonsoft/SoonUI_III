@@ -76,8 +76,8 @@ input[type="checkbox"]:checked {
   background-color: #A988DF;
   color: #ffffff;
 }
-/*UI Ctrls Style*/
-/*dateChooser*/
+/* UI Ctrls Style */
+/* dateChooser */
 .ui-date-chooser-panel .date-chooser-year-td:hover,
 .ui-date-chooser-panel .date-chooser-month-td:hover,
 .ui-date-chooser-panel .date-chooser-calendar-td:hover {
@@ -89,4 +89,18 @@ input[type="checkbox"]:checked {
 }
 .ui-date-chooser-panel .date-chooser-next:hover {
   border-left-color: #A988DF;
+}
+/* 环形loading动画的主题色 */
+.page-progress.circles .circle::after {
+  background-color: #A988DF !important;
+}
+/* tag */
+.ui-tag-highlight {
+  background-color: #B69AE4;
+  border-color: #A988DF;
+  color: #fff;
+}
+.ui-tag-highlight .ui-tag-close:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.4);
 }

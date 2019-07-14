@@ -1,27 +1,27 @@
 module.exports = function( grunt ) {
     "use strict";
 
-    var fs = require( "fs" ),
+    let fs = require( "fs" ),
         path = require("path"),
         rootPath = __dirname + "/../../",
         distPath;
 
-    var partialBegin = /<partial([^<]+)?[\/]?>/gi,
+    let partialBegin = /<partial([^<]+)?[\/]?>/gi,
         partialEnd = /<\/partial([\s\b]+)?>/gi,
         layoutKey = /@\{([^@\{\}]+)\}/gi,
         textFormatReg = /\\?\{([^{}]+)\}/gm;
 
-    var layoutDirectory = "demo/views/shared",
-        layout = "demo/views/shared/layout.html",
+    let layoutDirectory = "demo/views/shared",
+        defaultLayout = "layout.html",
         layoutMap = new Map();
 
     function format (str, params) {
-        var Arr_slice = Array.prototype.slice;
-        var array = Arr_slice.call(arguments, 1);
+        let Arr_slice = Array.prototype.slice;
+        let array = Arr_slice.call(arguments, 1);
         return str.replace(textFormatReg, function (match, name) {
             if (match.charAt(0) == '\\')
                 return match.slice(1);
-            var index = Number(name);
+            let index = Number(name);
             if (index >= 0)
                 return array[index];
             if (params && params[name])
@@ -72,7 +72,7 @@ module.exports = function( grunt ) {
     }
 
     function createPartial(viewPath) {
-        var partials = {};
+        let partials = {};
         if(!fs.existsSync(viewPath)) {
             return null;
         }
@@ -81,7 +81,7 @@ module.exports = function( grunt ) {
         let attr;
         let end;
 
-        let layoutInfo = layoutMap.get(layout);
+        let layoutInfo = layoutMap.get(defaultLayout);
         let array = html.match(layoutKey);
         if(Array.isArray(array)) {
             for(let i = 0; i < array.length; i++) {
@@ -160,7 +160,7 @@ module.exports = function( grunt ) {
     }
 
     function mkdirsSync(dirpath, mode) { 
-        var pathtmp;
+        let pathtmp;
         if (!fs.existsSync(dirpath)) {
             dirpath.split(path.sep).forEach(function(dirname) {
                 if (pathtmp) {
@@ -184,11 +184,17 @@ module.exports = function( grunt ) {
         "构建页面",
         function() {
             distPath = this.data.dist;
+            if(this.data.defaultLayout) {
+                defaultLayout = this.data.defaultLayout;
+            }
+            if(this.data.layoutDirectory) {
+                layoutDirectory = this.data.layoutDirectory;
+            }
 
             let templateSrc = path.join(rootPath, this.data.views);
-            let layoutFile = grunt.file.expand(path.join(rootPath, layout));
+            let layoutFile = grunt.file.expand(path.join(rootPath, defaultLayout));
             if(layoutFile.length > 0) {
-                layout = path.join(layoutFile[0]);
+                defaultLayout = path.join(layoutFile[0]);
             }
             let layoutDir = grunt.file.expand(path.join(rootPath, layoutDirectory));
             if(layoutDir.length > 0) {
@@ -196,10 +202,40 @@ module.exports = function( grunt ) {
             }
             prepareLayout(layoutDir);
 
+            let excludes = this.data.excludes;
+            if(Array.isArray(excludes)) {
+                let arr = [];
+                for(let i = 0; i < excludes.length; i++) {
+                    let filename = grunt.file.expand(path.join(rootPath, excludes[i]));
+                    if(Array.isArray(filename)) {
+                        for(let j = 0; j < filename.length; j++) {
+                            arr.push(path.join(filename[j]));
+                        }
+                    } else {
+                        arr.push(path.join(filename));
+                    }
+                }
+                excludes = arr;
+            } else {
+                excludes = [];
+            }
+
             let files = grunt.file.expand(templateSrc);
             for(let i = 0; i < files.length; i++) {
                 let filename = path.join(files[i]);
+                // 排除模板页
                 if(layoutMap.has(filename)) {
+                    continue;
+                }
+                // 排除指定的文件
+                let isContinue = false;
+                for(let j = 0; j < excludes.length; j++) {
+                    if(filename === excludes[j]) {
+                        isContinue = true;
+                        break;
+                    }
+                }
+                if(isContinue) {
                     continue;
                 }
                 createPartial(filename);

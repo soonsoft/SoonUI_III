@@ -1215,7 +1215,6 @@ ui.SelectorSet = SelectorSet;
 // EventDelegate
 // 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
 // 针对SOON.UI的代码风格进行了重构
-// 修改了部分变量名称，便于自己的理解
 
 var 
     bubbleEvents = {},

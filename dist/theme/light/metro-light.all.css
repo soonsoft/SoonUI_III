@@ -90,7 +90,7 @@
 }
 .ui-calendar-year-view .year-month-table .selected {
   background-color: #666666;
-  color: #ffffff;
+  color: #fff;
 }
 .ui-calendar-year-view .year-month-table .selected .today {
   display: none;
@@ -205,7 +205,7 @@
 }
 .ui-calendar-month-day-view .month-days-table .selected {
   background-color: #666666;
-  color: #ffffff;
+  color: #fff;
 }
 /* 周视图 */
 .ui-calendar-week-view,
@@ -337,7 +337,7 @@
   position: absolute;
   overflow: hidden;
   background-color: #aaaaaa;
-  color: #ffffff;
+  color: #fff;
 }
 .ui-calendar-hour-panel .schedule-item-panel:hover {
   background-color: #666666;
@@ -1340,18 +1340,18 @@
 }
 .ui-table-body .row-selected,
 .ui-table-body .cell-selected {
-  color: #ffffff;
+  color: #fff;
 }
 .ui-table-body .row-selected td {
   border-right-color: transparent;
 }
 .ui-table-body .row-selected a,
 .ui-table-body .cell-selected a {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body .row-selected .grid-checkbox,
 .ui-table-body .cell-selected .grid-checkbox {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body span,
 .ui-table-body a {
@@ -1371,29 +1371,6 @@
   margin-top: 0;
   margin-bottom: 0;
   padding: 0;
-}
-/* 文字块样式 */
-.ui-table-body .state-text {
-  margin-left: 0;
-  margin-right: 0;
-  display: inline-block;
-  width: auto;
-  height: 20px;
-  text-align: center;
-  color: #fff;
-  line-height: 18px;
-  font-size: 12px;
-  padding: 0 5px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-.ui-table-body .state-true {
-  background-color: #8fc76c;
-  border-color: #54c70c;
-}
-.ui-table-body .state-false {
-  background-color: #ff85a9;
-  border-color: #ff2968;
 }
 /* 进度条样式 */
 .ui-table-body .cell-progress-panel {
@@ -1452,11 +1429,11 @@
 }
 .ui-table-body .row-selected .fold,
 .ui-table-body .cell-selected .fold {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body .row-selected .unfold,
 .ui-table-body .cell-selected .unfold {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-head .grid-checkbox-all,
 .ui-table-body .grid-checkbox {
@@ -1583,6 +1560,10 @@
 .image-preview .image-preview-chooser .small-img img {
   vertical-align: top;
 }
+/*
+    .image-view-div .chooser-selected {
+    }
+*/
 
 /*
 	Color: #ffffff
@@ -2605,6 +2586,42 @@ div.c_flyingDots div.c_loadingFallback {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
+.ui-tag {
+  margin: 0;
+  display: inline-block;
+  vertical-align: top;
+  box-sizing: border-box;
+  border: solid 1px transparent;
+  font-size: 12px;
+  position: relative;
+}
+.ui-tag-noborder {
+  border: none 0;
+}
+.ui-tag-close {
+  font: 18px/16px Tahoma, Verdana, sans-serif;
+  font-style: normal;
+  position: static;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 50%;
+}
+.ui-tag-theme {
+  background-color: #f1f1f1;
+  border-color: #333333;
+  color: #333333;
+}
+.ui-tag-theme .ui-tag-close:hover {
+  color: #f1f1f1;
+  background-color: #333333;
 }
 
 /*

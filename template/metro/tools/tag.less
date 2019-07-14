@@ -1,0 +1,34 @@
+.ui-tag {
+    margin: 0;
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    border: solid 1px transparent;
+    font-size: 12px;
+    position: relative;
+}
+
+.ui-tag-noborder {
+    border: none 0;
+}
+
+.ui-tag-close {
+    font: 18px/16px Tahoma, Verdana, sans-serif;
+    font-style: normal;
+    position: static;
+    display: inline-block;
+    vertical-align: top;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.ui-tag-theme {
+    background-color: @panel-color;
+    border-color: @font-color;
+    color: @font-color;
+}
+.ui-tag-theme .ui-tag-close:hover {
+    color: @panel-color;
+    background-color: @font-color;
+}
