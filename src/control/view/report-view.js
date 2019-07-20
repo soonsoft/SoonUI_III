@@ -582,30 +582,29 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         if (viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        this._createBodyTable(this.bodyTable, viewData, columns, 
-            function(el, column) {
-                return column.fixed ? null : el;
-            }
-        );
-        this.reportDataBody.append(this.bodyTable);
+            this._createBodyTable(this.bodyTable, viewData, columns, 
+                function(el, column) {
+                    return column.fixed ? null : el;
+                }
+            );
+            this.reportDataBody.append(this.bodyTable);
+    
+            // 初始化滚动条状态
+            this._updateScrollState();
+            ui.setTask((function() {
+                var scrollLeft = this.reportDataBody.scrollLeft(),
+                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                this.fixed.syncScroll(0, scrollLeft, scrollWidth);
+            }).bind(this));
+        }
 
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
         }
-
-        // 初始化滚动条状态
-        this._updateScrollState();
-        ui.setTask((function() {
-            var scrollLeft = this.reportDataBody.scrollLeft(),
-                scrollWidth = this.reportDataBody[0].scrollWidth;
-            this.fixed.syncScroll(0, scrollLeft, scrollWidth);
-        }).bind(this));
 
         if (isRebind) {
             this.fire("rebind");

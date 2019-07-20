@@ -639,20 +639,19 @@ ui.ctrls.define("ui.ctrls.CardView", {
 
         if(viewData.length === 0) {
             this._showDataPrompt();
-            return;
         } else {
             this._hideDataPrompt();
-        }
 
-        this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
-            var elem = this._createItem(itemData, index);
-            elem.css({
-                "top": top + "px",
-                "left": left + "px"
+            this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
+                var elem = this._createItem(itemData, index);
+                elem.css({
+                    "top": top + "px",
+                    "left": left + "px"
+                });
+                this._renderItem(elem, itemData, index);
+                itemBody.append(elem);
             });
-            this._renderItem(elem, itemData, index);
-            itemBody.append(elem);
-        });
+        }
 
         //update page numbers
         if ($.isNumeric(rowCount)) {

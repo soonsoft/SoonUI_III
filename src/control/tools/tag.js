@@ -17,7 +17,6 @@ var size = {
     initEvent;
 
 function initColor() {
-    tagStyle = ui.StyleSheet.createStyleSheet("uiTagStyle");
     Object.keys(colorMap).forEach(function(key) {
         var color = colorMap[key];
         createColor(key, color);
@@ -29,6 +28,10 @@ function createColor(name, color) {
         bgColor;
     bgColor = ui.color.overlay(baseColor, color, .2);
     bgColor = ui.color.rgb2hex(bgColor.red, bgColor.green, bgColor.blue);
+
+    if(!tagStyle) {
+        tagStyle = ui.StyleSheet.createStyleSheet("uiTagStyle");
+    }
     tagStyle.setRule(ui.str.format(".ui-tag-{0}", name), {
         "background-color": bgColor,
         "border-color": color,
@@ -41,7 +44,6 @@ function createColor(name, color) {
 }
 
 initEvent = function() {
-    console.log("initEvent");
     ui.on("click", ".ui-tag", function(e) {
         var elem = $(e.target),
             fullName = "ui.ctrls.Tag";
@@ -96,8 +98,9 @@ ui.ctrls.define("ui.ctrls.Tag", {
 
         this.defineProperty("text", this.getText, this.setText);
 
-        if(!tagStyle) {
+        if(!initColor.isInitialized) {
             initColor();
+            initColor.isInitialized = true;
         }
 
         initEvent();

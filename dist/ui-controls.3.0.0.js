@@ -10794,20 +10794,19 @@ ui.ctrls.define("ui.ctrls.CardView", {
 
         if(viewData.length === 0) {
             this._showDataPrompt();
-            return;
         } else {
             this._hideDataPrompt();
-        }
 
-        this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
-            var elem = this._createItem(itemData, index);
-            elem.css({
-                "top": top + "px",
-                "left": left + "px"
+            this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
+                var elem = this._createItem(itemData, index);
+                elem.css({
+                    "top": top + "px",
+                    "left": left + "px"
+                });
+                this._renderItem(elem, itemData, index);
+                itemBody.append(elem);
             });
-            this._renderItem(elem, itemData, index);
-            itemBody.append(elem);
-        });
+        }
 
         //update page numbers
         if ($.isNumeric(rowCount)) {
@@ -12918,27 +12917,27 @@ ui.ctrls.define("ui.ctrls.GridView", {
 
         if(viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        colGroup = $("<colgroup />"),
-        tbody = $("<tbody />");
-        this.bodyTable.append(colGroup);
+            colGroup = $("<colgroup />"),
+            tbody = $("<tbody />");
+            this.bodyTable.append(colGroup);
 
-        for (j = 0, len = columns.length; j < len; j++) {
-            column = columns[j];
-            colGroup.append(this._createCol(column));
-        }
-        for (i = 0, len = viewData.length; i < len; i++) {
-            tr = $("<tr />");
-            this._createRowCells(tr, viewData[i], i, columns);
-            tbody.append(tr);
-        }
-        this.bodyTable.append(tbody);
+            for (j = 0, len = columns.length; j < len; j++) {
+                column = columns[j];
+                colGroup.append(this._createCol(column));
+            }
+            for (i = 0, len = viewData.length; i < len; i++) {
+                tr = $("<tr />");
+                this._createRowCells(tr, viewData[i], i, columns);
+                tbody.append(tr);
+            }
+            this.bodyTable.append(tbody);
 
-        this._updateScrollState();
+            this._updateScrollState();
+        }
+        
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
@@ -14591,30 +14590,29 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         if (viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        this._createBodyTable(this.bodyTable, viewData, columns, 
-            function(el, column) {
-                return column.fixed ? null : el;
-            }
-        );
-        this.reportDataBody.append(this.bodyTable);
+            this._createBodyTable(this.bodyTable, viewData, columns, 
+                function(el, column) {
+                    return column.fixed ? null : el;
+                }
+            );
+            this.reportDataBody.append(this.bodyTable);
+    
+            // 初始化滚动条状态
+            this._updateScrollState();
+            ui.setTask((function() {
+                var scrollLeft = this.reportDataBody.scrollLeft(),
+                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                this.fixed.syncScroll(0, scrollLeft, scrollWidth);
+            }).bind(this));
+        }
 
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
         }
-
-        // 初始化滚动条状态
-        this._updateScrollState();
-        ui.setTask((function() {
-            var scrollLeft = this.reportDataBody.scrollLeft(),
-                scrollWidth = this.reportDataBody[0].scrollWidth;
-            this.fixed.syncScroll(0, scrollLeft, scrollWidth);
-        }).bind(this));
 
         if (isRebind) {
             this.fire("rebind");
@@ -17714,7 +17712,6 @@ var size = {
     initEvent;
 
 function initColor() {
-    tagStyle = ui.StyleSheet.createStyleSheet("uiTagStyle");
     Object.keys(colorMap).forEach(function(key) {
         var color = colorMap[key];
         createColor(key, color);
@@ -17726,6 +17723,10 @@ function createColor(name, color) {
         bgColor;
     bgColor = ui.color.overlay(baseColor, color, .2);
     bgColor = ui.color.rgb2hex(bgColor.red, bgColor.green, bgColor.blue);
+
+    if(!tagStyle) {
+        tagStyle = ui.StyleSheet.createStyleSheet("uiTagStyle");
+    }
     tagStyle.setRule(ui.str.format(".ui-tag-{0}", name), {
         "background-color": bgColor,
         "border-color": color,
@@ -17738,7 +17739,6 @@ function createColor(name, color) {
 }
 
 initEvent = function() {
-    console.log("initEvent");
     ui.on("click", ".ui-tag", function(e) {
         var elem = $(e.target),
             fullName = "ui.ctrls.Tag";
@@ -17793,8 +17793,9 @@ ui.ctrls.define("ui.ctrls.Tag", {
 
         this.defineProperty("text", this.getText, this.setText);
 
-        if(!tagStyle) {
+        if(!initColor.isInitialized) {
             initColor();
+            initColor.isInitialized = true;
         }
 
         initEvent();

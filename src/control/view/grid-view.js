@@ -1091,27 +1091,27 @@ ui.ctrls.define("ui.ctrls.GridView", {
 
         if(viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        colGroup = $("<colgroup />"),
-        tbody = $("<tbody />");
-        this.bodyTable.append(colGroup);
+            colGroup = $("<colgroup />"),
+            tbody = $("<tbody />");
+            this.bodyTable.append(colGroup);
 
-        for (j = 0, len = columns.length; j < len; j++) {
-            column = columns[j];
-            colGroup.append(this._createCol(column));
-        }
-        for (i = 0, len = viewData.length; i < len; i++) {
-            tr = $("<tr />");
-            this._createRowCells(tr, viewData[i], i, columns);
-            tbody.append(tr);
-        }
-        this.bodyTable.append(tbody);
+            for (j = 0, len = columns.length; j < len; j++) {
+                column = columns[j];
+                colGroup.append(this._createCol(column));
+            }
+            for (i = 0, len = viewData.length; i < len; i++) {
+                tr = $("<tr />");
+                this._createRowCells(tr, viewData[i], i, columns);
+                tbody.append(tr);
+            }
+            this.bodyTable.append(tbody);
 
-        this._updateScrollState();
+            this._updateScrollState();
+        }
+        
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
