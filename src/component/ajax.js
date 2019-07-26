@@ -152,8 +152,8 @@ httpRequestProcessor = {
                 if(this.option.withCredentials === true) {
                     // https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials
                     // 不同域下的XmlHttpRequest 响应，不论其Access-Control- header 设置什么值，都无法为它自身站点设置cookie值，除非它在请求之前将withCredentials 设为true
+                    // withCredentials设置为true，那么服务端response head中Access-Control-Allow-Credentials要设置true，同时Access-Control-Allow-Origin设置为源地址，不能为*
                     this.xhr.withCredentials = true;
-                    this.requestHeaders["Access-Control-Allow-Credentials"] = "true";
                 }
             }
 
