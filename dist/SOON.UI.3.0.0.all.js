@@ -6283,7 +6283,12 @@ httpRequestProcessor = {
             }
             // IE6不能修改xhr的属性
             if(this.option.crossDomain && supportCORS) {
-                this.xhr.withCredentials = true;
+                if(this.option.withCredentials === true) {
+                    // https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials
+                    // 不同域下的XmlHttpRequest 响应，不论其Access-Control- header 设置什么值，都无法为它自身站点设置cookie值，除非它在请求之前将withCredentials 设为true
+                    this.xhr.withCredentials = true;
+                    this.requestHeaders["Access-Control-Allow-Credentials"] = "true";
+                }
             }
 
             if(!this.option.crossDomain) {
@@ -6759,12 +6764,21 @@ httpRequestMethods = {
 
 ensureOption = (function() {
     var defaultOption = {
-        // request method
+        /** request method */
         type: "GET",
+        /** 默认的contentType，用于描述有request body的请求类型，其中GET HEAD OPTION三种没有body，无需设置 */
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         async: true,
+        /** 超时时间设置，单位毫秒，默认没有超时时间 */
         timeout: 0,
-        jsonp: "callback"
+        /** jsonp的调用的默认方法名，如：/controller/action?callback=callbackName */
+        jsonp: "callback",
+        /**
+         * 指示了是否该使用类似cookies,authorization headers(头部授权)或者TLS客户端证书这一类资格证书来创建一个跨站点访问控制
+         * 这个指示也会被用做响应中cookies 被忽视的标示。默认值是false。
+         * 在同一个站点下使用withCredentials属性是无效的
+         */
+        withCredentials: false
     };
     
     var rprotocol = /^\/\//,
