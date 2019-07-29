@@ -1,4 +1,4 @@
-[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://github.com/996icu/996.ICU)
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 # SOON.UI III
 用于桌面Web浏览器的UI框架，基于jQuery。
