@@ -93,23 +93,18 @@ MessageBox.prototype = {
     show: function (text, type) {
         var box,
             messageItem,
-            content,
-            result;
+            htmlBuilder = [];
         
         messageItem = $("<div class='message-item' />");
-        messageItem.append($("<i class='message-icon " + this.getIcon(type) + "'></i>"));
-        content = $("<div class='message-content' />");
+        htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
+        htmlBuilder.push("<div class='message-content'>");
         if(ui.core.isFunction(text)) {
-            result = text();
-            if(ui.core.isString(result)) {
-                content.text(result);
-            } else {
-                content.append(result);
-            }
+            htmlBuilder.push(text());
         } else {
-            content.text(text);
+            htmlBuilder.push(ui.str.htmlEncode(text + ""));
         }
-        messageItem.append(content);
+        htmlBuilder.push("</div>");
+        messageItem.html(htmlBuilder.join(""));
 
         box = this.getBox();
         if(this.isShow()) {
