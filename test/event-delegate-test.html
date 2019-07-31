@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>表单控件</title>
+
+    <link type="text/css" href="../dist/theme/dark/site.dark.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
+    <link type="text/css" href="../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link type="text/css" href="../demo/content/font-awesome.min.css" rel="stylesheet" />
+    
+    <style type="text/css">
+        .content-panel {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .section-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-paragraph {
+            line-height: 1.5;
+            font-size: 1.25em;
+            margin: 0;
+            padding: 0;
+            margin-top: 1em;
+        }
+
+        .box-line {
+            width: 100%;
+            height: 60px;
+        }
+
+        .box-column {
+            width: 160px;
+            height: 100%;
+            float: left;
+        }
+
+        .box-column > label {
+            line-height: 24px;
+        }
+
+        .box-column > label.wrapper {
+            margin-right: 10px;
+        }
+
+        .button,
+        .tool-button {
+            margin-right:10px;
+        }
+    </style>
+
+    <link id="highlight" type="text/css" href="../dist/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">FORM CONTROL</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../demo/content/images/protrait.png" class="cover" />
+                </div>
+            </li>
+        </ul>
+    </header>
+    <section id="body">
+        
+    <div class="content-panel">
+        <dl class="ui-fold-view" style="padding:20px;">
+            <dt>文本框</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label>普通模式</label>
+                        <br />
+                        <input type="text" name="textBox" value="文字" />
+                    </div>
+                    <div class="box-column">
+                        <label>只读模式</label>
+                        <br />
+                        <input type="text" name="textBox" readonly="readonly" value="文字" />
+                    </div>
+                    <div class="box-column">
+                        <label>禁用模式</label>
+                        <br />
+                        <input type="text" name="textBox" disabled="disabled" value="文字" />
+                    </div>
+                </div>
+            </dd>
+            <dt>密码框</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label>普通模式</label>
+                        <br />
+                        <input type="password" name="passwordBox" value="123456" />
+                    </div>
+                    <div class="box-column">
+                        <label>只读模式</label>
+                        <br />
+                        <input type="password" name="passwordBox" readonly="readonly" value="123456" />
+                    </div>
+                    <div class="box-column">
+                        <label>禁用模式</label>
+                        <br />
+                        <input type="password" name="passwordBox" disabled="disabled" value="123456" />
+                    </div>
+                </div>
+            </dd>
+            <dt>选择框</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column">
+                        <label>普通模式</label>
+                        <br />
+                        <select style="width:140px">
+                            <option>北京</option>
+                            <option>上海</option>
+                            <option>广州</option>
+                            <option>深圳</option>
+                            <option>南京</option>
+                            <option>杭州</option>
+                            <option>成都</option>
+                        </select>
+                    </div>
+                    <div class="box-column">
+                        <label>禁用模式</label>
+                        <br />
+                        <select style="width:140px" disabled="disabled">
+                            <option>北京</option>
+                            <option>上海</option>
+                            <option>广州</option>
+                            <option>深圳</option>
+                            <option>南京</option>
+                            <option>杭州</option>
+                            <option>成都</option>
+                        </select>
+                    </div>
+                </div>
+            </dd>
+            <dt>文本域</dt>
+            <dd class="section-container">
+                <div class="box-line clear" style="height:90px;">
+                    <div class="box-column" style="width:260px;">
+                        <label>普通模式</label>
+                        <br />
+                        <textarea name="textBox" style="width:240px;">文本域内容</textarea>
+                    </div>
+                    <div class="box-column" style="width:260px;">
+                        <label>禁用模式</label>
+                        <br />
+                        <textarea name="textBox" disabled="disabled" style="width:240px;">文本域内容</textarea>
+                    </div>
+                </div>
+            </dd>
+            <dt>单选按钮</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;">
+                        <label class="wrapper">
+                            <input type="radio" name="hobby" value="足球" />
+                            <span>足球</span>
+                        </label>
+                        <label class="wrapper">
+                            <input type="radio" name="hobby" value="音乐" />
+                            <span>音乐</span>
+                        </label>
+                        <label class="wrapper">
+                            <input type="radio" name="hobby" readonly="readonly" value="只读" />
+                            <span>只读</span>
+                        </label>
+                        <label class="wrapper">
+                            <input type="radio" name="hobby" disabled="disabled" value="禁用" />
+                            <span>禁用</span>
+                        </label>
+                    </div>
+                </div>
+            </dd>
+            <dt>复选按钮</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;">
+                        <label class="wrapper">
+                            <input type="checkbox" value="启用" />
+                            <span>启用</span>
+                        </label>
+                        <label class="wrapper">
+                            <input type="checkbox" readonly="readonly" value="只读" />
+                            <span>只读</span>
+                        </label>
+                        <label class="wrapper">
+                            <input type="checkbox" disabled="disabled" value="禁用" />
+                            <span>禁用</span>
+                        </label>
+                    </div>
+                </div>
+            </dd>
+            <dt>按钮模式A</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column" style="width:400px;">
+                        <button class="button">普通按钮</button>
+                        <button class="button background-highlight">重要按钮</button>
+                        <button class="button" disabled="disabled">禁用</button>
+                        <button id="fireButton" class="button background-highlight">触发事件</button>
+                    </div>
+                </div>
+            </dd>
+            <dt>按钮模式B</dt>
+            <dd class="section-container">
+                <div class="box-line clear">
+                    <div class="box-column" style="width:300px;">
+                        <button class="tool-button">普通按钮</button>
+                        <button class="tool-button button-highlight">重要按钮</button>
+                        <button class="tool-button" disabled="disabled">禁用</button>
+                    </div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+
+    </section>
+
+    <script type="text/javascript" src="../vender/jquery-3.3.1.slim.min.js"></script>
+    <script type="text/javascript" src="../dist/ui-core.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/ui-components.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/ui-controls.3.0.0.js"></script>
+    <script type="text/javascript" src="../dist/ui-viewpages.3.0.0.js"></script>
+    <script type="text/javascript" src="../demo/lib/data/highlights.js"></script>
+    <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
+        ui.master.init(function() {
+            ui.master.config("userSettings", {
+                changeHighlightUrl: function(highlight) {
+                    $("#highlight").prop("href", ui.str.format("../dist/theme/color/ui.metro.{0}.css", highlight.Id));
+                    ui.theme.setHighlight(highlight);
+                }
+            });
+        });
+    </script>
+    
+    <script type="text/javascript">
+        (function() {
+            window.pageLogic = {
+                init: {
+                    create: function() {
+                        $(".ui-fold-view").foldView();
+                    },
+                    layout: function() {
+                        ui.master.resize(function(e) {
+                            var width = ui.master.contentBodyWidth, 
+                                height = ui.master.contentBodyHeight;
+                        });
+                    },
+                    event: function() {
+                        this.clickHandler = function(e) {
+                            var elem = e.target;
+                            alert([elem.classList, elem.innerText]);
+                            //e.stopImmediatePropagation();
+                        };
+                        this.clickHandler2 = function(e) {
+                            var elem = e.target;
+                            console.log([elem.classList, elem.innerText]);
+                            e.stopPropagation();
+                        };
+                        ui.on("click", ".button,.tool-button", this.clickHandler);
+                        ui.on("click", ".button,.tool-button", this.clickHandler2);
+                        ui.on("click", ".box-column", function(e) {
+                            console.log(".box-column");
+                        });
+                        
+                        ui.on("change", "input[type=checkbox]", function(e) {
+                            alert([e.target.value, e.target.checked]);
+                        });
+                    },
+                    load: function() {
+                        
+                    }
+                },
+                off: function() {
+                    ui.off("click", ".button,.tool-button", this.clickHandler);
+                },
+                fire: function() {
+                    ui.fire(document.getElementById("fireButton"), "click");
+                }
+            };
+        })();
+    </script>
+
+</body>
+</html>
