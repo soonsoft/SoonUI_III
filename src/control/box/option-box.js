@@ -82,7 +82,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.titlePanel.empty();
         if(title) {
             if(ui.core.isString(title)) {
-                title = "<span class='option-box-title-text font-highlight'>" + title + "<span>";
+                title = $("<span class='option-box-title-text font-highlight'/>").text(title);
             }
             this.titlePanel.append(title);
         }
