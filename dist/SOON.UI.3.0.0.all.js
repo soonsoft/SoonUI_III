@@ -2651,14 +2651,6 @@ ui.str = {
                     arr.push(str.substring(index, i), "&quot;");
                     index = i + 1;
                     break;
-                case " " :
-                    arr.push(str.substring(index, i), "&nbsp;");
-                    index = i + 1;
-                    break;
-                case "/" :
-                    arr.push(str.substring(index, i), "&frasl;");
-                    index = i + 1;
-                    break;
             }
         }
         if(index < len) {
@@ -11343,18 +11335,23 @@ MessageBox.prototype = {
     show: function (text, type) {
         var box,
             messageItem,
-            htmlBuilder = [];
+            content,
+            result;
         
         messageItem = $("<div class='message-item' />");
-        htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
-        htmlBuilder.push("<div class='message-content'>");
+        messageItem.append($("<i class='message-icon " + this.getIcon(type) + "'></i>"));
+        content = $("<div class='message-content' />");
         if(ui.core.isFunction(text)) {
-            htmlBuilder.push(text());
+            result = text();
+            if(ui.core.isString(result)) {
+                content.text(result);
+            } else {
+                content.append(result);
+            }
         } else {
-            htmlBuilder.push(ui.str.htmlEncode(text + ""));
+            content.text(text);
         }
-        htmlBuilder.push("</div>");
-        messageItem.html(htmlBuilder.join(""));
+        messageItem.append(content);
 
         box = this.getBox();
         if(this.isShow()) {
@@ -11546,7 +11543,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.titlePanel.empty();
         if(title) {
             if(ui.core.isString(title)) {
-                title = "<span class='option-box-title-text font-highlight'>" + title + "<span>";
+                title = $("<span class='option-box-title-text font-highlight'/>").text(title);
             }
             this.titlePanel.append(title);
         }
@@ -29512,9 +29509,15 @@ plugin({
             "<div class='protrait-cover'>",
             "<img class='protrait-img' src='", userProtrait.children("img").prop("src"), "' alt='用户头像' /></div>",
             "<div class='user-info-panel'>",
-            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>",
+            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />"
+        );
+        if(config.department) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />");
+        }
+        if(config.position) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>");
+        }
+        htmlBuilder.push(
             "</div>",
             "<br clear='left' />"
         );
