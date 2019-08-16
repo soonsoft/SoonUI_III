@@ -211,9 +211,15 @@ plugin({
             "<div class='protrait-cover'>",
             "<img class='protrait-img' src='", userProtrait.children("img").prop("src"), "' alt='用户头像' /></div>",
             "<div class='user-info-panel'>",
-            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>",
+            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />"
+        );
+        if(config.department) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />");
+        }
+        if(config.position) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>");
+        }
+        htmlBuilder.push(
             "</div>",
             "<br clear='left' />"
         );

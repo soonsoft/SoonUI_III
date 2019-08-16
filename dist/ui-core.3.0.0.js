@@ -2651,14 +2651,6 @@ ui.str = {
                     arr.push(str.substring(index, i), "&quot;");
                     index = i + 1;
                     break;
-                case " " :
-                    arr.push(str.substring(index, i), "&nbsp;");
-                    index = i + 1;
-                    break;
-                case "/" :
-                    arr.push(str.substring(index, i), "&frasl;");
-                    index = i + 1;
-                    break;
             }
         }
         if(index < len) {

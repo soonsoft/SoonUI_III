@@ -2661,18 +2661,23 @@ MessageBox.prototype = {
     show: function (text, type) {
         var box,
             messageItem,
-            htmlBuilder = [];
+            content,
+            result;
         
         messageItem = $("<div class='message-item' />");
-        htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
-        htmlBuilder.push("<div class='message-content'>");
+        messageItem.append($("<i class='message-icon " + this.getIcon(type) + "'></i>"));
+        content = $("<div class='message-content' />");
         if(ui.core.isFunction(text)) {
-            htmlBuilder.push(text());
+            result = text();
+            if(ui.core.isString(result)) {
+                content.text(result);
+            } else {
+                content.append(result);
+            }
         } else {
-            htmlBuilder.push(ui.str.htmlEncode(text + ""));
+            content.text(text);
         }
-        htmlBuilder.push("</div>");
-        messageItem.html(htmlBuilder.join(""));
+        messageItem.append(content);
 
         box = this.getBox();
         if(this.isShow()) {
@@ -2864,7 +2869,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.titlePanel.empty();
         if(title) {
             if(ui.core.isString(title)) {
-                title = "<span class='option-box-title-text font-highlight'>" + title + "<span>";
+                title = $("<span class='option-box-title-text font-highlight'/>").text(title);
             }
             this.titlePanel.append(title);
         }
