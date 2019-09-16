@@ -479,6 +479,15 @@
 
     // main方法
     ui.page.init({
+        master: function() {
+            this.loaded(function() {
+                this.body.css({
+                    "visibility": "visible",
+                    "opacity": 0
+                });
+                ui.animator.fadeIn(this.body, 500);
+            });
+        },
         // 创建需要初始化布局的页面元素
         created: function() {
             this.mapChart = initScreenCenter();
