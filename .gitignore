@@ -8,3 +8,4 @@ demo/dark/**
 demo/compontents/**
 demo/lib/**
 vender/**
+package-lock.json
