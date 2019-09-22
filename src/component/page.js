@@ -18,8 +18,7 @@ var page = {
             "ready", 
             "htmlclick", 
             "docmouseup", 
-            "resize", 
-            "hashchange",
+            "resize",
             "keydown",
             "loaded"
         ],
@@ -240,14 +239,6 @@ $(window)
             page._resizeTimeoutHandler = null;
             page.fire("resize");
         }, page._resizeDelay);
-    })
-    //注册全局hashchange事件
-    .on("hashchange", function(e) {
-        var hash = "";
-        if(window.location.hash) {
-            hash = window.location.hash;
-        }
-        page.fire("hashchange", hash);
     });
 
 ui.page = page;

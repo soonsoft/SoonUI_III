@@ -3,6 +3,11 @@
   "title": "SOON.UI",
   "version": "3.0.0",
   "description": "Javascript UI library for html",
+  "scripts": {
+    "build": "grunt release",
+    "dev": "grunt",
+    "demo": "grunt demo"
+  },
   "author": {
     "name": "周松",
     "email": "soonz@outlook.com",

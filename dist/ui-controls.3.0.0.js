@@ -1379,7 +1379,6 @@ ui.mask = {
 
 (function($, ui) {
 //控件分页逻辑，GridView, ReportView, flowView
-var pageHashPrefix = "page";
 function Pager(option) {
     if(this instanceof Pager) {
         this.initialize(option);
@@ -1432,9 +1431,6 @@ Pager.prototype = {
             this._showRowCount(pageInfo);
         }
         this._renderPageButton(pageInfo.pageCount);
-        if (pageInfo.pageCount) {
-            this._checkAndSetDefaultPageIndexHash(this.pageIndex);
-        }
     },
     _showRowCount: function (pageInfo) {
         var dataCount = (this.data) ? this.data.length : 0;
@@ -1502,27 +1498,12 @@ Pager.prototype = {
         return "<span class='pager-current font-highlight'>" + pageIndex + "</span>";
     },
     pageChanged: function(eventHandler, eventCaller) {
-        var that;
         if(this.pageNumPanel && $.isFunction(eventHandler)) {
             eventCaller = eventCaller || ui;
             this.pageChangedHandler = function() {
                 eventHandler.call(eventCaller, this.pageIndex, this.pageSize);
             };
-            that = this;
-            if(!ui.core.ie || ui.core.ie >= 8) {
-                ui.page.hashchange(function(e, hash) {
-                    if(that._breakHashChanged) {
-                        that._breakHashChanged = false;
-                        return;
-                    }
-                    if(!that._isPageHashChange(hash)) {
-                        return;
-                    }
-                    that.pageIndex = that._getPageIndexByHash(hash);
-                    that.pageChangedHandler();
-                });
-            }
-            this.pageNumPanel.click(function(e) {
+            this.pageNumPanel.click((function(e) {
                 var btn = $(e.target);
                 if (btn.nodeName() !== "A")
                     return;
@@ -1530,12 +1511,9 @@ Pager.prototype = {
                 num = num.replace("...", "");
                 num = parseInt(num, 10);
 
-                that.pageIndex = num;
-                if (!ui.core.ie || ui.core.ie >= 8) {
-                    that._setPageHash(that.pageIndex);
-                }
-                that.pageChangedHandler();
-            });
+                this.pageIndex = num;
+                this.pageChangedHandler();
+            }).bind(this));
         }
     },
     empty: function() {
@@ -1547,45 +1525,6 @@ Pager.prototype = {
         }
         this.data = [];
         this.pageIndex = 1;
-    },
-    _setPageHash: function(pageIndex) {
-        if(!pageIndex) {
-            return;
-        }
-        
-        this._breakHashChanged = true;
-        window.location.hash = pageHashPrefix + "=" + pageIndex;
-    },
-    _isPageHashChange: function(hash) {
-        var index = 0;
-        if(!hash) {
-            return false;
-        }
-        if(hash.charAt(0) === "#") {
-            index = 1;
-        }
-        return hash.indexOf(pageHashPrefix) == index;
-    },
-    _getPageIndexByHash: function(hash) {
-        var pageIndex,
-            index;
-        if(hash) {
-            index = hash.indexOf("=");
-            if(index >= 0) {
-                pageIndex = hash.substring(index + 1, hash.length);
-                return parseInt(pageIndex, 10);
-            }
-        }
-        return 1;
-    },
-    _checkAndSetDefaultPageIndexHash: function (pageIndex) {
-        var hash = window.location.hash;
-        var len = hash.length;
-        if (hash.charAt(0) === "#")
-            len--;
-        if (len <= 0) {
-            this._setPageHash(pageIndex);
-        }
     }
 };
 
