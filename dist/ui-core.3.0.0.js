@@ -691,6 +691,8 @@ function getAndRemove(atTheEnd) {
     }
 }
 
+ui.LinkedList = LinkedList;
+
 })(jQuery, ui);
 
 // Source: src/util.js
@@ -2025,12 +2027,11 @@ ui.url = {
     },
     /** 为url添加参数 */
     appendParams: function (url, data) {
-        var s = [],
-            add = function (key, value) {
-                value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
-                s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
-            },
-            i, t, key;
+        var s = [], i, t, key;
+        function add(key, value) {
+            value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
+            s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
+        }
         if ($.isArray(data)) {
             for (i = 0; i < data.length; i++) {
                 t = data[i];

@@ -1378,7 +1378,7 @@ ui.mask = {
 // Source: src/control/common/pager.js
 
 (function($, ui) {
-//控件分页逻辑，GridView, ReportView, flowView
+//控件分页逻辑，GridView, ReportView, CardView
 function Pager(option) {
     if(this instanceof Pager) {
         this.initialize(option);

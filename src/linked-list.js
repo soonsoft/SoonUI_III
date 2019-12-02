@@ -154,3 +154,5 @@ function getAndRemove(atTheEnd) {
         return oldFirst;
     }
 }
+
+ui.LinkedList = LinkedList;

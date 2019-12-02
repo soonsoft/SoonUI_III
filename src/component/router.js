@@ -8,12 +8,33 @@ function getKey() {
     return Date.now().toFixed(3);
 }
 
+function callFn(fn, args) {
+    if(ui.core.isFunction(fn)) {
+        fn.apply(null, args);
+    }
+}
+
 function transitionTo(location, onComplete, onAbort) {
     var view = location.view;
+    var promise;
     if(view) {
-        view.render().then(function() {
-            onComplete(location);
-        });
+        try {
+            promise = view.render(this);
+            if(promise && ui.core.isFunction(promise.then)) {
+                promise
+                    .then(function(viewInstance) {
+                        onComplete(viewInstance, location);
+                    })
+                    .catch(function(e) {
+                        onAbort(e, location);
+                    });
+            } else {
+                // 返回的是viewInstance
+                onComplete(promise, location);
+            }
+        } catch(e) {
+            onAbort(e, location);
+        }
     }
 }
 
@@ -32,21 +53,29 @@ function pushState(url, isReplace) {
 }
 
 var historyPrototype = {
-    // 跳转
-    go: function(num) {
-        window.history.go(num);
-    },
-    // 跳转，激活后退按钮
-    push: function(location, onComplete, onAbort) {
+    _baseInitailize: function() {
+        this.beforeTransitionHandler = ui.LinkedList();
 
+        this.current = null;
+        this.pedding = null;
+        // START PEDDING READY
+        this.status = "START";
     },
-    // 跳转，无法通过后退按钮回到之前的页面
-    replace: function(location, onComplete, onAbort) {
-
-    },
-    // 获取当前的url关联的路由对象
-    getCurrent: function() {
-
+    _transition: function(location, onComplete, onAbort) {
+        var currentRouter = this.current;
+        transitionTo(
+            location, 
+            function(viewInstance, location) {
+                this.current = location;
+                if(currentRouter) {
+                    currentRouter.view.dispose();
+                }
+                callFn(onComplete, arguments);
+            }, 
+            function() {
+                callFn(onAbort, arguments);
+            }
+        );
     }
 };
 
@@ -66,6 +95,9 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
         if(!routeTable) {
             throw new TypeError("the parameter routeTable is required.");
         }
+
+        this._baseInitailize();
+
         // 当用户通过浏览器UI，前进后退按钮或是地址栏输入的方式才会触发该事件
         window.addEventListener(
             supportsPushState ? "popstate" : "hashchange", 
@@ -76,7 +108,7 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
                     return;
                 }
                 location = routeTable.match(this.getHash());
-                transitionTo(location, function(location) {
+                this._transitionTo(location, function(location) {
                     
                 });
             }).bind(this)
@@ -135,6 +167,28 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
         }
         this.replaceHash('/' + url);
         return false;
+    },
+    // 跳转
+    go: function(num) {
+        window.history.go(num);
+    },
+    // 跳转，激活后退按钮
+    push: function(location, onComplete, onAbort) {
+        this._transition(location, (function() {
+            this.pushHash(location.url);
+            callFn(onComplete, arguments);
+        }).bind(this), onAbort);
+    },
+    // 跳转，无法通过后退按钮回到之前的页面
+    replace: function(location, onComplete, onAbort) {
+        this._transition(location, (function() {
+            this.replaceHash(location.url);
+            callFn(onComplete, arguments);
+        }).bind(this), onAbort);
+    },
+    // 获取当前的url关联的路由对象
+    getCurrentLocation: function() {
+        return this.getHash();
     }
 });
 
@@ -144,21 +198,21 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
     这需要后台枚举出前端所有的url，并统一返回"/"对应的view。
     *注意：pushstate和replacestate两个方法被调用并不会触发pushstate事件，只有用户点击浏览器的导航按钮才能触发。
  */
-function HTML5History() {
-    if(this instanceof HTML5History) {
-        this.initialize();
-    } else {
-        return new HTML5History();
-    }
-}
-HashHistory.prototype = ui.extend({}, historyPrototype, {
-    constructor: HTML5History,
-    initialize: function() {
-        window.addEventListener("popstate", function(e) {
+// function HTML5History() {
+//     if(this instanceof HTML5History) {
+//         this.initialize();
+//     } else {
+//         return new HTML5History();
+//     }
+// }
+// HashHistory.prototype = ui.extend({}, historyPrototype, {
+//     constructor: HTML5History,
+//     initialize: function() {
+//         window.addEventListener("popstate", function(e) {
 
-        });
-    }
-});
+//         });
+//     }
+// });
 
 
 /** 路由表 */
@@ -308,27 +362,40 @@ function matchRoute(route, url, queryString) {
 }
 
 /** 前端路由器 */
-function Router() {
+function Router(routes) {
+    var i;
+
     this.routerTable = new RouteTable();
-    //this.routerTable.add();
+    if(Array.isArray(routes)) {
+        for(i = 0; i < routes.length; i++) {
+            this.routerTable.add(routes[i]);
+        }
+    }
+
+    this.history = new HashHistory(this.routeTable);
 }
 Router.prototype = {
     constructor: Router,
-    go: function() {
-
+    go: function(num) {
+        this.history.go(num);
     },
     back: function() {
-
+        this.history.go(-1);
     },
     forward: function() {
-
+        this.history.go(1);
     },
-    replace: function() {
-
+    push: function(url, params) {
+        var location = this.routerTable.match(url, params);
+        this.history.push(location);
+    },
+    replace: function(url, params) {
+        var location = this.routerTable.match(url, params);
+        this.history.replace(location);
     }
 };
 
-ui.Router = function() {
-    var router = new Router();
+ui.Router = function(routes) {
+    var router = new Router(routes);
     return router;
 };

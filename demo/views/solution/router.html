@@ -1,0 +1,43 @@
+<partial id="title">前端路由</partial>
+<partial id="header">ROUTER</partial>
+
+<partial id="content">
+    
+</partial>
+
+<partial id="style"></partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            ui.page.init({
+                toolbar: "toolbar",
+                created: function() {
+                    this.router = initRouter();
+                },
+                layout: function() {
+                    //pageLogic.gridview.setSize(height - 40);
+                },
+                load: function() {
+                    //loadGridTreeData();
+                }
+            });
+
+            function initRouter() {
+                var router = ui.router([
+                    {
+                        url: "/",
+                        name: "首页",
+                        view: indexView
+                    },
+                    {
+                        url: "/dictionary",
+                        name: "字典管理",
+                        view: dictionaryView
+                    }
+                ]);
+                return router;
+            }
+        })();
+    </script>
+</partial>
