@@ -15,25 +15,15 @@ function callFn(fn, args) {
 }
 
 function transitionTo(location, onComplete, onAbort) {
-    var view = location.view;
-    var promise;
-    if(view) {
+    var component = location.component;
+    if(component) {
         try {
-            promise = view.render(this);
-            if(promise && ui.core.isFunction(promise.then)) {
-                promise
-                    .then(function(viewInstance) {
-                        onComplete(viewInstance, location);
-                    })
-                    .catch(function(e) {
-                        onAbort(e, location);
-                    });
-            } else {
-                // 返回的是viewInstance
-                onComplete(promise, location);
-            }
+            view = component.call(this);
+            location.view = view;
+            // 返回的是viewElement
+            onComplete(location);
         } catch(e) {
-            onAbort(e, location);
+            onAbort(location, e);
         }
     }
 }
@@ -44,17 +34,20 @@ function pushState(url, isReplace) {
         if (isReplace) {
             history.replaceState({ key: _key }, '', url);
         } else {
-            _key = genKey();
+            _key = getKey();
             history.pushState({ key: _key }, '', url);
         }
     } catch (e) {
+        // 会触发hashchange事件
         window.location[isReplace ? 'replace' : 'assign'](url);
     }
 }
 
 var historyPrototype = {
-    _baseInitailize: function() {
+    _baseInitailize: function(containerElement) {
         this.beforeTransitionHandler = ui.LinkedList();
+
+        this.containerElement = containerElement || null;
 
         this.current = null;
         this.pedding = null;
@@ -65,16 +58,20 @@ var historyPrototype = {
         var currentRouter = this.current;
         transitionTo(
             location, 
-            function(viewInstance, location) {
-                this.current = location;
+            (function(location) {
+                var viewElement;
                 if(currentRouter) {
                     currentRouter.view.dispose();
                 }
+                
+                this.current = location;
+                viewElement = location.view.render();
+                this.containerElement.append(viewElement);
                 callFn(onComplete, arguments);
-            }, 
-            function() {
+            }).bind(this), 
+            (function() {
                 callFn(onAbort, arguments);
-            }
+            }).bind(this)
         );
     }
 };
@@ -82,21 +79,21 @@ var historyPrototype = {
 /*
     Hash History API通过在URL后面添加#/url这样的方式完成前端路由，兼容性更好，不过URL的样式不太好看。
  */
-function HashHistory(routeTable) {
+function HashHistory(routeTable, containerElement) {
     if(this instanceof HashHistory) {
-        this.initialize(routeTable);
+        this.initialize(routeTable, containerElement);
     } else {
-        return new HashHistory(routeTable);
+        return new HashHistory(routeTable, containerElement);
     }
 }
 HashHistory.prototype = ui.extend({}, historyPrototype, {
     constructor: HashHistory,
-    initialize: function(routeTable) {
+    initialize: function(routeTable, containerElement) {
         if(!routeTable) {
             throw new TypeError("the parameter routeTable is required.");
         }
 
-        this._baseInitailize();
+        this._baseInitailize(containerElement);
 
         // 当用户通过浏览器UI，前进后退按钮或是地址栏输入的方式才会触发该事件
         window.addEventListener(
@@ -108,9 +105,7 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
                     return;
                 }
                 location = routeTable.match(this.getHash());
-                this._transitionTo(location, function(location) {
-                    
-                });
+                this._transition(location);
             }).bind(this)
         );
     },
@@ -299,7 +294,7 @@ RouteTable.prototype = {
         return null;
     },
     _mergeLocation: function(location, route) {
-        location.view = route.view || null;
+        location.component = route.component || null;
         if(route.params) {
             Object.keys(route.params).forEach(function(key) {
                 var value = location.params[key];
@@ -326,7 +321,8 @@ function matchRoute(route, url, queryString) {
         urlParts,
         i, len,
         routePart,
-        urlPart;
+        urlPart,
+        queryStringPosition = url.indexOf("?");
 
     url = queryStringPosition > -1 ? url.substring(0, queryStringPosition) : url;
     urlParts = getParts(url);
@@ -362,7 +358,7 @@ function matchRoute(route, url, queryString) {
 }
 
 /** 前端路由器 */
-function Router(routes) {
+function Router(routes, container) {
     var i;
 
     this.routerTable = new RouteTable();
@@ -372,7 +368,7 @@ function Router(routes) {
         }
     }
 
-    this.history = new HashHistory(this.routeTable);
+    this.history = new HashHistory(this.routerTable, ui.getJQueryElement(container));
 }
 Router.prototype = {
     constructor: Router,
@@ -395,7 +391,7 @@ Router.prototype = {
     }
 };
 
-ui.Router = function(routes) {
-    var router = new Router(routes);
+ui.Router = function(routes, container) {
+    var router = new Router(routes, container);
     return router;
 };
