@@ -1,0 +1,81 @@
+<partial id="title">前端路由</partial>
+<partial id="header">ROUTER</partial>
+
+<partial id="content">
+    <div id="toolbar" class="toolbar clear">
+        <ul class="tools">
+            <li class="tool-item">
+                <a id="menu1" href="javascript:void(0)">
+                    首页
+                </a>
+                <a id="menu2" href="javascript:void(0)">
+                    字典管理
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="appContainer"></div>
+</partial>
+
+<partial id="style"></partial>
+
+<partial id="script">
+    <script type="text/javascript">
+        (function() {
+            ui.page.init({
+                toolbar: "toolbar",
+                created: function() {
+                    this.router = initRouter();
+                    initEvent(this.router);
+                },
+                layout: function() {
+                },
+                load: function() {
+                }
+            });
+
+            function initRouter() {
+                var indexView = createView("index");
+                var dictionaryView = createView("dictionary");
+
+                var router = ui.Router([
+                    {
+                        url: "/",
+                        component: indexView
+                    },
+                    {
+                        url: "/dictionary",
+                        component: dictionaryView
+                    }
+                ], "appContainer");
+                return router;
+            }
+
+            function createView(contentText) {
+                function View() {}
+                View.prototype = {
+                    render: function() {
+                        this.element = $("<h1 />");
+                        this.element.text(contentText);
+                        return this.element;
+                    },
+                    dispose: function() {
+                        this.element.remove();
+                    }
+                };
+                return function() {
+                    return new View();
+                };
+            }
+
+            function initEvent(router) {
+                $("#menu1").click(function(e) {
+                    router.push("/");
+                });
+                $("#menu2").click(function(e) {
+                    router.push("/dictionary");
+                });
+            }
+        })();
+    </script>
+</partial>
