@@ -139,6 +139,23 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
         base = queryStringPosition > -1 ? base.substring(0, queryStringPosition) : base;
         return [base, "#", path, queryString].join("");
     },
+    equalHash: function(location) {
+        var currentLocation = this.current,
+            keys, i, key;
+        if(!currentLocation || currentLocation.url !== location.url) {
+            return false;
+        }
+
+        keys = Object.keys(location.params);
+        for(i = keys.length - 1; i >= 0; i--) {
+            key = keys[i];
+            if(currentLocation.params[key] !== location.params[key]) {
+                return false;
+            }
+        }
+        return true;
+    },
+    // TODO push和replace要想办法记录参数
     pushHash: function(path) {
         var url = this.getUrl(path);
         if(supportsPushState) {
@@ -170,7 +187,11 @@ HashHistory.prototype = ui.extend({}, historyPrototype, {
     // 跳转，激活后退按钮
     push: function(location, onComplete, onAbort) {
         this._transition(location, (function() {
-            this.pushHash(location.url);
+            if(this.equalHash(location)) {
+                this.replaceHash(location.url);
+            } else {
+                this.pushHash(location.url);
+            }
             callFn(onComplete, arguments);
         }).bind(this), onAbort);
     },

@@ -27,6 +27,7 @@
                 created: function() {
                     this.router = initRouter();
                     initEvent(this.router);
+                    this.router.replace("/");
                 },
                 layout: function() {
                 },
@@ -41,6 +42,7 @@
                 var router = ui.Router([
                     {
                         url: "/",
+                        homePage: true,
                         component: indexView
                     },
                     {
