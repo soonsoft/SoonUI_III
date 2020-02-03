@@ -284,6 +284,26 @@
             color: #fff;
             text-overflow: ellipsis;
         }
+
+        .footer-info {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+        }
+
+        .footer-spliter {
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .footer-filing {
+            color: #ccc;
+            margin-right: 5px;
+        }
     </style>
     <style type="text/css">
         @media screen and (min-width:1200px) {
@@ -296,6 +316,10 @@
         }
         @media only screen and (max-width: 767px) {
             .indicator-panel {
+                display: none;
+            }
+
+            .footer-info {
                 display: none;
             }
         }
@@ -329,6 +353,10 @@
             .main-link {
                 width: 150px;
                 line-height: 36px;
+            }
+
+            .footer-info {
+                display: none;
             }
         }
     </style>
@@ -427,6 +455,13 @@
                 <p class="description-text" style="opacity:.8">
                     由于缺乏设计和良好的规划，所以我决定重写。断断续续一年的时间，终于SOON.UI 3.0重写完成，而此时Web前端界也已经发生了翻天覆地的变化，各种MVVM的框架层出不穷，UI界面正在变得越来越好，我也期待着SOON.UI的成长和蜕变。
                 </p>
+            </div>
+            <div class="footer-info">
+                <span>南京云之国信息技术有限公司</span>
+                <span class="footer-spliter">|</span>
+                <span>Copyright© 2020 版权所有</span>
+                <span class="footer-spliter">|</span>
+                <a class="footer-filing" href="http://beian.miit.gov.cn">苏ICP备17042019号</a>
             </div>
         </div>
     </section>
