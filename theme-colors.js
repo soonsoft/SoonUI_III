@@ -78,5 +78,45 @@ module.exports = {
         "button-active-color": "#ffffff",
         // 阴影色
         "shadow-color": "#999999"
+    },
+    "galaxy": {
+        // 背景色
+        "background-color": "#1d1f21",
+        "first-bg-color": "#2e3032",
+        "second-bg-color": "#37383a",
+        "third-bg-color": "#434547",
+        "fouth-bg-color": "#505253",
+        "button-bg-color": "#cccccc",
+        // 字体颜色
+        "font-color": "#cccccc",
+        "first-color": "#949494",
+        "second-color": "#808080",
+        "third-color": "#737373",
+        "fouth-color": "#676767",
+        // 边框颜色
+        "border-color": "#5d5f60",
+        "first-border-color": "#3c3f41",
+        "second-border-color": "#4b4d4f",
+        // 面板颜色
+        "panel-color": "#3c3f41",
+        // 面板悬停色
+        "panel-hover-color": "#5d5f60",
+        // 面板激活色
+        "panel-active-color": "#1d1f21",
+        // 交互元素色
+        "tool-color": "#888888",
+        "tool-first-color": "#999999",
+        "tool-second-color": "#aaaaaa",
+        // 只读色
+        "readonly-color": "#888888",
+        // 禁用色
+        "disabled-color": "#5d5f60",
+        // 悬停色
+        "hover-color": "#999999",
+        // 激活色
+        "active-color": "#999999",
+        "button-active-color": "#ffffff",
+        // 阴影色
+        "shadow-color": "#999999"
     }
 }

@@ -21,6 +21,12 @@ module.exports = function(grunt) {
             name: "dark",
             // 描述
             description: "暗夜"
+        },
+        {
+            // 主题名
+            name: "galaxy",
+            // 描述
+            description: "银河"
         }
     ];
     const colors = require("./theme-colors");
@@ -67,16 +73,16 @@ module.exports = function(grunt) {
             }
         }
         // 构建输出文件
-        let key = "dist/theme/" + item.name.toLowerCase() + "/site-" + item.name + ".css";
-        let value = "theme/site." + item.name + ".less";
         item = {};
-        item[key] = value;
+        item["dist/theme/" + name + "/site-" + name + ".css"] = "theme/site." + name + ".less";
+        themeFiles.push(item);
+
+        item = {};
+        item["dist/theme/" + name + "/metro-" + name + ".all.css"] = "theme/metro/" + name + "/**/*.less";
         themeFiles.push(item);
     });
 
     // 控件主题色
-    themeFiles.push({ "dist/theme/light/metro-light.all.css": "theme/metro/light/**/*.less" });
-    themeFiles.push({ "dist/theme/dark/metro-dark.all.css": "theme/metro/dark/**/*.less" });
     themeFiles.push({ "dist/theme/viewpage/viewpage.all.css": "theme/viewpage/**/*.less" });
 
     // 高亮色
