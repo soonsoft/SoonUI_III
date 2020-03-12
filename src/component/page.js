@@ -4,8 +4,8 @@ ui.eventPriority = {
     pageReady: 2,
 
     bodyResize: 3,
-    ctrlResize: 2,
-    elementResize: 2
+    elementResize: 2,
+    ctrlResize: 1
 };
 function noop() {}
 var page = {
@@ -190,7 +190,7 @@ page.plugin({
         if(ui.core.isFunction(arg)) {
             resizeHandler = arg.bind(this);
             resizeHandler();
-            this.resize(resizeHandler);
+            this.resize(resizeHandler, ui.eventPriority.elementResize);
         }
     }
 });
