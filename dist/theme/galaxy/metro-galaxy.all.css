@@ -1,0 +1,2652 @@
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-calendar-view {
+  position: relative;
+}
+.ui-calendar-view .calendar-view-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  opacity: 0;
+}
+.ui-calendar-view .ui-current-time {
+  position: absolute;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  height: 16px;
+  line-height: 16px;
+  text-align: right;
+  left: 0;
+  top: 10000px;
+}
+.ui-calendar-view .ui-current-time-text {
+  font-size: 12px;
+  margin-right: 3px;
+}
+.ui-calendar-view .ui-current-time-top {
+  border-bottom-style: none;
+  border-bottom-width: 0;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+.ui-calendar-view .ui-calendar-weekend {
+  color: #b41313;
+}
+/* 年视图 */
+.ui-calendar-year-view {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.ui-calendar-year-view .year-month-panel {
+  float: left;
+  position: relative;
+  overflow: hidden;
+  background-color: #1A2637;
+}
+.ui-calendar-year-view .year-month-odd {
+  background-color: #263238;
+}
+.ui-calendar-year-view .year-month-title {
+  width: 90%;
+  height: 48px;
+  line-height: 48px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 20px;
+}
+.ui-calendar-year-view .year-month-content {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ui-calendar-year-view .year-month-table {
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.ui-calendar-year-view .year-month-table-head {
+  text-align: center;
+  font-weight: normal;
+  height: 14.2%;
+  font-size: 14px;
+  overflow: hidden;
+}
+.ui-calendar-year-view .year-month-table-cell {
+  text-align: center;
+  font-weight: normal;
+  height: 14.2%;
+  font-size: 13px;
+  vertical-align: top;
+  position: relative;
+  overflow: hidden;
+  line-height: 24px;
+}
+.ui-calendar-year-view .year-month-table .selected {
+  background-color: #8A94A3;
+  color: #fff;
+}
+.ui-calendar-year-view .year-month-table .selected .today {
+  display: none;
+}
+.ui-calendar-year-view .year-month-table .today {
+  text-align: center;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+.ui-calendar-year-view .year-day-marker {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-width: 3px;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-style: solid solid dashed dashed;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+/* 月视图 */
+.ui-calendar-month-week-view {
+  width: 100%;
+  border-top: solid 1px #5B6370;
+  border-bottom: solid 1px #5B6370;
+  height: 24px;
+  overflow: hidden;
+  background-color: #1A2637;
+}
+.ui-calendar-month-week-view .month-week-table {
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+}
+.ui-calendar-month-week-view .month-week-cell {
+  text-align: left;
+  font-weight: normal;
+  height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  border-right: solid 1.4px #5B6370;
+  overflow: hidden;
+}
+.ui-calendar-month-week-view .month-week-cell-last {
+  border-right: none 0;
+}
+.ui-calendar-month-week-view .month-week-text {
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view {
+  width: 100%;
+  overflow: auto;
+}
+.ui-calendar-month-day-view .month-days-table {
+  table-layout: fixed;
+  width: 100%;
+  height: auto;
+  color: #8A94A3;
+  cursor: pointer;
+}
+.ui-calendar-month-day-view .month-days-cell {
+  border-right: solid 1px #5B6370;
+  border-bottom: solid 1px #5B6370;
+  overflow: hidden;
+}
+.ui-calendar-month-day-view .month-days-cell .day-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ui-calendar-month-day-view .month-days-cell .month-date {
+  font-size: 18px;
+  line-height: 36px;
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-list {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-item {
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+  margin: 0 0 1px 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  position: relative;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-border {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+.ui-calendar-month-day-view .month-days-cell .schedule-text {
+  margin-left: 10px;
+}
+.ui-calendar-month-day-view .month-days-cell-weekend {
+  background-color: #263238;
+}
+.ui-calendar-month-day-view .month-days-cell-last {
+  border-right: none 0;
+}
+.ui-calendar-month-day-view .month-days-table .selected {
+  background-color: #8A94A3;
+  color: #fff;
+}
+/* 周视图 */
+.ui-calendar-week-view,
+.ui-calendar-day-view {
+  width: 100%;
+  height: 24px;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+/* 周视图日期头 */
+.ui-calendar-weekday {
+  position: absolute;
+  left: 80px;
+  top: 0;
+  table-layout: fixed;
+  width: auto;
+  height: 100%;
+}
+.ui-calendar-weekday .weekday-cell {
+  padding: 0;
+  margin: 0;
+  height: 24px;
+  overflow: hidden;
+  text-align: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+.ui-calendar-weekday .weekday-cell:hover {
+  background-color: #1A2637;
+}
+.ui-calendar-weekday .weekday-cell:active {
+  background-color: #7C8795;
+  color: #fff;
+}
+/* 日视图日期头 */
+.ui-calendar-day-title {
+  position: absolute;
+  left: 80px;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  line-height: 24px;
+}
+.ui-calendar-day-title:hover {
+  background-color: #1A2637;
+}
+.ui-calendar-day-title:active {
+  background-color: #7C8795;
+  color: #fff;
+}
+.ui-calendar-day-title-text {
+  margin-left: 10px;
+}
+/* 周视图和月视图共用的小时视图 */
+.ui-calendar-hour-panel {
+  width: 100%;
+  position: relative;
+  left: 0;
+  top: 0;
+  overflow: auto;
+  border-top: solid 1px #2E3A4B;
+}
+.ui-calendar-hour-panel .hour-name-panel {
+  position: absolute;
+  background-color: #2E3A4B;
+  width: 80px;
+  height: auto;
+  top: 0;
+  padding: 0;
+  margin: 0;
+}
+.ui-calendar-hour-panel .hour-name-table {
+  table-layout: fixed;
+  width: 100%;
+  height: auto;
+}
+.ui-calendar-hour-panel .hour-name-cell {
+  height: 24px;
+  text-align: center;
+  border-right: solid 1px transparent;
+  border-bottom: solid 1px transparent;
+}
+.ui-calendar-hour-panel .hour-name-cell-odd {
+  border-bottom: dotted 1px transparent;
+}
+.ui-calendar-hour-panel .hour-name-text {
+  padding: 0;
+  margin: 0;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 24px;
+  height: 100%;
+  color: #697682;
+  padding-left: 5px;
+  text-align: left;
+}
+.ui-calendar-hour-panel .week-hour-panel {
+  position: absolute;
+  height: auto;
+  top: 0;
+  left: 80px;
+  right: 0;
+  padding: 0;
+  margin: 0;
+}
+.ui-calendar-hour-panel .week-hour-table {
+  table-layout: fixed;
+  width: auto;
+  height: auto;
+}
+.ui-calendar-hour-panel .week-hour-cell {
+  height: 24px;
+  text-align: center;
+  border-right: solid 1px #444D5C;
+  border-bottom: solid 1px #505966;
+}
+.ui-calendar-hour-panel .week-hour-cell-odd {
+  border-bottom: dotted 1px #505966;
+}
+.ui-calendar-hour-panel .week-hour-cell-weekend {
+  background-color: #263238;
+}
+.ui-calendar-hour-panel .week-hour-cell-today {
+  background-color: #2E3A4B;
+}
+.ui-calendar-hour-panel .schedule-item-panel {
+  position: absolute;
+  overflow: hidden;
+  background-color: #525D6D;
+  color: #fff;
+}
+.ui-calendar-hour-panel .schedule-item-panel:hover {
+  background-color: #8A94A3;
+}
+.ui-calendar-hour-panel .schedule-item-panel .time-title {
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+}
+.ui-calendar-hour-panel .schedule-item-panel .time-title-text {
+  margin-left: 5px;
+}
+.ui-calendar-hour-panel .schedule-item-panel .schedule-container {
+  position: absolute;
+  top: 24px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  overflow: hidden;
+}
+.ui-calendar-hour-panel .schedule-item-panel .schedule-content-text {
+  margin: 0;
+  line-height: 1.5em;
+  text-overflow: ellipsis;
+  text-align: justify;
+}
+/* 选择器 */
+.ui-calendar-selector {
+  position: absolute;
+  background-color: transparent;
+  border: solid 2px #8A94A3;
+  display: none;
+  cursor: default;
+  color: #fff;
+  top: -2px;
+  left: -2px;
+  z-index: 9998;
+}
+.ui-calendar-selector-time {
+  line-height: 24px;
+  margin-left: 5px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-card-view {
+  overflow: hidden;
+}
+.ui-card-view-body {
+  width: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: auto;
+}
+.ui-card-view-body .item-head {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+}
+.ui-card-view-body .item-head-title {
+  font-size: 18px;
+}
+.ui-card-view-body .item-body {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-card-view-body .view-item {
+  position: absolute;
+  overflow: hidden;
+}
+.ui-card-view-body .view-item .frame-panel {
+  position: absolute;
+  background-color: transparent;
+  border-style: solid;
+  border-width: 4px;
+  opacity: .6;
+  display: none;
+  top: 0;
+  left: 0;
+}
+.ui-card-view-body .view-item .check-marker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  display: none;
+  border-width: 16px;
+  border-top-color: #8A94A3;
+  border-right-color: #8A94A3;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-style: solid solid dashed dashed;
+  top: 0;
+  right: 0;
+}
+.ui-card-view-body .view-item .check-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff;
+}
+.ui-card-view-body .view-item:hover .frame-panel {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .check-marker {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .check-icon {
+  display: block;
+}
+.ui-card-view-body .ui-card-view-selection .frame-panel {
+  display: block;
+  opacity: 1;
+}
+.ui-card-view-body .data-prompt {
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  display: none;
+  font-size: 16px;
+}
+.ui-card-view-foot {
+  height: 30px;
+  background-color: #2E3A4B;
+  line-height: 30px;
+}
+.ui-card-view-foot .data-info {
+  width: 40%;
+  float: left;
+  overflow: hidden;
+}
+.ui-card-view-foot .data-info span {
+  font-size: 1em;
+  margin-left: 10px;
+}
+.ui-card-view-foot .page-panel {
+  width: 60%;
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.ui-card-view-foot .page-panel .pager-button {
+  font-size: 1.3em;
+  color: #8A94A3;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.ui-card-view-foot .page-panel .pager-button:hover {
+  text-decoration: none;
+}
+.ui-card-view-foot .page-panel .pager-current {
+  font-size: 1.3em;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: default;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-chooser-panel {
+  background-color: #1A2637;
+  border-style: solid;
+  border-width: 1px;
+  display: none;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: auto;
+  height: auto;
+  z-index: 10000;
+}
+.ui-chooser-title-panel {
+  background-color: #2E3A4B;
+  height: 30px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.ui-chooser-title-panel .ui-chooser-title-item {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  text-align: center;
+  line-height: 30px;
+  font-size: 14px;
+}
+.ui-chooser-list-panel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.ui-chooser-list-panel .focus-choose-element {
+  position: absolute;
+  width: 100%;
+  height: 30px;
+  border-style: solid;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-color: transparent;
+  left: 0;
+}
+.ui-chooser-list-panel .ui-chooser-list {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  height: 100%;
+}
+.ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-chooser-list-panel .ui-chooser-list .ui-chooser-list-li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ui-chooser-item {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1px 0 1px 0;
+  width: 100%;
+  color: #8A94A3;
+  text-align: center;
+  font-size: 14px;
+}
+.ui-chooser-empty-item {
+  cursor: default;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/**
+ * Farbtastic Color Picker 1.2
+ * © 2008 Steven Wittens
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+.ui-color-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 195px;
+  height: 195px;
+  background-color: #2E3A4B;
+  border-style: solid;
+  border-width: 1px;
+  display: none;
+  z-index: 10000;
+}
+.ui-color-picker .farbtastic {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.ui-color-picker .farbtastic * {
+  position: absolute;
+  cursor: crosshair;
+}
+.ui-color-picker .farbtastic .color,
+.ui-color-picker .farbtastic .overlay {
+  top: 47px;
+  left: 47px;
+  width: 101px;
+  height: 101px;
+}
+.ui-color-picker .farbtastic .wheel {
+  width: 100%;
+  height: 100%;
+  background: url("data:image/png;base64,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") no-repeat;
+}
+.ui-color-picker .farbtastic .overlay {
+  background: url("data:image/png;base64,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") no-repeat;
+}
+.ui-color-picker .farbtastic .marker {
+  width: 17px;
+  height: 17px;
+  margin: -8px 0 0 -8px;
+  overflow: hidden;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAK3RFWHRDcmVhdGlvbiBUaW1lAHZyIDE0IGp1bCAyMDA2IDEzOjMxOjIzICswMTAwHvJDZwAAAAd0SU1FB9YHDgsgJYiZ4bUAAAAJcEhZcwAALiIAAC4iAari3ZIAAAAEZ0FNQQAAsY8L/GEFAAAB5ElEQVR42q2Tz0sqURTH72Qq4mASSAoSIfSDdCEI8qJFLXSjLYSQNoGLINrI8/0ZD9q0KnDlKkIMebmP9xZRCEEiLQLBiMiNJDYq/Zg573vpCkM6CdGBD3Pn3OvXe77nDGPfENKwJBHx/CxYAtNAAVfgXJKk7khVCCyCP6ALVKAJXkEdbINxw5tgM4HHPphSFEUql8usXq8zWZZZKBRiPp+PH3sBx2Br4FbiBg+aplGxWKRgMPiMH1+YTKZDq9V64na7G+l0mprNJo7RG/g94IEoQSsUCuRyue6QToIJYAJWMA/Bo2QySZ1Ohws9gZBeZI570Gq1yO/395BKGJg+ZbFYznK5HAmf9vQiKW5iqVQim832Fyn5E+83Y7EYieAdY2Nig7dRqtVqrNfr3YiWGsVltVrtr2f0IrwEZrfbGeqWhQ9GMeFwOPprRS9SAWo4HGZOp/MH1l4DAS6+HolE+u9Xek9kcK+qKqVSKUL/s0hPDhFY83g8j5VKhcQg7nxs80/w0mg0KB6Pa2az+RTpDbDA3sd/lwvk8/l+Z7iS/FHEAor8H9rtNmWzWYpGo+T1eikQCFAmkyFxAy7AJ255aMHYcIID8d1oNBi8hGuwwkYFDq0CPlG3YsTb4B/4BRwjBb4S/wGzT16tu5THiAAAAABJRU5ErkJggg==") no-repeat;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/********* Confirm Button ***********/
+.confirm-button {
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+.confirm-button .text-state {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  margin-left: 0%;
+}
+.confirm-button .confirm-state {
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: #fff;
+  font-style: normal;
+  overflow: hidden;
+}
+.confirm-button:active .confirm-state {
+  background-color: transparent !important;
+  color: #1A2637 !important;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-date-chooser-panel {
+  position: absolute;
+  width: 210px;
+  height: 225px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: #1A2637;
+  color: #CFD8E5;
+  font-size: 12px;
+  display: none;
+  overflow: hidden;
+  z-index: 10000;
+  line-height: 1em;
+}
+/* 通用元素 */
+.ui-date-chooser-panel .date-chooser-title {
+  width: 186px;
+  float: left;
+  height: 100%;
+  text-align: center;
+}
+.ui-date-chooser-panel .date-chooser-prev {
+  border-width: 6px;
+  border-color: transparent #8A94A3 transparent transparent;
+  border-style: dashed solid dashed dashed;
+  margin-top: 5px;
+  float: left;
+  line-height: 0;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-prev-disabled {
+  border-right-color: #525D6D !important;
+  cursor: default !important;
+}
+.ui-date-chooser-panel .date-chooser-next {
+  border-width: 6px;
+  border-color: transparent transparent transparent #8A94A3;
+  border-style: dashed dashed dashed solid;
+  margin-top: 5px;
+  float: left;
+  line-height: 0px;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-next-disabled {
+  border-left-color: #525D6D !important;
+  cursor: default !important;
+}
+.ui-date-chooser-panel .date-chooser-table {
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+/* 年月设置面板 */
+.ui-date-chooser-panel .year-month-setting-panel {
+  width: 100%;
+  height: 100%;
+  background-color: #1A2637;
+  display: none;
+  position: absolute;
+  left: 0;
+  top: -225px;
+}
+.ui-date-chooser-panel .set-title {
+  width: 100%;
+  height: 23px;
+  line-height: 23px;
+  font-size: 12px;
+}
+.ui-date-chooser-panel .set-title .title-fieldset {
+  border-left: none 0;
+  border-bottom: none 0;
+  border-right: none 0;
+  border-top-style: solid;
+  border-top-width: 1px;
+  overflow: hidden;
+  width: 90%;
+  height: 100%;
+  margin: auto;
+}
+.ui-date-chooser-panel .set-title .title-legend {
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: auto;
+}
+.ui-date-chooser-panel .date-chooser-year-panel,
+.ui-date-chooser-panel .date-chooser-month-panel {
+  width: 100%;
+  height: auto;
+}
+.ui-date-chooser-panel .date-chooser-year-td {
+  padding: 0;
+  width: 42px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-month-td {
+  padding: 0;
+  width: 52px;
+  border-top-style: none;
+  border-top-width: 0;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .disabled-year,
+.ui-date-chooser-panel .disabled-month {
+  color: #525D6D !important;
+  cursor: default !important;
+}
+/* 日历内容 */
+/* 日历标题 */
+.ui-date-chooser-panel .date-chooser-calendar-title {
+  width: 100%;
+  height: 27px;
+  line-height: 27px;
+  background-color: #2E3A4B;
+}
+.ui-date-chooser-panel .date-chooser-title-text {
+  text-decoration: none;
+}
+/* 日历主体 */
+.ui-date-chooser-panel .date-chooser-calendar-panel {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-week-panel {
+  width: 100%;
+  background: #2E3A4B;
+}
+.ui-date-chooser-panel .date-chooser-days-panel {
+  width: 100%;
+  height: 144px;
+  position: relative;
+  background: #1A2637;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.ui-date-chooser-panel .date-chooser-calendar-th,
+.ui-date-chooser-panel .date-chooser-calendar-td {
+  padding: 0;
+  text-align: center;
+  font-weight: normal;
+  color: #CFD8E5;
+  width: 30px;
+  height: 24px;
+  overflow: hidden;
+}
+.ui-date-chooser-panel .date-chooser-weekend {
+  color: #b41313;
+}
+.ui-date-chooser-panel .other-month-day {
+  color: #8A94A3;
+}
+.ui-date-chooser-panel .disabled-day {
+  color: #525D6D !important;
+  cursor: default !important;
+}
+/* 操作面板 */
+.ui-date-chooser-panel .date-chooser-operate-panel {
+  width: 100%;
+  background-color: #2E3A4B;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+}
+.ui-date-chooser-panel .date-chooser-button {
+  vertical-align: top;
+  margin-top: 3px;
+}
+.ui-date-chooser-panel .date-chooser-button i,
+.ui-date-chooser-panel .date-chooser-button span {
+  font-size: 14px;
+}
+.ui-date-chooser-panel .date-chooser-time-input {
+  border: none 0;
+  height: 24px;
+  width: 24px;
+  font-size: 14px;
+  color: #8A94A3;
+  vertical-align: top;
+  padding: 0;
+  margin-top: 4px;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  text-align: center;
+  background-color: transparent !important;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-dialog-box {
+  position: absolute;
+  border-top-width: 4px;
+  border-top-style: solid;
+  border-color: transparent;
+  background-color: #2E3A4B;
+  display: none;
+  z-index: 9999;
+}
+.ui-dialog-box-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  opacity: 0;
+  z-index: 9999;
+  display: none;
+}
+/* 标题部分 */
+.ui-dialog-box-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  height: 48px;
+}
+.ui-dialog-box-title .title-inner-panel {
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 100%;
+}
+.ui-dialog-box-title .title-inner-panel .title-text {
+  font-size: 16px;
+  line-height: 40px;
+}
+.ui-dialog-box-spline {
+  margin: 0;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none 0;
+  height: 1px;
+  width: auto;
+}
+/* 内容部分 */
+.ui-dialog-box-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: auto;
+}
+.ui-dialog-box-content .content-frame {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.ui-dialog-box .resize-handle {
+  text-decoration: none;
+  display: block;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none 0;
+  width: 0;
+  height: 0;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+  z-index: 100;
+  border-width: 5px;
+  border-color: transparent #8A94A3 #8A94A3 transparent;
+  border-style: dashed solid solid dashed;
+}
+/* 窗体操作部分 */
+.ui-dialog-box-ctrls {
+  position: absolute;
+  height: 40px;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+.ui-dialog-box-ctrls .maximizable-button,
+.ui-dialog-box-ctrls .closable-button {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  color: #8A94A3;
+  position: relative;
+  vertical-align: top;
+  right: 0;
+  top: 0;
+  line-height: 40px;
+  text-align: center;
+}
+.ui-dialog-box-ctrls .maximizable-button {
+  font-size: 16px;
+}
+.ui-dialog-box-ctrls .closable-button {
+  font: 26px/24px Tahoma, Verdana, sans-serif;
+  line-height: 36px;
+}
+/* 操作台部分 */
+.ui-dialog-box-operate {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  height: 48px;
+  overflow: hidden;
+  text-align: right;
+  line-height: 48px;
+}
+.ui-dialog-box-operate button,
+.ui-dialog-box-operate input[type="button"] {
+  margin-right: 16px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/********* Extend Button ***********/
+.extend-button-panel {
+  position: absolute;
+  z-index: 1000;
+  display: none;
+  overflow: visible;
+}
+.extend-button-background {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: #2E3A4B;
+  filter: alpha(opacity=0);
+  opacity: 1;
+  border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
+  overflow: hidden;
+}
+.extend-button-panel .extend-button,
+.extend-button-panel .center-icon {
+  display: block;
+  position: absolute;
+  overflow: hidden;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 50%;
+  filter: alpha(opacity=60);
+  opacity: .6;
+}
+.extend-button-panel .extend-button:hover {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.extend-button-panel .center-icon {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.extend-button-panel .center-icon {
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+}
+.extend-button-panel .center-none {
+  border-width: 1px;
+  border-style: solid;
+  margin-top: -1px;
+  margin-left: -1px;
+}
+.extend-button-panel .background-panel {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  overflow: visible;
+  border-radius: 50%;
+  border-color: #5B6370;
+  border-style: solid;
+  filter: alpha(opacity=70);
+  opacity: .7;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.filter-button-panel {
+  width: auto;
+  height: 24px;
+  line-height: 22px;
+  overflow: hidden;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.filter-button-item {
+  margin: 0px;
+  padding: 0px;
+  width: auto;
+  display: inline-block;
+  text-align: center;
+  vertical-align: top;
+  border-top: solid 1px transparent;
+  border-bottom: solid 1px transparent;
+  border-right: solid 1px transparent;
+  height: 22px;
+  cursor: pointer;
+}
+.filter-button-item-hide {
+  display: none;
+}
+.filter-button-item-first {
+  border-left: solid 1px transparent;
+}
+.filter-button-item-radio {
+  position: relative;
+  left: -1px;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+.filter-button-item-text {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* fold-view */
+.ui-fold-view {
+  display: block;
+}
+.ui-fold-view-title {
+  font-size: 11pt;
+  margin-top: 10px;
+  height: 30px;
+  line-height: 30px;
+  cursor: pointer;
+}
+.ui-fold-view-icon {
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  text-align: center;
+  vertical-align: top;
+  height: 18px;
+  width: 18px;
+  margin-top: 6px;
+  margin-right: 6px;
+  line-height: 16px;
+  overflow: hidden;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-grid-view {
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-color: #5B6370;
+}
+/* 表头 */
+.ui-grid-head {
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+}
+.ui-table-head {
+  table-layout: fixed;
+  width: 100%;
+  color: #CFD8E5;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-table-head-cell {
+  padding: 0;
+  height: 29px;
+  line-height: 29px;
+  font-weight: normal;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: solid 1px #5B6370;
+  border-right: solid 1px #5B6370;
+}
+.ui-table-head .last-cell,
+.ui-table-head .scroll-cell {
+  border-right: none 0;
+}
+.ui-table-head span {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-table-head .sort-column {
+  cursor: pointer;
+}
+.ui-table-head .sort-column:hover {
+  background-color: #2E3A4B;
+}
+.ui-table-head .sort-column .fa {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  color: #8A94A3;
+  margin-right: 5px;
+  vertical-align: baseline;
+}
+.ui-table-head .sort-column .fa-sort-asc {
+  vertical-align: middle;
+}
+.ui-table-head .sort-column .fa-sort-desc {
+  vertical-align: text-top;
+}
+/* 表体 */
+.ui-grid-body {
+  width: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  overflow: auto;
+}
+.ui-grid-body .data-prompt {
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+  display: none;
+  font-size: 16px;
+  -ms-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+.ui-table-body {
+  table-layout: fixed;
+  width: 100%;
+  color: #8A94A3;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ui-table-body-cell {
+  padding: 0;
+  height: 29px;
+  line-height: 20px;
+  font-weight: normal;
+  text-align: left;
+  border-bottom: solid 1px #5B6370;
+  border-right: solid 1px #5B6370;
+}
+.ui-table-body .table-body-row-hover:hover,
+.ui-table-body .table-body-cell-hover:hover {
+  background-color: #2E3A4B;
+}
+.ui-table-body .last-cell {
+  border-right: none 0;
+}
+.ui-table-body .row-selected,
+.ui-table-body .cell-selected {
+  color: #fff;
+}
+.ui-table-body .row-selected td {
+  border-right-color: transparent;
+}
+.ui-table-body .row-selected a,
+.ui-table-body .cell-selected a {
+  color: #fff !important;
+}
+.ui-table-body .row-selected .grid-checkbox,
+.ui-table-body .cell-selected .grid-checkbox {
+  color: #fff !important;
+}
+.ui-table-body span,
+.ui-table-body a {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-table-body a {
+  text-decoration: none;
+}
+.ui-table-body a:hover {
+  text-decoration: underline;
+}
+/* 多行文字 */
+.ui-table-body p {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+/* 进度条样式 */
+.ui-table-body .cell-progress-panel {
+  margin-left: 5px;
+  margin-right: 5px;
+  height: 20px;
+}
+.ui-table-body .cell-progress-bar {
+  margin-top: 4px;
+  float: left;
+  height: 12px;
+  background-color: #424E5D;
+  overflow: hidden;
+}
+.ui-table-body .cell-progress-value {
+  height: 12px;
+}
+.ui-table-body .cell-progress-text {
+  float: right;
+  text-align: right;
+  width: 52px;
+  font-size: 12px;
+}
+.ui-table-body .row-selected .cell-progress-bar,
+.ui-table-body .cell-selected .cell-progress-bar {
+  background-color: #525D6D;
+}
+.ui-table-body .row-selected .cell-progress-value,
+.ui-table-body .cell-selected .cell-progress-value {
+  background-color: #fff !important;
+}
+.ui-table-body .row-selected .cell-progress-text span,
+.ui-table-body .cell-selected .cell-progress-text span {
+  color: #fff;
+}
+/* switch样式 */
+.ui-table-body .row-selected .ui-switch-button .switch-inner {
+  border-color: #fff !important;
+}
+.ui-table-body .row-selected .ui-switch-button .switch-thumb {
+  background-color: #fff !important;
+}
+/* GridTree 专有样式 */
+.ui-table-body .fold {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  margin-top: 0;
+  margin-left: 5px;
+  vertical-align: middle;
+  overflow: hidden;
+  line-height: 11px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-table-body .row-selected .fold,
+.ui-table-body .cell-selected .fold {
+  color: #fff !important;
+}
+.ui-table-body .row-selected .unfold,
+.ui-table-body .cell-selected .unfold {
+  color: #fff !important;
+}
+.ui-table-head .grid-checkbox-all,
+.ui-table-body .grid-checkbox {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+  color: #525D6D;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-table-head .grid-checkbox-all:active,
+.ui-table-body .grid-checkbox:active {
+  color: #7C8795;
+}
+/* 底栏 */
+.ui-grid-foot {
+  height: 30px;
+  background: #2E3A4B;
+  line-height: 30px;
+}
+.ui-grid-foot .data-info {
+  width: 40%;
+  float: left;
+  overflow: hidden;
+}
+.ui-grid-foot .data-info span {
+  font-size: 1em;
+  margin-left: 10px;
+}
+.ui-grid-foot .page-panel {
+  width: 60%;
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.ui-grid-foot .page-panel .pager-button {
+  font-size: 1.3em;
+  color: #8A94A3;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+.ui-grid-foot .page-panel .pager-button:hover {
+  text-decoration: none;
+}
+.ui-grid-foot .page-panel .pager-current {
+  font-size: 1.3em;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: default;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/********* hover view tools ***********/
+.hover-view-panel {
+  position: absolute;
+  width: 160px;
+  min-height: 24px;
+  max-height: 160px;
+  border-style: solid;
+  border-width: 2px;
+  background-color: #2E3A4B;
+  font-size: 12px;
+  display: none;
+  overflow: auto;
+  z-index: 10000;
+}
+.hover-view-text {
+  line-height: 24px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.hover-view-text-section {
+  padding: 0px;
+  margin: 0px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/*图片预览视图*/
+.image-preview {
+  width: 600px;
+  height: 400px;
+}
+.image-preview .image-preview-chooser {
+  width: 100%;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.image-preview .image-preview-chooser .chooser-queue {
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+}
+.image-preview .image-preview-chooser .chooser-button {
+  position: absolute;
+  display: none;
+  font-size: 16px;
+  text-align: center;
+  line-height: 44px;
+  color: #8A94A3;
+}
+.image-preview .image-preview-chooser .small-img {
+  width: 44px;
+  height: 44px;
+  border: solid 2px transparent;
+  overflow: hidden;
+  cursor: pointer;
+  position: absolute;
+}
+.image-preview .image-preview-chooser .small-img img {
+  vertical-align: top;
+}
+/*
+    .image-view-div .chooser-selected {
+    }
+*/
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* 图片轮播器 */
+.image-view-panel {
+  position: relative;
+  overflow: hidden;
+}
+.image-view-panel .image-view {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  overflow: hidden;
+}
+.image-view-panel .image-view img {
+  position: absolute;
+}
+.image-view-panel .image-switch-button {
+  position: absolute;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  top: 50%;
+  margin-top: -16px;
+  display: block;
+  text-align: center;
+  font-size: 32px;
+  color: #aaa;
+}
+.image-view-panel .switch-button-prev {
+  left: 0px;
+}
+.image-view-panel .switch-button-next {
+  right: 0px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* 图片局部放大 */
+.image-watch-panel {
+  position: relative;
+  overflow: visible !important;
+}
+.image-watch-panel img {
+  cursor: move;
+}
+.image-watch-panel .focus-view {
+  position: absolute;
+  background-color: #2E3A4B;
+  opacity: 0.6;
+  display: none;
+  cursor: move;
+  border: solid 1px #fff;
+}
+.image-watch-panel .zoom-view {
+  position: absolute;
+  border: solid 1px #fff;
+  overflow: hidden;
+  display: none;
+  z-index: 10000;
+}
+.image-watch-panel .zoom-view img {
+  position: absolute;
+  width: auto;
+  height: auto;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* 图片放大器 */
+.show-image-panel {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+  top: 0px;
+  left: 0px;
+  display: none;
+  z-index: 10001;
+}
+.show-image-panel .image-view-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.show-image-panel .image-view-img {
+  position: absolute;
+  z-index: 10001;
+  border: 0 solid;
+  height: auto;
+  width: auto;
+}
+.show-image-panel .next-button,
+.show-image-panel .prev-button {
+  position: absolute;
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  line-height: 48px;
+  top: 50%;
+  margin-top: -24px;
+  text-align: center;
+  color: #fff;
+  z-index: 10001;
+  opacity: .5;
+}
+.show-image-panel .next-button:hover,
+.show-image-panel .prev-button:hover {
+  text-decoration: none;
+  opacity: 1;
+}
+.show-image-panel .disabled-button {
+  display: none;
+}
+.show-image-panel a.closable-button {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  top: 0;
+  right: 0;
+  height: 32px;
+  width: 32px;
+  line-height: 27px;
+  text-align: center;
+  font-size: 30px;
+  color: #fff;
+  z-index: 10001;
+  font-weight: normal;
+  cursor: pointer;
+}
+.show-image-panel a.closable-button:hover {
+  text-decoration: none;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-list-view {
+  overflow: auto;
+  position: relative;
+}
+.ui-list-view-ul {
+  width: 100%;
+  height: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ui-list-view-item {
+  width: 100%;
+  position: relative;
+  height: auto;
+}
+.ui-list-view-b {
+  position: absolute;
+  width: 4px;
+  display: none;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+}
+.ui-list-view-container {
+  height: auto;
+  padding: 0 0 0 4px;
+}
+.ui-list-view-item:hover {
+  background-color: #1A2637;
+}
+.ui-list-view-selection {
+  background-color: #1A2637;
+}
+.ui-list-view-selection .ui-list-view-b {
+  display: block;
+}
+.ui-list-view-item-text {
+  line-height: 30px;
+  margin: 0 5px;
+}
+.ui-item-view-remove {
+  width: 30px;
+  height: 30px;
+  top: 0;
+  right: 0;
+  text-align: center;
+  line-height: 30px;
+  display: none;
+}
+.ui-list-view-item:hover .ui-item-view-remove {
+  display: inline-block;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* 线形加载动画 */
+.c_loadingDots {
+  line-height: 0;
+  white-space: nowrap;
+  position: relative;
+  visibility: hidden;
+}
+div.c_loadingDots.c_dotsPlaying {
+  visibility: visible;
+}
+div.c_loadingDots div.c_loadingDot {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+div.c_flyingDots {
+  width: 100%;
+  height: 8px;
+  font-size: 0;
+  overflow: hidden;
+}
+div.c_flyingDots div.c_loadingTracks {
+  position: absolute;
+  left: -10%;
+  top: 0;
+  right: -15%;
+  bottom: 0;
+}
+div.c_flyingDots div.c_loadingTrack {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 8px;
+}
+div.c_flyingDots div.c_loadingDot {
+  width: 3px;
+  height: 3px;
+  background-color: #CFD8E5;
+}
+div.c_flyingDots.c_dotsPlaying div.c_loadingDot {
+  -moz-animation: makedotfly 3.3s linear .1s infinite normal;
+  -ms-animation: makedotfly 3.3s linear .1s infinite normal;
+  -webkit-animation: makedotfly 3.3s linear .1s infinite normal;
+  animation: makedotfly 3.3s linear .1s infinite normal;
+}
+@-moz-keyframes makedotfly {
+  0% {
+    left: 0;
+    -moz-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -moz-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@-ms-keyframes makedotfly {
+  0% {
+    left: 0;
+    -ms-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -ms-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@-webkit-keyframes makedotfly {
+  0% {
+    left: 0;
+    -webkit-animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    -webkit-animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+@keyframes makedotfly {
+  0% {
+    left: 0;
+    animation-timing-function: cubic-bezier(0.01, 0.55, 1, 1);
+  }
+  32% {
+    left: 40%;
+  }
+  62% {
+    left: 58%;
+    animation-timing-function: cubic-bezier(0.3, 0.1, 1, 1);
+  }
+  80% {
+    left: 105%;
+  }
+  100% {
+    left: 105%;
+  }
+}
+div.c_flyingDots div.c_loadingTrack0 {
+  left: -18%;
+  margin-left: 90px;
+}
+div.c_flyingDots div.c_loadingTrack0 div.c_loadingDot {
+  -moz-animation-delay: .15s;
+  -ms-animation-delay: .15s;
+  -o-animation-delay: .15s;
+  -webkit-animation-delay: .15s;
+  animation-delay: .15s;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+div.c_flyingDots div.c_loadingTrack1 {
+  left: -15%;
+  margin-left: 75px;
+}
+div.c_flyingDots div.c_loadingTrack1 div.c_loadingDot {
+  -moz-animation-delay: .3s;
+  -ms-animation-delay: .3s;
+  -webkit-animation-delay: .3s;
+  animation-delay: 0.3s;
+}
+div.c_flyingDots div.c_loadingTrack2 {
+  left: -12%;
+  margin-left: 60px;
+}
+div.c_flyingDots div.c_loadingTrack2 div.c_loadingDot {
+  -moz-animation-delay: .45s;
+  -ms-animation-delay: .45s;
+  -webkit-animation-delay: .45s;
+  animation-delay: 0.45s;
+}
+div.c_flyingDots div.c_loadingTrack3 {
+  left: -9%;
+  margin-left: 45px;
+}
+div.c_flyingDots div.c_loadingTrack3 div.c_loadingDot {
+  -moz-animation-delay: .6s;
+  -ms-animation-delay: .6s;
+  -webkit-animation-delay: .6s;
+  animation-delay: 0.6s;
+}
+div.c_flyingDots div.c_loadingTrack4 {
+  left: -6%;
+  margin-left: 30px;
+}
+div.c_flyingDots div.c_loadingTrack4 div.c_loadingDot {
+  -moz-animation-delay: .75s;
+  -ms-animation-delay: .75s;
+  -webkit-animation-delay: .75s;
+  animation-delay: 0.75s;
+}
+div.c_flyingDots div.c_loadingTrack5 {
+  left: -3%;
+  margin-left: 15px;
+}
+div.c_flyingDots div.c_loadingTrack5 div.c_loadingDot {
+  -moz-animation-delay: .9s;
+  -ms-animation-delay: .9s;
+  -webkit-animation-delay: .9s;
+  animation-delay: 0.9s;
+}
+/* 兼容不支持CSS动画的浏览器，采用gif动画的方式 */
+div.c_flyingDots div.c_loadingFallback {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: transparent url('') no-repeat center center;
+  opacity: 1;
+  filter: alpha(opacity=100);
+  -moz-animation: hidedotsfallback .3s linear .1s 1 normal;
+  -ms-animation: hidedotsfallback .3s linear 0s 1 normal;
+  -webkit-animation: hidedotsfallback .3s linear 0s 1 normal;
+  animation: hidedotsfallback .3s linear 0s 1 normal;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+@-moz-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@-ms-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@-webkit-keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes hidedotsfallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/* message box */
+.ui-message-box {
+  display: none;
+  position: absolute;
+  left: 0px;
+  min-height: 80px;
+  height: auto;
+  width: 320px;
+  overflow: hidden;
+  background-color: #1A2637;
+  border-top-width: 4px;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  z-index: 10001;
+}
+.ui-message-box .message-item {
+  padding-left: 36px;
+  padding-top: 8px;
+  padding-right: 24px;
+  padding-bottom: 8px;
+  height: auto;
+  position: relative;
+}
+.ui-message-box .message-icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-message-box .mb-message {
+  color: #0A91F0;
+}
+.ui-message-box .mb-warn {
+  color: #F1B436;
+}
+.ui-message-box .mb-error {
+  color: #BB1337;
+}
+.ui-message-box .mb-success {
+  color: #2ECC71;
+}
+.ui-message-box .mb-failed {
+  color: #DC3160;
+}
+.ui-message-box .message-content {
+  line-height: 1.5em;
+}
+.ui-message-box .closable-button {
+  right: 2px;
+  top: 2px;
+  z-index: 10001;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-side-close-button {
+  position: absolute;
+  text-align: center;
+  line-height: 40px;
+  border: none 0;
+  width: 40px;
+  height: 40px;
+  min-width: auto;
+  top: 0;
+  right: 0;
+  z-index: 999;
+  font-size: 24px;
+  background-color: transparent;
+  cursor: pointer;
+  opacity: 1;
+}
+.ui-side-close-button:active {
+  opacity: .8;
+}
+.ui-option-box-panel {
+  z-index: 9000;
+  opacity: 0;
+  border-left-width: 1px;
+  border-left-style: solid;
+}
+.ui-option-box-title {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+}
+.ui-option-box-title .option-box-title-text {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-option-box-content {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+}
+.ui-option-box-content .ui-form {
+  width: 190px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ui-option-box-content .ui-form label,
+.ui-option-box-content .ui-form .requried {
+  line-height: 36px;
+}
+.ui-option-box-buttons {
+  width: 100%;
+  text-align: right;
+  overflow: hidden;
+  height: 24px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-progress-container {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.ui-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  transform: translateY(-50%);
+}
+.ui-progress-indication {
+  font-size: 2em;
+}
+.ui-progress-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #424E5D;
+}
+.ui-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  transition: width .3s ease 0s;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-report-view {
+  position: relative;
+}
+.ui-report-view .adjust-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  border: none 0;
+  margin: 0;
+  padding: 0;
+  display: none;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+.ui-report-view .adjust-column-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  background-color: #1A2637;
+  opacity: .01;
+  cursor: col-resize;
+}
+.ui-report-view .ui-report-fixed {
+  position: absolute;
+  top: 0;
+  background-color: #1A2637;
+  overflow: hidden;
+  border-width: 0;
+  border-style: none;
+  border-color: #5B6370;
+}
+.ui-report-view .ui-report-fixed-empty {
+  border-color: transparent;
+}
+.ui-report-view .ui-report-fixed-shadow {
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.12);
+}
+.ui-report-fixed-block {
+  position: absolute;
+  background-color: #1A2637;
+  display: none;
+  top: 0;
+  right: 0;
+  height: 100%;
+  border-left: 1px solid #5B6370;
+}
+/* 表头 */
+.ui-report-head,
+.ui-report-fixed-head {
+  position: relative;
+  height: auto;
+}
+.ui-report-head .data-head {
+  min-height: 30px;
+  overflow: hidden;
+  position: relative;
+  height: auto;
+  width: 100%;
+}
+.ui-report-head .ui-table-head-cell {
+  position: relative;
+}
+/* 表体 */
+.ui-report-body,
+.ui-report-fixed-body {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.ui-report-body .data-body {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
+/* 不换行 */
+.ui-report-head .ui-table-head-cell,
+.ui-report-body .ui-table-body-cell {
+  overflow: hidden;
+  white-space: nowrap;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-selection-list-panel {
+  position: absolute;
+  border-style: solid;
+  border-width: 1px;
+  display: none;
+  background-color: #2E3A4B;
+  min-width: 60px;
+  min-height: 30px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10000;
+}
+.ui-selection-list-ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+}
+.ui-selection-list-li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ui-selection-list-li:hover {
+  background-color: #424E5D;
+}
+.ui-selection-list-li span {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-selection-list-li .ui-selection-list-checkbox {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 7px;
+  line-height: 16px;
+  text-align: right;
+  font-size: 14px;
+  color: #525D6D;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-selection-tree-panel {
+  position: absolute;
+  border-style: solid;
+  border-width: 1px;
+  display: none;
+  background-color: #2E3A4B;
+  min-width: 60px;
+  min-height: 30px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10000;
+}
+.ui-selection-tree-dl {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+}
+.ui-selection-tree-dt {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+  cursor: default;
+}
+.ui-selection-tree-dt span {
+  line-height: 28px;
+}
+.ui-selection-tree-dt:hover {
+  background-color: #1A2637;
+}
+.ui-selection-tree-dt .ui-selection-tree-checkbox {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 7px;
+  line-height: 16px;
+  text-align: left;
+  font-size: 14px;
+  color: #525D6D;
+}
+.ui-selection-tree-dt .fold-button {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  margin-top: 8px;
+  margin-right: 3px;
+  vertical-align: top;
+  overflow: hidden;
+  line-height: 11px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+}
+.ui-selection-tree-selected .fold-button,
+.ui-selection-tree-selected .expand-button {
+  color: #fff !important;
+}
+.ui-selection-tree-selected .fold-button:hover,
+.ui-selection-tree-selected .expand-button:hover {
+  color: #fff !important;
+}
+.ui-selection-tree-dd {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-selection-tree-panel .autocomplete-dl {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.ui-selection-tree-panel .autocomplete-dt {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 30px;
+  overflow: hidden;
+  cursor: default;
+}
+.ui-selection-tree-panel .autocomplete-dt .normal-text {
+  margin-left: 5px;
+  margin-right: 5px;
+  line-height: 28px;
+}
+.ui-selection-tree-panel .autocomplete-selected {
+  background-color: #1A2637;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-sidebar-panel {
+  position: absolute;
+  background-color: #2E3A4B;
+  width: 240px;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+  display: none;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-slidebar {
+  overflow: visible;
+}
+.ui-slidebar-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #424E5D;
+  overflow: visible;
+}
+.ui-slidebar-value {
+  background-color: #8A94A3;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.ui-slidebar-thumb {
+  position: absolute;
+  display: block;
+  background-color: #8A94A3;
+  border-radius: 50%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/********* Switch Button ***********/
+.ui-switch-button {
+  display: inline-block;
+  height: 24px;
+  line-height: 24px !important;
+  width: 44px;
+  position: relative;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.ui-switch-button .switch-inner {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  border-radius: 12px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #8A94A3;
+  width: 40px;
+  height: 20px;
+}
+.ui-switch-button .switch-thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  top: 4px;
+  left: 4px;
+  background-color: #8A94A3;
+}
+.ui-switch-button input {
+  position: absolute;
+  left: -20px;
+}
+.ui-switch-text {
+  margin-left: 10px;
+  vertical-align: middle;
+  line-height: 24px !important;
+  font-size: 14px;
+}
+.switch-lollipop .switch-inner {
+  border-radius: 2px;
+  border: none 0px;
+  width: 100%;
+  height: 4px;
+  background-color: #8A94A3;
+  top: 10px;
+}
+.switch-lollipop .switch-thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 12px;
+  top: 0px;
+  left: 0px;
+  background-color: #1A2637;
+  border: solid 2px #8A94A3;
+}
+.switch-marshmallow .switch-inner {
+  border-radius: 8px;
+  border: none 0px;
+  width: 100%;
+  height: 16px;
+  background-color: #8A94A3;
+  top: 4px;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+.switch-marshmallow .switch-thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 12px;
+  top: 0px;
+  left: 0px;
+  background-color: #8A94A3;
+  border: solid 2px #8A94A3;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-tab-button {
+  display: inline-block;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  color: #CFD8E5;
+  cursor: pointer;
+}
+.ui-tab-button:hover {
+  text-decoration: none;
+}
+.ui-tab-selection {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: transparent;
+}
+.ui-tab-body-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+.ui-tab-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-tag {
+  margin: 0;
+  display: inline-block;
+  vertical-align: top;
+  box-sizing: border-box;
+  border: solid 1px transparent;
+  font-size: 12px;
+  position: relative;
+}
+.ui-tag-noborder {
+  border: none 0;
+}
+.ui-tag-close {
+  font: 18px/16px Tahoma, Verdana, sans-serif;
+  font-style: normal;
+  position: static;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 50%;
+}
+.ui-tag-theme {
+  background-color: #2E3A4B;
+  border-color: #CFD8E5;
+  color: #CFD8E5;
+}
+.ui-tag-theme .ui-tag-close:hover {
+  color: #2E3A4B;
+  background-color: #CFD8E5;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+/*日历框样式*/
+input.ui-date-text {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMjBweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjODg4ODg4IiBkPSJNIDQxNi4wODcgNjA3LjgzMSBsIDk1Ljk4NyAwIGwgMCAtOTYgbCAtOTUuOTg3IDAgTCA0MTYuMDg3IDYwNy44MzEgWiBNIDU0NC4wNzggNzM1LjgyOCBsIDk2IDAgbCAwIC05NS45OTQgbCAtOTYgMCBMIDU0NC4wNzggNzM1LjgyOCBaIE0gNDE2LjA4NyA3MzUuODI4IGwgOTUuOTg3IDAgbCAwIC05NS45OTQgbCAtOTUuOTg3IDAgTCA0MTYuMDg3IDczNS44MjggWiBNIDI4OC4wODQgNjA3LjgzMSBsIDk2IDAgbCAwIC05NiBsIC05NiAwIEwgMjg4LjA4NCA2MDcuODMxIFogTSAyODguMDg0IDczNS44MjggbCA5NiAwIGwgMCAtOTUuOTk0IGwgLTk2IDAgTCAyODguMDg0IDczNS44MjggWiBNIDU0NC4wNzggNjA3LjgzMSBsIDk2IDAgbCAwIC05NiBsIC05NiAwIEwgNTQ0LjA3OCA2MDcuODMxIFogTSA2NzIuMDgxIDQ3OS44MzEgbCA5NiAwIGwgMCAtOTUuOTk3IGwgLTk2IDAgTCA2NzIuMDgxIDQ3OS44MzEgWiBNIDgzMi4wNzggMTkxLjgzMyBMIDIyNC4wNzcgMTkxLjgzMyBjIC0xNy42NzQgMCAtMzEuOTk0IDE0LjMyNiAtMzEuOTk0IDMyLjAwMyBsIDAgNTc1Ljk5OCBjIDAgMTcuNjc0IDE0LjMyIDMyIDMxLjk5NCAzMiBsIDYwOC4wMDEgMCBjIDE3LjY3NCAwIDMyLjAwMyAtMTQuMzI2IDMyLjAwMyAtMzIgTCA4NjQuMDgxIDIyMy44MzcgQyA4NjQuMDgyIDIwNi4xNiA4NDkuNzUyIDE5MS44MzMgODMyLjA3OCAxOTEuODMzIFogTSA4MzIuMDgyIDc2Ny44MzIgYyAwIDE3LjY3NCAtMTQuMzI2IDMyIC0zMiAzMiBMIDI1Ni4wOCA3OTkuODMyIGMgLTE3LjY3NCAwIC0zMiAtMTQuMzI2IC0zMiAtMzIgTCAyMjQuMDggMzUxLjgzMSBjIDAgLTE3LjY3NCAxNC4zMjYgLTMyIDMyIC0zMiBsIDU0NC4wMDEgMCBjIDE3LjY3NCAwIDMyIDE0LjMyNiAzMiAzMiBMIDgzMi4wODEgNzY3LjgzMiBaIE0gNjcyLjA4MSA2MDcuODMxIGwgOTYgMCBsIDAgLTk2IGwgLTk2IDAgTCA2NzIuMDgxIDYwNy44MzEgWiBNIDU0NC4wNzggNDc5LjgzMSBsIDk2IDAgbCAwIC05NS45OTcgbCAtOTYgMCBMIDU0NC4wNzggNDc5LjgzMSBaIiBwLWlkPSIyNzA0IiAvPjwvc3ZnPg==");
+  background-position: right 0;
+  background-repeat: no-repeat;
+  padding-right: 24px;
+}
+/* 对应的文本框样式 */
+input.ui-select-text {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjODg4ODg4IiBkPSJNIDkyNy44MDQgMzUyLjE5MyBsIC00MTUuODA0IDQxNS42MzIgbCAtNDE1LjgwMyAtNDE1LjYzMiBsIDYzLjYxNiAtNjMuNDQ1IGwgMzUyLjIwOSAzNTIuMDE3IGwgMzUyLjEwMiAtMzUyLjAxNyBaIiBwLWlkPSIxNjQwIiAvPjwvc3ZnPg==");
+  background-position: right 0;
+  background-repeat: no-repeat;
+  padding-right: 24px;
+}
+input.ui-date-text::-ms-clear,
+input.ui-select-text::-ms-clear {
+  display: none;
+}
+/* 文本框清除按钮 */
+input.ui-clear-text {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMThweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjODg4ODg4IiBkPSJNIDgxMC42NjcgMjczLjcwNyBsIC02MC4zNzMzIC02MC4zNzMzIGwgLTIzOC4yOTMgMjM4LjI5MyBsIC0yMzguMjkzIC0yMzguMjkzIGwgLTYwLjM3MzMgNjAuMzczMyBsIDIzOC4yOTMgMjM4LjI5MyBsIC0yMzguMjkzIDIzOC4yOTMgbCA2MC4zNzMzIDYwLjM3MzMgbCAyMzguMjkzIC0yMzguMjkzIGwgMjM4LjI5MyAyMzguMjkzIGwgNjAuMzczMyAtNjAuMzczMyBsIC0yMzguMjkzIC0yMzguMjkzIFoiIHAtaWQ9IjU4NCIgLz48L3N2Zz4=");
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-tree-view-panel {
+  position: relative;
+  border: none 0 transparent;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  z-index: auto;
+  display: block;
+}
+
+/*
+	Color: #1A2637
+	Name: 银河
+*/
+.ui-uploader-panel {
+  position: absolute;
+  top: -99;
+  left: -99;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.ui-uploader-panel .form-upload-iframe {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+.ui-uploader-button {
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+.ui-uploader-input-file {
+  position: absolute;
+  top: 0;
+  left: -400px;
+  width: 400px;
+  height: 400px;
+  margin: 0;
+  padding: 0;
+  z-index: 99;
+  opacity: .0001;
+}

@@ -81,42 +81,42 @@ module.exports = {
     },
     "galaxy": {
         // 背景色
-        "background-color": "#1d1f21",
-        "first-bg-color": "#2e3032",
-        "second-bg-color": "#37383a",
-        "third-bg-color": "#434547",
-        "fouth-bg-color": "#505253",
-        "button-bg-color": "#cccccc",
+        "background-color": "#1A2637",
+        "first-bg-color": "#263238",
+        "second-bg-color": "#2e3c43",
+        "third-bg-color": "#32424a",
+        "fouth-bg-color": "#546e7a",
+        "button-bg-color": "#CFD8E5",
         // 字体颜色
-        "font-color": "#cccccc",
-        "first-color": "#949494",
-        "second-color": "#808080",
-        "third-color": "#737373",
-        "fouth-color": "#676767",
+        "font-color": "#CFD8E5",
+        "first-color": "#A2B0B8",
+        "second-color": "#97A4AD",
+        "third-color": "#7A8892",
+        "fouth-color": "#697682",
         // 边框颜色
-        "border-color": "#5d5f60",
-        "first-border-color": "#3c3f41",
-        "second-border-color": "#4b4d4f",
+        "border-color": "#5B6370",
+        "first-border-color": "#505966",
+        "second-border-color": "#444D5C",
         // 面板颜色
-        "panel-color": "#3c3f41",
+        "panel-color": "#2E3A4B",
         // 面板悬停色
-        "panel-hover-color": "#5d5f60",
+        "panel-hover-color": "#424E5D",
         // 面板激活色
-        "panel-active-color": "#1d1f21",
+        "panel-active-color": "#1A2637",
         // 交互元素色
-        "tool-color": "#888888",
-        "tool-first-color": "#999999",
-        "tool-second-color": "#aaaaaa",
+        "tool-color": "#8A94A3",
+        "tool-first-color": "#7C8795",
+        "tool-second-color": "#525D6D",
         // 只读色
-        "readonly-color": "#888888",
+        "readonly-color": "#7C8795",
         // 禁用色
-        "disabled-color": "#5d5f60",
+        "disabled-color": "#525D6D",
         // 悬停色
-        "hover-color": "#999999",
+        "hover-color": "#7C8795",
         // 激活色
-        "active-color": "#999999",
+        "active-color": "#7C8795",
         "button-active-color": "#ffffff",
         // 阴影色
-        "shadow-color": "#999999"
+        "shadow-color": "#7C8795"
     }
 }

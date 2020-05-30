@@ -159,7 +159,7 @@ module.exports = function(grunt) {
         "src/component/draggable.js",
         "src/component/theme.js",
         "src/component/page.js",
-        "src/component/router.js"
+        //"src/component/router.js"
     ];
     let componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
 
