@@ -117,6 +117,9 @@ a:hover {
 a:active {
   background-color: transparent;
 }
+:focus {
+  outline: none;
+}
 /* 主题颜色 */
 .theme-bg {
   background-color: #ffffff;
@@ -621,6 +624,7 @@ textarea {
   font-size: 1em;
   padding-top: 0;
   padding-bottom: 0;
+  border-radius: 0;
 }
 .button:active {
   background-color: #333333 !important;

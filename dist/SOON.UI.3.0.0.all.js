@@ -329,6 +329,1381 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 
 })(jQuery, ui);
 
+// Source: src/ES5-Array-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Array.prototype
+// isArray
+if(!isFunction(Array.isArray)) {
+    Array.isArray = function(obj) {
+        return ui.core.type(obj) === "array";
+    };
+}
+// forEach
+if(!isFunction(Array.prototype.forEach)) {
+    Array.prototype.forEach = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            fn.call(caller, this[i], i, this);
+        }
+    };
+}
+// map
+if(!isFunction(Array.prototype.map)) {
+    Array.prototype.map = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = new Array(this.length);
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            result[i] = fn.call(caller, this[i], i, this);
+        }
+        return result;
+    };
+}
+// filter
+if(!isFunction(Array.prototype.filter)) {
+    Array.prototype.filter = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = [];
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                result.push(this[i]);
+            }
+        }
+        return result;
+    };
+}
+// every
+if(!isFunction(Array.prototype.every)) {
+    Array.prototype.every = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(!fn.call(caller, this[i], i, this)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+// some
+if(!isFunction(Array.prototype.some)) {
+    Array.prototype.some = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+// reduce
+if(!isFunction(Array.prototype.reduce)) {
+    Array.prototype.reduce = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+        
+        i = 0;
+        len = this.length;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i++;
+        } else {
+            result = defaultValue;
+        }
+        for(; i < len; i++) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// reduceRight
+if(!isFunction(Array.prototype.reduceRight)) {
+    Array.prototype.reduceRight = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+
+        len = this.length;
+        i = len - 1;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i--;
+        } else {
+            result = defaultValue;
+        }
+        for(; i >= 0; i--) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// indexOf
+if(!isFunction(Array.prototype.indexOf)) {
+    Array.prototype.indexOf = function(value, startIndex) {
+        var i, len,
+            index;
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0) {
+                startIndex = len + startIndex;
+            }
+            
+            for(i = startIndex; i < len; i++) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+// lastIndexOf
+if(!isFunction(Array.prototype.lastIndexOf)) {
+    Array.prototype.lastIndexOf = function(value, startIndex) {
+        var i, len,
+            index;
+
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        i = len - 1;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0)
+                startIndex = len + startIndex;
+            
+            for(i = startIndex; i >= 0; i--) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-Array-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// find
+if(!isFunction(Array.prototype.find)) {
+    Array.prototype.find = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return this[i];
+            }
+        }
+    };
+}
+// findIndex
+if(!isFunction(Array.prototype.findIndex)) {
+    Array.prototype.findIndex = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return -1;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+// fill
+if(!isFunction(Array.prototype.fill)) {
+    Array.prototype.fill = function(value) {
+        var i, len;
+        for(i = 0, len = this.length; i < len; i++) {
+            this[i] = value;
+        }
+    };
+}
+// includes
+if(!isFunction(Array.prototype.includes)) {
+    Array.prototype.includes = function(value) {
+        return this.some(function(item) {
+            return item === value;
+        });
+    };
+}
+
+// Array.from
+if(!isFunction(Array.from)) {
+    Array.from = function(arrayLike, fn) {
+        var i, len,
+            itemFn,
+            result = [];
+
+        if(arrayLike && arrayLike.length) {
+            itemFn = fn;
+            if(!isFunction(itemFn)) {
+                itemFn = function(item) { 
+                    return item; 
+                };
+            }
+            for(i = 0, len = arrayLike.length; i < len; i++) {
+                result.push(itemFn.call(null, arrayLike[i], i));
+            }
+        }
+        return result;
+    };
+}
+
+// Array.of
+if(!isFunction(Array.of)) {
+    Array.of = function() {
+        return [].slice.call(arguments);
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-String-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+var rtrim;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// String.prototype
+// trim
+if(!isFunction(String.prototype.trim)) {
+    // Support: Android<4.1, IE<9
+    // Make sure we trim BOM and NBSP
+    rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+    String.protocol.trim = function() {
+        return text == null ? "" : (text + "").replace(rtrim, "");
+    };
+}
+
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-String-shims.js
+
+(function($, ui) {
+// 为String对象添加ES6的一些方法
+
+var toString = Object.prototype.toString;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function ensureInteger(position) {
+	var index = position ? Number(position) : 0;
+	if(isNaN(index)) {
+		index = 0;
+	}
+	return index;
+}
+
+// at
+if(!isFunction(String.prototype.at)) {
+	String.prototype.at = function(position) {
+		var str,
+			index,
+			endIndex,
+			len,
+			firstChar, secondChar;
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		index = ensureInteger(position);
+		index = Math.max(index, 0);
+
+		str = toString.call(this);
+		len = str.length;
+		if(index <= -1 || index >= len) {
+			return "";
+		}
+
+		firstChar = str.charCodeAt(index);
+		endIndex = index + 1;
+		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
+			secondChar = str.charCodeAt(endIndex);
+			if(secondChar >= 0xDC00 && secondChar <= 0xDFFF) {
+				endIndex = index + 2;
+			}
+		}
+
+		return str.slice(index, endIndex);
+	};
+}
+
+// includes
+if(!isFunction(String.prototype.includes)) {
+	String.prototype.includes = function() {
+		return String.prototype.indexOf.apply(this, arguments) !== -1;
+	};
+}
+
+// startsWith
+if(!isFunction(String.prototype.startsWith)) {
+	String.prototype.startsWith = function(searchStr) {
+		var str,
+			search,
+			startIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			startIndex = ensureInteger(arguments[1]);
+		} else {
+			startIndex = 0;
+		}
+		startIndex = Math.max(startIndex, 0);
+		
+		return str.slice(startIndex, startIndex + search.length) === search;
+	};
+}
+
+// endsWith
+if(!isFunction(String.prototype.endsWith)) {
+	String.prototype.endsWith = function(searchStr) {
+		var str,
+			search,
+			endIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			endIndex = ensureInteger(arguments[1]);
+		} else {
+			endIndex = str.length;
+		}
+		endIndex = Math.min(Math.max(endIndex, 0), str.length);
+		
+		return str.slice(endIndex - search.length, endIndex) === search;
+	};
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-Function-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Function.prototype
+// bind
+if(!isFunction(Function.prototype.bind)) {
+    Function.prototype.bind = function(o) {
+        var self = this,
+            boundArgs = arguments;
+        return function() {
+            var args = [],
+                i;
+            for(i = 1; i < boundArgs.length; i++) {
+                args.push(boundArgs[i]);
+            }
+            for(i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            return self.apply(o, args);
+        };
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-JSON-shims.js
+
+(function($, ui) {
+// json2
+
+// 判断浏览器是否原生支持JSON对象
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
+if (hasJSON) {
+    return;
+}
+
+var JSON = {
+    fake: true
+};
+
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+function f(n) {
+    return n < 10 ? "0" + n : n;
+}
+function this_value() {
+    return this.valueOf();
+}
+if (typeof Date.prototype.toJSON !== "function") {
+    Date.prototype.toJSON = function () {
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" + 
+                    f(this.getUTCMonth() + 1) + "-" + 
+                    f(this.getUTCDate()) + "T" + 
+                    f(this.getUTCHours()) + ":" + 
+                    f(this.getUTCMinutes()) + ":" + 
+                    f(this.getUTCSeconds()) + "Z") : null);
+    };
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+}
+
+var gap;
+var indent;
+var meta;
+var rep;
+
+function quote(string) {
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string) ? 
+        ("\"" + string.replace(rx_escapable, function (a) {
+            var c = meta[a];
+            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
+        }) + "\"") : 
+        ("\"" + string + "\"");
+}
+function str(key, holder) {
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+    if (value && typeof value === "object" &&
+            typeof value.toJSON === "function") {
+        value = value.toJSON(key);
+    }
+    if (typeof rep === "function") {
+        value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+            return isFinite(value) ? String(value) : "null";
+
+        case "boolean":
+
+        case "null":
+            return String(value);
+
+        case "object":
+            if (!value) {
+                return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            }
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+    }
+}
+
+// JSON.stringify & JSON.parse
+meta = {
+    "\b": "\\b",
+    "\t": "\\t",
+    "\n": "\\n",
+    "\f": "\\f",
+    "\r": "\\r",
+    "\"": "\\\"",
+    "\\": "\\\\"
+};
+JSON.stringify = function (value, replacer, space) {
+    var i;
+    gap = "";
+    indent = "";
+    if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+            indent += " ";
+        }
+    } else if (typeof space === "string") {
+        indent = space;
+    }
+    rep = replacer;
+    if (replacer && typeof replacer !== "function" &&
+            (typeof replacer !== "object" ||
+            typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+    }
+    return str("", {"": value});
+};
+JSON.parse = function (text, reviver) {
+    var j;
+    function walk(holder, key) {
+        var k;
+        var v;
+        var value = holder[key];
+        if (value && typeof value === "object") {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }
+    text = String(text);
+    rx_dangerous.lastIndex = 0;
+    if (rx_dangerous.test(text)) {
+        text = text.replace(rx_dangerous, function (a) {
+            return "\\u" +
+                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        });
+    }
+    if (
+        rx_one.test(
+            text
+                .replace(rx_two, "@")
+                .replace(rx_three, "]")
+                .replace(rx_four, "")
+        )
+    ) {
+        j = eval("(" + text + ")");
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
+    }
+    throw new SyntaxError("JSON.parse");
+};
+
+})(jQuery, ui);
+
+// Source: src/ES6-Number-shims.js
+
+(function($, ui) {
+// 为Number对象添加ES6的一些方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function isNumber(value) {
+    return ui.core.type(value) === "number";
+}
+
+// Number.isFinite
+if(!isFunction(Number.isFinite)) {
+    Number.isFinite = function(num) {
+        return isNumber(num) && (num > -Infinity && num < Infinity);
+    };
+}
+
+// Number.isNaN
+if(!isFunction(Number.isNaN)) {
+    Number.isNaN = isNaN;
+}
+
+// Number.parseInt
+if(!isFunction(Number.parseInt)) {
+    Number.parseInt = parseInt;
+}
+
+// Number.parseFloat
+if(!isFunction(Number.parseFloat)) {
+    Number.parseFloat = parseFloat;
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-Object-shims.js
+
+(function($, ui) {
+// 为String对象添加ES6的一些方法
+
+var prototypeOfObject = Object.prototype,
+	hasOwnProperty = prototypeOfObject.hasOwnProperty,
+	isEnumerable = prototypeOfObject.propertyIsEnumerable,
+
+	supportsAccessors,
+	defineGetter,
+	defineSetter,
+	lookupGetter,
+	lookupSetter;
+
+supportsAccessors = hasOwnProperty.call(prototypeOfObject, "__defineGetter__");
+if(supportsAccessors) {
+	defineGetter = prototypeOfObject.__defineGetter__;
+	defineSetter = prototypeOfObject.__defineSetter__;
+	lookupGetter = prototypeOfObject.__lookupGetter__;
+	lookupSetter = prototypeOfObject.__lookupSetter__;
+}
+	
+
+function isFunction(fn) {
+	return ui.core.isFunction(fn);
+}
+
+function isPrimitive(obj) {
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
+}
+
+// 返回一个由一个给定对象的自身可枚举属性组成的数组
+if(!isFunction(Object.keys)) {
+	Object.keys = function(obj) {
+		var result,
+			property;
+
+		if (isPrimitive(obj)) {
+			throw new TypeError('Object.keys called on non-object');
+		}
+
+		result = [];
+		for(property in obj) {
+			if(hasOwnProperty.call(obj, property)) {
+				result.push(property);
+			}
+		}
+		return result;
+	};
+}
+
+// 获取原型
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			proto;
+
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		proto = obj.__proto__;
+		if(proto || proto === null) {
+			return proto;
+		} else if(isFunction(obj.constructor)) {
+			return obj.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			// Object.create(null) or { __proto__: null }
+			return null;
+		}
+	};
+}
+
+// 返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性
+if(!isFunction(Object.getOwnPropertyNames)) {
+	Object.getOwnPropertyNames = function(obj) {
+		return Object.keys(obj);
+	};
+}
+
+// 检查getOwnPropertyDescriptor是否需要修复
+var getOwnPropertyDescriptorFallback = null;
+function doesGetOwnPropertyDescriptorWork(obj) {
+	try {
+		object.sentinel = 0;
+		return Object.getOwnPropertyDescriptor(object, 'sentinel').value === 0;
+	} catch (e) {
+		return false;
+	}
+}
+if(Object.getOwnPropertyDescriptor) {
+	if(!doesGetOwnPropertyDescriptorWork({}) || 
+		!(typeof document === "undefined" || doesGetOwnPropertyDescriptorWork(document.createElement("div")))) {
+		getOwnPropertyDescriptorFallback = Object.getOwnPropertyDescriptor;
+	}
+}
+if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallback) {
+	Object.getOwnPropertyDescriptor = function(obj, property) {
+		var descriptor,
+			originalPrototype,
+			notPrototypeOfObject,
+			getter,
+			setter;
+
+		if(isPrimitive(obj)) {
+			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
+		}
+
+		// 尝试使用原始的getOwnPropertyDescriptor方法 for IE8
+		if(getOwnPropertyDescriptorFallback) {
+			try {
+				return getOwnPropertyDescriptorFallback.call(Object, obj, property);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if(!hasOwnProperty.call(obj, property)) {
+			return descriptor;
+		}
+
+		descriptor = {
+            enumerable: isEnumerable.call(obj, property),
+            value: obj[property],
+            configurable: true,
+            writable: true
+        };
+		
+		if(supportsAccessors) {
+			originalPrototype = obj.__proto__;
+
+			notPrototypeOfObject = originalPrototype !== prototypeOfObject;
+			if(notPrototypeOfObject) {
+				obj.__proto__ = prototypeOfObject;
+			}
+
+			getter = lookupSetter.call(obj, property);
+			setter = lookupSetter.call(obj, property);
+
+			if(notPrototypeOfObject) {
+				obj.__proto__ = originalPrototype;
+			}
+
+			if(getter || setter) {
+				if(getter) {
+					descriptor.get = getter;
+				}
+				if(setter) {
+					descriptor.set = setter;
+				}
+			}
+		}
+
+        return descriptor;
+	};
+}
+
+// 检查defineProperty是否需要修复
+var definePropertyFallback = null,
+	definePropertiesFallback = null;
+function doesDefinePropertyWork(object) {
+	try {
+		Object.defineProperty(object, 'sentinel', {});
+		return 'sentinel' in object;
+	} catch (exception) {
+		return false;
+	}
+}
+if(Object.defineProperty) {
+	if(!doesDefinePropertyWork({}) || 
+		!(typeof document === "undefined" || doesDefinePropertyWork(document.createElement("div")))) {
+		definePropertyFallback = Object.defineProperty;
+		definePropertiesFallback = Object.defineProperties;
+	}
+}
+if(!isFunction(Object.defineProperty) || definePropertyFallback) {
+	Object.defineProperty = function(obj, property, descriptor) {
+		var originalPrototype,
+			notPrototypeOfObject,
+			hasGetter,
+			hasSetter;
+
+		if(isPrimitive(obj) || isPrimitive(property)) {
+			throw new TypeError("Object.defineProperty called on non-object");
+		}
+
+		// 尝试使用原始的defineProperty方法 for IE8
+		if(definePropertyFallback) {
+			try {
+				return definePropertyFallback.call(Object, obj, property, descriptor);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if("value" in descriptor) {
+			if(supportsAccessors && (lookupGetter.call(obj, property) || lookupSetter.call(obj, property))) {
+				originalPrototype = obj.__proto__;
+				obj.__proto__ = prototypeOfObject;
+				
+				delete obj[prototype];
+				obj[prototype] = descriptor.value;
+
+				obj.__proto__ = originalPrototype;
+			} else {
+				obj[prototype] = descriptor.value;
+			}
+		} else {
+			hasGetter = "get" in descriptor && isFunction(descriptor.get);
+			hasSetter = "set" in descriptor && isFunction(descriptor.set);
+			if(!supportsAccessors && (hasGetter || hasSetter)) {
+				throw new TypeError("getters & setters can not be defined on this javascript engine");
+			}
+
+			if(hasGetter) {
+				defineGetter.call(obj, property, descriptor.get);
+			}
+			if(hasSetter) {
+				defineSetter.call(obj, property, descriptor.set);
+			}
+		}
+	};
+}
+
+// 检查defineProperties是否需要修复
+if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
+	Object.defineProperties = function(obj, properties) {
+		if(definePropertiesFallback) {
+			try {
+				return definePropertiesFallback.call(obj, properties);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		Object.keys(obj).forEach(function(prop) {
+			if(prop !== "__proto__") {
+				Object.defineProperty(obj, prop);
+			}
+		});
+		return obj;
+	};
+}
+
+// 检查isExtensible是否需要修复
+if(!isFunction(Object.isExtensible)) {
+	Object.isExtensible = function(obj) {
+		var tmpPropertyName,
+			returnValue;
+		if(ui.core.isObject(obj)) {
+			throw new TypeError("Object.isExtensible can only be called on Objects.");
+		}
+
+		tmpPropertyName = "_tmp";
+		while(hasOwnProperty(obj, tmpPropertyName)) {
+			tmpPropertyName += "_";
+		}
+
+		obj[tmpPropertyName] = true;
+		returnValue = hasOwnProperty(obj, tmpPropertyName);
+		delete obj[tmpPropertyName];
+
+		return returnValue;
+	};
+}
+
+// 检查getPrototypeOf是否需要修复
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			prototype;
+		
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		prototype = obj.__proto__;
+		if(property || prototype === null) {
+			return prototype;
+		} else if(ui.core.isFunction(property.constructor)) {
+			return prototype.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			return null;
+		}
+	};
+}
+
+// 检查create是否需要修复
+var createEmpty,
+	supportsProto,
+	shouldUseActiveX,
+	getEmptyViaActiveX,
+	getEmptyViaIFrame;
+if(!isFunction(Object.create)) {
+	supportsProto = !({ __proto__: null } instanceof Object);
+	shouldUseActiveX = function () {
+		if (!document.domain) {
+			return false;
+		}
+		try {
+			return !!new ActiveXObject('htmlfile');
+		} catch (e) {
+			return false;
+		}
+	};
+	getEmptyViaActiveX = function() {
+		var empty,
+			script,
+			xDoc;
+
+        xDoc = new ActiveXObject('htmlfile');
+		script = 'script';
+		xDoc.write('<' + script + '></' + script + '>');
+		xDoc.close();
+		empty = xDoc.parentWindow.Object.prototype;
+		xDoc = null;
+		return empty;
+	};
+	getEmptyViaIFrame = function() {
+		var iframe = document.createElement('iframe'),
+			parent = document.body || document.documentElement,
+			empty;
+
+		iframe.style.display = 'none';
+		parent.appendChild(iframe);
+
+		// eslint-disable-next-line no-script-url
+		iframe.src = 'javascript:';
+		empty = iframe.contentWindow.Object.prototype;
+		parent.removeChild(iframe);
+		iframe = null;
+		return empty;
+	};
+
+	if(supportsProto || typeof document === "undefined") {
+		createEmpty = function () {
+			return {
+				__proto__: null
+			};	
+		};
+	} else {
+		createEmpty = (function() {
+			var emptyPrototype = shouldUseActiveX() ? getEmptyViaActiveX() : getEmptyViaIFrame();
+
+			delete emptyPrototype.constructor;
+			delete emptyPrototype.hasOwnProperty;
+			delete emptyPrototype.propertyIsEnumerable;
+			delete emptyPrototype.isPrototypeOf;
+			delete emptyPrototype.toLocalString;
+			delete emptyPrototype.toString;
+			delete emptyPrototype.valueOf;
+
+			function Empty() {}
+			Empty.prototype = empty;
+
+			return function() {
+				return new Empty();
+			};
+		})();
+	}
+
+	Object.create = function(prototype, properties) {
+		var obj;
+
+		function Type() {}
+
+		if(prototype === null) {
+			return createEmpty();
+		} else {
+			if(isPrimitive(prototype)) {
+				throw TypeError("Object prototype may only be an Object or null");
+			}
+			Type.prototype = prototype;
+			obj = new Type();
+			obj.__proto__ = prototype;
+		}
+
+		if(properties !== undefined) {
+			Object.defineProperties(obj, properties);
+		}
+
+		return obj;
+	};
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-Promise.shims.js
+
+(function($, ui) {
+
+var PromiseShim = null,
+    isFunction,
+    global;
+
+isFunction = ui.core.isFunction;
+
+function noop() {}
+
+function _finally(onFinally) {
+    var P;
+    onFinally = isFunction(onFinally) ? onFinally : noop;
+
+    P = this.constructor;
+
+    return this.then(
+        function(value) {
+            P.resolve(onFinally()).then(function() {
+                return value;
+            });
+        },
+        function (reason) {
+            P.resolve(onFinally()).then(function() {
+                throw reason;
+            });
+        }
+    );
+}
+
+// 提案，暂不实现
+function _try() {}
+
+ui.PromiseEmpty = {
+    then: noop,
+    catch: noop
+};
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // 原生支持Promise
+    if(!isFunction(Promise.prototype.finally)) {
+        Promise.prototype.finally = _finally;
+    }
+    if(!isFunction(Promise.prototype.try)) {
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = _try;
+    }
+    return;
+}
+
+// 生成Promise垫片
+
+// 确定Promise对象的状态，并且执行回调函数
+function fire(promise, value, isResolved) {
+    promise._result = value;
+    promise._state = isResolved ? "resolved" : "rejected";
+    ui.setMicroTask(function() {
+        var data, i, len;
+        for(i = 0, len = promise._callbacks.length; i < len; i++) {
+            data = promise._callbacks[i];
+            promise._fire(data.onSuccess, data.onFail);
+        }
+    });
+}
+
+function some(any, iterable) {
+    var n = 0, 
+        result = [], 
+        end,
+        i, len;
+    
+    iterable = ui.core.type(iterable) === "array" ? iterable : [];
+    return new PromiseShim(function (resolve, reject) {
+        // 空数组直接resolve
+        if (!iterable.length) {
+            resolve();
+        }
+        function loop(promise, index) {
+            promise.then(
+                function (ret) {
+                    if (!end) {
+                        result[index] = ret;
+                        //保证回调的顺序
+                        n++;
+                        if (any || n >= iterable.length) {
+                            resolve(any ? ret : result);
+                            end = true;
+                        }
+                    }
+                }, 
+                function (e) {
+                    end = true;
+                    reject(e);
+                }
+            );
+        }
+        for (i = 0, len = iterable.length; i < len; i++) {
+            loop(iterable[i], i);
+        }
+    });
+}
+
+function success(value) {
+    return value;
+}
+
+function failed(reason) {
+    throw reason;
+}
+
+PromiseShim = function(executor) {
+    var promise;
+
+    if (typeof this !== "object") {
+        throw new TypeError("Promises must be constructed via new");
+    }
+    if (!isFunction(executor)) {
+        throw new TypeError("the executor is not a function");
+    }
+
+    // Promise共有三个状态
+    // 'pending' 还处在等待状态，并没有明确最终结果
+    // 'resolved' 任务已经完成，处在成功状态
+    // 'rejected' 任务已经完成，处在失败状态
+    this._state = "pending";
+    this._callbacks = [];
+
+    promise = this;
+    executor(
+        // resolve
+        function (value) {
+            var method;
+            if (promise._state !== "pending") {
+                return;
+            }
+            if (value && isFunction(value.then)) {
+                // thenable对象使用then，Promise实例使用_then
+                method = value instanceof PromiseShim ? "_then" : "then";
+                // 如果value是Promise对象则把callbacks转移到value的then当中
+                value[method](
+                    function (val) {
+                        fire(promise, val, true);
+                    },
+                    function (reason) {
+                        fire(promise, reason, false);
+                    }
+                );
+            } else {
+                fire(promise, value, true);
+            }
+        }, 
+        // reject
+        function (reason) {
+            if (promise._state !== "pending") {
+                return;
+            }
+            fire(promise, reason, false);
+        }
+    );
+};
+PromiseShim.prototype = {
+    constructor: PromiseShim,
+    // 处理then方法的回调函数
+    _then: function(onSuccess, onFail) {
+        var that = this;
+        if (this._state !== "pending") {
+            // 如果Promise状态已经确定则异步触发回调
+            ui.setMicroTask(function() {
+                that._fire(onSuccess, onFail);
+            });
+        } else {
+            this._callbacks.push({
+                onSuccess: onSuccess, 
+                onFail: onFail
+            });
+        }
+    },
+    _fire: function(onSuccess, onFail) {
+        if (this._state === "rejected") {
+            if (typeof onFail === "function") {
+                onFail(this._result);
+            } else {
+                throw this._result;
+            }
+        } else {
+            if (typeof onSuccess === "function") {
+                onSuccess(this._result);
+            }
+        }
+    },
+    then: function(onSuccess, onFail) {
+        var that = this,
+            nextPromise;
+
+        onSuccess = isFunction(onSuccess) ? onSuccess : success;
+        onFail = isFunction(onFail) ? onFail : failed;
+
+        // 用于衔接then，实现promise.then().catch()
+        nextPromise = new PromiseShim(function (resolve, reject) {
+            that._then(
+                function (value) {
+                    try {
+                        value = onSuccess(value);
+                    } catch (e) {
+                        // https://promisesaplus.com/#point-55
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }, 
+                function (value) {
+                    try {
+                        value = onFail(value);
+                    } catch (e) {
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }
+            );
+        });
+
+        return nextPromise;
+    },
+    catch: function(onFail) {
+        //添加出错回调
+        return this.then(success, onFail);
+    },
+    finally: _finally,
+    try: _try
+};
+
+PromiseShim.all = function(iterable) {
+    return some(false, iterable);
+};
+
+PromiseShim.race = function(iterable) {
+    return some(true, iterable);
+};
+
+PromiseShim.resolve = function(value) {
+    return new PromiseShim(function (resolve) {
+        resolve(value);
+    });
+};
+
+PromiseShim.reject = function(reason) {
+    return new PromiseShim(function (resolve, reject) {
+        reject(reason);
+    });
+};
+
+global = ui.core.global();
+global.Promise = PromiseShim;
+
+
+})(jQuery, ui);
+
 // Source: src/array-like.js
 
 (function($, ui) {
@@ -2027,11 +3402,12 @@ ui.url = {
     },
     /** 为url添加参数 */
     appendParams: function (url, data) {
-        var s = [], i, t, key;
-        function add(key, value) {
-            value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
-            s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
-        }
+        var s = [],
+            add = function (key, value) {
+                value = ui.core.isFunction(value) ? value() : (value == null ? "" : value);
+                s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
+            },
+            i, t, key;
         if ($.isArray(data)) {
             for (i = 0; i < data.length; i++) {
                 t = data[i];
@@ -6878,7 +8254,9 @@ ui.MouseDragger = MouseDragger;
 
 /** 拖动效果 */
 $.fn.draggable = function(option) {
-    var dragger;
+    var dragger,
+        oldBeginDrag,
+        oldMoving;
     if (!option || !option.target || !option.parent) {
         return;
     }
@@ -6890,10 +8268,17 @@ $.fn.draggable = function(option) {
     option.getParentCssNum = function(prop) {
         return parseFloat(option.parent.css(prop)) || 0;
     };
+    if(ui.core.isFunction(option.onBeginDrag)) {
+        oldBeginDrag = option.onBeginDrag;
+    }
     option.onBeginDrag = function(arg) {
         var option = this.option,
             p = option.parent.offset();
         if(!p) p = { top: 0, left: 0 };
+
+        if(oldBeginDrag) {
+            oldBeginDrag.call(null, arg);
+        }
 
         option.topLimit = p.top + option.getParentCssNum("border-top") + option.getParentCssNum("padding-top");
         option.leftLimit = p.left + option.getParentCssNum("border-left") + option.getParentCssNum("padding-left");
@@ -6906,9 +8291,17 @@ $.fn.draggable = function(option) {
         option.parentTop = p.top;
         option.parentLeft = p.left;
     };
+
+    if(ui.core.isFunction(option.onMoving)) {
+        oldMoving = option.onMoving;
+    }
     option.onMoving = function(arg) {
         var option = this.option,
             p = option.target.position();
+
+        if(oldMoving) {
+            oldMoving.call(null, arg);
+        }
 
         p.top = p.top + option.parentTop;
         p.left = p.left + option.parentLeft;
@@ -7047,8 +8440,8 @@ ui.eventPriority = {
     pageReady: 2,
 
     bodyResize: 3,
-    ctrlResize: 2,
-    elementResize: 2
+    elementResize: 2,
+    ctrlResize: 1
 };
 function noop() {}
 var page = {
@@ -7061,7 +8454,8 @@ var page = {
             "ready", 
             "htmlclick", 
             "docmouseup", 
-            "resize",
+            "resize", 
+            "hashchange",
             "keydown",
             "loaded"
         ],
@@ -7232,7 +8626,7 @@ page.plugin({
         if(ui.core.isFunction(arg)) {
             resizeHandler = arg.bind(this);
             resizeHandler();
-            this.resize(resizeHandler);
+            this.resize(resizeHandler, ui.eventPriority.elementResize);
         }
     }
 });
@@ -7282,413 +8676,18 @@ $(window)
             page._resizeTimeoutHandler = null;
             page.fire("resize");
         }, page._resizeDelay);
+    })
+    //注册全局hashchange事件
+    .on("hashchange", function(e) {
+        var hash = "";
+        if(window.location.hash) {
+            hash = window.location.hash;
+        }
+        page.fire("hashchange", hash);
     });
 
 ui.page = page;
 
-
-})(jQuery, ui);
-
-// Source: src/component/router.js
-
-(function($, ui) {
-
-var supportsPushState = typeof window !== 'undefined' && (function() {
-    return window.history && "pushState" in window.history;
-})();
-var _key = getKey();
-
-function getKey() {
-    return Date.now().toFixed(3);
-}
-
-function callFn(fn, args) {
-    if(ui.core.isFunction(fn)) {
-        fn.apply(null, args);
-    }
-}
-
-function transitionTo(location, onComplete, onAbort) {
-    var component = location.component;
-    if(component) {
-        try {
-            view = component.call(this);
-            location.view = view;
-            // 返回的是viewElement
-            onComplete(location);
-        } catch(e) {
-            onAbort(location, e);
-        }
-    }
-}
-
-function pushState(url, isReplace) {
-    var history = window.history;
-    try {
-        if (isReplace) {
-            history.replaceState({ key: _key }, '', url);
-        } else {
-            _key = getKey();
-            history.pushState({ key: _key }, '', url);
-        }
-    } catch (e) {
-        // 会触发hashchange事件
-        window.location[isReplace ? 'replace' : 'assign'](url);
-    }
-}
-
-var historyPrototype = {
-    _baseInitailize: function(containerElement) {
-        this.beforeTransitionHandler = ui.LinkedList();
-
-        this.containerElement = containerElement || null;
-
-        this.current = null;
-        this.pedding = null;
-        // START PEDDING READY
-        this.status = "START";
-    },
-    _transition: function(location, onComplete, onAbort) {
-        var currentRouter = this.current;
-        transitionTo(
-            location, 
-            (function(location) {
-                var viewElement;
-                if(currentRouter) {
-                    currentRouter.view.dispose();
-                }
-                
-                this.current = location;
-                viewElement = location.view.render();
-                this.containerElement.append(viewElement);
-                callFn(onComplete, arguments);
-            }).bind(this), 
-            (function() {
-                callFn(onAbort, arguments);
-            }).bind(this)
-        );
-    }
-};
-
-/*
-    Hash History API通过在URL后面添加#/url这样的方式完成前端路由，兼容性更好，不过URL的样式不太好看。
- */
-function HashHistory(routeTable, containerElement) {
-    if(this instanceof HashHistory) {
-        this.initialize(routeTable, containerElement);
-    } else {
-        return new HashHistory(routeTable, containerElement);
-    }
-}
-HashHistory.prototype = ui.extend({}, historyPrototype, {
-    constructor: HashHistory,
-    initialize: function(routeTable, containerElement) {
-        if(!routeTable) {
-            throw new TypeError("the parameter routeTable is required.");
-        }
-
-        this._baseInitailize(containerElement);
-
-        // 当用户通过浏览器UI，前进后退按钮或是地址栏输入的方式才会触发该事件
-        window.addEventListener(
-            supportsPushState ? "popstate" : "hashchange", 
-            (function(e) {
-                // var current = this.getCurrent();
-                var location;
-                if(!this.ensureSlash()) {
-                    return;
-                }
-                location = routeTable.match(this.getHash());
-                this._transition(location);
-            }).bind(this)
-        );
-    },
-    getHash: function() {
-        var href = window.location.href,
-            hashPosition = href.indexOf("#"),
-            queryStringPosition;
-        if(hashPosition < 0) {
-            return "";
-        }
-
-        href = href.substring(hashPosition + 1);
-        queryStringPosition = href.indexOf("?");
-        if(queryStringPosition < 0) {
-            hashPosition = href.indexOf("#");
-            href = hashPosition > -1
-                        ? decodeURI(herf.substring(0, hashPosition)) + href.substring(hashPosition)
-                        : decodeURI(href);
-        } else {
-            href = decodeURI(href.substring(0, queryStringPosition)) + href.substring(queryStringPosition);
-        }
-        return href;
-    },
-    getUrl: function(path) {
-        var href = window.location.href,
-            hashPosition = href.indexOf("#"),
-            base = hashPosition > -1 ? href.substring(0, hashPosition) : href,
-            queryStringPosition = base.indexOf("?"),
-            queryString = queryStringPosition > -1 ? base.substring(queryStringPosition) : "";
-            
-        base = queryStringPosition > -1 ? base.substring(0, queryStringPosition) : base;
-        return [base, "#", path, queryString].join("");
-    },
-    pushHash: function(path) {
-        var url = this.getUrl(path);
-        if(supportsPushState) {
-            pushState(url);
-        } else {
-            window.location.hash = path;
-        }
-    },
-    replaceHash: function(path) {
-        var url = this.getUrl(path);
-        if(supportsPushState) {
-            pushState(url, true);
-        } else {
-            window.location.replace(url);
-        }
-    },
-    ensureSlash: function() {
-        var url = this.getHash();
-        if (url.charAt(0) === '/') {
-            return true;
-        }
-        this.replaceHash('/' + url);
-        return false;
-    },
-    // 跳转
-    go: function(num) {
-        window.history.go(num);
-    },
-    // 跳转，激活后退按钮
-    push: function(location, onComplete, onAbort) {
-        this._transition(location, (function() {
-            this.pushHash(location.url);
-            callFn(onComplete, arguments);
-        }).bind(this), onAbort);
-    },
-    // 跳转，无法通过后退按钮回到之前的页面
-    replace: function(location, onComplete, onAbort) {
-        this._transition(location, (function() {
-            this.replaceHash(location.url);
-            callFn(onComplete, arguments);
-        }).bind(this), onAbort);
-    },
-    // 获取当前的url关联的路由对象
-    getCurrentLocation: function() {
-        return this.getHash();
-    }
-});
-
-/*
-    HTML5 History API可以通过pushstate和replacestate两个方法向浏览器的“前进”和“后退”按钮添加信息，用户点击浏览器导航按钮后，如果该项目是由pushstate和replacestate添加的就会触发popstate事件
-    此时，并不会刷新页面，但是可以将url替换为一个普通url样式，但用户如果手动点击“刷新”按钮后，由于后台并不能处理这个url，所以会返回404。
-    这需要后台枚举出前端所有的url，并统一返回"/"对应的view。
-    *注意：pushstate和replacestate两个方法被调用并不会触发pushstate事件，只有用户点击浏览器的导航按钮才能触发。
- */
-// function HTML5History() {
-//     if(this instanceof HTML5History) {
-//         this.initialize();
-//     } else {
-//         return new HTML5History();
-//     }
-// }
-// HashHistory.prototype = ui.extend({}, historyPrototype, {
-//     constructor: HTML5History,
-//     initialize: function() {
-//         window.addEventListener("popstate", function(e) {
-
-//         });
-//     }
-// });
-
-
-/** 路由表 */
-function RouteTable() {
-    this.nameMap = {};
-    this.urls = [];
-}
-RouteTable.prototype = {
-    constructor: RouteTable,
-    match: function(url, params) {
-        var location = this._matchByName(url, params);
-        if(!location) {
-            location = this._matchByUrl(url);
-        }
-        return location;
-    },
-    add: function(route) {
-        var url = route.url,
-            parts;
-
-        if(!url) {
-            return;
-        }
-    
-        parts = getParts(url);
-        route.parts = parts;
-        this.urls.push(route);
-        if(ui.core.isString(route.name)) {
-            route.name = ui.str.trim(route.name);
-            if(route.name) {
-                this.nameMap[route.name] = this.urls.length - 1;
-            }
-        }
-    },
-    _matchByName: function(name, params) {
-        var location,
-            route,
-            urlParts = [];
-        
-        route = this.nameMap[name];
-        if(!route) {
-            return null;
-        }
-
-        if(!params) {
-            params = {};
-        }
-
-        route.parts.forEach(function(p) {
-            if(p.charAt(0) === ":") {
-                urlParts.push(encodeURIComponent(params[p.substring(1)]));
-            } else {
-                urlParts.push(p);
-            }
-        });
-
-        location = {
-            url: "/" + urlParts.join("/"),
-            params: params 
-        };
-        this._mergeLocation(location, route);
-
-        return location;
-    },
-    _matchByUrl: function(url) {
-        var i, len,
-            route, location,
-            queryStringPosition = url.indexOf("?"),
-            queryString = queryStringPosition > -1 ? url.substring(queryStringPosition) : null;
-
-        if(queryStringPosition > -1) {
-            url = url.substring(0, queryStringPosition);
-            queryString = ui.url.getParams(queryString);
-        }
-        
-        for(i = 0, len = this.urls.length; i < len; i++) {
-            route = this.urls[i];
-            location = matchRoute(route, url, queryString);
-            if(location) {
-                this._mergeLocation(location, route);
-                return location;
-            }
-        }
-        return null;
-    },
-    _mergeLocation: function(location, route) {
-        location.component = route.component || null;
-        if(route.params) {
-            Object.keys(route.params).forEach(function(key) {
-                var value = location.params[key];
-                if(typeof value === "undefined" || typeof value === "null") {
-                    location.params[key] = value;
-                }
-            });
-        }
-    }
-};
-function getParts(url) {
-    var parts = [];
-    url.split("/").forEach(function(p) {
-        p = ui.str.trim(p);
-        if(p.length !== 0) {
-            parts.push(p);
-        }
-    });
-    return parts;
-}
-function matchRoute(route, url, queryString) {
-    var location,
-        params,
-        urlParts,
-        i, len,
-        routePart,
-        urlPart,
-        queryStringPosition = url.indexOf("?");
-
-    url = queryStringPosition > -1 ? url.substring(0, queryStringPosition) : url;
-    urlParts = getParts(url);
-    if(route.parts.length !== urlParts.length) {
-        return null;
-    }
-
-    params = {};
-    if(queryString) {
-        Object.keys(queryString).forEach(function(key) {
-            params[key] = queryString[key];
-        });
-    }
-
-    for(i = 0, len = route.parts.length; i < len; i++) {
-        routePart = route.parts[i];
-        urlPart = urlParts[i];
-        if(routePart.charAt(0) === ":") {
-            params[routePart.substring(1)] = urlPart;
-            urlParts[i] = encodeURIComponent(urlPart);
-        } else {
-            if(routePart.toLowerCase() !== urlPart.toLowerCase()) {
-                return null;
-            }
-        }
-    }
-
-    location = {
-        url: "/" + urlParts.join("/"),
-        params: params
-    };
-    return location;
-}
-
-/** 前端路由器 */
-function Router(routes, container) {
-    var i;
-
-    this.routerTable = new RouteTable();
-    if(Array.isArray(routes)) {
-        for(i = 0; i < routes.length; i++) {
-            this.routerTable.add(routes[i]);
-        }
-    }
-
-    this.history = new HashHistory(this.routerTable, ui.getJQueryElement(container));
-}
-Router.prototype = {
-    constructor: Router,
-    go: function(num) {
-        this.history.go(num);
-    },
-    back: function() {
-        this.history.go(-1);
-    },
-    forward: function() {
-        this.history.go(1);
-    },
-    push: function(url, params) {
-        var location = this.routerTable.match(url, params);
-        this.history.push(location);
-    },
-    replace: function(url, params) {
-        var location = this.routerTable.match(url, params);
-        this.history.replace(location);
-    }
-};
-
-ui.Router = function(routes, container) {
-    var router = new Router(routes, container);
-    return router;
-};
 
 })(jQuery, ui);
 
@@ -9072,7 +10071,8 @@ ui.mask = {
 // Source: src/control/common/pager.js
 
 (function($, ui) {
-//控件分页逻辑，GridView, ReportView, CardView
+//控件分页逻辑，GridView, ReportView, flowView
+var pageHashPrefix = "page";
 function Pager(option) {
     if(this instanceof Pager) {
         this.initialize(option);
@@ -9125,6 +10125,9 @@ Pager.prototype = {
             this._showRowCount(pageInfo);
         }
         this._renderPageButton(pageInfo.pageCount);
+        if (pageInfo.pageCount) {
+            this._checkAndSetDefaultPageIndexHash(this.pageIndex);
+        }
     },
     _showRowCount: function (pageInfo) {
         var dataCount = (this.data) ? this.data.length : 0;
@@ -9192,12 +10195,27 @@ Pager.prototype = {
         return "<span class='pager-current font-highlight'>" + pageIndex + "</span>";
     },
     pageChanged: function(eventHandler, eventCaller) {
+        var that;
         if(this.pageNumPanel && $.isFunction(eventHandler)) {
             eventCaller = eventCaller || ui;
             this.pageChangedHandler = function() {
                 eventHandler.call(eventCaller, this.pageIndex, this.pageSize);
             };
-            this.pageNumPanel.click((function(e) {
+            that = this;
+            if(!ui.core.ie || ui.core.ie >= 8) {
+                ui.page.hashchange(function(e, hash) {
+                    if(that._breakHashChanged) {
+                        that._breakHashChanged = false;
+                        return;
+                    }
+                    if(!that._isPageHashChange(hash)) {
+                        return;
+                    }
+                    that.pageIndex = that._getPageIndexByHash(hash);
+                    that.pageChangedHandler();
+                });
+            }
+            this.pageNumPanel.click(function(e) {
                 var btn = $(e.target);
                 if (btn.nodeName() !== "A")
                     return;
@@ -9205,9 +10223,12 @@ Pager.prototype = {
                 num = num.replace("...", "");
                 num = parseInt(num, 10);
 
-                this.pageIndex = num;
-                this.pageChangedHandler();
-            }).bind(this));
+                that.pageIndex = num;
+                if (!ui.core.ie || ui.core.ie >= 8) {
+                    that._setPageHash(that.pageIndex);
+                }
+                that.pageChangedHandler();
+            });
         }
     },
     empty: function() {
@@ -9219,6 +10240,45 @@ Pager.prototype = {
         }
         this.data = [];
         this.pageIndex = 1;
+    },
+    _setPageHash: function(pageIndex) {
+        if(!pageIndex) {
+            return;
+        }
+        
+        this._breakHashChanged = true;
+        window.location.hash = pageHashPrefix + "=" + pageIndex;
+    },
+    _isPageHashChange: function(hash) {
+        var index = 0;
+        if(!hash) {
+            return false;
+        }
+        if(hash.charAt(0) === "#") {
+            index = 1;
+        }
+        return hash.indexOf(pageHashPrefix) == index;
+    },
+    _getPageIndexByHash: function(hash) {
+        var pageIndex,
+            index;
+        if(hash) {
+            index = hash.indexOf("=");
+            if(index >= 0) {
+                pageIndex = hash.substring(index + 1, hash.length);
+                return parseInt(pageIndex, 10);
+            }
+        }
+        return 1;
+    },
+    _checkAndSetDefaultPageIndexHash: function (pageIndex) {
+        var hash = window.location.hash;
+        var len = hash.length;
+        if (hash.charAt(0) === "#")
+            len--;
+        if (len <= 0) {
+            this._setPageHash(pageIndex);
+        }
     }
 };
 

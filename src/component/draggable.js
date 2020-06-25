@@ -188,7 +188,9 @@ ui.MouseDragger = MouseDragger;
 
 /** 拖动效果 */
 $.fn.draggable = function(option) {
-    var dragger;
+    var dragger,
+        oldBeginDrag,
+        oldMoving;
     if (!option || !option.target || !option.parent) {
         return;
     }
@@ -200,10 +202,17 @@ $.fn.draggable = function(option) {
     option.getParentCssNum = function(prop) {
         return parseFloat(option.parent.css(prop)) || 0;
     };
+    if(ui.core.isFunction(option.onBeginDrag)) {
+        oldBeginDrag = option.onBeginDrag;
+    }
     option.onBeginDrag = function(arg) {
         var option = this.option,
             p = option.parent.offset();
         if(!p) p = { top: 0, left: 0 };
+
+        if(oldBeginDrag) {
+            oldBeginDrag.call(null, arg);
+        }
 
         option.topLimit = p.top + option.getParentCssNum("border-top") + option.getParentCssNum("padding-top");
         option.leftLimit = p.left + option.getParentCssNum("border-left") + option.getParentCssNum("padding-left");
@@ -216,9 +225,17 @@ $.fn.draggable = function(option) {
         option.parentTop = p.top;
         option.parentLeft = p.left;
     };
+
+    if(ui.core.isFunction(option.onMoving)) {
+        oldMoving = option.onMoving;
+    }
     option.onMoving = function(arg) {
         var option = this.option,
             p = option.target.position();
+
+        if(oldMoving) {
+            oldMoving.call(null, arg);
+        }
 
         p.top = p.top + option.parentTop;
         p.left = p.left + option.parentLeft;
