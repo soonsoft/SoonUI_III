@@ -3996,6 +3996,34 @@ page.plugin = function(plugin) {
     handlers[plugin.name] = plugin.handler;
     ranks[plugin.name] = plugin.rank || ++defaultRankValue;
 };
+page.get = function(pluginName) {
+    if(!pluginName) {
+        return null;
+    }
+
+    var plugin = handlers[pluginName];
+    if(!plugin) {
+        return null;
+    }
+
+    return (function(plugins, ranks, pluginName) {
+        return {
+            getName: function() {
+                return pluginName;
+            },
+            setHandler: function(handler) {
+                if(ui.core.isFunction(handler)) {
+                    plugins[pluginName] = handler;
+                }
+            },
+            setRank: function(rank) {
+                if(ui.core.isNumber(rank)) {
+                    ranks[pluginName] = rank;
+                }
+            }
+        };
+    })(handlers, ranks, pluginName);
+};
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;

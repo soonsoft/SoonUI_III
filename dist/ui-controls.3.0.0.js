@@ -3509,7 +3509,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         
         ul = item.target.find("ul");
         scrollTop = item.target.scrollTop();
-        index = parseInt(scrollTop / (this.option.itemSize + this.option.margin), 10);
+        index = parseInt((scrollTop + this.option.itemSize * .3) / (this.option.itemSize + this.option.margin), 10);
 
         eventData = {
             listItem: item,
