@@ -15509,8 +15509,8 @@ ui.ctrls.define("ctrls.TabView", {
         this.model.putBodies(width, height);
     },
     /** 还原 */
-    restore: function() {
-        this.model.restore();
+    restore: function(animation) {
+        this.model.restore(animation);
     }
 });
 
