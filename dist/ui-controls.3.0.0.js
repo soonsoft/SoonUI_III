@@ -13893,7 +13893,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             }
         } else {
             if(this._current) {
-                result = this._getSelectionData(this._current);
+                result = this._getSelectionData(this._current[0]);
             }
         }
         return result;
@@ -15096,12 +15096,12 @@ View.prototype = {
 
         that = this;
         this.animator = ui.animator({
-            ease: ui.AnimationStyle.easeTo,
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
         }).add({
-            ease: ui.AnimationStyle.easeTo,
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }

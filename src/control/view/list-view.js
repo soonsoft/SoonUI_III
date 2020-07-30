@@ -524,7 +524,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             }
         } else {
             if(this._current) {
-                result = this._getSelectionData(this._current);
+                result = this._getSelectionData(this._current[0]);
             }
         }
         return result;
