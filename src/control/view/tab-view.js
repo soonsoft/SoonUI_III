@@ -21,12 +21,12 @@ View.prototype = {
 
         that = this;
         this.animator = ui.animator({
-            ease: ui.AnimationStyle.easeTo,
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
         }).add({
-            ease: ui.AnimationStyle.easeTo,
+            ease: ui.AnimationStyle.easeFromTo,
             onChange: function(val) {
                 this.target.css(that.animationCssItem, val + "px");
             }
@@ -434,8 +434,8 @@ ui.ctrls.define("ctrls.TabView", {
         this.model.putBodies(width, height);
     },
     /** 还原 */
-    restore: function() {
-        this.model.restore();
+    restore: function(animation) {
+        this.model.restore(animation);
     }
 });
 
