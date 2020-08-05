@@ -45,12 +45,21 @@
  */
 "use strict";
 var ui = {};
+
+//$|$
+
+// 兼容AMD
+if(typeof define === "function" && define.amd) {
+	define("SOONUI", [], function() {
+		return ui;
+	});
+}
+
+// 常规的浏览器导入
 if(noGlobal) {
 	window.ui = ui;
 	window.SOONUI = ui;
 }
-
-//$|$
 
 return ui;
 
