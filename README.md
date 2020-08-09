@@ -78,18 +78,18 @@
 1. grunt-contrib-clean: 清除工具
 2. grunt-contrib-concat: 文件合并工具
 3. grunt-contrib-uglify: js压缩工具
-4. grunt-contrib-qunit: js单元测试工具
-5. grunt-contrib-jshint: js语法检查和风格检查工具
-6. grunt-contrib-watch: 监控文件
-7. grunt-contrib-less: css less编译工具
+4. grunt-contrib-less: css less编译工具
+
+```
+npm install
+
+or
 
 * npm install grunt-contrib-clean --save-dev
 * npm install grunt-contrib-concat --save-dev
 * npm install grunt-contrib-uglify --save-dev
-* npm install grunt-contrib-qunit --save-dev
-* npm install grunt-contrib-jshint --save-dev
-* npm install grunt-contrib-watch --save-dev
 * npm install grunt-contrib-less --save-dev
+```
 
 ### 使用grunt命令
 

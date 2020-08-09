@@ -1,7 +1,7 @@
 {
   "name": "soon-ui",
   "title": "SOON.UI",
-  "version": "3.0.0",
+  "version": "3.5.0",
   "description": "Javascript UI library for html",
   "author": {
     "name": "周松",
@@ -18,10 +18,7 @@
     "grunt": "^1.2.1",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-less": "^1.4.1",
-    "grunt-contrib-qunit": "^1.3.0",
-    "grunt-contrib-uglify": "^2.3.0",
-    "grunt-contrib-watch": "^1.1.0"
+    "grunt-contrib-less": "^2.0.0",
+    "grunt-contrib-uglify": "^2.3.0"
   }
 }

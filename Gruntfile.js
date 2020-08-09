@@ -108,16 +108,16 @@ module.exports = function(grunt) {
         "src/core.js",
         "src/i18n.js",
 
-        "src/ES5-Array-shims.js",
-        "src/ES6-Array-shims.js",
-        "src/ES5-String-shims.js",
-        "src/ES6-String-shims.js",
-        "src/ES5-Function-shims.js",
-        "src/ES5-JSON-shims.js",
-        "src/ES6-Number-shims.js",
-        "src/ES5-Object-shims.js",
-        "src/ES6-Promise.shims.js",
-        "src/ES6-Map.shims.js",
+        // "src/ES5-Array-shims.js",
+        // "src/ES6-Array-shims.js",
+        // "src/ES5-String-shims.js",
+        // "src/ES6-String-shims.js",
+        // "src/ES5-Function-shims.js",
+        // "src/ES5-JSON-shims.js",
+        // "src/ES6-Number-shims.js",
+        // "src/ES5-Object-shims.js",
+        // "src/ES6-Promise.shims.js",
+        // "src/ES6-Map.shims.js",
 
         "src/array-like.js",
         "src/keyarray.js",
@@ -396,9 +396,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-uglify");
-    grunt.loadNpmTasks("grunt-contrib-qunit");
-    grunt.loadNpmTasks("grunt-contrib-jshint");
-    grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-contrib-less");
 
     // 创建主题样式文件
