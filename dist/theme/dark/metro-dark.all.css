@@ -1156,54 +1156,6 @@
 	Color: #1d1f21
 	Name: 暗夜
 */
-.filter-tools-panel {
-  width: auto;
-  height: 24px;
-  line-height: 22px;
-  overflow: hidden;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.filter-tools-item {
-  margin: 0px;
-  padding: 0px;
-  width: auto;
-  display: inline-block;
-  text-align: center;
-  vertical-align: top;
-  border-top: solid 1px transparent;
-  border-bottom: solid 1px transparent;
-  border-right: solid 1px transparent;
-  height: 22px;
-  cursor: pointer;
-}
-.filter-tools-item-hide {
-  display: none;
-}
-.filter-tools-item-first {
-  border-left: solid 1px transparent;
-}
-.filter-tools-item-radio {
-  position: relative;
-  left: -1px;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  visibility: hidden !important;
-  display: none !important;
-}
-.filter-tools-item-text {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-/*
-	Color: #1d1f21
-	Name: 暗夜
-*/
 /* fold-view */
 .ui-fold-view {
   display: block;

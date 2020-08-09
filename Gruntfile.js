@@ -211,6 +211,7 @@ module.exports = function(grunt) {
     };
 
     let shell = grunt.file.read("src/soon-ui.js").split(rsrcHolder);
+    shell[0] = shell[0] + "ui.version = '<%= pkg.version %>';\r\n\r\n";
 
     grunt.initConfig({
         // 从package.json 文件读入项目配置信息
