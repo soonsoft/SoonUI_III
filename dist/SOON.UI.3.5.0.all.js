@@ -48,7 +48,10 @@
 var ui = {};
 var jQuery = window.jQuery;
 if(!jQuery) {
-    jQuery = require("jquery");
+	jQuery = require("jquery");
+	if(jQuery) {
+		window.jQuery = window.$ = jQuery;
+	}
 }
 
 // 常规的浏览器导入
