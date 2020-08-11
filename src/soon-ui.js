@@ -44,7 +44,15 @@
  * 增加了保留字（比如protected、static和interface）
  */
 "use strict";
+
 var ui = {};
+var jQuery = window.jQuery;
+if(!jQuery) {
+	jQuery = require("jquery");
+	if(jQuery) {
+		window.jQuery = window.$ = jQuery;
+	}
+}
 
 // 常规的浏览器导入
 if(noGlobal) {
