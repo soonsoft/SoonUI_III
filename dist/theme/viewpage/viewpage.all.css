@@ -20,7 +20,7 @@
   display: inline-block;
 }
 .ui-menu-button:active .menu-button-background {
-  opacity: .7;
+  opacity: 0.7;
 }
 .ui-menu-button-show .menu-button-background {
   display: inline-block;
@@ -268,7 +268,7 @@
   width: 100%;
   height: 100%;
   background-color: #fff;
-  opacity: .2;
+  opacity: 0.2;
 }
 .ui-menu-panel .menu-item-container {
   position: absolute;
@@ -361,7 +361,7 @@
   width: 100%;
   height: 100%;
   background-color: #000;
-  opacity: .1;
+  opacity: 0.1;
 }
 .ui-menu-panel .submenu-slide-panel .submenu-list {
   overflow: hidden;
@@ -386,7 +386,7 @@
   -moz-text-overflow: ellipsis;
   -webkit-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  opacity: .65;
+  opacity: 0.65;
   cursor: pointer;
 }
 .ui-menu-panel .menu-item:hover,
@@ -478,7 +478,7 @@
   opacity: 0;
 }
 .ui-tile .tile-link:active {
-  opacity: .4;
+  opacity: 0.4;
 }
 .ui-tile .tile-content {
   position: absolute;
@@ -619,7 +619,7 @@
   font-size: 48px;
   line-height: 40px;
   font-family: 'Segoe UI', 'Microsoft YaHei';
-  opacity: .7;
+  opacity: 0.7;
 }
 .tile-medium .clock-spliter {
   width: 60%;
@@ -640,7 +640,7 @@
 .tile-large .clock-minute {
   font-family: 'Segoe UI', 'Microsoft YaHei';
   font-size: 64px;
-  opacity: .7;
+  opacity: 0.7;
 }
 .tile-wide .clock-spliter,
 .tile-large .clock-spliter {
@@ -845,7 +845,7 @@
   display: none;
   text-align: center;
   line-height: 24px;
-  opacity: .7;
+  opacity: 0.7;
   color: #fff;
 }
 .user-settings .highlight-item-selected .highlight-item-checker {

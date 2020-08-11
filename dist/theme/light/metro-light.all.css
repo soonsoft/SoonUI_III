@@ -426,7 +426,7 @@
   background-color: transparent;
   border-style: solid;
   border-width: 4px;
-  opacity: .6;
+  opacity: 0.6;
   display: none;
   top: 0;
   left: 0;
@@ -1071,7 +1071,7 @@
   font-size: 16px;
   border-radius: 50%;
   filter: alpha(opacity=60);
-  opacity: .6;
+  opacity: 0.6;
 }
 .extend-button-panel .extend-button:hover {
   filter: alpha(opacity=100);
@@ -1101,7 +1101,7 @@
   border-color: #dcdcdc;
   border-style: solid;
   filter: alpha(opacity=70);
-  opacity: .7;
+  opacity: 0.7;
 }
 
 /*
@@ -1629,7 +1629,7 @@
   text-align: center;
   color: #fff;
   z-index: 10001;
-  opacity: .5;
+  opacity: 0.5;
 }
 .show-image-panel .next-button:hover,
 .show-image-panel .prev-button:hover {
@@ -1762,10 +1762,10 @@ div.c_flyingDots div.c_loadingDot {
   background-color: #333333;
 }
 div.c_flyingDots.c_dotsPlaying div.c_loadingDot {
-  -moz-animation: makedotfly 3.3s linear .1s infinite normal;
-  -ms-animation: makedotfly 3.3s linear .1s infinite normal;
-  -webkit-animation: makedotfly 3.3s linear .1s infinite normal;
-  animation: makedotfly 3.3s linear .1s infinite normal;
+  -moz-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  -ms-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  -webkit-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  animation: makedotfly 3.3s linear 0.1s infinite normal;
 }
 @-moz-keyframes makedotfly {
   0% {
@@ -1848,11 +1848,11 @@ div.c_flyingDots div.c_loadingTrack0 {
   margin-left: 90px;
 }
 div.c_flyingDots div.c_loadingTrack0 div.c_loadingDot {
-  -moz-animation-delay: .15s;
-  -ms-animation-delay: .15s;
-  -o-animation-delay: .15s;
-  -webkit-animation-delay: .15s;
-  animation-delay: .15s;
+  -moz-animation-delay: 0.15s;
+  -ms-animation-delay: 0.15s;
+  -o-animation-delay: 0.15s;
+  -webkit-animation-delay: 0.15s;
+  animation-delay: 0.15s;
   opacity: 0;
   filter: alpha(opacity=0);
 }
@@ -1861,9 +1861,9 @@ div.c_flyingDots div.c_loadingTrack1 {
   margin-left: 75px;
 }
 div.c_flyingDots div.c_loadingTrack1 div.c_loadingDot {
-  -moz-animation-delay: .3s;
-  -ms-animation-delay: .3s;
-  -webkit-animation-delay: .3s;
+  -moz-animation-delay: 0.3s;
+  -ms-animation-delay: 0.3s;
+  -webkit-animation-delay: 0.3s;
   animation-delay: 0.3s;
 }
 div.c_flyingDots div.c_loadingTrack2 {
@@ -1871,9 +1871,9 @@ div.c_flyingDots div.c_loadingTrack2 {
   margin-left: 60px;
 }
 div.c_flyingDots div.c_loadingTrack2 div.c_loadingDot {
-  -moz-animation-delay: .45s;
-  -ms-animation-delay: .45s;
-  -webkit-animation-delay: .45s;
+  -moz-animation-delay: 0.45s;
+  -ms-animation-delay: 0.45s;
+  -webkit-animation-delay: 0.45s;
   animation-delay: 0.45s;
 }
 div.c_flyingDots div.c_loadingTrack3 {
@@ -1881,9 +1881,9 @@ div.c_flyingDots div.c_loadingTrack3 {
   margin-left: 45px;
 }
 div.c_flyingDots div.c_loadingTrack3 div.c_loadingDot {
-  -moz-animation-delay: .6s;
-  -ms-animation-delay: .6s;
-  -webkit-animation-delay: .6s;
+  -moz-animation-delay: 0.6s;
+  -ms-animation-delay: 0.6s;
+  -webkit-animation-delay: 0.6s;
   animation-delay: 0.6s;
 }
 div.c_flyingDots div.c_loadingTrack4 {
@@ -1891,9 +1891,9 @@ div.c_flyingDots div.c_loadingTrack4 {
   margin-left: 30px;
 }
 div.c_flyingDots div.c_loadingTrack4 div.c_loadingDot {
-  -moz-animation-delay: .75s;
-  -ms-animation-delay: .75s;
-  -webkit-animation-delay: .75s;
+  -moz-animation-delay: 0.75s;
+  -ms-animation-delay: 0.75s;
+  -webkit-animation-delay: 0.75s;
   animation-delay: 0.75s;
 }
 div.c_flyingDots div.c_loadingTrack5 {
@@ -1901,9 +1901,9 @@ div.c_flyingDots div.c_loadingTrack5 {
   margin-left: 15px;
 }
 div.c_flyingDots div.c_loadingTrack5 div.c_loadingDot {
-  -moz-animation-delay: .9s;
-  -ms-animation-delay: .9s;
-  -webkit-animation-delay: .9s;
+  -moz-animation-delay: 0.9s;
+  -ms-animation-delay: 0.9s;
+  -webkit-animation-delay: 0.9s;
   animation-delay: 0.9s;
 }
 /* 兼容不支持CSS动画的浏览器，采用gif动画的方式 */
@@ -1916,10 +1916,10 @@ div.c_flyingDots div.c_loadingFallback {
   background: transparent url('') no-repeat center center;
   opacity: 1;
   filter: alpha(opacity=100);
-  -moz-animation: hidedotsfallback .3s linear .1s 1 normal;
-  -ms-animation: hidedotsfallback .3s linear 0s 1 normal;
-  -webkit-animation: hidedotsfallback .3s linear 0s 1 normal;
-  animation: hidedotsfallback .3s linear 0s 1 normal;
+  -moz-animation: hidedotsfallback 0.3s linear 0.1s 1 normal;
+  -ms-animation: hidedotsfallback 0.3s linear 0s 1 normal;
+  -webkit-animation: hidedotsfallback 0.3s linear 0s 1 normal;
+  animation: hidedotsfallback 0.3s linear 0s 1 normal;
   -moz-animation-fill-mode: both;
   -ms-animation-fill-mode: both;
   -webkit-animation-fill-mode: both;
@@ -2043,7 +2043,7 @@ div.c_flyingDots div.c_loadingFallback {
   opacity: 1;
 }
 .ui-side-close-button:active {
-  opacity: .8;
+  opacity: 0.8;
 }
 .ui-option-box-panel {
   z-index: 9000;
@@ -2120,7 +2120,7 @@ div.c_flyingDots div.c_loadingFallback {
   left: 0;
   height: 100%;
   width: 0;
-  transition: width .3s ease 0s;
+  transition: width 0.3s ease 0s;
 }
 
 /*
@@ -2152,7 +2152,7 @@ div.c_flyingDots div.c_loadingFallback {
   margin: 0;
   padding: 0;
   background-color: #ffffff;
-  opacity: .01;
+  opacity: 0.01;
   cursor: col-resize;
 }
 .ui-report-view .ui-report-fixed {
@@ -2487,7 +2487,7 @@ div.c_flyingDots div.c_loadingFallback {
   background-color: #666666;
   top: 4px;
   filter: alpha(opacity=50);
-  opacity: .5;
+  opacity: 0.5;
 }
 .switch-marshmallow .switch-thumb {
   position: absolute;
@@ -2648,5 +2648,5 @@ input.ui-clear-text {
   margin: 0;
   padding: 0;
   z-index: 99;
-  opacity: .0001;
+  opacity: 0.0001;
 }

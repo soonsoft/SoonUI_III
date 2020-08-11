@@ -218,7 +218,7 @@ a:active {
   line-height: 48px;
   margin: 0;
   text-align: center;
-  opacity: .6;
+  opacity: 0.6;
 }
 #headBackButton:hover {
   opacity: 1;
@@ -230,7 +230,7 @@ a:active {
   width: 48px;
   height: 48px;
   cursor: pointer;
-  opacity: .7;
+  opacity: 0.7;
 }
 .ui-home-button:hover {
   opacity: 1;
@@ -274,7 +274,7 @@ a:active {
   text-decoration: none;
   color: #fff !important;
   position: relative;
-  opacity: .6;
+  opacity: 0.6;
   cursor: pointer;
 }
 .head-tab-title .ui-tab-button:hover {
@@ -325,7 +325,7 @@ a:active {
   margin-top: 14px;
   vertical-align: top;
   line-height: 18px;
-  opacity: .6;
+  opacity: 0.6;
 }
 .head-ctrl-button:hover {
   opacity: 1;
@@ -343,7 +343,7 @@ a:active {
   overflow: hidden;
 }
 .head-ctrl-buttons-item #user:active {
-  opacity: .6;
+  opacity: 0.6;
 }
 .head-ctrl-buttons-item #user .cover {
   height: 100%;
@@ -481,7 +481,7 @@ a:active {
 /* 文本按钮，一般用于工具条上的后退按钮，下拉按钮 */
 .tool-text-button {
   font-size: 1.077em;
-  opacity: .8;
+  opacity: 0.8;
   cursor: pointer;
 }
 .tool-text-button:hover {
