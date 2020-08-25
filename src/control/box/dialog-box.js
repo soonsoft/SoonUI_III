@@ -835,19 +835,33 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         }
     },
     /** 设置大小并居中显示 */
-    setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
-        var parentSize = this.getParentSize();
-        if(!ui.core.isNumber(parentWidth)) {
+    setSize: function(newWidth, newHeight, parentWidth, parentHeight, cssFn) {
+        var parentSize = this.getParentSize(),
+            isParentWidthNumber = ui.core.isNumber(parentWidth),
+            isParentHeightNumber = ui.core.isNumber(parentHeight);
+        if(!isParentWidthNumber) {
             parentWidth = parentSize.width;
         }
-        if(!ui.core.isNumber(parentHeight)) {
+        if(!isParentHeightNumber) {
             parentHeight = parentSize.height;
         }
+        if(isParentWidthNumber && isParentHeightNumber) {
+            this.getParentSize = function() {
+                return {
+                    width: parentWidth,
+                    height: parentHeight
+                }
+            };
+        }
         this._setSize(newWidth, newHeight);
-        this.box.css({
-            "top": (parentHeight - this.offsetHeight) / 2 + "px",
-            "left": (parentWidth - this.offsetWidth) / 2 + "px"
-        });
+        this.box.css(
+            ui.core.isFunction(cssFn) 
+                ? cssFn.call(this, parentWidth, parentHeight) 
+                : {
+                    "top": (parentHeight - this.offsetHeight) / 2 + "px",
+                    "left": (parentWidth - this.offsetWidth) / 2 + "px"
+                }
+        );
         if (this.maskable()) {
             this.mask.css("height", parentHeight + "px");
         }
