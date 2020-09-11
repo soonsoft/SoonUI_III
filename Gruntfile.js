@@ -4,6 +4,11 @@ module.exports = function(grunt) {
     const rsrcHolder = /\/\/\$\|\$/;
     const tempPrefix = "_temp_";
 
+    /** 是否用jquery */
+    const withJQuery = true;
+    /** 是否使用自带的垫片函数 */
+    const withShims = true;
+
     // 语言
     const langPath = __dirname + "/src/i18n";
     const lang = "chs";
@@ -106,37 +111,51 @@ module.exports = function(grunt) {
     // UI库主框架文件
     let coreFiles = [
         "src/core.js",
-        "src/i18n.js",
-
-        // "src/ES5-Array-shims.js",
-        // "src/ES6-Array-shims.js",
-        // "src/ES5-String-shims.js",
-        // "src/ES6-String-shims.js",
-        // "src/ES5-Function-shims.js",
-        // "src/ES5-JSON-shims.js",
-        // "src/ES6-Number-shims.js",
-        // "src/ES5-Object-shims.js",
-        // "src/ES6-Promise.shims.js",
-        // "src/ES6-Map.shims.js",
-
+        "src/i18n.js"
+    ];
+    if(withShims) {
+        coreFiles.push(
+            "src/ES5-Array-shims.js",
+            "src/ES6-Array-shims.js",
+            "src/ES5-String-shims.js",
+            "src/ES6-String-shims.js",
+            "src/ES5-Function-shims.js",
+            "src/ES5-JSON-shims.js",
+            "src/ES6-Number-shims.js",
+            "src/ES5-Object-shims.js",
+            "src/ES6-Promise.shims.js",
+            "src/ES6-Map.shims.js"
+        );
+    }
+    // 自定义数据结构
+    coreFiles.push(
         "src/array-like.js",
         "src/keyarray.js",
-        "src/linked-list.js",
-        
+        "src/linked-list.js"
+    );
+    // 工具函数
+    coreFiles.push(
         "src/util.js",
         "src/util-string.js",
         "src/util-date.js",
         "src/util-object.js",
         "src/util-url.js",
         "src/util-structure-transform.js",
-        "src/util-random.js",
-
+        "src/util-random.js"
+    );
+    // 公共组件
+    coreFiles.push(
         "src/parser.js",
         "src/task.js",
-        "src/jquery-extend.js",
         "src/cookie.js",
         "src/style-sheet.js"
-    ];
+    );
+    if(withJQuery) {
+        coreFiles.push(
+            "src/jquery-extend.js"
+        );
+    }
+
     // 单独的ui.core.js
     let coreDestFile = "dist/ui-core.<%= pkg.version %>.js";
     // 用于生产SOON.UI.all.js的部分，临时文件

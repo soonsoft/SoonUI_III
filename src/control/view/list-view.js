@@ -19,8 +19,7 @@ function defaultSortFn(a, b) {
 function onListItemClick(e) {
     var elem,
         isCloseButton,
-        index,
-        data;
+        index;
 
     elem = $(e.target);
     isCloseButton = elem.hasClass("ui-item-view-remove");
