@@ -494,6 +494,7 @@ input[type="password"],
 input[type="email"],
 input[type="number"],
 input[type="tel"],
+select,
 textarea {
   font-size: 12px;
   font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
@@ -589,15 +590,15 @@ select:focus {
 }
 input[type="text"][readonly],
 textarea[readonly] {
-  color: #888888 !important;
-  border-color: #888888 !important;
+  color: #888888;
+  border-color: #888888;
   cursor: default;
 }
 input:disabled,
 textarea:disabled,
 select:disabled {
-  color: #5d5f60 !important;
-  border-color: #5d5f60 !important;
+  color: #5d5f60;
+  border-color: #5d5f60;
   cursor: not-allowed;
 }
 textarea {

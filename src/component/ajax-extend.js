@@ -114,7 +114,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     if (ui.core.isFunction(errorFn)) {
         context.errorFn = errorFn;
         ajaxOption.error = function(ajaxError) {
-            if(ajaxError instanceof TypeError) {
+            if(ajaxError instanceof Error) {
                 context.errorFn(ajaxError);
             } else {
                 errorHandler(context, ajaxError.ajaxRequest, ajaxError.statusText, ajaxError.error);
@@ -260,7 +260,11 @@ ui.ajax.all = function () {
     var promises,
         promise;
     if (arguments.length == 1) {
-        promises = [arguments[0]];
+        if(Array.isArray(arguments[0])) {
+            promises = arguments[0];
+        } else {
+            promises = [arguments[0]];
+        }
     } else if (arguments.length > 1) {
         promises = [].slice.call(arguments, 0);
     } else {
