@@ -2434,19 +2434,33 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         }
     },
     /** 设置大小并居中显示 */
-    setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
-        var parentSize = this.getParentSize();
-        if(!ui.core.isNumber(parentWidth)) {
+    setSize: function(newWidth, newHeight, parentWidth, parentHeight, cssFn) {
+        var parentSize = this.getParentSize(),
+            isParentWidthNumber = ui.core.isNumber(parentWidth),
+            isParentHeightNumber = ui.core.isNumber(parentHeight);
+        if(!isParentWidthNumber) {
             parentWidth = parentSize.width;
         }
-        if(!ui.core.isNumber(parentHeight)) {
+        if(!isParentHeightNumber) {
             parentHeight = parentSize.height;
         }
+        if(isParentWidthNumber && isParentHeightNumber) {
+            this.getParentSize = function() {
+                return {
+                    width: parentWidth,
+                    height: parentHeight
+                }
+            };
+        }
         this._setSize(newWidth, newHeight);
-        this.box.css({
-            "top": (parentHeight - this.offsetHeight) / 2 + "px",
-            "left": (parentWidth - this.offsetWidth) / 2 + "px"
-        });
+        this.box.css(
+            ui.core.isFunction(cssFn) 
+                ? cssFn.call(this, parentWidth, parentHeight) 
+                : {
+                    "top": (parentHeight - this.offsetHeight) / 2 + "px",
+                    "left": (parentWidth - this.offsetWidth) / 2 + "px"
+                }
+        );
         if (this.maskable()) {
             this.mask.css("height", parentHeight + "px");
         }
@@ -7093,7 +7107,12 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
+    return [
+        "<span", this.calendar.isWeekend(date.getDay()) ? " class='ui-calendar-weekend'" : "", ">",
+        (date.getMonth() + 1), " / ", date.getDate(), 
+        "（" + language.sundayFirstWeek[date.getDay()],  "）", 
+        "</span>"
+    ].join("");
 }
 
 // 事件处理
@@ -7266,7 +7285,7 @@ YearView.prototype = {
                 height: unitHeight + "px"
             });
             cell.children(".year-month-content")
-                .css("height", unitHeight - 48 + "px");
+                .css("height", unitHeight - 40 + "px");
             oddFn.call(this, cell, count, i);
         }
     },
@@ -7310,7 +7329,7 @@ YearView.prototype = {
             } else {
                 flag = "<th class='year-month-table-head'>";
             }
-            row.append(flag + week[i] + "</th>");
+            row.append(flag + "<span>" + week[i] + "</span></th>");
         }
         thead.append(row);
 
@@ -8236,7 +8255,7 @@ WeekView.prototype = {
             colgroup.append("<col />");
 
             th = $("<th class='weekday-cell' />");
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             tr.append(th);
         }
 
@@ -9424,7 +9443,7 @@ Selector.prototype = {
             this.onSelectCompleted();
         }
     },
-    /** 选则完成处理 */
+    /** 选择完成处理 */
     onSelectCompleted: function() {
         var box,
             date, arr,
@@ -13388,8 +13407,7 @@ function defaultSortFn(a, b) {
 function onListItemClick(e) {
     var elem,
         isCloseButton,
-        index,
-        data;
+        index;
 
     elem = $(e.target);
     isCloseButton = elem.hasClass("ui-item-view-remove");

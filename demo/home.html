@@ -434,7 +434,7 @@
     </section>
     <section class="container-item" style="z-index:7;">
         <img id="bg3" class="container-item-bg-image" src="" alt="" />
-        <img id="bg4" class="container-item-bg-image" src="" alt="" style="opacity:0;" />
+        <img id="bg4" class="container-item-bg-image" src="" alt="" style="opacity:0;filter:blur(20px);transform:scale(1.05);" />
         <div class="container-panel" style="opacity:0;">
             <h1 class="head-title">
                 <span style="opacity:.6;color:#333">SOLUTION</span>
@@ -660,13 +660,6 @@
 
                     loadImages.push(ui.ImageLoader().load("./content/pictures/7.jpg", width, height, ui.ImageLoader.centerCrop));
                     loadImages.push(ui.ImageLoader().load("./content/pictures/29.jpg", width, height, ui.ImageLoader.centerCrop));
-                    loadImages.push(ui.ImageLoader().load("./content/pictures/29_1.jpg", width, height, ui.ImageLoader.centerCrop));
-                    // loadImages.push(new Promise(function(resolve, reject) {
-                    //     resolve(function(img) {
-                    //         console.log("前端计算模糊效果");
-                    //         blurImage($("#bg3"), img);
-                    //     });
-                    // }));
                     loadImages.push(ui.ImageLoader().load("./content/pictures/6.jpg", width, height, ui.ImageLoader.centerCrop));
                     
                     ui.loadingShow();
@@ -674,7 +667,7 @@
                         .all(loadImages)
                         .then(function(loaders) {
                             ui.loadingHide();
-                            ["bg2", "bg3", "bg4", "bg5"].forEach(function(item, index) {
+                            ["bg2", "bg3", "bg5"].forEach(function(item, index) {
                                 var img = $("#" + item);
                                 setImageSize(img, loaders[index]);
                                 if(index === 0) {
@@ -682,6 +675,9 @@
                                     setTimeout(function() {
                                         img.addClass("start-animation");
                                     }, 16);
+                                } else if(index === 1) {
+                                    img = img.next();
+                                    setImageSize(img, loaders[index]);
                                 }
                             });
                         })
@@ -703,21 +699,6 @@
                     });
                 }
             };
-            // function blurImage(sourceImage, canvas) {
-            //     if(!sourceImage && !sourceImage.length) {
-            //         return;
-            //     }
-
-            //     var imgDisplayCss = {
-            //         "width": sourceImage.css("width"),
-            //         "height": sourceImage.css("height"),
-            //         "top": sourceImage.css("top"),
-            //         "left": sourceImage.css("left")
-            //     };
-
-            //     canvas.css(imgDisplayCss);
-            //     ui.effect.blurImage(sourceImage[0], canvas[0], 22);
-            // }
             function featureSection() {
                 var content = $(".feature-panel"),
                     panel = content.parent();

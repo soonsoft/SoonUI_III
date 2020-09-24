@@ -31,7 +31,12 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
+    return [
+        "<span", this.calendar.isWeekend(date.getDay()) ? " class='ui-calendar-weekend'" : "", ">",
+        (date.getMonth() + 1), " / ", date.getDate(), 
+        "（" + language.sundayFirstWeek[date.getDay()],  "）", 
+        "</span>"
+    ].join("");
 }
 
 // 事件处理
@@ -204,7 +209,7 @@ YearView.prototype = {
                 height: unitHeight + "px"
             });
             cell.children(".year-month-content")
-                .css("height", unitHeight - 48 + "px");
+                .css("height", unitHeight - 40 + "px");
             oddFn.call(this, cell, count, i);
         }
     },
@@ -248,7 +253,7 @@ YearView.prototype = {
             } else {
                 flag = "<th class='year-month-table-head'>";
             }
-            row.append(flag + week[i] + "</th>");
+            row.append(flag + "<span>" + week[i] + "</span></th>");
         }
         thead.append(row);
 
@@ -1174,7 +1179,7 @@ WeekView.prototype = {
             colgroup.append("<col />");
 
             th = $("<th class='weekday-cell' />");
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             tr.append(th);
         }
 
@@ -2362,7 +2367,7 @@ Selector.prototype = {
             this.onSelectCompleted();
         }
     },
-    /** 选则完成处理 */
+    /** 选择完成处理 */
     onSelectCompleted: function() {
         var box,
             date, arr,
