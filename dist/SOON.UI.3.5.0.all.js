@@ -21419,8 +21419,10 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.pager.renderPageList(rowCount);
     },
     _updateScrollState: function() {
+        var scrollHeight = this.body[0].scrollHeight;
+        var height = this.body.height();
         if (!this.headTable) return;
-        if(this.body[0].scrollHeight > this.body.height()) {
+        if(scrollHeight - height > 1) {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
@@ -23532,7 +23534,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         scrollWidth = this.reportDataBody[0].scrollWidth;
         scrollHeight = this.reportDataBody[0].scrollHeight;
 
-        if (scrollHeight > height) {
+        if (scrollHeight - height > 1) {
             // Y轴滚动条出现
             this._headScrollColumn.show();
         } else {
