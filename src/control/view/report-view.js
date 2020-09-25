@@ -675,7 +675,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                         this.sorter.setSortColumn(th, columnObj, j);
                         // 设置列宽拖动把手
                         if(this.option.adjustable && !renderFixed) {
-                            th.append("<b class='adjust-column-handle' />");
+                            th.append("<b class='adjust-column-handle'></b>");
                         }
                         
                     }

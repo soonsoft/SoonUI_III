@@ -165,8 +165,8 @@ module.exports = function(grunt) {
     let componentFiles = [
         "src/component/introsort.js",
         "src/component/animation.js",
-        "src/component/selector-set.js",
-        "src/component/event-delegate.js",
+        // "src/component/selector-set.js",
+        //"src/component/event-delegate.js",
         "src/component/custom-event.js",
         "src/component/ajax.js",
         //"src/component/ajax-extend.js",
