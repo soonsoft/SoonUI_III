@@ -36,7 +36,7 @@
         .schedule-editor {
             position: absolute;
             display: none;
-            width: 240px;
+            width: 320px;
             height: auto;
             border-width: 2px;
             border-style: solid;
@@ -45,14 +45,14 @@
         }
 
             .schedule-editor .schedule-editor-container {
-                width: 215px;
+                width: 280px;
                 margin-left: auto;
                 margin-right: auto;
             }
 
             .schedule-editor .button-panel {
-                margin-top: 12px;
-                margin-bottom: 12px;
+                margin-top: 20px;
+                margin-bottom: 20px;
                 width: 100%;
                 text-align: right;
             }
@@ -144,9 +144,9 @@
     <div id="calendarView"></div>
     <div id="weekCtrlPanel" class="schedule-editor unselectable border-highlight theme-panel">
         <div class="schedule-editor-container">
-            <label style="line-height:30px">日程描述</label>
+            <label style="line-height:32px">日程描述</label>
             <br />
-            <textarea id="weekScheduleDetail" name="weekScheduleDetail" rows="0" cols="0" style="width:211px;height:192px"></textarea>
+            <textarea id="weekScheduleDetail" name="weekScheduleDetail" rows="0" cols="0" style="width:280px;height:192px"></textarea>
             <div class="button-panel">
                 <input id="weekScheduleOk" type="button" class="button background-highlight" value="保存" />
                 <input id="weekScheduleCancel" type="button" class="button" value="取消" />
@@ -155,9 +155,9 @@
     </div>
     <div id="dayCtrlPanel" class="schedule-editor cunselectable border-highlight theme-panel">
         <div class="schedule-editor-container">
-            <label style="line-height:30px">日程描述</label>
+            <label style="line-height:32px">日程描述</label>
             <br />
-            <textarea id="dayScheduleDetail" name="dayScheduleDetail" rows="0" cols="0" style="width:211px;height:192px"></textarea>
+            <textarea id="dayScheduleDetail" name="dayScheduleDetail" rows="0" cols="0" style="width:280px;height:192px"></textarea>
             <div class="button-panel">
                 <input id="dayScheduleOk" type="button" class="button background-highlight" value="保存" />
                 <input id="dayScheduleCancel" type="button" class="button" value="取消" />
@@ -232,7 +232,7 @@
                     // 月视图可以多选
                     monthMultipleSelect: true,
                     // 周视图有Schedule的地方就不能选择了
-                    weekSingleSelect: true,
+                    weekSingleSelect: false,
                     // 日视图有Schedule的地方就不能选择了
                     daySingleSelect: true
 

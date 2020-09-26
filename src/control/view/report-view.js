@@ -675,7 +675,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                         this.sorter.setSortColumn(th, columnObj, j);
                         // 设置列宽拖动把手
                         if(this.option.adjustable && !renderFixed) {
-                            th.append("<b class='adjust-column-handle' />");
+                            th.append("<b class='adjust-column-handle'></b>");
                         }
                         
                     }
@@ -768,7 +768,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         scrollWidth = this.reportDataBody[0].scrollWidth;
         scrollHeight = this.reportDataBody[0].scrollHeight;
 
-        if (scrollHeight > height) {
+        if (scrollHeight - height > 1) {
             // Y轴滚动条出现
             this._headScrollColumn.show();
         } else {

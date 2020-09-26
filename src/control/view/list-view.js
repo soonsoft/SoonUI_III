@@ -211,15 +211,15 @@ ui.ctrls.define("ui.ctrls.ListView", {
                 container.html(content.html);
             }
         }
+        li.append(container);
         
         this._appendOperateElements(builder);
-        container.append(builder.join(""));
-        li.append(container);
+        li.append(builder.join(""));
 
         return li;
     },
     _appendOperateElements: function(builder) {
-        builder.push("<b class='ui-list-view-b background-highlight' />");
+        builder.push("<b class='ui-list-view-b background-highlight'></b>");
         if(this.option.hasRemoveButton) {
             builder.push("<a href='javascript:void(0)' class='closable-button ui-item-view-remove'>×</a>");
         }

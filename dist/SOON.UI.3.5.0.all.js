@@ -341,6 +341,1381 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 
 })(jQuery, ui);
 
+// Source: src/ES5-Array-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Array.prototype
+// isArray
+if(!isFunction(Array.isArray)) {
+    Array.isArray = function(obj) {
+        return ui.core.type(obj) === "array";
+    };
+}
+// forEach
+if(!isFunction(Array.prototype.forEach)) {
+    Array.prototype.forEach = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            fn.call(caller, this[i], i, this);
+        }
+    };
+}
+// map
+if(!isFunction(Array.prototype.map)) {
+    Array.prototype.map = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = new Array(this.length);
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            result[i] = fn.call(caller, this[i], i, this);
+        }
+        return result;
+    };
+}
+// filter
+if(!isFunction(Array.prototype.filter)) {
+    Array.prototype.filter = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = [];
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                result.push(this[i]);
+            }
+        }
+        return result;
+    };
+}
+// every
+if(!isFunction(Array.prototype.every)) {
+    Array.prototype.every = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(!fn.call(caller, this[i], i, this)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+// some
+if(!isFunction(Array.prototype.some)) {
+    Array.prototype.some = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+// reduce
+if(!isFunction(Array.prototype.reduce)) {
+    Array.prototype.reduce = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+        
+        i = 0;
+        len = this.length;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i++;
+        } else {
+            result = defaultValue;
+        }
+        for(; i < len; i++) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// reduceRight
+if(!isFunction(Array.prototype.reduceRight)) {
+    Array.prototype.reduceRight = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+
+        len = this.length;
+        i = len - 1;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i--;
+        } else {
+            result = defaultValue;
+        }
+        for(; i >= 0; i--) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// indexOf
+if(!isFunction(Array.prototype.indexOf)) {
+    Array.prototype.indexOf = function(value, startIndex) {
+        var i, len,
+            index;
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0) {
+                startIndex = len + startIndex;
+            }
+            
+            for(i = startIndex; i < len; i++) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+// lastIndexOf
+if(!isFunction(Array.prototype.lastIndexOf)) {
+    Array.prototype.lastIndexOf = function(value, startIndex) {
+        var i, len,
+            index;
+
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        i = len - 1;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0)
+                startIndex = len + startIndex;
+            
+            for(i = startIndex; i >= 0; i--) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-Array-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// find
+if(!isFunction(Array.prototype.find)) {
+    Array.prototype.find = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return this[i];
+            }
+        }
+    };
+}
+// findIndex
+if(!isFunction(Array.prototype.findIndex)) {
+    Array.prototype.findIndex = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return -1;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+// fill
+if(!isFunction(Array.prototype.fill)) {
+    Array.prototype.fill = function(value) {
+        var i, len;
+        for(i = 0, len = this.length; i < len; i++) {
+            this[i] = value;
+        }
+    };
+}
+// includes
+if(!isFunction(Array.prototype.includes)) {
+    Array.prototype.includes = function(value) {
+        return this.some(function(item) {
+            return item === value;
+        });
+    };
+}
+
+// Array.from
+if(!isFunction(Array.from)) {
+    Array.from = function(arrayLike, fn) {
+        var i, len,
+            itemFn,
+            result = [];
+
+        if(arrayLike && arrayLike.length) {
+            itemFn = fn;
+            if(!isFunction(itemFn)) {
+                itemFn = function(item) { 
+                    return item; 
+                };
+            }
+            for(i = 0, len = arrayLike.length; i < len; i++) {
+                result.push(itemFn.call(null, arrayLike[i], i));
+            }
+        }
+        return result;
+    };
+}
+
+// Array.of
+if(!isFunction(Array.of)) {
+    Array.of = function() {
+        return [].slice.call(arguments);
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-String-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+var rtrim;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// String.prototype
+// trim
+if(!isFunction(String.prototype.trim)) {
+    // Support: Android<4.1, IE<9
+    // Make sure we trim BOM and NBSP
+    rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+    String.protocol.trim = function() {
+        return text == null ? "" : (text + "").replace(rtrim, "");
+    };
+}
+
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-String-shims.js
+
+(function($, ui) {
+// 为String对象添加ES6的一些方法
+
+var toString = Object.prototype.toString;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function ensureInteger(position) {
+	var index = position ? Number(position) : 0;
+	if(isNaN(index)) {
+		index = 0;
+	}
+	return index;
+}
+
+// at
+if(!isFunction(String.prototype.at)) {
+	String.prototype.at = function(position) {
+		var str,
+			index,
+			endIndex,
+			len,
+			firstChar, secondChar;
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		index = ensureInteger(position);
+		index = Math.max(index, 0);
+
+		str = toString.call(this);
+		len = str.length;
+		if(index <= -1 || index >= len) {
+			return "";
+		}
+
+		firstChar = str.charCodeAt(index);
+		endIndex = index + 1;
+		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
+			secondChar = str.charCodeAt(endIndex);
+			if(secondChar >= 0xDC00 && secondChar <= 0xDFFF) {
+				endIndex = index + 2;
+			}
+		}
+
+		return str.slice(index, endIndex);
+	};
+}
+
+// includes
+if(!isFunction(String.prototype.includes)) {
+	String.prototype.includes = function() {
+		return String.prototype.indexOf.apply(this, arguments) !== -1;
+	};
+}
+
+// startsWith
+if(!isFunction(String.prototype.startsWith)) {
+	String.prototype.startsWith = function(searchStr) {
+		var str,
+			search,
+			startIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			startIndex = ensureInteger(arguments[1]);
+		} else {
+			startIndex = 0;
+		}
+		startIndex = Math.max(startIndex, 0);
+		
+		return str.slice(startIndex, startIndex + search.length) === search;
+	};
+}
+
+// endsWith
+if(!isFunction(String.prototype.endsWith)) {
+	String.prototype.endsWith = function(searchStr) {
+		var str,
+			search,
+			endIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			endIndex = ensureInteger(arguments[1]);
+		} else {
+			endIndex = str.length;
+		}
+		endIndex = Math.min(Math.max(endIndex, 0), str.length);
+		
+		return str.slice(endIndex - search.length, endIndex) === search;
+	};
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-Function-shims.js
+
+(function($, ui) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Function.prototype
+// bind
+if(!isFunction(Function.prototype.bind)) {
+    Function.prototype.bind = function(o) {
+        var self = this,
+            boundArgs = arguments;
+        return function() {
+            var args = [],
+                i;
+            for(i = 1; i < boundArgs.length; i++) {
+                args.push(boundArgs[i]);
+            }
+            for(i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            return self.apply(o, args);
+        };
+    };
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-JSON-shims.js
+
+(function($, ui) {
+// json2
+
+// 判断浏览器是否原生支持JSON对象
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
+if (hasJSON) {
+    return;
+}
+
+var JSON = {
+    fake: true
+};
+
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+function f(n) {
+    return n < 10 ? "0" + n : n;
+}
+function this_value() {
+    return this.valueOf();
+}
+if (typeof Date.prototype.toJSON !== "function") {
+    Date.prototype.toJSON = function () {
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" + 
+                    f(this.getUTCMonth() + 1) + "-" + 
+                    f(this.getUTCDate()) + "T" + 
+                    f(this.getUTCHours()) + ":" + 
+                    f(this.getUTCMinutes()) + ":" + 
+                    f(this.getUTCSeconds()) + "Z") : null);
+    };
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+}
+
+var gap;
+var indent;
+var meta;
+var rep;
+
+function quote(string) {
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string) ? 
+        ("\"" + string.replace(rx_escapable, function (a) {
+            var c = meta[a];
+            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
+        }) + "\"") : 
+        ("\"" + string + "\"");
+}
+function str(key, holder) {
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+    if (value && typeof value === "object" &&
+            typeof value.toJSON === "function") {
+        value = value.toJSON(key);
+    }
+    if (typeof rep === "function") {
+        value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+            return isFinite(value) ? String(value) : "null";
+
+        case "boolean":
+
+        case "null":
+            return String(value);
+
+        case "object":
+            if (!value) {
+                return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            }
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+    }
+}
+
+// JSON.stringify & JSON.parse
+meta = {
+    "\b": "\\b",
+    "\t": "\\t",
+    "\n": "\\n",
+    "\f": "\\f",
+    "\r": "\\r",
+    "\"": "\\\"",
+    "\\": "\\\\"
+};
+JSON.stringify = function (value, replacer, space) {
+    var i;
+    gap = "";
+    indent = "";
+    if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+            indent += " ";
+        }
+    } else if (typeof space === "string") {
+        indent = space;
+    }
+    rep = replacer;
+    if (replacer && typeof replacer !== "function" &&
+            (typeof replacer !== "object" ||
+            typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+    }
+    return str("", {"": value});
+};
+JSON.parse = function (text, reviver) {
+    var j;
+    function walk(holder, key) {
+        var k;
+        var v;
+        var value = holder[key];
+        if (value && typeof value === "object") {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }
+    text = String(text);
+    rx_dangerous.lastIndex = 0;
+    if (rx_dangerous.test(text)) {
+        text = text.replace(rx_dangerous, function (a) {
+            return "\\u" +
+                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        });
+    }
+    if (
+        rx_one.test(
+            text
+                .replace(rx_two, "@")
+                .replace(rx_three, "]")
+                .replace(rx_four, "")
+        )
+    ) {
+        j = eval("(" + text + ")");
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
+    }
+    throw new SyntaxError("JSON.parse");
+};
+
+})(jQuery, ui);
+
+// Source: src/ES6-Number-shims.js
+
+(function($, ui) {
+// 为Number对象添加ES6的一些方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function isNumber(value) {
+    return ui.core.type(value) === "number";
+}
+
+// Number.isFinite
+if(!isFunction(Number.isFinite)) {
+    Number.isFinite = function(num) {
+        return isNumber(num) && (num > -Infinity && num < Infinity);
+    };
+}
+
+// Number.isNaN
+if(!isFunction(Number.isNaN)) {
+    Number.isNaN = isNaN;
+}
+
+// Number.parseInt
+if(!isFunction(Number.parseInt)) {
+    Number.parseInt = parseInt;
+}
+
+// Number.parseFloat
+if(!isFunction(Number.parseFloat)) {
+    Number.parseFloat = parseFloat;
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES5-Object-shims.js
+
+(function($, ui) {
+// 为String对象添加ES6的一些方法
+
+var prototypeOfObject = Object.prototype,
+	hasOwnProperty = prototypeOfObject.hasOwnProperty,
+	isEnumerable = prototypeOfObject.propertyIsEnumerable,
+
+	supportsAccessors,
+	defineGetter,
+	defineSetter,
+	lookupGetter,
+	lookupSetter;
+
+supportsAccessors = hasOwnProperty.call(prototypeOfObject, "__defineGetter__");
+if(supportsAccessors) {
+	defineGetter = prototypeOfObject.__defineGetter__;
+	defineSetter = prototypeOfObject.__defineSetter__;
+	lookupGetter = prototypeOfObject.__lookupGetter__;
+	lookupSetter = prototypeOfObject.__lookupSetter__;
+}
+	
+
+function isFunction(fn) {
+	return ui.core.isFunction(fn);
+}
+
+function isPrimitive(obj) {
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
+}
+
+// 返回一个由一个给定对象的自身可枚举属性组成的数组
+if(!isFunction(Object.keys)) {
+	Object.keys = function(obj) {
+		var result,
+			property;
+
+		if (isPrimitive(obj)) {
+			throw new TypeError('Object.keys called on non-object');
+		}
+
+		result = [];
+		for(property in obj) {
+			if(hasOwnProperty.call(obj, property)) {
+				result.push(property);
+			}
+		}
+		return result;
+	};
+}
+
+// 获取原型
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			proto;
+
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		proto = obj.__proto__;
+		if(proto || proto === null) {
+			return proto;
+		} else if(isFunction(obj.constructor)) {
+			return obj.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			// Object.create(null) or { __proto__: null }
+			return null;
+		}
+	};
+}
+
+// 返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性
+if(!isFunction(Object.getOwnPropertyNames)) {
+	Object.getOwnPropertyNames = function(obj) {
+		return Object.keys(obj);
+	};
+}
+
+// 检查getOwnPropertyDescriptor是否需要修复
+var getOwnPropertyDescriptorFallback = null;
+function doesGetOwnPropertyDescriptorWork(obj) {
+	try {
+		object.sentinel = 0;
+		return Object.getOwnPropertyDescriptor(object, 'sentinel').value === 0;
+	} catch (e) {
+		return false;
+	}
+}
+if(Object.getOwnPropertyDescriptor) {
+	if(!doesGetOwnPropertyDescriptorWork({}) || 
+		!(typeof document === "undefined" || doesGetOwnPropertyDescriptorWork(document.createElement("div")))) {
+		getOwnPropertyDescriptorFallback = Object.getOwnPropertyDescriptor;
+	}
+}
+if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallback) {
+	Object.getOwnPropertyDescriptor = function(obj, property) {
+		var descriptor,
+			originalPrototype,
+			notPrototypeOfObject,
+			getter,
+			setter;
+
+		if(isPrimitive(obj)) {
+			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
+		}
+
+		// 尝试使用原始的getOwnPropertyDescriptor方法 for IE8
+		if(getOwnPropertyDescriptorFallback) {
+			try {
+				return getOwnPropertyDescriptorFallback.call(Object, obj, property);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if(!hasOwnProperty.call(obj, property)) {
+			return descriptor;
+		}
+
+		descriptor = {
+            enumerable: isEnumerable.call(obj, property),
+            value: obj[property],
+            configurable: true,
+            writable: true
+        };
+		
+		if(supportsAccessors) {
+			originalPrototype = obj.__proto__;
+
+			notPrototypeOfObject = originalPrototype !== prototypeOfObject;
+			if(notPrototypeOfObject) {
+				obj.__proto__ = prototypeOfObject;
+			}
+
+			getter = lookupSetter.call(obj, property);
+			setter = lookupSetter.call(obj, property);
+
+			if(notPrototypeOfObject) {
+				obj.__proto__ = originalPrototype;
+			}
+
+			if(getter || setter) {
+				if(getter) {
+					descriptor.get = getter;
+				}
+				if(setter) {
+					descriptor.set = setter;
+				}
+			}
+		}
+
+        return descriptor;
+	};
+}
+
+// 检查defineProperty是否需要修复
+var definePropertyFallback = null,
+	definePropertiesFallback = null;
+function doesDefinePropertyWork(object) {
+	try {
+		Object.defineProperty(object, 'sentinel', {});
+		return 'sentinel' in object;
+	} catch (exception) {
+		return false;
+	}
+}
+if(Object.defineProperty) {
+	if(!doesDefinePropertyWork({}) || 
+		!(typeof document === "undefined" || doesDefinePropertyWork(document.createElement("div")))) {
+		definePropertyFallback = Object.defineProperty;
+		definePropertiesFallback = Object.defineProperties;
+	}
+}
+if(!isFunction(Object.defineProperty) || definePropertyFallback) {
+	Object.defineProperty = function(obj, property, descriptor) {
+		var originalPrototype,
+			notPrototypeOfObject,
+			hasGetter,
+			hasSetter;
+
+		if(isPrimitive(obj) || isPrimitive(property)) {
+			throw new TypeError("Object.defineProperty called on non-object");
+		}
+
+		// 尝试使用原始的defineProperty方法 for IE8
+		if(definePropertyFallback) {
+			try {
+				return definePropertyFallback.call(Object, obj, property, descriptor);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if("value" in descriptor) {
+			if(supportsAccessors && (lookupGetter.call(obj, property) || lookupSetter.call(obj, property))) {
+				originalPrototype = obj.__proto__;
+				obj.__proto__ = prototypeOfObject;
+				
+				delete obj[prototype];
+				obj[prototype] = descriptor.value;
+
+				obj.__proto__ = originalPrototype;
+			} else {
+				obj[prototype] = descriptor.value;
+			}
+		} else {
+			hasGetter = "get" in descriptor && isFunction(descriptor.get);
+			hasSetter = "set" in descriptor && isFunction(descriptor.set);
+			if(!supportsAccessors && (hasGetter || hasSetter)) {
+				throw new TypeError("getters & setters can not be defined on this javascript engine");
+			}
+
+			if(hasGetter) {
+				defineGetter.call(obj, property, descriptor.get);
+			}
+			if(hasSetter) {
+				defineSetter.call(obj, property, descriptor.set);
+			}
+		}
+	};
+}
+
+// 检查defineProperties是否需要修复
+if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
+	Object.defineProperties = function(obj, properties) {
+		if(definePropertiesFallback) {
+			try {
+				return definePropertiesFallback.call(obj, properties);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		Object.keys(obj).forEach(function(prop) {
+			if(prop !== "__proto__") {
+				Object.defineProperty(obj, prop);
+			}
+		});
+		return obj;
+	};
+}
+
+// 检查isExtensible是否需要修复
+if(!isFunction(Object.isExtensible)) {
+	Object.isExtensible = function(obj) {
+		var tmpPropertyName,
+			returnValue;
+		if(ui.core.isObject(obj)) {
+			throw new TypeError("Object.isExtensible can only be called on Objects.");
+		}
+
+		tmpPropertyName = "_tmp";
+		while(hasOwnProperty(obj, tmpPropertyName)) {
+			tmpPropertyName += "_";
+		}
+
+		obj[tmpPropertyName] = true;
+		returnValue = hasOwnProperty(obj, tmpPropertyName);
+		delete obj[tmpPropertyName];
+
+		return returnValue;
+	};
+}
+
+// 检查getPrototypeOf是否需要修复
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			prototype;
+		
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		prototype = obj.__proto__;
+		if(property || prototype === null) {
+			return prototype;
+		} else if(ui.core.isFunction(property.constructor)) {
+			return prototype.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			return null;
+		}
+	};
+}
+
+// 检查create是否需要修复
+var createEmpty,
+	supportsProto,
+	shouldUseActiveX,
+	getEmptyViaActiveX,
+	getEmptyViaIFrame;
+if(!isFunction(Object.create)) {
+	supportsProto = !({ __proto__: null } instanceof Object);
+	shouldUseActiveX = function () {
+		if (!document.domain) {
+			return false;
+		}
+		try {
+			return !!new ActiveXObject('htmlfile');
+		} catch (e) {
+			return false;
+		}
+	};
+	getEmptyViaActiveX = function() {
+		var empty,
+			script,
+			xDoc;
+
+        xDoc = new ActiveXObject('htmlfile');
+		script = 'script';
+		xDoc.write('<' + script + '></' + script + '>');
+		xDoc.close();
+		empty = xDoc.parentWindow.Object.prototype;
+		xDoc = null;
+		return empty;
+	};
+	getEmptyViaIFrame = function() {
+		var iframe = document.createElement('iframe'),
+			parent = document.body || document.documentElement,
+			empty;
+
+		iframe.style.display = 'none';
+		parent.appendChild(iframe);
+
+		// eslint-disable-next-line no-script-url
+		iframe.src = 'javascript:';
+		empty = iframe.contentWindow.Object.prototype;
+		parent.removeChild(iframe);
+		iframe = null;
+		return empty;
+	};
+
+	if(supportsProto || typeof document === "undefined") {
+		createEmpty = function () {
+			return {
+				__proto__: null
+			};	
+		};
+	} else {
+		createEmpty = (function() {
+			var emptyPrototype = shouldUseActiveX() ? getEmptyViaActiveX() : getEmptyViaIFrame();
+
+			delete emptyPrototype.constructor;
+			delete emptyPrototype.hasOwnProperty;
+			delete emptyPrototype.propertyIsEnumerable;
+			delete emptyPrototype.isPrototypeOf;
+			delete emptyPrototype.toLocalString;
+			delete emptyPrototype.toString;
+			delete emptyPrototype.valueOf;
+
+			function Empty() {}
+			Empty.prototype = empty;
+
+			return function() {
+				return new Empty();
+			};
+		})();
+	}
+
+	Object.create = function(prototype, properties) {
+		var obj;
+
+		function Type() {}
+
+		if(prototype === null) {
+			return createEmpty();
+		} else {
+			if(isPrimitive(prototype)) {
+				throw TypeError("Object prototype may only be an Object or null");
+			}
+			Type.prototype = prototype;
+			obj = new Type();
+			obj.__proto__ = prototype;
+		}
+
+		if(properties !== undefined) {
+			Object.defineProperties(obj, properties);
+		}
+
+		return obj;
+	};
+}
+
+
+})(jQuery, ui);
+
+// Source: src/ES6-Promise.shims.js
+
+(function($, ui) {
+
+var PromiseShim = null,
+    isFunction,
+    global;
+
+isFunction = ui.core.isFunction;
+
+function noop() {}
+
+function _finally(onFinally) {
+    var P;
+    onFinally = isFunction(onFinally) ? onFinally : noop;
+
+    P = this.constructor;
+
+    return this.then(
+        function(value) {
+            P.resolve(onFinally()).then(function() {
+                return value;
+            });
+        },
+        function (reason) {
+            P.resolve(onFinally()).then(function() {
+                throw reason;
+            });
+        }
+    );
+}
+
+// 提案，暂不实现
+function _try() {}
+
+ui.PromiseEmpty = {
+    then: noop,
+    catch: noop
+};
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // 原生支持Promise
+    if(!isFunction(Promise.prototype.finally)) {
+        Promise.prototype.finally = _finally;
+    }
+    if(!isFunction(Promise.prototype.try)) {
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = _try;
+    }
+    return;
+}
+
+// 生成Promise垫片
+
+// 确定Promise对象的状态，并且执行回调函数
+function fire(promise, value, isResolved) {
+    promise._result = value;
+    promise._state = isResolved ? "resolved" : "rejected";
+    ui.setMicroTask(function() {
+        var data, i, len;
+        for(i = 0, len = promise._callbacks.length; i < len; i++) {
+            data = promise._callbacks[i];
+            promise._fire(data.onSuccess, data.onFail);
+        }
+    });
+}
+
+function some(any, iterable) {
+    var n = 0, 
+        result = [], 
+        end,
+        i, len;
+    
+    iterable = ui.core.type(iterable) === "array" ? iterable : [];
+    return new PromiseShim(function (resolve, reject) {
+        // 空数组直接resolve
+        if (!iterable.length) {
+            resolve();
+        }
+        function loop(promise, index) {
+            promise.then(
+                function (ret) {
+                    if (!end) {
+                        result[index] = ret;
+                        //保证回调的顺序
+                        n++;
+                        if (any || n >= iterable.length) {
+                            resolve(any ? ret : result);
+                            end = true;
+                        }
+                    }
+                }, 
+                function (e) {
+                    end = true;
+                    reject(e);
+                }
+            );
+        }
+        for (i = 0, len = iterable.length; i < len; i++) {
+            loop(iterable[i], i);
+        }
+    });
+}
+
+function success(value) {
+    return value;
+}
+
+function failed(reason) {
+    throw reason;
+}
+
+PromiseShim = function(executor) {
+    var promise;
+
+    if (typeof this !== "object") {
+        throw new TypeError("Promises must be constructed via new");
+    }
+    if (!isFunction(executor)) {
+        throw new TypeError("the executor is not a function");
+    }
+
+    // Promise共有三个状态
+    // 'pending' 还处在等待状态，并没有明确最终结果
+    // 'resolved' 任务已经完成，处在成功状态
+    // 'rejected' 任务已经完成，处在失败状态
+    this._state = "pending";
+    this._callbacks = [];
+
+    promise = this;
+    executor(
+        // resolve
+        function (value) {
+            var method;
+            if (promise._state !== "pending") {
+                return;
+            }
+            if (value && isFunction(value.then)) {
+                // thenable对象使用then，Promise实例使用_then
+                method = value instanceof PromiseShim ? "_then" : "then";
+                // 如果value是Promise对象则把callbacks转移到value的then当中
+                value[method](
+                    function (val) {
+                        fire(promise, val, true);
+                    },
+                    function (reason) {
+                        fire(promise, reason, false);
+                    }
+                );
+            } else {
+                fire(promise, value, true);
+            }
+        }, 
+        // reject
+        function (reason) {
+            if (promise._state !== "pending") {
+                return;
+            }
+            fire(promise, reason, false);
+        }
+    );
+};
+PromiseShim.prototype = {
+    constructor: PromiseShim,
+    // 处理then方法的回调函数
+    _then: function(onSuccess, onFail) {
+        var that = this;
+        if (this._state !== "pending") {
+            // 如果Promise状态已经确定则异步触发回调
+            ui.setMicroTask(function() {
+                that._fire(onSuccess, onFail);
+            });
+        } else {
+            this._callbacks.push({
+                onSuccess: onSuccess, 
+                onFail: onFail
+            });
+        }
+    },
+    _fire: function(onSuccess, onFail) {
+        if (this._state === "rejected") {
+            if (typeof onFail === "function") {
+                onFail(this._result);
+            } else {
+                throw this._result;
+            }
+        } else {
+            if (typeof onSuccess === "function") {
+                onSuccess(this._result);
+            }
+        }
+    },
+    then: function(onSuccess, onFail) {
+        var that = this,
+            nextPromise;
+
+        onSuccess = isFunction(onSuccess) ? onSuccess : success;
+        onFail = isFunction(onFail) ? onFail : failed;
+
+        // 用于衔接then，实现promise.then().catch()
+        nextPromise = new PromiseShim(function (resolve, reject) {
+            that._then(
+                function (value) {
+                    try {
+                        value = onSuccess(value);
+                    } catch (e) {
+                        // https://promisesaplus.com/#point-55
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }, 
+                function (value) {
+                    try {
+                        value = onFail(value);
+                    } catch (e) {
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }
+            );
+        });
+
+        return nextPromise;
+    },
+    catch: function(onFail) {
+        //添加出错回调
+        return this.then(success, onFail);
+    },
+    finally: _finally,
+    try: _try
+};
+
+PromiseShim.all = function(iterable) {
+    return some(false, iterable);
+};
+
+PromiseShim.race = function(iterable) {
+    return some(true, iterable);
+};
+
+PromiseShim.resolve = function(value) {
+    return new PromiseShim(function (resolve) {
+        resolve(value);
+    });
+};
+
+PromiseShim.reject = function(reason) {
+    return new PromiseShim(function (resolve, reject) {
+        reject(reason);
+    });
+};
+
+global = ui.core.global();
+global.Promise = PromiseShim;
+
+
+})(jQuery, ui);
+
 // Source: src/array-like.js
 
 (function($, ui) {
@@ -2687,6 +4062,264 @@ ui.clearMicroTask = function(index) {
 
 })(jQuery, ui);
 
+// Source: src/cookie.js
+
+(function($, ui) {
+// cookie 操作
+
+function parseCookieValue(s) {
+    if (s.indexOf('"') === 0) {
+        // This is a quoted cookie as according to RFC2068, unescape...
+        s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    }
+    try {
+        //处理加号
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    } catch (e) {
+        return s;
+    }
+}
+
+ui.cookie = {
+    stringify: function(name, val, opts) {
+        var pairs = [name + "=" + encodeURIComponent(val)];
+        if (isFinite(opts) && typeof opts === "number") {
+            pairs.push("Max-Age=" + opts);
+        } else {
+            opts = opts || {};
+            if (opts.maxAge)
+                pairs.push("Max-Age=" + opts.maxAge);
+            if (opts.domain)
+                pairs.push("Domain=" + opts.domain);
+            if (opts.path)
+                pairs.push("Path=" + opts.path);
+            if (opts.expires)
+                pairs.push("Expires=" + opts.expires.toUTCString());
+            if (opts.httpOnly)
+                pairs.push("HttpOnly");
+            if (opts.secure)
+                pairs.push("Secure");
+        }
+        return pairs.join("; ");
+    },
+    forEach: function(callback) {
+        var pairs = String(document.cookie).split(/; */);
+        pairs.forEach(function(pair) {
+            var index = pair.indexOf('=');
+            if (index === -1) {
+                return;
+            }
+            var key = pair.substr(0, index).trim();
+            var val = pair.substr(++index, pair.length).trim();
+            callback(key, parseCookieValue(val));
+        });
+    },
+    get: function(name) {
+        var ret;
+        try {
+            this.forEach(function(key, value) {
+                if (key === name) {
+                    ret = value;
+                    throw "";
+                }
+            });
+        } catch (e) {
+        }
+        return ret;
+    },
+    getAll: function() {
+        var obj = {};
+        this.forEach(function(key, value) {
+            if (!(key in obj)) {
+                obj[key] = value;
+            }
+        });
+        return obj;
+    },
+    set: function(key, val, opts) {
+        document.cookie = this.stringify.apply(0, arguments);
+    },
+    remove: function(key, opt) {
+        opt = opt || {};
+        if (!opt.expires) {
+            opt.expires = new Date(1970, 0, 1);
+        }
+        this.set(key, '', opt);
+    },
+    clear: function() {
+        var that = this;
+        this.forEach(function(key, value) {
+            that.remove(key);
+        });
+    }
+};
+
+})(jQuery, ui);
+
+// Source: src/style-sheet.js
+
+(function($, ui) {
+
+// 样式表操作
+function getRules() {
+    var rules = this.prop("cssRules") || this.prop("rules");
+    return rules;
+}
+function eachRules(rules, action) {
+    var i = 0,
+        len = rules.length,
+        rule;
+    for(; i < len; i++) {
+        rule = rules[i];
+        // 跳过@import和非样式规则
+        if(!rule.selectorText) {
+            continue;
+        }
+        if(action.call(this, rule, i) === false) {
+            break;
+        }
+    }
+}
+    
+function StyleSheet(elem) {
+    var nodeName,
+        styleElement;
+    if(!(this instanceof StyleSheet)) {
+        return new StyleSheet(elem);
+    }
+
+    this.styleSheet = null;
+    if(ui.core.isString(elem) && elem.length > 0) {
+        //通过ID获取
+        styleElement = $("#" + elem);
+        nodeName = styleElement.nodeName();
+        if (nodeName === "STYLE" || nodeName === "LINK") {
+            this.styleSheet = styleElement.prop("sheet");
+            if (!this.styleSheet) {
+                this.styleSheet = styleElement.prop("styleSheet");
+            }
+            if (this.styleSheet) {
+                this.styleSheet = $(this.styleSheet);
+            }
+        }
+    } else if(ui.core.isJQueryObject(elem)) {
+        this.styleSheet = elem;
+    } else if(ui.core.isDomObject(elem)) {
+        this.styleSheet = $(elem);
+    }
+}
+StyleSheet.prototype = {
+    constructor: StyleSheet,
+    disabled: function() {
+        if(arguments.length === 0) {
+            return this.styleSheet.prop("disabled");
+        }
+
+        this.styleSheet.prop("disabled", !!arguments[0]);
+        
+    },
+    getRule: function(selector) {
+        var rules,
+            result = null;
+        if(ui.str.isEmpty(selector)) {
+            return null;
+        }
+        if(!this.styleSheet || this.styleSheet.length === 0) {
+            return null;
+        }
+
+        selector = selector.toLowerCase();
+        rules = getRules.call(this.styleSheet);
+        eachRules(rules, function(rule, index) {
+            if(rule.selectorText.toLowerCase() === selector) {
+                result = rule;
+                return false;
+            }
+        });
+        return result;
+    },
+    setRule: function(selector, styles) {
+        var rules,
+            rule,
+            index;
+        if(ui.str.isEmpty(selector)) {
+            return;
+        }
+        if(!styles) {
+            return;
+        }
+
+        rule = this.getRule(selector);
+        if(!rule) {
+            selector = selector.toLowerCase();
+            rules = getRules.call(this.styleSheet);
+            index = rules.length;
+            if(ui.core.isFunction(this.styleSheet[0].insertRule)) {
+                this.styleSheet[0].insertRule(selector + " {}", index);
+            } else if(ui.core.isFunction(this.styleSheet[0].addRule)) {
+                this.styleSheet[0].addRule(selector, " ", index);
+            } else {
+                return;
+            }
+            rules = getRules.call(this.styleSheet);
+            rule = rules[index];
+        }
+        $(rule).css(styles);
+    },
+    removeRule: function(selector) {
+        var rules;
+        var removeFn;
+        if(ui.str.isEmpty(selector)) {
+            return;
+        }
+        if(!this.styleSheet || this.styleSheet.length === 0) {
+            return;
+        }
+
+        removeFn = this.styleSheet[0].deleteRule;
+        if(!ui.core.isFunction(removeFn)) {
+            removeFn = this.styleSheet[0].removeRule;
+        }
+
+        selector = selector.toLowerCase();
+        rules = getRules.call(this.styleSheet);
+        eachRules(rules, function(rule, index) {
+            if(rule.selectorText.toLowerCase() === selector) {
+                if(ui.core.isFunction(removeFn)) {
+                    removeFn.call(this.styleSheet[0], index);
+                }
+                return false;
+            }
+        });
+    }
+};
+StyleSheet.createStyleSheet = function(id) {
+    var styleElem,
+        styleSheet,
+        head;
+
+    // IE专有，IE11以后不再支持
+    if(ui.core.isFunction(document.createStyleSheet)) {
+        styleSheet = document.createStyleSheet();
+        styleElem = styleSheet.ownerNode || styleSheet.owningElement;
+    } else {
+        head = document.getElementsByTagName("head")[0];
+        styleElem = document.createElement("style");
+        head.appendChild(styleElem);
+        styleSheet = document.styleSheets[document.styleSheets.length - 1];
+    }
+    if(!ui.str.isEmpty(id)) {
+        styleElem.id = id;
+    }
+
+    return new StyleSheet($(styleSheet));
+};
+
+ui.StyleSheet = StyleSheet;
+
+
+})(jQuery, ui);
+
 // Source: src/jquery-extend.js
 
 (function($, ui) {
@@ -2950,264 +4583,6 @@ $.fn.textinput = function(data, fn) {
     }
     return this;
 };
-
-
-})(jQuery, ui);
-
-// Source: src/cookie.js
-
-(function($, ui) {
-// cookie 操作
-
-function parseCookieValue(s) {
-    if (s.indexOf('"') === 0) {
-        // This is a quoted cookie as according to RFC2068, unescape...
-        s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-    }
-    try {
-        //处理加号
-        return decodeURIComponent(s.replace(/\+/g, ' '));
-    } catch (e) {
-        return s;
-    }
-}
-
-ui.cookie = {
-    stringify: function(name, val, opts) {
-        var pairs = [name + "=" + encodeURIComponent(val)];
-        if (isFinite(opts) && typeof opts === "number") {
-            pairs.push("Max-Age=" + opts);
-        } else {
-            opts = opts || {};
-            if (opts.maxAge)
-                pairs.push("Max-Age=" + opts.maxAge);
-            if (opts.domain)
-                pairs.push("Domain=" + opts.domain);
-            if (opts.path)
-                pairs.push("Path=" + opts.path);
-            if (opts.expires)
-                pairs.push("Expires=" + opts.expires.toUTCString());
-            if (opts.httpOnly)
-                pairs.push("HttpOnly");
-            if (opts.secure)
-                pairs.push("Secure");
-        }
-        return pairs.join("; ");
-    },
-    forEach: function(callback) {
-        var pairs = String(document.cookie).split(/; */);
-        pairs.forEach(function(pair) {
-            var index = pair.indexOf('=');
-            if (index === -1) {
-                return;
-            }
-            var key = pair.substr(0, index).trim();
-            var val = pair.substr(++index, pair.length).trim();
-            callback(key, parseCookieValue(val));
-        });
-    },
-    get: function(name) {
-        var ret;
-        try {
-            this.forEach(function(key, value) {
-                if (key === name) {
-                    ret = value;
-                    throw "";
-                }
-            });
-        } catch (e) {
-        }
-        return ret;
-    },
-    getAll: function() {
-        var obj = {};
-        this.forEach(function(key, value) {
-            if (!(key in obj)) {
-                obj[key] = value;
-            }
-        });
-        return obj;
-    },
-    set: function(key, val, opts) {
-        document.cookie = this.stringify.apply(0, arguments);
-    },
-    remove: function(key, opt) {
-        opt = opt || {};
-        if (!opt.expires) {
-            opt.expires = new Date(1970, 0, 1);
-        }
-        this.set(key, '', opt);
-    },
-    clear: function() {
-        var that = this;
-        this.forEach(function(key, value) {
-            that.remove(key);
-        });
-    }
-};
-
-})(jQuery, ui);
-
-// Source: src/style-sheet.js
-
-(function($, ui) {
-
-// 样式表操作
-function getRules() {
-    var rules = this.prop("cssRules") || this.prop("rules");
-    return rules;
-}
-function eachRules(rules, action) {
-    var i = 0,
-        len = rules.length,
-        rule;
-    for(; i < len; i++) {
-        rule = rules[i];
-        // 跳过@import和非样式规则
-        if(!rule.selectorText) {
-            continue;
-        }
-        if(action.call(this, rule, i) === false) {
-            break;
-        }
-    }
-}
-    
-function StyleSheet(elem) {
-    var nodeName,
-        styleElement;
-    if(!(this instanceof StyleSheet)) {
-        return new StyleSheet(elem);
-    }
-
-    this.styleSheet = null;
-    if(ui.core.isString(elem) && elem.length > 0) {
-        //通过ID获取
-        styleElement = $("#" + elem);
-        nodeName = styleElement.nodeName();
-        if (nodeName === "STYLE" || nodeName === "LINK") {
-            this.styleSheet = styleElement.prop("sheet");
-            if (!this.styleSheet) {
-                this.styleSheet = styleElement.prop("styleSheet");
-            }
-            if (this.styleSheet) {
-                this.styleSheet = $(this.styleSheet);
-            }
-        }
-    } else if(ui.core.isJQueryObject(elem)) {
-        this.styleSheet = elem;
-    } else if(ui.core.isDomObject(elem)) {
-        this.styleSheet = $(elem);
-    }
-}
-StyleSheet.prototype = {
-    constructor: StyleSheet,
-    disabled: function() {
-        if(arguments.length === 0) {
-            return this.styleSheet.prop("disabled");
-        }
-
-        this.styleSheet.prop("disabled", !!arguments[0]);
-        
-    },
-    getRule: function(selector) {
-        var rules,
-            result = null;
-        if(ui.str.isEmpty(selector)) {
-            return null;
-        }
-        if(!this.styleSheet || this.styleSheet.length === 0) {
-            return null;
-        }
-
-        selector = selector.toLowerCase();
-        rules = getRules.call(this.styleSheet);
-        eachRules(rules, function(rule, index) {
-            if(rule.selectorText.toLowerCase() === selector) {
-                result = rule;
-                return false;
-            }
-        });
-        return result;
-    },
-    setRule: function(selector, styles) {
-        var rules,
-            rule,
-            index;
-        if(ui.str.isEmpty(selector)) {
-            return;
-        }
-        if(!styles) {
-            return;
-        }
-
-        rule = this.getRule(selector);
-        if(!rule) {
-            selector = selector.toLowerCase();
-            rules = getRules.call(this.styleSheet);
-            index = rules.length;
-            if(ui.core.isFunction(this.styleSheet[0].insertRule)) {
-                this.styleSheet[0].insertRule(selector + " {}", index);
-            } else if(ui.core.isFunction(this.styleSheet[0].addRule)) {
-                this.styleSheet[0].addRule(selector, " ", index);
-            } else {
-                return;
-            }
-            rules = getRules.call(this.styleSheet);
-            rule = rules[index];
-        }
-        $(rule).css(styles);
-    },
-    removeRule: function(selector) {
-        var rules;
-        var removeFn;
-        if(ui.str.isEmpty(selector)) {
-            return;
-        }
-        if(!this.styleSheet || this.styleSheet.length === 0) {
-            return;
-        }
-
-        removeFn = this.styleSheet[0].deleteRule;
-        if(!ui.core.isFunction(removeFn)) {
-            removeFn = this.styleSheet[0].removeRule;
-        }
-
-        selector = selector.toLowerCase();
-        rules = getRules.call(this.styleSheet);
-        eachRules(rules, function(rule, index) {
-            if(rule.selectorText.toLowerCase() === selector) {
-                if(ui.core.isFunction(removeFn)) {
-                    removeFn.call(this.styleSheet[0], index);
-                }
-                return false;
-            }
-        });
-    }
-};
-StyleSheet.createStyleSheet = function(id) {
-    var styleElem,
-        styleSheet,
-        head;
-
-    // IE专有，IE11以后不再支持
-    if(ui.core.isFunction(document.createStyleSheet)) {
-        styleSheet = document.createStyleSheet();
-        styleElem = styleSheet.ownerNode || styleSheet.owningElement;
-    } else {
-        head = document.getElementsByTagName("head")[0];
-        styleElem = document.createElement("style");
-        head.appendChild(styleElem);
-        styleSheet = document.styleSheets[document.styleSheets.length - 1];
-    }
-    if(!ui.str.isEmpty(id)) {
-        styleElem.id = id;
-    }
-
-    return new StyleSheet($(styleSheet));
-};
-
-ui.StyleSheet = StyleSheet;
 
 
 })(jQuery, ui);
@@ -4067,547 +5442,6 @@ ui.animator.fadeOut = function(target) {
     return animator.start();
 };
 
-
-})(jQuery, ui);
-
-// Source: src/component/selector-set.js
-
-(function($, ui) {
-// SelectorSet
-// 参考 https://github.com/josh/selector-set/blob/master/selector-set.js
-// 针对SOON.UI的代码风格进行了重构
-// 修改了部分变量名称，便于自己的理解
-/*
-    数据结构
-    [
-        {
-            name: String,
-            getSelector: Function,
-            getElementKeys: Function,
-            map: Map {
-                selector: Array [
-                    {
-                        id: String,
-                        selector: String,
-                        data: Object,
-                        elements: Array
-                    }
-                ]
-            }
-        }
-    ]
-*/
-var 
-    // selector匹配
-    chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
-    // id 匹配
-    rid = /^#((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g,
-    // class 匹配
-    rclass = /^\.((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g,
-    // tag 匹配
-    rtag = /^((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g;
-
-var 
-    docElem = document.documentElement,
-    matches = (docElem.matches ||
-                docElem.webkitMatchesSelector ||
-                docElem.mozMatchesSelector ||
-                docElem.oMatchesSelector ||
-                docElem.msMatchesSelector),
-    selectorTypes = [],
-    defaultSelectorType;
-
-// 默认值
-defaultSelectorType = {
-    name: 'UNIVERSAL',
-    getSelector: function() {
-        return true;
-    },
-    getElementKeys: function() {
-        return [true];
-    }
-};
-// 添加ID匹配器 #id
-selectorTypes.push({
-    name: "ID",
-    getSelector: function(selector) {
-        var m = selector.match(rid);
-        if (m) {
-            // 去掉[#]号
-            return m[0].substring(1);
-        }
-        return null;
-    },
-    getElementKeys: function(element) {
-        if (element.id) {
-            return [element.id];
-        }
-        return null;
-    }
-});
-// 添加Class匹配器 .classname
-selectorTypes.push({
-    name: "CLASS",
-    getSelector: function(selector) {
-        var m = selector.match(rclass);
-        if (m) {
-            // 去掉[.]号
-            return m[0].substring(1);
-        }
-        return null;
-    },
-    getElementKeys: function(element) {
-        var className = element.className;
-        if(className) {
-            if (typeof className === "string") {
-                return className.split(/\s/);
-            } else if (typeof className === "object" && "baseVal" in className) {
-                // className is a SVGAnimatedString
-                // global SVGAnimatedString is not an exposed global in Opera 12
-                return className.baseVal.split(/\s/);
-            }
-        }
-        return null;
-    }
-});
-// 添加Tag匹配器 A DIV
-selectorTypes.push({
-    name: "TAG",
-    getSelector: function(selector) {
-        var m = selector.match(rtag);
-        if (m) {
-            return m[0].toUpperCase();
-        }
-        return null;
-    },
-    getElementKeys: function(element) {
-        return [element.nodeName.toUpperCase()];
-    }
-});
-
-
-// 匹配selector
-function parseSelectorTypes(allTypes, selector) {
-    var i, j, len,
-        matches,
-        rest,
-        key, type,
-        types = [],
-        shouldCancel;
-
-    allTypes = allTypes.slice(0).concat(allTypes['default']);
-    len = allTypes.length;
-
-    rest = selector;
-    do {
-        // reset index
-        chunker.exec('');
-        matches = chunker.exec(rest);
-        if(matches) {
-            rest = matches[3];
-            if (matches[2] || !rest) {
-                for (i = 0; i < len; i++) {
-                    type = allTypes[i];
-                    key = type.getSelector(matches[1]);
-                    if(key) {
-                        j = types.length;
-                        shouldCancel = false;
-                        while(j--) {
-                            if (types[j].type === type && types[j].key === key) {
-                                shouldCancel = true;
-                                break;
-                            }
-                        }
-                        if(!shouldCancel) {
-                            types.push({
-                                type: type,
-                                key: key
-                            });
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    } while(matches);
-
-    return types;
-}
-
-function findByPrototype(target, proto) {
-    var i, len, item;
-    for(i = 0, len = target.length; i < len; i++) {
-        item = target[i];
-        if(proto.isPrototypeOf(item)) {
-            return item;
-        }
-    }
-}
-
-function sortById(a, b) {
-    return a.id - b.id;
-}
-
-function SelectorSet() {
-    if(!(this instanceof SelectorSet)) {
-        return new SelectorSet();
-    }
-
-    this.count = 0;
-    this.uid = 0;
-
-    this.types = Object.create(selectorTypes);
-    this.types["default"] = defaultSelectorType;
-
-    this.activeTypes = [];
-    this.selectors = [];
-}
-SelectorSet.prototype = {
-    constructor: SelectorSet,
-    add: function(selector, data) {
-        var types, typeItem,
-            activeTypes, activeType,
-            i, len,
-            target, targets;
-
-        if(!ui.core.isString(selector)) {
-            return;
-        }
-
-        target = {
-            id: this.uid++,
-            selector: selector,
-            data: data
-        };
-
-        types = parseSelectorTypes(this.types, selector);
-        activeTypes = this.activeTypes;
-        for (i = 0, len = types.length; i < len; i++) {
-            typeItem = types[i];
-            activeType = findByPrototype(activeTypes, typeItem.type);
-            if(!activeType) {
-                activeType = Object.create(typeItem.type);
-                activeType.map = new Map();
-                activeTypes.push(activeType);
-            }
-
-            if(typeItem.type === this.types["default"]) {
-                // TODO 使用了默认的类型
-            }
-
-            targets = activeType.map.get(typeItem.key);
-            if(!targets) {
-                targets = [];
-                activeType.map.set(typeItem.key, targets);
-            }
-            targets.push(target);
-        }
-
-        this.count++;
-        this.selectors.push(selector);
-    },
-    remove: function(selector, data) {
-        var types, typeItem,
-            activeTypes, activeType,
-            i, len, j, k,
-            targets, target,
-            removeAll,
-            removeCount = 0;
-        if(!ui.core.isString(selector)) {
-            return;
-        }
-
-        removeAll = arguments.length === 1;
-        types = parseSelectorTypes(this.types, selector);
-        activeTypes = this.activeTypes;
-        for (i = 0, len = types.length; i < len; i++) {
-            typeItem = types[i];
-            j = activeTypes.length;
-            while(j--) {
-                activeType = activeTypes[j];
-                if(typeItem.type.isPrototypeOf(activeType)) {
-                    targets = activeType.map.get(typeItem.key);
-                    if(targets) {
-                        k = targets.length;
-                        while(k--) {
-                            target = targets[k];
-                            if(target.selector === selector && (removeAll || target.data === data)) {
-                                targets.splice(k, 1);
-                                removeCount++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        this.count -= removeCount;
-    },
-    matchesSelector: function(element, selector) {
-        return matches.call(element, selector);
-    },
-    querySelectorAll: function(selectors, context) {
-        return context.querySelectorAll(selectors);
-    },
-    queryAll: function(context) {
-        var targets, target,
-            results,
-            elements, element,
-            i, len, j, jlen, matches, match;
-        if(this.selectors.length === 0) {
-            return [];
-        }
-
-        targets = {};
-        results = [];
-        elements = this.querySelectorAll(this.selectors.join[", "], context);
-
-        for(i = 0, len = elements.length; i < len; i++) {
-            element = elements[i];
-            matches = this.matches(element);
-            for(j = 0, jlen = matches.length; j < jlen; j++) {
-                match = m[j];
-                if(!targets[match.id]) {
-                    target = {
-                        id: match.id,
-                        selector: match.selector,
-                        data: match.data,
-                        elements: []
-                    };
-                    targets[match.id] = target;
-                    results.push(target);
-                } else {
-                    target = targets[match.id];
-                }
-                target.elements.push(element);
-            }
-        }
-        
-        return results.sort(sortById);
-    },
-    matches: function(element) {
-        var activeTypes, activeType,
-            i, len, j, jlen, k, klen, keys,
-            targets, target,
-            matchedIds, matches;
-        if(!element) {
-            return [];
-        }
-
-        matchedIds = {};
-        matches = [];
-        activeTypes = this.activeTypes;
-        for (i = 0, len = activeTypes.length; i < len; i++) {
-            activeType = activeTypes[i];
-            keys = activeType.getElementKeys(element);
-            if(keys) {
-                for(j = 0, jlen = keys.length; j < jlen; j++) {
-                    targets = activeType.map.get(keys[i]);
-                    if(targets) {
-                        for(k = 0, klen = targets.length; k < klen; k++) {
-                            target = targets[k];
-                            if (!matchedIds[target.id] && this.matchesSelector(element, target.selector)) {
-                                matchedIds[target.id] = true;
-                                matches.push(target);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return matches.sort(sortById);
-    }
-};
-
-ui.SelectorSet = SelectorSet;
-
-
-})(jQuery, ui);
-
-// Source: src/component/event-delegate.js
-
-(function($, ui) {
-// EventDelegate
-// 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
-// 针对SOON.UI的代码风格进行了重构
-
-var 
-    bubbleEvents = {},
-    captureEvents = {},
-    currentTargetDescriptor = 
-        ui.core.isFunction(Object.getOwnPropertyDescriptor) ?
-            Object.getOwnPropertyDescriptor(Event.prototype, "currentTarget") : null;
-
-function before(target, methodName, fn) {
-    var sourceFn = target[methodName];
-    target[methodName] = function() {
-        fn.apply(target, arguments);
-        return sourceFn.apply(target, arguments);
-    };
-    return target;
-}
-
-function overrideCurrentTargetProperty(event) {
-    var sourceCurrentTarget,
-        currentTargetValue = null,
-        operator = {};
-    if(currentTargetDescriptor) {
-        Object.defineProperty(event, "currentTarget", {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return currentTargetValue;
-            }
-        });
-        operator.update = function(value) {
-            currentTargetValue = value;
-        };
-        operator.reset = function(value) {
-            Object.defineProperty(event, "currentTarget", {
-                configurable: true,
-                enumerable: true,
-                get: currentTargetDescriptor.get
-            });
-        };
-    } else {
-        sourceCurrentTarget = event.currentTarget;
-        operator.update = function(value) {
-            event.currentTarget = value;
-        };
-        operator.reset = function() {
-            event.currentTarget = sourceCurrentTarget;
-        };
-    }
-    return operator;
-}
-
-function matches(selectorSet, element, reverse) {
-    var queue = [],
-        node = element,
-        matches, matched;
-
-    do {
-        if(node.nodeType !== 1) {
-            break;
-        }
-        matches = selectorSet.matches(node);
-        if(matches.length > 0) {
-            matched = {
-                node: node,
-                observers: matches
-            };
-            if(reverse) {
-                queue.shift(matched);
-            } else {
-                queue.push(matched);
-            }
-        }
-        node = node.parentElement;
-    } while(node);
-
-    return queue;
-}
-
-function dispatch(event) {
-    var events = event.eventPhase === 1 ? captureEvents : bubbleEvents,
-        selectorSet = events[event.type],
-        queue, item,
-        i, len, j, jlen,
-        propagationStopped = false,
-        immediatePropagationStopped = false,
-        currentTargetOperator;
-
-    if(!selectorSet) {
-        return;
-    }
-
-    queue = matches(selectorSet, event.target, event.eventPhase === 1);
-    len = queue.length;
-    if(len === 0) {
-        return;
-    }
-
-    before(event, "stopPropagation", function() {
-        propagationStopped = true;
-    });
-    before(event, "stopImmediatePropagation", function() {
-        immediatePropagationStopped = true;
-    });
-    currentTargetOperator = overrideCurrentTargetProperty(event);
-    
-    for(i = 0; i < len; i++) {
-        if(propagationStopped) {
-            break;
-        }
-        item = queue[i];
-        currentTargetOperator.update(item.node);
-        for(j = 0, jlen = item.observers.length; j < jlen; j++) {
-            if(immediatePropagationStopped) {
-                break;
-            }
-            item.observers[j].data.call(item.node, event);
-        }
-    }
-
-    currentTargetOperator.reset();
-}
-
-function on(eventName, selector, fn, option) {
-    var capture, events, selectorSet;
-
-    if(!eventName || !selector) {
-        return;
-    }
-
-    if(!ui.core.isFunction(fn)) {
-        return;
-    }
-
-    capture = option && option.capture ? true : false,
-    events = capture ? captureEvents : bubbleEvents,
-    selectorSet = events[eventName];
-
-    if(!selectorSet) {
-        selectorSet = new ui.SelectorSet();
-        events[eventName] = selectorSet;
-        document.addEventListener(eventName, dispatch, capture);
-    }
-    selectorSet.add(selector, fn);
-}
-
-function off(eventName, selector, fn, option) {
-    var capture, events, selectorSet;
-
-    if(!eventName || !selector) {
-        return;
-    }
-
-    capture = option && option.capture ? true : false,
-    events = capture ? captureEvents : bubbleEvents,
-    selectorSet = events[eventName];
-    if(!selectorSet) {
-        return;
-    }
-
-    selectorSet.remove(selector, fn);
-    if(selectorSet.count === 0) {
-        delete events[eventName];
-        document.removeEventListener(name, dispatch, capture);
-    }
-}
-
-function fire(target, eventName, detail) {
-    return target.dispatchEvent(
-        new CustomEvent(eventName, {
-            bubbles: true,
-            cancelable: true,
-            detail: detail
-        })
-    );
-}
-
-ui.on = on;
-ui.off = off;
-ui.fire = fire;
 
 })(jQuery, ui);
 
@@ -9792,19 +10626,33 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         }
     },
     /** 设置大小并居中显示 */
-    setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
-        var parentSize = this.getParentSize();
-        if(!ui.core.isNumber(parentWidth)) {
+    setSize: function(newWidth, newHeight, parentWidth, parentHeight, cssFn) {
+        var parentSize = this.getParentSize(),
+            isParentWidthNumber = ui.core.isNumber(parentWidth),
+            isParentHeightNumber = ui.core.isNumber(parentHeight);
+        if(!isParentWidthNumber) {
             parentWidth = parentSize.width;
         }
-        if(!ui.core.isNumber(parentHeight)) {
+        if(!isParentHeightNumber) {
             parentHeight = parentSize.height;
         }
+        if(isParentWidthNumber && isParentHeightNumber) {
+            this.getParentSize = function() {
+                return {
+                    width: parentWidth,
+                    height: parentHeight
+                }
+            };
+        }
         this._setSize(newWidth, newHeight);
-        this.box.css({
-            "top": (parentHeight - this.offsetHeight) / 2 + "px",
-            "left": (parentWidth - this.offsetWidth) / 2 + "px"
-        });
+        this.box.css(
+            ui.core.isFunction(cssFn) 
+                ? cssFn.call(this, parentWidth, parentHeight) 
+                : {
+                    "top": (parentHeight - this.offsetHeight) / 2 + "px",
+                    "left": (parentWidth - this.offsetWidth) / 2 + "px"
+                }
+        );
         if (this.maskable()) {
             this.mask.css("height", parentHeight + "px");
         }
@@ -14451,7 +15299,12 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
+    return [
+        "<span", this.calendar.isWeekend(date.getDay()) ? " class='ui-calendar-weekend'" : "", ">",
+        (date.getMonth() + 1), " / ", date.getDate(), 
+        "（" + language.sundayFirstWeek[date.getDay()],  "）", 
+        "</span>"
+    ].join("");
 }
 
 // 事件处理
@@ -14624,7 +15477,7 @@ YearView.prototype = {
                 height: unitHeight + "px"
             });
             cell.children(".year-month-content")
-                .css("height", unitHeight - 48 + "px");
+                .css("height", unitHeight - 40 + "px");
             oddFn.call(this, cell, count, i);
         }
     },
@@ -14668,7 +15521,7 @@ YearView.prototype = {
             } else {
                 flag = "<th class='year-month-table-head'>";
             }
-            row.append(flag + week[i] + "</th>");
+            row.append(flag + "<span>" + week[i] + "</span></th>");
         }
         thead.append(row);
 
@@ -15594,7 +16447,7 @@ WeekView.prototype = {
             colgroup.append("<col />");
 
             th = $("<th class='weekday-cell' />");
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             tr.append(th);
         }
 
@@ -16782,7 +17635,7 @@ Selector.prototype = {
             this.onSelectCompleted();
         }
     },
-    /** 选则完成处理 */
+    /** 选择完成处理 */
     onSelectCompleted: function() {
         var box,
             date, arr,
@@ -20025,8 +20878,10 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.pager.renderPageList(rowCount);
     },
     _updateScrollState: function() {
+        var scrollHeight = this.body[0].scrollHeight;
+        var height = this.body.height();
         if (!this.headTable) return;
-        if(this.body[0].scrollHeight > this.body.height()) {
+        if(scrollHeight - height > 1) {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
@@ -20746,8 +21601,7 @@ function defaultSortFn(a, b) {
 function onListItemClick(e) {
     var elem,
         isCloseButton,
-        index,
-        data;
+        index;
 
     elem = $(e.target);
     isCloseButton = elem.hasClass("ui-item-view-remove");
@@ -20939,15 +21793,15 @@ ui.ctrls.define("ui.ctrls.ListView", {
                 container.html(content.html);
             }
         }
+        li.append(container);
         
         this._appendOperateElements(builder);
-        container.append(builder.join(""));
-        li.append(container);
+        li.append(builder.join(""));
 
         return li;
     },
     _appendOperateElements: function(builder) {
-        builder.push("<b class='ui-list-view-b background-highlight' />");
+        builder.push("<b class='ui-list-view-b background-highlight'></b>");
         if(this.option.hasRemoveButton) {
             builder.push("<a href='javascript:void(0)' class='closable-button ui-item-view-remove'>×</a>");
         }
@@ -22046,7 +22900,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                         this.sorter.setSortColumn(th, columnObj, j);
                         // 设置列宽拖动把手
                         if(this.option.adjustable && !renderFixed) {
-                            th.append("<b class='adjust-column-handle' />");
+                            th.append("<b class='adjust-column-handle'></b>");
                         }
                         
                     }
@@ -22139,7 +22993,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         scrollWidth = this.reportDataBody[0].scrollWidth;
         scrollHeight = this.reportDataBody[0].scrollHeight;
 
-        if (scrollHeight > height) {
+        if (scrollHeight - height > 1) {
             // Y轴滚动条出现
             this._headScrollColumn.show();
         } else {
