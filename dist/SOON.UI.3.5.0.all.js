@@ -5445,6 +5445,547 @@ ui.animator.fadeOut = function(target) {
 
 })(jQuery, ui);
 
+// Source: src/component/selector-set.js
+
+(function($, ui) {
+// SelectorSet
+// 参考 https://github.com/josh/selector-set/blob/master/selector-set.js
+// 针对SOON.UI的代码风格进行了重构
+// 修改了部分变量名称，便于自己的理解
+/*
+    数据结构
+    [
+        {
+            name: String,
+            getSelector: Function,
+            getElementKeys: Function,
+            map: Map {
+                selector: Array [
+                    {
+                        id: String,
+                        selector: String,
+                        data: Object,
+                        elements: Array
+                    }
+                ]
+            }
+        }
+    ]
+*/
+var 
+    // selector匹配
+    chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
+    // id 匹配
+    rid = /^#((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g,
+    // class 匹配
+    rclass = /^\.((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g,
+    // tag 匹配
+    rtag = /^((?:[\w\u00c0-\uFFFF\-]|\\.)+)/g;
+
+var 
+    docElem = document.documentElement,
+    matches = (docElem.matches ||
+                docElem.webkitMatchesSelector ||
+                docElem.mozMatchesSelector ||
+                docElem.oMatchesSelector ||
+                docElem.msMatchesSelector),
+    selectorTypes = [],
+    defaultSelectorType;
+
+// 默认值
+defaultSelectorType = {
+    name: 'UNIVERSAL',
+    getSelector: function() {
+        return true;
+    },
+    getElementKeys: function() {
+        return [true];
+    }
+};
+// 添加ID匹配器 #id
+selectorTypes.push({
+    name: "ID",
+    getSelector: function(selector) {
+        var m = selector.match(rid);
+        if (m) {
+            // 去掉[#]号
+            return m[0].substring(1);
+        }
+        return null;
+    },
+    getElementKeys: function(element) {
+        if (element.id) {
+            return [element.id];
+        }
+        return null;
+    }
+});
+// 添加Class匹配器 .classname
+selectorTypes.push({
+    name: "CLASS",
+    getSelector: function(selector) {
+        var m = selector.match(rclass);
+        if (m) {
+            // 去掉[.]号
+            return m[0].substring(1);
+        }
+        return null;
+    },
+    getElementKeys: function(element) {
+        var className = element.className;
+        if(className) {
+            if (typeof className === "string") {
+                return className.split(/\s/);
+            } else if (typeof className === "object" && "baseVal" in className) {
+                // className is a SVGAnimatedString
+                // global SVGAnimatedString is not an exposed global in Opera 12
+                return className.baseVal.split(/\s/);
+            }
+        }
+        return null;
+    }
+});
+// 添加Tag匹配器 A DIV
+selectorTypes.push({
+    name: "TAG",
+    getSelector: function(selector) {
+        var m = selector.match(rtag);
+        if (m) {
+            return m[0].toUpperCase();
+        }
+        return null;
+    },
+    getElementKeys: function(element) {
+        return [element.nodeName.toUpperCase()];
+    }
+});
+
+
+// 匹配selector
+function parseSelectorTypes(allTypes, selector) {
+    var i, j, len,
+        matches,
+        rest,
+        key, type,
+        types = [],
+        shouldCancel;
+
+    allTypes = allTypes.slice(0).concat(allTypes['default']);
+    len = allTypes.length;
+
+    rest = selector;
+    do {
+        // reset index
+        chunker.exec('');
+        matches = chunker.exec(rest);
+        if(matches) {
+            rest = matches[3];
+            if (matches[2] || !rest) {
+                for (i = 0; i < len; i++) {
+                    type = allTypes[i];
+                    key = type.getSelector(matches[1]);
+                    if(key) {
+                        j = types.length;
+                        shouldCancel = false;
+                        while(j--) {
+                            if (types[j].type === type && types[j].key === key) {
+                                shouldCancel = true;
+                                break;
+                            }
+                        }
+                        if(!shouldCancel) {
+                            types.push({
+                                type: type,
+                                key: key
+                            });
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    } while(matches);
+
+    return types;
+}
+
+function findByPrototype(target, proto) {
+    var i, len, item;
+    for(i = 0, len = target.length; i < len; i++) {
+        item = target[i];
+        if(proto.isPrototypeOf(item)) {
+            return item;
+        }
+    }
+}
+
+function sortById(a, b) {
+    return a.id - b.id;
+}
+
+function SelectorSet() {
+    if(!(this instanceof SelectorSet)) {
+        return new SelectorSet();
+    }
+
+    this.count = 0;
+    this.uid = 0;
+
+    this.types = Object.create(selectorTypes);
+    this.types["default"] = defaultSelectorType;
+
+    this.activeTypes = [];
+    this.selectors = [];
+}
+SelectorSet.prototype = {
+    constructor: SelectorSet,
+    add: function(selector, data) {
+        var types, typeItem,
+            activeTypes, activeType,
+            i, len,
+            target, targets;
+
+        if(!ui.core.isString(selector)) {
+            return;
+        }
+
+        target = {
+            id: this.uid++,
+            selector: selector,
+            data: data
+        };
+
+        types = parseSelectorTypes(this.types, selector);
+        activeTypes = this.activeTypes;
+        for (i = 0, len = types.length; i < len; i++) {
+            typeItem = types[i];
+            activeType = findByPrototype(activeTypes, typeItem.type);
+            if(!activeType) {
+                activeType = Object.create(typeItem.type);
+                activeType.map = new Map();
+                activeTypes.push(activeType);
+            }
+
+            if(typeItem.type === this.types["default"]) {
+                // TODO 使用了默认的类型
+            }
+
+            targets = activeType.map.get(typeItem.key);
+            if(!targets) {
+                targets = [];
+                activeType.map.set(typeItem.key, targets);
+            }
+            targets.push(target);
+        }
+
+        this.count++;
+        this.selectors.push(selector);
+    },
+    remove: function(selector, data) {
+        var types, typeItem,
+            activeTypes, activeType,
+            i, len, j, k,
+            targets, target,
+            removeAll,
+            removeCount = 0;
+        if(!ui.core.isString(selector)) {
+            return;
+        }
+
+        removeAll = arguments.length === 1;
+        types = parseSelectorTypes(this.types, selector);
+        activeTypes = this.activeTypes;
+        for (i = 0, len = types.length; i < len; i++) {
+            typeItem = types[i];
+            j = activeTypes.length;
+            while(j--) {
+                activeType = activeTypes[j];
+                if(typeItem.type.isPrototypeOf(activeType)) {
+                    targets = activeType.map.get(typeItem.key);
+                    if(targets) {
+                        k = targets.length;
+                        while(k--) {
+                            target = targets[k];
+                            if(target.selector === selector && (removeAll || target.data === data)) {
+                                targets.splice(k, 1);
+                                removeCount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.count -= removeCount;
+    },
+    matchesSelector: function(element, selector) {
+        return matches.call(element, selector);
+    },
+    querySelectorAll: function(selectors, context) {
+        return context.querySelectorAll(selectors);
+    },
+    queryAll: function(context) {
+        var targets, target,
+            results,
+            elements, element,
+            i, len, j, jlen, matches, match;
+        if(this.selectors.length === 0) {
+            return [];
+        }
+
+        targets = {};
+        results = [];
+        elements = this.querySelectorAll(this.selectors.join[", "], context);
+
+        for(i = 0, len = elements.length; i < len; i++) {
+            element = elements[i];
+            matches = this.matches(element);
+            for(j = 0, jlen = matches.length; j < jlen; j++) {
+                match = m[j];
+                if(!targets[match.id]) {
+                    target = {
+                        id: match.id,
+                        selector: match.selector,
+                        data: match.data,
+                        elements: []
+                    };
+                    targets[match.id] = target;
+                    results.push(target);
+                } else {
+                    target = targets[match.id];
+                }
+                target.elements.push(element);
+            }
+        }
+        
+        return results.sort(sortById);
+    },
+    matches: function(element) {
+        var activeTypes, activeType,
+            i, len, j, jlen, k, klen, keys,
+            targets, target,
+            matchedIds, matches;
+        if(!element) {
+            return [];
+        }
+
+        matchedIds = {};
+        matches = [];
+        activeTypes = this.activeTypes;
+        for (i = 0, len = activeTypes.length; i < len; i++) {
+            activeType = activeTypes[i];
+            keys = activeType.getElementKeys(element);
+            if(keys) {
+                for(j = 0, jlen = keys.length; j < jlen; j++) {
+                    targets = activeType.map.get(keys[i]);
+                    if(targets) {
+                        for(k = 0, klen = targets.length; k < klen; k++) {
+                            target = targets[k];
+                            if (!matchedIds[target.id] && this.matchesSelector(element, target.selector)) {
+                                matchedIds[target.id] = true;
+                                matches.push(target);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return matches.sort(sortById);
+    }
+};
+
+ui.SelectorSet = SelectorSet;
+
+
+})(jQuery, ui);
+
+// Source: src/component/event-delegate.js
+
+(function($, ui) {
+// EventDelegate
+// 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
+// 针对SOON.UI的代码风格进行了重构
+
+var 
+    bubbleEvents = {},
+    captureEvents = {},
+    currentTargetDescriptor = 
+        ui.core.isFunction(Object.getOwnPropertyDescriptor) ?
+            Object.getOwnPropertyDescriptor(Event.prototype, "currentTarget") : null;
+
+function before(target, methodName, fn) {
+    var sourceFn = target[methodName];
+    target[methodName] = function() {
+        fn.apply(target, arguments);
+        return sourceFn.apply(target, arguments);
+    };
+    return target;
+}
+
+function overrideCurrentTargetProperty(event) {
+    var sourceCurrentTarget,
+        currentTargetValue = null,
+        operator = {};
+    if(currentTargetDescriptor) {
+        Object.defineProperty(event, "currentTarget", {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+                return currentTargetValue;
+            }
+        });
+        operator.update = function(value) {
+            currentTargetValue = value;
+        };
+        operator.reset = function(value) {
+            Object.defineProperty(event, "currentTarget", {
+                configurable: true,
+                enumerable: true,
+                get: currentTargetDescriptor.get
+            });
+        };
+    } else {
+        sourceCurrentTarget = event.currentTarget;
+        operator.update = function(value) {
+            event.currentTarget = value;
+        };
+        operator.reset = function() {
+            event.currentTarget = sourceCurrentTarget;
+        };
+    }
+    return operator;
+}
+
+function matches(selectorSet, element, reverse) {
+    var queue = [],
+        node = element,
+        matches, matched;
+
+    do {
+        if(node.nodeType !== 1) {
+            break;
+        }
+        matches = selectorSet.matches(node);
+        if(matches.length > 0) {
+            matched = {
+                node: node,
+                observers: matches
+            };
+            if(reverse) {
+                queue.shift(matched);
+            } else {
+                queue.push(matched);
+            }
+        }
+        node = node.parentElement;
+    } while(node);
+
+    return queue;
+}
+
+function dispatch(event) {
+    var events = event.eventPhase === 1 ? captureEvents : bubbleEvents,
+        selectorSet = events[event.type],
+        queue, item,
+        i, len, j, jlen,
+        propagationStopped = false,
+        immediatePropagationStopped = false,
+        currentTargetOperator;
+
+    if(!selectorSet) {
+        return;
+    }
+
+    queue = matches(selectorSet, event.target, event.eventPhase === 1);
+    len = queue.length;
+    if(len === 0) {
+        return;
+    }
+
+    before(event, "stopPropagation", function() {
+        propagationStopped = true;
+    });
+    before(event, "stopImmediatePropagation", function() {
+        immediatePropagationStopped = true;
+    });
+    currentTargetOperator = overrideCurrentTargetProperty(event);
+    
+    for(i = 0; i < len; i++) {
+        if(propagationStopped) {
+            break;
+        }
+        item = queue[i];
+        currentTargetOperator.update(item.node);
+        for(j = 0, jlen = item.observers.length; j < jlen; j++) {
+            if(immediatePropagationStopped) {
+                break;
+            }
+            item.observers[j].data.call(item.node, event);
+        }
+    }
+
+    currentTargetOperator.reset();
+}
+
+function on(eventName, selector, fn, option) {
+    var capture, events, selectorSet;
+
+    if(!eventName || !selector) {
+        return;
+    }
+
+    if(!ui.core.isFunction(fn)) {
+        return;
+    }
+
+    capture = option && option.capture ? true : false,
+    events = capture ? captureEvents : bubbleEvents,
+    selectorSet = events[eventName];
+
+    if(!selectorSet) {
+        selectorSet = new ui.SelectorSet();
+        events[eventName] = selectorSet;
+        document.addEventListener(eventName, dispatch, capture);
+    }
+    selectorSet.add(selector, fn);
+}
+
+function off(eventName, selector, fn, option) {
+    var capture, events, selectorSet;
+
+    if(!eventName || !selector) {
+        return;
+    }
+
+    capture = option && option.capture ? true : false,
+    events = capture ? captureEvents : bubbleEvents,
+    selectorSet = events[eventName];
+    if(!selectorSet) {
+        return;
+    }
+
+    selectorSet.remove(selector, fn);
+    if(selectorSet.count === 0) {
+        delete events[eventName];
+        document.removeEventListener(name, dispatch, capture);
+    }
+}
+
+function fire(target, eventName, detail) {
+    return target.dispatchEvent(
+        new CustomEvent(eventName, {
+            bubbles: true,
+            cancelable: true,
+            detail: detail
+        })
+    );
+}
+
+ui.on = on;
+ui.off = off;
+ui.fire = fire;
+
+})(jQuery, ui);
+
 // Source: src/component/custom-event.js
 
 (function($, ui) {
@@ -6894,476 +7435,6 @@ $.fn.setImage = function (src, width, height, fillMode) {
 
 })(jQuery, ui);
 
-// Source: src/component/view-model.js
-
-(function($, ui) {
-// ViewModel 模型
-
-var arrayObserverPrototype = [],
-    overrideMethods = ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"],
-    hasProto = '__proto__' in {},
-    updatePrototype,
-    binderQueue,
-    binderId = 0;
-
-// 劫持修改数组的API方法
-overrideMethods.forEach(function(methodName) {
-    var originalMethod = arrayObserverPrototype[methodName];
-
-    arrayObserverPrototype[methodName] = function() {
-        var result,
-            insertedItems,
-            args = arrayObserverPrototype.slice.call(arguments, 0),
-            notice;
-
-        result = originalMethod.apply(this, args);
-
-        switch(methodName) {
-            case "push":
-            case "unshift":
-                insertedItems = args;
-                break;
-            case "splice":
-                insertedItems = args.slice(2);
-                break;
-        }
-
-        notice = this.__notice__;
-        if(insertedItems) {
-            notice.arrayNotify(insertedItems);
-        }
-        notice.dependency.notify();
-        return result;
-    };
-});
-
-if(hasProto) {
-    updatePrototype = function(target, prototype, keys) {
-        target.__proto__ = prototype;
-    };
-} else {
-    updatePrototype = function(target, prototype, keys) {
-        var i, len, key;
-        for(i = 0, len = keys.length; i < len; i++) {
-            key = keys[i];
-            target[key] = prototype[key];
-        }
-    };
-}
-
-// 数据绑定执行队列
-binderQueue = {
-    queue: [],
-    queueElementMap: {},
-    // 是否正在执行队列中
-    isRunning: false,
-    // 是否已经注册了nextTick Task
-    isWaiting: false,
-    // 当前执行的队列索引
-    runIndex: 0,
-
-    enqueue: function(binder) {
-        var id = binder.id,
-            index;
-        if(this.queueElementMap[id]) {
-            return;
-        }
-
-        this.queueElementMap[id] = true;
-        if(this.isRunning) {
-            // 从后往前插入队列
-            index = this.queue.length - 1;
-            while(index > this.runIndex && this.queue[index].id > binder.id) {
-                index--;
-            }
-            this.queue.splice(index + 1, 0, binder);
-        } else {
-            this.queue.push(binder);
-        }
-
-        if(!this.isWaiting) {
-            this.isWaiting = true;
-            ui.setTask((function () {
-                this.run();
-            }).bind(this));
-        }
-    },
-    run: function() {
-        var i,
-            binder;
-        this.isRunning = true;
-
-        // 排序，让视图更新按照声明的顺序执行
-        this.queue.sort(function(a, b) {
-            return a.id - b.id;
-        });
-
-        // 这里的queue.length可能发生变化，不能缓存
-        for(i = 0; i < this.queue.length; i++) {
-            this.runIndex = i;
-            binder = this.queue[i];
-            this.queueElementMap[binder.id] = null;
-            binder.execute();
-        }
-
-        // 重置队列
-        this.reset();
-    },
-    reset: function() {
-        this.runIndex = 0;
-        this.queue.length = 0;
-        this.queueElementMap = {};
-        this.isRunning = this.isWaiting = false;
-    }
-};
-
-function noop() {}
-
-function defineNotifyProperty(obj, propertyName, val, shallow, path) {
-    var descriptor,
-        getter,
-        setter,
-        notice,
-        childNotice;
-
-    descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-    if (descriptor && descriptor.configurable === false) {
-        return;
-    }
-
-    getter = descriptor.get;
-    setter = descriptor.set;
-
-    // 如果深度引用，则将子属性也转换为通知对象
-    if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
-        childNotice = new NotifyObject(val);
-    }
-
-    notice = obj.__notice__;
-    Object.defineProperty(obj, propertyName, {
-        enumerable: true,
-        configurable: true,
-        get: function () {
-            return getter ? getter.call(obj) : val;
-        },
-        set: function(newVal) {
-            var oldVal = getter ? getter.call(obj) : val,
-                newChildNotice;
-            if(oldVal === newVal || (newVal !== newVal && val !== val)) {
-                return;
-            }
-
-            if(setter) {
-                setter.call(obj, newVal);
-            } else {
-                val = newVal;
-            }
-
-            if(!shallow  && (ui.core.isObject(newVal) || Array.isArray(newVal))) {
-                newChildNotice = new NotifyObject(newVal);
-                newChildNotice.dependency.depMap = childNotice.dependency.depMap;
-                // 更新通知对象
-                childNotice = newChildNotice;
-            }
-            notice.dependency.notify(propertyName);
-        }
-    });
-}
-
-function createNotifyObject(obj) {
-    var isObject,
-        isArray,
-        notice;
-
-    isObject = ui.core.isObject(obj);
-    isArray = Array.isArray(obj);
-
-    if(!isObject && !isArray) {
-        return obj;
-    }
-    if(isObject && ui.core.isEmptyObject(obj)) {
-        return obj;
-    }
-
-    if(obj.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
-        notice = obj.__notice__;
-        // TODO notice.count++;
-    } else if((isArray || isObject) && Object.isExtensible(obj)) {
-        notice = new NotifyObject(obj);
-    }
-    // 添加一个手动刷新方法
-    obj.refresh = refresh;
-
-    return obj;
-}
-
-function refresh() {
-    notifyAll(this);
-}
-
-function notifyAll(viewModel) {
-    var keys = Object.keys(viewModel),
-        i, len,
-        propertyName,
-        value,
-        notice,
-        notifyProperties = [];
-
-    for(i = 0, len = keys.length; i < len; i++) {
-        propertyName = keys[i];
-        value = viewModel[propertyName];
-        if((ui.core.isObject(value) || Array.isArray(value)) && 
-                value.__notice__ instanceof NotifyObject) {
-            notifyAll(value);
-        } else {
-            notifyProperties.push(propertyName);
-        }
-    }
-
-    notice = viewModel.__notice__;
-    notice.dependency.notify.apply(notice.dependency, notifyProperties);
-}
-
-function NotifyObject(value) {
-    this.value = value;
-    this.dependency = new Dependency();
-    Object.defineProperty(value, "__notice__", {
-        value: this,
-        enumerable: false,
-        writable: true,
-        configurable: true
-    });
-    if(Array.isArray(value)) {
-        updatePrototype(value, arrayObserverPrototype, overrideMethods);
-        this.arrayNotify(value);
-    } else {
-        this.objectNotify(value);
-    }
-}
-NotifyObject.prototype = {
-    constructor: NotifyObject,
-    arrayNotify: function(array) {
-        var i, len;
-        for(i = 0, len = array.length; i < len; i++) {
-            createNotifyObject(array[i]);
-        }
-    },
-    objectNotify: function(obj) {
-        var keys = Object.keys(obj),
-            i, len;
-
-        for(i = 0, len = keys.length; i < len; i++) {
-            defineNotifyProperty(obj, keys[i], obj[keys[i]]);
-        }
-    }
-};
-
-// 依赖属性
-function Dependency() {
-    this.depMap = {};
-}
-Dependency.prototype = {
-    constructor: Dependency,
-    // 添加依赖处理
-    add: function(binder) {
-        var propertyName;
-        if(binder instanceof Binder) {
-            propertyName = binder.propertyName;
-            if(!this.depMap.hasOwnProperty(binder.propertyName)) {
-                this.depMap[propertyName] = [];
-            }
-            this.depMap[propertyName].push(binder);
-        }
-    },
-    // 移除依赖处理
-    remove: function(binder) {
-        var propertyName,
-            binderList,
-            i, len;
-        if(binder instanceof Binder) {
-            propertyName = binder.propertyName;
-            binderList = this.depMap[propertyName];
-
-            if(Array.isArray(binderList)) {
-                for(i = binderList.length - 1; i >= 0; i--) {
-                    if(binderList[i] === binder) {
-                        binderList.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
-    },
-    depend: function() {
-    },
-    // 变化通知
-    notify: function() {
-        var keys,
-            propertyName,
-            delegate,
-            errors,
-            i, len;
-        
-        if(arguments.length === 0) {
-            keys = Object.keys(this.depMap);
-        } else {
-            keys = [];
-            for(i = 0, len = arguments.length; i < len; i++) {
-                propertyName = arguments[i];
-                if(ui.core.isString(propertyName) && 
-                    propertyName.length > 0 && 
-                    this.depMap.hasOwnProperty(propertyName)) {
-                        
-                    keys.push(propertyName);
-                }
-            }
-        }
-
-        errors = [];
-        for(i = 0, len = keys.length; i < len; i++) {
-            delegate = this.depMap[keys[i]];
-            delegate.forEach(function(binder) {
-                try {
-                    binder.update();
-                } catch(e) {
-                    errors.push(e);
-                }
-            });
-        }
-        if(errors.length > 0) {
-            throw errors.toString();
-        }
-    }
-};
-
-function Binder(option) {
-    var propertyName = null; 
-
-    this.id = ++binderId;
-    this.viewModel = null;
-    this.isActive = true;
-
-    if(option) {
-        this.sync = !!option.sync;
-        this.lazy = !!option.lazy;
-    } else {
-        this.sync = this.lazy = false;
-    }
-    this.value = this.lazy ? null : this.get();
-
-    Object.defineProperty(this, "propertyName", {
-        configurable: false,
-        enumerable: true,
-        get: function() {
-            if(!propertyName) {
-                return "_";
-            }
-            return propertyName;
-        },
-        set: function(val) {
-            propertyName = val;
-        }
-    });
-}
-Binder.prototype = {
-    constructor: Binder,
-    update: function() {
-        if(!this.isActive) {
-            return;
-        }
-
-        if(this.sync) {
-            this.execute();
-        } else {
-            binderQueue.enqueue(this);
-        }
-    },
-    execute: function() {
-        var oldValue,
-            value;
-
-        oldValue = this.value;
-        value = this.get();
-
-        if(value !== oldValue) {
-            this.value = value;
-            try {
-                this.action(value, oldValue);
-            } catch(e) {
-                ui.handleError(e);
-            }
-        }
-    },
-    get: function() {
-        var value = null;
-
-        if(this.viewModel && this.viewModel.hasOwnProperty(this.propertyName)) {
-            value = this.viewModel[this.propertyName];
-        }
-
-        return value;
-    }
-};
-
-function createBinder(viewModel, propertyName, bindData, handler, option) {
-    var binder;
-    if(!viewModel || !viewModel.__notice__) {
-        throw new TypeError("the arguments 'viewModel' is invalid.");
-    }
-    if(!viewModel.hasOwnProperty(propertyName)) {
-        throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
-    }
-    if(ui.core.isFunction(bindData)) {
-        handler = bindData;
-        bindData = null;
-    }
-    if(!ui.core.isFunction(handler)) {
-        return null;
-    }
-
-    binder = new Binder(option);
-    binder.propertyName = propertyName;
-    binder.viewModel = viewModel;
-    binder.action = function(value, oldValue) {
-        handler.call(viewModel, value, oldValue, bindData);
-    };
-
-    return binder;
-}
-
-ui.ViewModel = createNotifyObject;
-ui.ViewModel.bindOnce = function(viewModel, propertyName, bindData, fn) {
-    createBinder(viewModel, propertyName, bindData, fn);
-};
-ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
-    var binder,
-        option,
-        notice,
-        value;
-
-    option = {
-        sync: !!isSync
-    };
-    binder = createBinder(viewModel, propertyName, bindData, fn, option);
-    if(binder) {
-        notice = viewModel.__notice__;
-        notice.dependency.add(binder);
-        value = viewModel[propertyName];
-        if(Array.isArray(value)) {
-            notice = value.__notice__;
-            if(notice) {
-                notice.dependency.add(binder);
-            }
-        }
-    }
-};
-ui.ViewModel.bindTwoWay = function(option) {
-    // TODO: 双向绑定实际上只有在做表单的时候才有优势
-};
-
-
-})(jQuery, ui);
-
 // Source: src/component/define.js
 
 (function($, ui) {
@@ -8075,6 +8146,9 @@ page.get = function(pluginName) {
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
+    if(!ui.ViewModel) {
+        return;
+    }
     if(!vm || !property || !ui.core.isFunction(fn)) {
         return;
     }
@@ -8097,6 +8171,9 @@ page.plugin({
     rank: 1,
     handler: function(arg) {
         var vm;
+        if(!ui.ViewModel) {
+            return;
+        }
         if(ui.core.isFunction(arg)) {
             vm = arg.call(this);
         } else {
@@ -8196,7 +8273,104 @@ ui.page = page;
 
 // 创建命名空间
 ui.ctrls = {};
+
 function noop() {}
+
+// 事件代理
+function ClassEventDelegate(eventName) {
+    this.classEventMap = new ui.KeyArray();
+    this.exclusiveFlag = {};
+    this.length = this.classEventMap.length;
+    this.eventName = eventName || "NONE";
+}
+ClassEventDelegate.prototype = {
+    getClassNames: function() {
+        return this.classEventMap.keys();
+    },
+    call: function(className) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            handler = this.classEventMap.get(className);
+        if(Array.isArray(handler)) {
+            handler.forEach(function(h) {
+                h.apply(null, args);
+            });
+        } else {
+            handler.apply(null, args);
+        }
+    },
+    add: function(className, handler, isMultiple, isExclusive) {
+        var old;
+        if(!ui.core.isFunction(handler)) {
+            throw new TypeError("the delegate event handler is not a function.");
+        }
+
+        old = this.classEventMap.get(className);
+        if(isMultiple) {
+            if(Array.isArray(old)) {
+                old.push(handler);
+                handler = old;
+            } else if(ui.core.isFunction(old)) {
+                handler = [old, handler];
+            }
+        }
+        this.classEventMap.set(className, handler);
+        this.exclusiveFlag[className] = typeof isExclusive === "undefined" ? true : !!isExclusive;
+        this.length = this.classEventMap.length;
+    },
+    remove: function(className, handler) {
+        var old;
+        if(ui.core.isFunction(handler)) {
+            old = this.classEventMap.get(className);
+            if(Array.isArray(old)) {
+                this.classEventMap.set(className, old.filter(function(item) {
+                    return item === handler;
+                }));
+            } else {
+                this.classEventMap.remove(className);
+            }
+        } else {
+            this.classEventMap.remove(className);
+        }
+        this.length = this.classEventMap.length;
+    },
+    has: function(className) {
+        return this.classEventMap.containsKey(className);
+    },
+    getDelegateHandler: function(cancelFn) {
+        var that = this;
+        if(!ui.core.isFunction(cancelFn)) {
+            cancelFn = function() {
+                return false;
+            };
+        }
+        return function(e) {
+            var elem = $(e.target),
+                classNames, className,
+                i, len = that.length;
+            
+            if(len === 0) {
+                return;
+            }
+            classNames = that.getClassNames();
+            while (true) {
+                if (elem.length === 0 || cancelFn(elem)) {
+                    return;
+                }
+                for(i = 0; i < len; i++) {
+                    className = classNames[i];
+                    if(elem.hasClass(className)) {
+                        that.call(className, e, elem);
+                        if(that.exclusiveFlag[className]) {
+                            return;
+                        }
+                    }
+                }
+                elem = elem.parent();
+            }
+        };
+    }
+};
+
 // 创建控件基础类
 ui.define("ui.ctrls.ControlBase", {
     version: ui.version,
@@ -8260,6 +8434,9 @@ ui.define("ui.ctrls.ControlBase", {
         config.enumerable = false;
         config.configurable = false;
         definePropertyFn(this, propertyName, config);
+    },
+    createClassEventDelegate: function(eventName) {
+        return new ClassEventDelegate();
     },
     /** 默认的toString方法实现，返回类名 */
     toString: function() {
@@ -8382,7 +8559,8 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     var location,
         elementPosition,
         layoutPanelWidth, 
-        layoutPanelHeight;
+        layoutPanelHeight,
+        layoutElement;
 
     location = {
         top: height,
@@ -8395,10 +8573,11 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
         layoutPanelWidth = layoutPanel.width();
         layoutPanelHeight = layoutPanel.height();
     } else {
-        layoutPanelWidth = layoutPanel[0].scrollWidth;
-        layoutPanelHeight = layoutPanel[0].scrollHeight;
-        layoutPanelWidth += layoutPanel.scrollLeft();
-        layoutPanelHeight += layoutPanel.scrollTop();
+        layoutElement = layoutPanel[0];
+        layoutPanelWidth = layoutElement.scrollWidth;
+        layoutPanelHeight = layoutElement.scrollHeight;
+        layoutPanelWidth += layoutElement.scrollLeft;
+        layoutPanelHeight += layoutElement.scrollTop;
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
@@ -17519,8 +17698,8 @@ Selector.prototype = {
         var position = this.panel.offset();
         position.left = position.left + timeTitleWidth;
         return {
-            gridX: x - position.left + this.panel.scrollLeft(),
-            gridY: y - position.top + this.panel.scrollTop()
+            gridX: x - position.left + this.panel[0].scrollLeft,
+            gridY: y - position.top + this.panel[0].scrollTop
         };
     },
     _getPositionAndSize: function(td) {
@@ -20302,90 +20481,6 @@ function changeChecked(cbx) {
     }
 }
 
-// 事件代理
-function ClassEventDelegate() {
-    this.classEventMap = new ui.KeyArray();
-    this.length = 0;
-}
-ClassEventDelegate.prototype = {
-    getClassNames: function() {
-        return this.classEventMap.keys();
-    },
-    call: function(className) {
-        var args = Array.prototype.slice.call(arguments, 1),
-            handler = this.classEventMap.get(className);
-        if(Array.isArray(handler)) {
-            handler.forEach(function(h) {
-                h.apply(null, args);
-            });
-        } else {
-            handler.apply(null, args);
-        }
-    },
-    add: function(className, handler, isMultiple) {
-        var old;
-        if(!ui.core.isFunction(handler)) {
-            throw new TypeError("the delegate event handler is not a function.");
-        }
-
-        old = this.classEventMap.get(className);
-        if(isMultiple) {
-            if(Array.isArray(old)) {
-                old.push(handler);
-                handler = old;
-            } else if(ui.core.isFunction(old)) {
-                handler = [old, handler];
-            }
-        }
-        this.classEventMap.set(className, handler);
-        this.length = this.classEventMap.length;
-    },
-    remove: function(className, handler) {
-        var old;
-        if(ui.core.isFunction(handler)) {
-            old = this.classEventMap.get(className);
-            if(Array.isArray(old)) {
-                this.classEventMap.set(className, old.filter(function(item) {
-                    return item === handler;
-                }));
-            } else {
-                this.classEventMap.remove(className);
-            }
-        } else {
-            this.classEventMap.remove(className);
-        }
-        this.length = this.classEventMap.length;
-    },
-    has: function(className) {
-        return this.classEventMap.containsKey(className);
-    }
-};
-
-// 事件处理函数
-// 点击事件代理
-function clickDelegate(e) {
-    var elem = $(e.target),
-        i, len, classNames, className;
-    
-    len = this.clickHandlers ? this.clickHandlers.length : 0;
-    if(len === 0) {
-        return;
-    }
-    classNames = this.clickHandlers.getClassNames();
-    while (true) {
-        if (elem.length === 0 || elem.hasClass("ui-grid-view")) {
-            return;
-        }
-        for(i = 0; i < len; i++) {
-            className = classNames[i];
-            if(elem.hasClass(className)) {
-                this.clickHandlers.call(className, e, elem);
-                return;
-            }
-        }
-        elem = elem.parent();
-    }
-}
 // 排序点击事件处理
 function onSort(e, element) {
     var viewData,
@@ -20437,11 +20532,6 @@ function onBodyClick(e, element) {
     element.context = e.target;
 
     this._selectItem(element, selectedClass);
-}
-// 横向滚动条跟随事件处理
-function onScrolling(e) {
-    this.head.scrollLeft(
-        this.body.scrollLeft());
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
@@ -20524,6 +20614,12 @@ function onCheckboxAllClick(e) {
         this._checkedCount = 0;
     }
 }
+// 横向滚动条跟随事件处理
+function onScrolling(e) {
+    var headDiv = this.head[0],
+        bodyDiv = this.body[0];
+    headDiv.scrollLeft = bodyDiv.scrollLeft;
+}
 
 // 提示信息
 function Prompt(view, text) {
@@ -20563,7 +20659,6 @@ Prompt.prototype = {
         }
     }
 };
-
 
 ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
@@ -20673,7 +20768,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
 
         // event handlers
-        this.clickHandlers = new ClassEventDelegate();
+        this.clickHandlers = this.createClassEventDelegate("click");
         // 排序列点击事件
         this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 全选按钮点击事件
@@ -20691,9 +20786,12 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click((function(e) {
-            clickDelegate.call(this, e);
-        }).bind(this));
+        this.element.click(
+            this.clickHandlers
+                .getDelegateHandler(function(elem) {
+                    return elem.hasClass("ui-grid-view");
+                })
+                .bind(this));
         this._initBorderWidth();
 
         // 表头
@@ -22496,10 +22594,13 @@ function onSort(e, element) {
 }
 // 滚动条同步事件
 function onScrolling(e) {
-    var scrollTop = this.reportDataBody.scrollTop(),
-        scrollLeft = this.reportDataBody.scrollLeft();
-    this.reportDataHead.scrollLeft(scrollLeft);
-    this.fixed.syncScroll(scrollTop, scrollLeft, this.reportDataBody[0].scrollWidth);
+    var reportDataBodyElement = this.reportDataBody[0],
+        reportDataHeadElement = this.reportDataHead[0],
+        scrollTop = reportDataBodyElement.scrollTop,
+        scrollLeft = reportDataBodyElement.scrollLeft;
+
+    reportDataHeadElement.scrollLeft = scrollLeft;
+    this.fixed.syncScroll(scrollTop, scrollLeft, reportDataBodyElement.scrollWidth);
 }
 
 ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
@@ -22820,8 +22921,10 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             // 初始化滚动条状态
             this._updateScrollState();
             ui.setTask((function() {
-                var scrollLeft = this.reportDataBody.scrollLeft(),
-                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                var reportDataBodyElement = this.reportDataBody[0],
+                    scrollLeft = reportDataBodyElement.scrollLeft,
+                    scrollWidth = reportDataBodyElement.scrollWidth;
+                    
                 this.fixed.syncScroll(0, scrollLeft, scrollWidth);
             }).bind(this));
         }
@@ -23476,11 +23579,11 @@ Tab.prototype = {
         that = this;
         if(tabView.isHorizontal) {
             this.animator[0].onChange = function(val) {
-                tabView.bodyPanel.scrollLeft(val);
+                tabView.bodyPanel[0].scrollLeft = val;
             };
             this.bodyShow = function(index) {
                 that.animator.stop();
-                that.animator[0].begin = tabView.bodyPanel.scrollLeft();
+                that.animator[0].begin = tabView.bodyPanel[0].scrollLeft;
                 that.animator[0].end = index * tabView.bodyWidth;
                 return that.animator.start();
             };
@@ -23571,9 +23674,9 @@ Tab.prototype = {
     bodySet: function(index) {
         var tabView = this.tabView;
         if(tabView.isHorizontal) {
-            tabView.bodyPanel.scrollLeft(tabView.bodyWidth * index);
+            tabView.bodyPanel[0].scrollLeft = tabView.bodyWidth * index;
         } else {
-            tabView.bodyPanel.scrollTop(tabView.bodyHeight * index);
+            tabView.bodyPanel[0].scrollTop = tabView.bodyHeight * index;
         }
     },
     showIndex: function(index, animation) {
@@ -26564,7 +26667,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
-                this.target.scrollLeft(val);
+                this.target[0].scrollLeft = val;
             };
             showCss = {
                 "width": buttonSize + "px",
@@ -26763,7 +26866,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             scrollLength;
         if(this.isHorizontal) {
             queueSize = this.chooserQueue.width();
-            currentValue = this.chooserQueue.scrollLeft();
+            currentValue = this.chooserQueue[0].scrollLeft;
             scrollLength = this.chooserQueue[0].scrollWidth;
         } else {
             queueSize = this.chooserQueue.height();

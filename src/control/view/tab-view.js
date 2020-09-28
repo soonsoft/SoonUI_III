@@ -189,11 +189,11 @@ Tab.prototype = {
         that = this;
         if(tabView.isHorizontal) {
             this.animator[0].onChange = function(val) {
-                tabView.bodyPanel.scrollLeft(val);
+                tabView.bodyPanel[0].scrollLeft = val;
             };
             this.bodyShow = function(index) {
                 that.animator.stop();
-                that.animator[0].begin = tabView.bodyPanel.scrollLeft();
+                that.animator[0].begin = tabView.bodyPanel[0].scrollLeft;
                 that.animator[0].end = index * tabView.bodyWidth;
                 return that.animator.start();
             };
@@ -284,9 +284,9 @@ Tab.prototype = {
     bodySet: function(index) {
         var tabView = this.tabView;
         if(tabView.isHorizontal) {
-            tabView.bodyPanel.scrollLeft(tabView.bodyWidth * index);
+            tabView.bodyPanel[0].scrollLeft = tabView.bodyWidth * index;
         } else {
-            tabView.bodyPanel.scrollTop(tabView.bodyHeight * index);
+            tabView.bodyPanel[0].scrollTop = tabView.bodyHeight * index;
         }
     },
     showIndex: function(index, animation) {

@@ -168,6 +168,9 @@ page.get = function(pluginName) {
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
+    if(!ui.ViewModel) {
+        return;
+    }
     if(!vm || !property || !ui.core.isFunction(fn)) {
         return;
     }
@@ -190,6 +193,9 @@ page.plugin({
     rank: 1,
     handler: function(arg) {
         var vm;
+        if(!ui.ViewModel) {
+            return;
+        }
         if(ui.core.isFunction(arg)) {
             vm = arg.call(this);
         } else {

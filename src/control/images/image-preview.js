@@ -81,7 +81,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
-                this.target.scrollLeft(val);
+                this.target[0].scrollLeft = val;
             };
             showCss = {
                 "width": buttonSize + "px",
@@ -280,7 +280,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             scrollLength;
         if(this.isHorizontal) {
             queueSize = this.chooserQueue.width();
-            currentValue = this.chooserQueue.scrollLeft();
+            currentValue = this.chooserQueue[0].scrollLeft;
             scrollLength = this.chooserQueue[0].scrollWidth;
         } else {
             queueSize = this.chooserQueue.height();

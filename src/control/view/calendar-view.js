@@ -2251,8 +2251,8 @@ Selector.prototype = {
         var position = this.panel.offset();
         position.left = position.left + timeTitleWidth;
         return {
-            gridX: x - position.left + this.panel.scrollLeft(),
-            gridY: y - position.top + this.panel.scrollTop()
+            gridX: x - position.left + this.panel[0].scrollLeft,
+            gridY: y - position.top + this.panel[0].scrollTop
         };
     },
     _getPositionAndSize: function(td) {

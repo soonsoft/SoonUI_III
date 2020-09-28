@@ -4,7 +4,104 @@
 
 // 创建命名空间
 ui.ctrls = {};
+
 function noop() {}
+
+// 事件代理
+function ClassEventDelegate(eventName) {
+    this.classEventMap = new ui.KeyArray();
+    this.exclusiveFlag = {};
+    this.length = this.classEventMap.length;
+    this.eventName = eventName || "NONE";
+}
+ClassEventDelegate.prototype = {
+    getClassNames: function() {
+        return this.classEventMap.keys();
+    },
+    call: function(className) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            handler = this.classEventMap.get(className);
+        if(Array.isArray(handler)) {
+            handler.forEach(function(h) {
+                h.apply(null, args);
+            });
+        } else {
+            handler.apply(null, args);
+        }
+    },
+    add: function(className, handler, isMultiple, isExclusive) {
+        var old;
+        if(!ui.core.isFunction(handler)) {
+            throw new TypeError("the delegate event handler is not a function.");
+        }
+
+        old = this.classEventMap.get(className);
+        if(isMultiple) {
+            if(Array.isArray(old)) {
+                old.push(handler);
+                handler = old;
+            } else if(ui.core.isFunction(old)) {
+                handler = [old, handler];
+            }
+        }
+        this.classEventMap.set(className, handler);
+        this.exclusiveFlag[className] = typeof isExclusive === "undefined" ? true : !!isExclusive;
+        this.length = this.classEventMap.length;
+    },
+    remove: function(className, handler) {
+        var old;
+        if(ui.core.isFunction(handler)) {
+            old = this.classEventMap.get(className);
+            if(Array.isArray(old)) {
+                this.classEventMap.set(className, old.filter(function(item) {
+                    return item === handler;
+                }));
+            } else {
+                this.classEventMap.remove(className);
+            }
+        } else {
+            this.classEventMap.remove(className);
+        }
+        this.length = this.classEventMap.length;
+    },
+    has: function(className) {
+        return this.classEventMap.containsKey(className);
+    },
+    getDelegateHandler: function(cancelFn) {
+        var that = this;
+        if(!ui.core.isFunction(cancelFn)) {
+            cancelFn = function() {
+                return false;
+            };
+        }
+        return function(e) {
+            var elem = $(e.target),
+                classNames, className,
+                i, len = that.length;
+            
+            if(len === 0) {
+                return;
+            }
+            classNames = that.getClassNames();
+            while (true) {
+                if (elem.length === 0 || cancelFn(elem)) {
+                    return;
+                }
+                for(i = 0; i < len; i++) {
+                    className = classNames[i];
+                    if(elem.hasClass(className)) {
+                        that.call(className, e, elem);
+                        if(that.exclusiveFlag[className]) {
+                            return;
+                        }
+                    }
+                }
+                elem = elem.parent();
+            }
+        };
+    }
+};
+
 // 创建控件基础类
 ui.define("ui.ctrls.ControlBase", {
     version: ui.version,
@@ -68,6 +165,9 @@ ui.define("ui.ctrls.ControlBase", {
         config.enumerable = false;
         config.configurable = false;
         definePropertyFn(this, propertyName, config);
+    },
+    createClassEventDelegate: function(eventName) {
+        return new ClassEventDelegate();
     },
     /** 默认的toString方法实现，返回类名 */
     toString: function() {
@@ -190,7 +290,8 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     var location,
         elementPosition,
         layoutPanelWidth, 
-        layoutPanelHeight;
+        layoutPanelHeight,
+        layoutElement;
 
     location = {
         top: height,
@@ -203,10 +304,11 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
         layoutPanelWidth = layoutPanel.width();
         layoutPanelHeight = layoutPanel.height();
     } else {
-        layoutPanelWidth = layoutPanel[0].scrollWidth;
-        layoutPanelHeight = layoutPanel[0].scrollHeight;
-        layoutPanelWidth += layoutPanel.scrollLeft();
-        layoutPanelHeight += layoutPanel.scrollTop();
+        layoutElement = layoutPanel[0];
+        layoutPanelWidth = layoutElement.scrollWidth;
+        layoutPanelHeight = layoutElement.scrollHeight;
+        layoutPanelWidth += layoutElement.scrollLeft;
+        layoutPanelHeight += layoutElement.scrollTop;
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
@@ -9327,8 +9429,8 @@ Selector.prototype = {
         var position = this.panel.offset();
         position.left = position.left + timeTitleWidth;
         return {
-            gridX: x - position.left + this.panel.scrollLeft(),
-            gridY: y - position.top + this.panel.scrollTop()
+            gridX: x - position.left + this.panel[0].scrollLeft,
+            gridY: y - position.top + this.panel[0].scrollTop
         };
     },
     _getPositionAndSize: function(td) {
@@ -12110,90 +12212,6 @@ function changeChecked(cbx) {
     }
 }
 
-// 事件代理
-function ClassEventDelegate() {
-    this.classEventMap = new ui.KeyArray();
-    this.length = 0;
-}
-ClassEventDelegate.prototype = {
-    getClassNames: function() {
-        return this.classEventMap.keys();
-    },
-    call: function(className) {
-        var args = Array.prototype.slice.call(arguments, 1),
-            handler = this.classEventMap.get(className);
-        if(Array.isArray(handler)) {
-            handler.forEach(function(h) {
-                h.apply(null, args);
-            });
-        } else {
-            handler.apply(null, args);
-        }
-    },
-    add: function(className, handler, isMultiple) {
-        var old;
-        if(!ui.core.isFunction(handler)) {
-            throw new TypeError("the delegate event handler is not a function.");
-        }
-
-        old = this.classEventMap.get(className);
-        if(isMultiple) {
-            if(Array.isArray(old)) {
-                old.push(handler);
-                handler = old;
-            } else if(ui.core.isFunction(old)) {
-                handler = [old, handler];
-            }
-        }
-        this.classEventMap.set(className, handler);
-        this.length = this.classEventMap.length;
-    },
-    remove: function(className, handler) {
-        var old;
-        if(ui.core.isFunction(handler)) {
-            old = this.classEventMap.get(className);
-            if(Array.isArray(old)) {
-                this.classEventMap.set(className, old.filter(function(item) {
-                    return item === handler;
-                }));
-            } else {
-                this.classEventMap.remove(className);
-            }
-        } else {
-            this.classEventMap.remove(className);
-        }
-        this.length = this.classEventMap.length;
-    },
-    has: function(className) {
-        return this.classEventMap.containsKey(className);
-    }
-};
-
-// 事件处理函数
-// 点击事件代理
-function clickDelegate(e) {
-    var elem = $(e.target),
-        i, len, classNames, className;
-    
-    len = this.clickHandlers ? this.clickHandlers.length : 0;
-    if(len === 0) {
-        return;
-    }
-    classNames = this.clickHandlers.getClassNames();
-    while (true) {
-        if (elem.length === 0 || elem.hasClass("ui-grid-view")) {
-            return;
-        }
-        for(i = 0; i < len; i++) {
-            className = classNames[i];
-            if(elem.hasClass(className)) {
-                this.clickHandlers.call(className, e, elem);
-                return;
-            }
-        }
-        elem = elem.parent();
-    }
-}
 // 排序点击事件处理
 function onSort(e, element) {
     var viewData,
@@ -12245,11 +12263,6 @@ function onBodyClick(e, element) {
     element.context = e.target;
 
     this._selectItem(element, selectedClass);
-}
-// 横向滚动条跟随事件处理
-function onScrolling(e) {
-    this.head.scrollLeft(
-        this.body.scrollLeft());
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
@@ -12332,6 +12345,12 @@ function onCheckboxAllClick(e) {
         this._checkedCount = 0;
     }
 }
+// 横向滚动条跟随事件处理
+function onScrolling(e) {
+    var headDiv = this.head[0],
+        bodyDiv = this.body[0];
+    headDiv.scrollLeft = bodyDiv.scrollLeft;
+}
 
 // 提示信息
 function Prompt(view, text) {
@@ -12371,7 +12390,6 @@ Prompt.prototype = {
         }
     }
 };
-
 
 ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
@@ -12481,7 +12499,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
 
         // event handlers
-        this.clickHandlers = new ClassEventDelegate();
+        this.clickHandlers = this.createClassEventDelegate("click");
         // 排序列点击事件
         this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 全选按钮点击事件
@@ -12499,9 +12517,12 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click((function(e) {
-            clickDelegate.call(this, e);
-        }).bind(this));
+        this.element.click(
+            this.clickHandlers
+                .getDelegateHandler(function(elem) {
+                    return elem.hasClass("ui-grid-view");
+                })
+                .bind(this));
         this._initBorderWidth();
 
         // 表头
@@ -14304,10 +14325,13 @@ function onSort(e, element) {
 }
 // 滚动条同步事件
 function onScrolling(e) {
-    var scrollTop = this.reportDataBody.scrollTop(),
-        scrollLeft = this.reportDataBody.scrollLeft();
-    this.reportDataHead.scrollLeft(scrollLeft);
-    this.fixed.syncScroll(scrollTop, scrollLeft, this.reportDataBody[0].scrollWidth);
+    var reportDataBodyElement = this.reportDataBody[0],
+        reportDataHeadElement = this.reportDataHead[0],
+        scrollTop = reportDataBodyElement.scrollTop,
+        scrollLeft = reportDataBodyElement.scrollLeft;
+
+    reportDataHeadElement.scrollLeft = scrollLeft;
+    this.fixed.syncScroll(scrollTop, scrollLeft, reportDataBodyElement.scrollWidth);
 }
 
 ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
@@ -14628,8 +14652,10 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             // 初始化滚动条状态
             this._updateScrollState();
             ui.setTask((function() {
-                var scrollLeft = this.reportDataBody.scrollLeft(),
-                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                var reportDataBodyElement = this.reportDataBody[0],
+                    scrollLeft = reportDataBodyElement.scrollLeft,
+                    scrollWidth = reportDataBodyElement.scrollWidth;
+                    
                 this.fixed.syncScroll(0, scrollLeft, scrollWidth);
             }).bind(this));
         }
@@ -15284,11 +15310,11 @@ Tab.prototype = {
         that = this;
         if(tabView.isHorizontal) {
             this.animator[0].onChange = function(val) {
-                tabView.bodyPanel.scrollLeft(val);
+                tabView.bodyPanel[0].scrollLeft = val;
             };
             this.bodyShow = function(index) {
                 that.animator.stop();
-                that.animator[0].begin = tabView.bodyPanel.scrollLeft();
+                that.animator[0].begin = tabView.bodyPanel[0].scrollLeft;
                 that.animator[0].end = index * tabView.bodyWidth;
                 return that.animator.start();
             };
@@ -15379,9 +15405,9 @@ Tab.prototype = {
     bodySet: function(index) {
         var tabView = this.tabView;
         if(tabView.isHorizontal) {
-            tabView.bodyPanel.scrollLeft(tabView.bodyWidth * index);
+            tabView.bodyPanel[0].scrollLeft = tabView.bodyWidth * index;
         } else {
-            tabView.bodyPanel.scrollTop(tabView.bodyHeight * index);
+            tabView.bodyPanel[0].scrollTop = tabView.bodyHeight * index;
         }
     },
     showIndex: function(index, animation) {
@@ -18372,7 +18398,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
-                this.target.scrollLeft(val);
+                this.target[0].scrollLeft = val;
             };
             showCss = {
                 "width": buttonSize + "px",
@@ -18571,7 +18597,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             scrollLength;
         if(this.isHorizontal) {
             queueSize = this.chooserQueue.width();
-            currentValue = this.chooserQueue.scrollLeft();
+            currentValue = this.chooserQueue[0].scrollLeft;
             scrollLength = this.chooserQueue[0].scrollWidth;
         } else {
             queueSize = this.chooserQueue.height();

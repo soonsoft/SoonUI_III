@@ -271,10 +271,13 @@ function onSort(e, element) {
 }
 // 滚动条同步事件
 function onScrolling(e) {
-    var scrollTop = this.reportDataBody.scrollTop(),
-        scrollLeft = this.reportDataBody.scrollLeft();
-    this.reportDataHead.scrollLeft(scrollLeft);
-    this.fixed.syncScroll(scrollTop, scrollLeft, this.reportDataBody[0].scrollWidth);
+    var reportDataBodyElement = this.reportDataBody[0],
+        reportDataHeadElement = this.reportDataHead[0],
+        scrollTop = reportDataBodyElement.scrollTop,
+        scrollLeft = reportDataBodyElement.scrollLeft;
+
+    reportDataHeadElement.scrollLeft = scrollLeft;
+    this.fixed.syncScroll(scrollTop, scrollLeft, reportDataBodyElement.scrollWidth);
 }
 
 ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
@@ -595,8 +598,10 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             // 初始化滚动条状态
             this._updateScrollState();
             ui.setTask((function() {
-                var scrollLeft = this.reportDataBody.scrollLeft(),
-                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                var reportDataBodyElement = this.reportDataBody[0],
+                    scrollLeft = reportDataBodyElement.scrollLeft,
+                    scrollWidth = reportDataBodyElement.scrollWidth;
+                    
                 this.fixed.syncScroll(0, scrollLeft, scrollWidth);
             }).bind(this));
         }

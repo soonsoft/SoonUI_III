@@ -50,7 +50,8 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     var location,
         elementPosition,
         layoutPanelWidth, 
-        layoutPanelHeight;
+        layoutPanelHeight,
+        layoutElement;
 
     location = {
         top: height,
@@ -63,10 +64,11 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
         layoutPanelWidth = layoutPanel.width();
         layoutPanelHeight = layoutPanel.height();
     } else {
-        layoutPanelWidth = layoutPanel[0].scrollWidth;
-        layoutPanelHeight = layoutPanel[0].scrollHeight;
-        layoutPanelWidth += layoutPanel.scrollLeft();
-        layoutPanelHeight += layoutPanel.scrollTop();
+        layoutElement = layoutPanel[0];
+        layoutPanelWidth = layoutElement.scrollWidth;
+        layoutPanelHeight = layoutElement.scrollHeight;
+        layoutPanelWidth += layoutElement.scrollLeft;
+        layoutPanelHeight += layoutElement.scrollTop;
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {

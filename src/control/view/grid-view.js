@@ -260,90 +260,6 @@ function changeChecked(cbx) {
     }
 }
 
-// 事件代理
-function ClassEventDelegate() {
-    this.classEventMap = new ui.KeyArray();
-    this.length = 0;
-}
-ClassEventDelegate.prototype = {
-    getClassNames: function() {
-        return this.classEventMap.keys();
-    },
-    call: function(className) {
-        var args = Array.prototype.slice.call(arguments, 1),
-            handler = this.classEventMap.get(className);
-        if(Array.isArray(handler)) {
-            handler.forEach(function(h) {
-                h.apply(null, args);
-            });
-        } else {
-            handler.apply(null, args);
-        }
-    },
-    add: function(className, handler, isMultiple) {
-        var old;
-        if(!ui.core.isFunction(handler)) {
-            throw new TypeError("the delegate event handler is not a function.");
-        }
-
-        old = this.classEventMap.get(className);
-        if(isMultiple) {
-            if(Array.isArray(old)) {
-                old.push(handler);
-                handler = old;
-            } else if(ui.core.isFunction(old)) {
-                handler = [old, handler];
-            }
-        }
-        this.classEventMap.set(className, handler);
-        this.length = this.classEventMap.length;
-    },
-    remove: function(className, handler) {
-        var old;
-        if(ui.core.isFunction(handler)) {
-            old = this.classEventMap.get(className);
-            if(Array.isArray(old)) {
-                this.classEventMap.set(className, old.filter(function(item) {
-                    return item === handler;
-                }));
-            } else {
-                this.classEventMap.remove(className);
-            }
-        } else {
-            this.classEventMap.remove(className);
-        }
-        this.length = this.classEventMap.length;
-    },
-    has: function(className) {
-        return this.classEventMap.containsKey(className);
-    }
-};
-
-// 事件处理函数
-// 点击事件代理
-function clickDelegate(e) {
-    var elem = $(e.target),
-        i, len, classNames, className;
-    
-    len = this.clickHandlers ? this.clickHandlers.length : 0;
-    if(len === 0) {
-        return;
-    }
-    classNames = this.clickHandlers.getClassNames();
-    while (true) {
-        if (elem.length === 0 || elem.hasClass("ui-grid-view")) {
-            return;
-        }
-        for(i = 0; i < len; i++) {
-            className = classNames[i];
-            if(elem.hasClass(className)) {
-                this.clickHandlers.call(className, e, elem);
-                return;
-            }
-        }
-        elem = elem.parent();
-    }
-}
 // 排序点击事件处理
 function onSort(e, element) {
     var viewData,
@@ -395,11 +311,6 @@ function onBodyClick(e, element) {
     element.context = e.target;
 
     this._selectItem(element, selectedClass);
-}
-// 横向滚动条跟随事件处理
-function onScrolling(e) {
-    this.head.scrollLeft(
-        this.body.scrollLeft());
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
@@ -482,6 +393,12 @@ function onCheckboxAllClick(e) {
         this._checkedCount = 0;
     }
 }
+// 横向滚动条跟随事件处理
+function onScrolling(e) {
+    var headDiv = this.head[0],
+        bodyDiv = this.body[0];
+    headDiv.scrollLeft = bodyDiv.scrollLeft;
+}
 
 // 提示信息
 function Prompt(view, text) {
@@ -521,7 +438,6 @@ Prompt.prototype = {
         }
     }
 };
-
 
 ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
@@ -631,7 +547,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
 
         // event handlers
-        this.clickHandlers = new ClassEventDelegate();
+        this.clickHandlers = this.createClassEventDelegate("click");
         // 排序列点击事件
         this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 全选按钮点击事件
@@ -649,9 +565,12 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click((function(e) {
-            clickDelegate.call(this, e);
-        }).bind(this));
+        this.element.click(
+            this.clickHandlers
+                .getDelegateHandler(function(elem) {
+                    return elem.hasClass("ui-grid-view");
+                })
+                .bind(this));
         this._initBorderWidth();
 
         // 表头
