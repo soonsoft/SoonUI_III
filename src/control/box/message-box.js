@@ -63,10 +63,10 @@ MessageBox.prototype = {
             });
             var close = $("<a href='javascript:void(0)' class='closable-button'>×</a>");
             var that = this;
-            close.click(function (e) {
+            close.on("click", function (e) {
                 that.hide(true);
             });
-            this.box.mouseenter(function (e) {
+            this.box.on("mouseenter", function (e) {
                 if (that.isClosing) {
                     return;
                 }
@@ -76,7 +76,7 @@ MessageBox.prototype = {
                     clearTimeout(that.hideHandler);
                 }
             });
-            this.box.mouseleave(function (e) {
+            this.box.on("mouseleave", function (e) {
                 that.waitSeconds(defaultWaitSeconds);
             });
 

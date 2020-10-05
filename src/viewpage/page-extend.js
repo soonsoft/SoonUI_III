@@ -253,7 +253,7 @@ plugin({
                     that._currentHighlightItem = null;
                 }
             });
-            highlightPanel.click(function(e) {
+            highlightPanel.on("click", function(e) {
                 var elem,
                     highlight;
                 elem = $(e.target);
@@ -333,7 +333,7 @@ plugin({
             });
             this.contentAnimator.start();
         });
-        userProtrait.click(function(e) {
+        userProtrait.on("click", function(e) {
             that.sidebarManager.show("userSidebar");
         });
     }

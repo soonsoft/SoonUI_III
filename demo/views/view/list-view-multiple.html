@@ -38,10 +38,10 @@
                 toolbar: "toolbar",
                 created: function() {
                     this.listView = createListView.call(this);
-                    $("#setSelection").click(function(e) {
+                    $("#setSelection").on("click", function(e) {
                         pageLogic.listView.setSelection([0, 3]);
                     });
-                    $("#showSelection").click(function(e) {
+                    $("#showSelection").on("click", function(e) {
                         var arr = pageLogic.listView.getSelection(),
                             result;
                         if(arr.length === 0) {

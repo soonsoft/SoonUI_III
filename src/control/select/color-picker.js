@@ -375,7 +375,7 @@ $.fn.colorPicker = function (option) {
     
     colorPicker = ui.ctrls.DropDownBase(option, this);
     colorPickerPanel = $("<div class='ui-color-picker border-highlight' />");
-    colorPickerPanel.click(function (e) {
+    colorPickerPanel.on("click", function (e) {
         e.stopPropagation();
     });
 

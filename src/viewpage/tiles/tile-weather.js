@@ -188,7 +188,7 @@ function activeMutualTile(tile) {
 
     days = context.parent.children(".weather-days");
     context.current = $(days.children()[0]);
-    days.click(onWeatherHandleClick.bind(tile));
+    days.on("click", onWeatherHandleClick.bind(tile));
 }
 function onWeatherHandleClick(e) {
     var context,

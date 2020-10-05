@@ -32,7 +32,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         if(this.option.hasCloseButton) {
             this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
             this._closeButton.append("<i class='fa fa-angle-right'></i>");
-            this._closeButton.click(function(e) {
+            this._closeButton.on("click", function(e) {
                 that.hide();
             });
         }

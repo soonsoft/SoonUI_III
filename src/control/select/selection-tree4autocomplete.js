@@ -173,7 +173,7 @@ ui.ctrls.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         if(!dl) {
             dl = this._autoCompleteList = $("<dl class='autocomplete-dl' />");
             dl.hide();
-            dl.click(this.onClickHandler)
+            dl.on("click", this.onClickHandler)
                 .mouseover(this.onMouseoverHandler);
             this.treePanel.append(dl);
         } else {

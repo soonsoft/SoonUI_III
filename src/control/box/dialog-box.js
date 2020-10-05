@@ -238,7 +238,7 @@ ctrlHandlers = {
         closeBtn = $("<a href='javascript:void(0)'>×</a>");
         closeBtn.attr("class", option.className || "closable-button font-highlight-hover");
 
-        closeBtn.click(function() {
+        closeBtn.on("click", function() {
             that.hide();
         });
 
@@ -251,7 +251,7 @@ ctrlHandlers = {
         maximizableButton = $("<a href='javascript:void(0)'><i class='fa fa-window-maximize'></i></a>");
         maximizableButton.attr("class", option.className || "maximizable-button font-highlight-hover");
 
-        maximizableButton.click(function() {
+        maximizableButton.on("click", function() {
             that._maximize(!that.isMaximizeState, maximizableButton);
         });
 

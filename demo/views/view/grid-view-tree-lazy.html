@@ -62,7 +62,7 @@
                     if (this.tree.isTreeNode(eventData.rowData)) {
                         this.cancelSelection();
                         btn = $(eventData.element[0].cells[2]).children("i");
-                        btn.click();
+                        btn.trigger("click");
                         //this.tree.onFoldButtonClickHandler(btn, eventData.rowData, eventData.rowIndex);
                         return false;
                     }

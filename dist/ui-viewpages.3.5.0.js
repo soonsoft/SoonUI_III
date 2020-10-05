@@ -1,6 +1,6 @@
 // Source: src/viewpage/menu.js
 
-(function($, ui) {
+(function(ui, $) {
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     lightClass = "head-color",
@@ -706,14 +706,14 @@ ui.ctrls.define("ui.ctrls.Menu", {
 
         that = this;
         //菜单点击事件
-        this.menuList.click(function (e) {
+        this.menuList.on("click", function (e) {
             that.onMenuItemClickHandler(e);
         });
         
         //菜单汉堡按钮点击事件
         if(this.hasMenuButton) {
             menuButton = this.option.menuButton;
-            menuButton.click(function (e) {
+            menuButton.on("click", function (e) {
                 if (menuButton.hasClass(showClass)) {
                     menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);
                     that.hide(that.hasAnimation());
@@ -963,11 +963,11 @@ ui.ctrls.define("ui.ctrls.Menu", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/page-extend.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     基础属性
     {
@@ -1223,7 +1223,7 @@ plugin({
                     that._currentHighlightItem = null;
                 }
             });
-            highlightPanel.click(function(e) {
+            highlightPanel.on("click", function(e) {
                 var elem,
                     highlight;
                 elem = $(e.target);
@@ -1303,7 +1303,7 @@ plugin({
             });
             this.contentAnimator.start();
         });
-        userProtrait.click(function(e) {
+        userProtrait.on("click", function(e) {
             that.sidebarManager.show("userSidebar");
         });
     }
@@ -1333,11 +1333,11 @@ plugin({
     }
 });
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/sidebar-manager.js
 
-(function($, ui) {
+(function(ui, $) {
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -1439,11 +1439,11 @@ SidebarManager.prototype = {
 ui.SidebarManager = SidebarManager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tile-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // 动态磁贴
 
 ///磁贴组
@@ -2302,11 +2302,11 @@ TileContainer.prototype = {
 ui.TileContainer = TileContainer;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-calendar.js
 
-(function($, ui) {
+(function(ui, $) {
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -2388,11 +2388,11 @@ ui.tiles.calendar = function(tile) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-clock.js
 
-(function($, ui) {
+(function(ui, $) {
 // 时钟动态磁贴
 var clockStyle;
 
@@ -2478,11 +2478,11 @@ ui.tiles.clock = function(tile) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-picture.js
 
-(function($, ui) {
+(function(ui, $) {
 // 图片动态磁贴
 
 if(!ui.tiles) {
@@ -2664,11 +2664,11 @@ function moveNext(tile) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-weather.js
 
-(function($, ui) {
+(function(ui, $) {
 // 天气可交互磁贴
 /*
     cityName: 城市名称
@@ -2859,7 +2859,7 @@ function activeMutualTile(tile) {
 
     days = context.parent.children(".weather-days");
     context.current = $(days.children()[0]);
-    days.click(onWeatherHandleClick.bind(tile));
+    days.on("click", onWeatherHandleClick.bind(tile));
 }
 function onWeatherHandleClick(e) {
     var context,
@@ -2974,11 +2974,11 @@ ui.tiles.weather = function(tile, weatherData) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/toolbar.js
 
-(function($, ui) {
+(function(ui, $) {
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {
@@ -3072,7 +3072,7 @@ Toolbar.prototype = {
         }
         
         var that = this;
-        this.extendButton.click(function(e) {
+        this.extendButton.on("click", function(e) {
             if(that.isExtendShow()) {
                 that.hideExtend();
             } else {
@@ -3084,7 +3084,7 @@ Toolbar.prototype = {
         this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='fa fa-thumb-tack'></i></a>");
         this.extendWrapPanel.append(this.pinButton);
         var that = this;
-        this.pinButton.click(function(e) {
+        this.pinButton.on("click", function(e) {
             if(that.isExtendPin()) {
                 that.unpinExtend();
             } else {
@@ -3197,4 +3197,4 @@ Toolbar.prototype = {
 ui.Toolbar = Toolbar;
 
 
-})(jQuery, ui);
+})(ui, $);

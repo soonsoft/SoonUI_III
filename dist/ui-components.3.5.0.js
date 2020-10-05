@@ -1,6 +1,6 @@
 // Source: src/component/introsort.js
 
-(function($, ui) {
+(function(ui, $) {
 // sorter introsort
 var size_threshold = 16;
 
@@ -201,11 +201,11 @@ Introsort.prototype = {
 ui.Introsort = Introsort;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/animation.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     animation javascript 动画引擎
  */
@@ -854,11 +854,11 @@ ui.animator.fadeOut = function(target) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/selector-set.js
 
-(function($, ui) {
+(function(ui, $) {
 // SelectorSet
 // 参考 https://github.com/josh/selector-set/blob/master/selector-set.js
 // 针对SOON.UI的代码风格进行了重构
@@ -1207,11 +1207,11 @@ SelectorSet.prototype = {
 ui.SelectorSet = SelectorSet;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/event-delegate.js
 
-(function($, ui) {
+(function(ui, $) {
 // EventDelegate
 // 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
 // 针对SOON.UI的代码风格进行了重构
@@ -1395,11 +1395,11 @@ ui.on = on;
 ui.off = off;
 ui.fire = fire;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/custom-event.js
 
-(function($, ui) {
+(function(ui, $) {
 // custom event
 
 function CustomEventArgs(args) {
@@ -1522,7 +1522,7 @@ CustomEvent.prototype = {
         target.off = function (type, callback) {
             that.removeEventListener(type, callback);
         };
-        target.fire = function (type) {
+        target.fire = target.trigger = function (type) {
             var args = Array.apply([], arguments);
             return that.dispatchEvent.apply(that, args);
         };
@@ -1544,11 +1544,11 @@ CustomEvent.prototype = {
 ui.CustomEvent = CustomEvent;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/ajax.js
 
-(function($, ui) {
+(function(ui, $) {
 // ajax
 
 var msie = 0,
@@ -2385,11 +2385,11 @@ function extendHttpProcessor() {
 
 }
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/color.js
 
-(function($, ui) {
+(function(ui, $) {
 // color
 
 // 各种颜色格式的正则表达式
@@ -2525,11 +2525,11 @@ ui.color = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/browser.js
 
-(function($, ui) {
+(function(ui, $) {
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -2652,11 +2652,11 @@ ui.platform = platform;
 ui.browser = browser;
 ui.engine = engine;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/image-loader.js
 
-(function($, ui) {
+(function(ui, $) {
 // image loader
 
 function ImageLoader() {
@@ -2844,11 +2844,11 @@ $.fn.setImage = function (src, width, height, fillMode) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/define.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // JS类型化
 
@@ -3012,11 +3012,11 @@ ui.define = function(name, base, prototype) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/draggable.js
 
-(function($, ui) {
+(function(ui, $) {
 
 var doc = $(document),
     body = $(document.body),
@@ -3298,11 +3298,11 @@ $.fn.undraggable = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/theme.js
 
-(function($, ui) {
+(function(ui, $) {
 
 function setHighlight(highlight) {
     var sheet,
@@ -3382,11 +3382,11 @@ ui.theme = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/page.js
 
-(function($, ui) {
+(function(ui, $) {
 // 事件优先级
 ui.eventPriority = {
     masterReady: 3,
@@ -3649,7 +3649,7 @@ $(document)
         page.fire("ready");
     })
     //注册全局click事件
-    .click(function (e) {
+    .on("click", function (e) {
         page.fire("htmlclick", e.target);
     })
 
@@ -3676,4 +3676,4 @@ $(window)
 ui.page = page;
 
 
-})(jQuery, ui);
+})(ui, $);

@@ -1,4 +1,4 @@
 
-(function($, ui) {
+(function(ui, $) {
 //$|$
-})(jQuery, ui);
+})(ui, $);

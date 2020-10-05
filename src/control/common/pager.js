@@ -142,7 +142,7 @@ Pager.prototype = {
                     that.pageChangedHandler();
                 });
             }
-            this.pageNumPanel.click(function(e) {
+            this.pageNumPanel.on("click", function(e) {
                 var btn = $(e.target);
                 if (btn.nodeName() !== "A")
                     return;

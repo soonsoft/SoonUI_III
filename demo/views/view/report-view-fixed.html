@@ -42,13 +42,13 @@
                 toolbar: "toolbar",
                 created: function() {
                     createReportView.call(this);
-                    $("#up").click(function(e) {
+                    $("#up").on("click", function(e) {
                         pageLogic.reportView.currentRowUp();
                     });
-                    $("#down").click(function(e) {
+                    $("#down").on("click", function(e) {
                         pageLogic.reportView.currentRowDown();
                     });
-                    $("#add").click(function(e) {
+                    $("#add").on("click", function(e) {
                         var index = pageLogic.reportView.count();
                         if(index >= jaySongs.length) {
                             ui.messageShow("can not add new song.");
@@ -57,7 +57,7 @@
                         var song = getSong(index);
                         pageLogic.reportView.addRow(song);
                     });
-                    $("#edit").click(function(e) {
+                    $("#edit").on("click", function(e) {
                         var data = pageLogic.reportView.getSelection();
                         if(!data) {
                             return;
@@ -66,7 +66,7 @@
                         song.name = song.name + "-已修改";
                         pageLogic.reportView.updateRow(data.rowIndex, song);
                     });
-                    $("#remove").click(function(e) {
+                    $("#remove").on("click", function(e) {
                         var data = pageLogic.reportView.getSelection();
                         if(!data) {
                             return;

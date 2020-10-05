@@ -417,7 +417,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._calendarPanel
             .addClass("ui-date-chooser-panel")
             .addClass("border-highlight")
-            .click(function (e) {
+            .on("click", function (e) {
                 e.stopPropagation();
             });
 
@@ -472,14 +472,14 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._settingPanel.append(yearTitle);
         // 后退
         prev = $("<div class='date-chooser-prev'/>");
-        prev.click({ value: -10 }, this.onYearChangedHandler);
+        prev.on("click", { value: -10 }, this.onYearChangedHandler);
         yearTitle.append(prev);
         this._yearPrev = prev;
         // 标题文字
         yearTitle.append("<div class='date-chooser-title'><span id='yearTitle'>" + this._language.year + "</span></div>");
         // 前进
         next = $("<div class='date-chooser-next'/>");
-        next.click({ value: 10 }, this.onYearChangedHandler);
+        next.on("click", { value: 10 }, this.onYearChangedHandler);
         yearTitle.append(next);
         this._yearNext = next;
         // 清除浮动
@@ -507,7 +507,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         yearPanel = $("<div class='date-chooser-year-panel' />");
         this._yearsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._yearsTable.click(this.onYearSelectedHandler);
+        this._yearsTable.on("click", this.onYearSelectedHandler);
         tbody = $("<tbody />");
         for(i = 0; i < 3; i++) {
             tr = $("<tr />");
@@ -529,7 +529,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         monthPanel = $("<div class='date-chooser-month-panel' />");
         this._monthsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._monthsTable.click(this.onMonthSelectedHandler);
+        this._monthsTable.on("click", this.onMonthSelectedHandler);
         tbody = $("<tbody />");
         index = 0;
         for (i = 0; i < 3; i++) {
@@ -577,19 +577,19 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         titlePanel = $("<div class='date-chooser-calendar-title' />");
         // 后退
         prev = $("<div class='date-chooser-prev' />");
-        prev.click({ value: -1 }, this.onMonthChangedHandler);
+        prev.on("click", { value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
         this._monthPrev = prev;
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.click(this.onCalendarTitleClickHandler);
+        this._linkBtn.on("click", this.onCalendarTitleClickHandler);
         this._updateCalendarTitle();
         dateTitle.append(this._linkBtn);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
-        next.click({ value: 1 }, this.onMonthChangedHandler);
+        next.on("click", { value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
         this._monthNext = next;
 
@@ -636,7 +636,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         daysPanel.append(this._currentDays);
         daysPanel.append(this._nextDays);
 
-        daysPanel.click(this.onDayItemClickHandler);
+        daysPanel.on("click", this.onDayItemClickHandler);
 
         return daysPanel;
     },
@@ -734,7 +734,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             btn.css(css);
         }
         if(eventFn) {
-            btn.click(eventFn);
+            btn.on("click", eventFn);
         }
         return btn;
     },
@@ -1412,7 +1412,7 @@ $.fn.dateChooser = function(option) {
 
         ui.hideAll(currentDateChooser);
         currentDateChooser.show();
-    }).click(function(e) {
+    }).on("click", function(e) {
         e.stopPropagation();
     });
     return currentDateChooser;

@@ -49,7 +49,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         if (this.option.filterCss) {
             this.filterPanel.css(this.option.filterCss);
         }
-        this.filterPanel.click(this.onItemClickHandler);
+        this.filterPanel.on("click", this.onItemClickHandler);
         this.parent.append(this.filterPanel);
 
         if (!ui.core.isNumber(this.option.defaultIndex) || this.option.defaultIndex >= len || this.option.defaultIndex < 0) {

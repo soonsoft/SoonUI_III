@@ -107,12 +107,12 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.parent.append(this.buttonPanel);
         this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
-        this.element.click(function(e) {
+        this.element.on("click", function(e) {
             e.stopPropagation();
             that.show();
         });
         if(this.hasCloseButton) {
-            this.centerIcon.click(function(e) {
+            this.centerIcon.on("click", function(e) {
                 that.hide();
             });
         } else {
@@ -120,7 +120,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
                 that.hide();
             });
         }
-        this.buttonPanel.click(function(e) {
+        this.buttonPanel.on("click", function(e) {
             e.stopPropagation();
         });
     },
@@ -327,7 +327,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         });
         
         if(ui.core.isFunction(button.handler)) {
-            button.elem.click(function(e) {
+            button.elem.on("click", function(e) {
                 button.handler.call(that, button);
             });
         }

@@ -565,7 +565,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click(
+        this.element.on(
+            "click", 
             this.clickHandlers
                 .getDelegateHandler(function(elem) {
                     return elem.hasClass("ui-grid-view");

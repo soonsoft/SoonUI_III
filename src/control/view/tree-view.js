@@ -14,7 +14,7 @@ ui.ctrls.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
             .addClass("ui-selection-tree-panel")
             .addClass("ui-tree-view-panel")
             .css("position", position);
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
 
         if (Array.isArray(this.option.viewData)) {
             this._fill(this.option.viewData);

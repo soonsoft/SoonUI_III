@@ -81,7 +81,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         this.element.addClass("ui-list-view");
 
         this.listPanel = $("<ul class='ui-list-view-ul' />");
-        this.listPanel.click(this.onListItemClickHandler);
+        this.listPanel.on("click", this.onListItemClickHandler);
         this.element.append(this.listPanel);
 
         if(this.option.pager) {

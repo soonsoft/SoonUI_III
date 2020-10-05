@@ -91,7 +91,7 @@ Toolbar.prototype = {
         }
         
         var that = this;
-        this.extendButton.click(function(e) {
+        this.extendButton.on("click", function(e) {
             if(that.isExtendShow()) {
                 that.hideExtend();
             } else {
@@ -103,7 +103,7 @@ Toolbar.prototype = {
         this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='fa fa-thumb-tack'></i></a>");
         this.extendWrapPanel.append(this.pinButton);
         var that = this;
-        this.pinButton.click(function(e) {
+        this.pinButton.on("click", function(e) {
             if(that.isExtendPin()) {
                 that.unpinExtend();
             } else {

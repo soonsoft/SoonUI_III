@@ -185,7 +185,7 @@
 
                     $(".ui-fold-view").foldView();
 
-                    $("#showComplexSample").click(function(e) {
+                    $("#showComplexSample").on("click", function(e) {
                         var complexProgress = ui.page.complexProgress,
                             shadow = $("#complexShadow");
                         if(complexProgress.percent > 0) {

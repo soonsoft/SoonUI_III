@@ -291,7 +291,7 @@ YearView.prototype = {
         content.empty().append(table);
 
         table.data("month", month);
-        table.click(this.onYearItemClickHandler);
+        table.on("click", this.onYearItemClickHandler);
     },
     _isDateCell: function(td) {
         return !td.hasClass("ui-calendar-empty") && td.children().length > 0;
@@ -666,7 +666,7 @@ MonthView.prototype = {
 
         if (!this.daysTable) {
             this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
-            this.daysTable.click(this.onMonthItemClickHandler);
+            this.daysTable.on("click", this.onMonthItemClickHandler);
         } else {
             this.daysTable.html("");
         }
@@ -1187,7 +1187,7 @@ WeekView.prototype = {
         this.weekTable.append(colgroup).append(thead);
         this.weekDayPanel.append(this.weekTable);
 
-        this.weekTable.click(this.onWeekHeadItemClickHandler);
+        this.weekTable.on("click", this.onWeekHeadItemClickHandler);
     },
     _createHourName: function() {
         var table, colgroup, tbody, 
@@ -1795,7 +1795,7 @@ DayView.prototype = {
                 this._formatDayText(this.calendar.currentDate) + "</span>");
         this.dayPanel.append(this.dayTitle);
 
-        this.dayTitle.click(this.onDayHeadItemClickHandler);
+        this.dayTitle.on("click", this.onDayHeadItemClickHandler);
     },
     _createHourName: WeekView.prototype._createHourName,
     _createHour: function() {

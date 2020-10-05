@@ -133,7 +133,7 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
-        this.listPanel.click(this.onItemClickHandler);
+        this.listPanel.on("click", this.onItemClickHandler);
 
         this.wrapElement(this.element, this.listPanel);
 

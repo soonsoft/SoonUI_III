@@ -250,7 +250,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
         this.wrapElement(this.element, this.treePanel);
 
         this._showClass = "ui-selection-tree-show";

@@ -120,7 +120,7 @@ CustomEvent.prototype = {
         target.off = function (type, callback) {
             that.removeEventListener(type, callback);
         };
-        target.fire = function (type) {
+        target.fire = target.trigger = function (type) {
             var args = Array.apply([], arguments);
             return that.dispatchEvent.apply(that, args);
         };

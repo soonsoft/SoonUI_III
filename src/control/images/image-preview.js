@@ -65,10 +65,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             .append(this.chooserNext);
         
         that = this;
-        this.chooserPrev.click(function(e) {
+        this.chooserPrev.on("click", function(e) {
             that.beforeItems();
         });
-        this.chooserNext.click(function(e) {
+        this.chooserNextchooserPrev.on("click", function(e) {
             that.afterItems();
         });
         
@@ -153,7 +153,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click(this._onChooserItemClickHandler);
+        this.chooserQueuechooserPrev.on("click", this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },

@@ -1,13 +1,13 @@
 // Source: src/effect/0.js
 
-(function($, ui) {
+(function(ui, $) {
 ui.effect = {};
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/effect/blur.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     StackBlur - a fast almost Gaussian Blur For Canvas
 
@@ -612,11 +612,11 @@ ui.effect.blurImageDataRGBA = processImageDataRGBA;
 ui.effect.blurImageDataRGB = processImageDataRGB;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/effect/wave.js
 
-(function($, ui) {
+(function(ui, $) {
 function globalAttenuation(x, k) {
     return Math.pow(k * 4 / (k * 4 + Math.pow(x, 4)), k);
 }
@@ -785,4 +785,4 @@ ui.effect.WaveLine = WaveLine;
 ui.effect.WaveArea = WaveArea;
 ui.effect.Wave = Wave;
 
-})(jQuery, ui);
+})(ui, $);

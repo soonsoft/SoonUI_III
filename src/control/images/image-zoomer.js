@@ -84,7 +84,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='closable-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        this.closeButton.click(function () {
+        this.closeButton.on("click", function () {
             that.hide();
         });
         
@@ -94,14 +94,14 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             .append(this.closeButton);
         if(this.option.getNext) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
-            this.nextButton.click(function(e) {
+            this.nextButton.on("click", function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
         if(this.option.getPrev) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
-            this.prevButton.click(function(e) {
+            this.prevButton.on("click", function(e) {
                 that._doPrevView();
             });
             this.imagePanel.append(this.prevButton);
@@ -502,7 +502,7 @@ $.fn.addImageZoomer = function (zoomer) {
         return;
     }
     if (zoomer instanceof ui.ctrls.ImageZoomer) {
-        this.click(function(e) {
+        this.on("click", function(e) {
             var target = $(e.target);
             var largeSize = target.data("LargeSize");
             if(largeSize) {

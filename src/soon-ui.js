@@ -46,11 +46,11 @@
 "use strict";
 
 var ui = {};
-var jQuery = window.jQuery;
-if(!jQuery) {
-	jQuery = require("jquery");
-	if(jQuery) {
-		window.jQuery = window.$ = jQuery;
+var $ = window.$;
+if(!$) {
+	$ = require("jquery");
+	if($) {
+		window.$ = $;
 	}
 }
 

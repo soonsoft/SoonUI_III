@@ -81,7 +81,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
             .empty()
             .append(textState)
             .append(confirmState);
-        this.element.click(this.onButtonClickHandler);
+        this.element.on("click", this.onButtonClickHandler);
         
         this._initAnimation(textState, confirmState);
         

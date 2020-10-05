@@ -557,7 +557,7 @@
                                 .removeClass("font-highlight")
                                 .addClass("background-highlight");
                     };
-                    this.indicator.click((function(e) {
+                    this.indicator.on("click", (function(e) {
                         var elem = $(e.target),
                             index,
                             option;
@@ -800,10 +800,10 @@
                 createDemoItems($(tab.bodies[0]), "light");
                 createDemoItems($(tab.bodies[1]), "dark");
                 ui.setTask(function() {
-                    $("#toDark").click(function(e) {
+                    $("#toDark").on("click", function(e) {
                         tab.showIndex(1);
                     });
-                    $("#toLight").click(function(e) {
+                    $("#toLight").on("click", function(e) {
                         tab.showIndex(0);
                     });
                 });

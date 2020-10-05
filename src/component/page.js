@@ -260,7 +260,7 @@ $(document)
         page.fire("ready");
     })
     //注册全局click事件
-    .click(function (e) {
+    .on("click", function (e) {
         page.fire("htmlclick", e.target);
     })
 

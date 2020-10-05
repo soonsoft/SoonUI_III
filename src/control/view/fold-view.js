@@ -47,7 +47,7 @@ FoldView.prototype = {
         dtList = this.element.children("dt");
         len = dtList.length;
         if(len > 0) {
-            this.element.click(this.onFoldTitleClickHandler);
+            this.element.on("click", this.onFoldTitleClickHandler);
         }
         for(i = 0; i < len; i++) {
             dt = $(dtList[i]);

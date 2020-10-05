@@ -46,11 +46,11 @@
 "use strict";
 
 var ui = {};
-var jQuery = window.jQuery;
-if(!jQuery) {
-	jQuery = require("jquery");
-	if(jQuery) {
-		window.jQuery = window.$ = jQuery;
+var $ = window.$;
+if(!$) {
+	$ = require("jquery");
+	if($) {
+		window.$ = $;
 	}
 }
 
@@ -62,9 +62,9 @@ if(noGlobal) {
 
 ui.version = '3.5.0';
 
-// Source: src/core.js
+// Source: src/core/core.js
 
-(function($, ui) {
+(function(ui, $) {
 // core
 
 /*
@@ -263,11 +263,11 @@ core.isTouchAvailable = function() {
 
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/i18n.js
+// Source: src/core/i18n.js
 
-(function($, ui) {
+(function(ui, $) {
 // Internationalization
 
 var locale = "zh-CN",
@@ -305,45 +305,12 @@ ui.i18n = function() {
 
 ui.i18n.locale = locale;
 ui.i18n.language = language;
-// common language text
 
-ui.i18n.language.common = {
-    
-};
+})(ui, $);
 
-// language of component
+// Source: src/shims/ES5-Array-shims.js
 
-// language of control
-
-ui.i18n.language.control = {};
-
-ui.i18n.language.control["ui.ctrls.DateChooser"] = {
-    dateFormat: "yyyy-mm-dd",
-    year: "年份",
-    month: "月份",
-    weeks: ["日", "一", "二", "三", "四", "五", "六"],
-    months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
-};
-
-ui.i18n.language.control["ui.ctrls.CalendarView"] = {
-    sundayFirstWeek: ["日", "一", "二", "三", "四", "五", "六"],
-    mondayFirstWeek: ["一", "二", "三", "四", "五", "六", "日"],
-    yearUnit: "年",
-    monthUnit: "月"
-};
-
-// language of core
-
-// language of effect
-
-// language of viewpage
-
-
-})(jQuery, ui);
-
-// Source: src/ES5-Array-shims.js
-
-(function($, ui) {
+(function(ui, $) {
 // 为ECMAScript3 添加ECMAScript6的方法
 
 function isFunction(fn) {
@@ -547,11 +514,11 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES6-Array-shims.js
+// Source: src/shims/ES6-Array-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为ECMAScript3 添加ECMAScript6的方法
 
 function isFunction(fn) {
@@ -637,11 +604,11 @@ if(!isFunction(Array.of)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES5-String-shims.js
+// Source: src/shims/ES5-String-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为ECMAScript3 添加ECMAScript5的方法
 
 var rtrim;
@@ -663,11 +630,11 @@ if(!isFunction(String.prototype.trim)) {
 
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES6-String-shims.js
+// Source: src/shims/ES6-String-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为String对象添加ES6的一些方法
 
 var toString = Object.prototype.toString;
@@ -785,11 +752,11 @@ if(!isFunction(String.prototype.endsWith)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES5-Function-shims.js
+// Source: src/shims/ES5-Function-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为ECMAScript3 添加ECMAScript5的方法
 
 function isFunction(fn) {
@@ -817,11 +784,11 @@ if(!isFunction(Function.prototype.bind)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES5-JSON-shims.js
+// Source: src/shims/ES5-JSON-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // json2
 
 // 判断浏览器是否原生支持JSON对象
@@ -1021,11 +988,11 @@ JSON.parse = function (text, reviver) {
     throw new SyntaxError("JSON.parse");
 };
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES6-Number-shims.js
+// Source: src/shims/ES6-Number-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为Number对象添加ES6的一些方法
 
 function isFunction(fn) {
@@ -1059,11 +1026,11 @@ if(!isFunction(Number.parseFloat)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES5-Object-shims.js
+// Source: src/shims/ES5-Object-shims.js
 
-(function($, ui) {
+(function(ui, $) {
 // 为String对象添加ES6的一些方法
 
 var prototypeOfObject = Object.prototype,
@@ -1454,11 +1421,11 @@ if(!isFunction(Object.create)) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/ES6-Promise.shims.js
+// Source: src/shims/ES6-Promise.shims.js
 
-(function($, ui) {
+(function(ui, $) {
 
 var PromiseShim = null,
     isFunction,
@@ -1714,11 +1681,11 @@ global = ui.core.global();
 global.Promise = PromiseShim;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/array-like.js
+// Source: src/core/array-like.js
 
-(function($, ui) {
+(function(ui, $) {
 // ArrayLike
 
 var arrayInstance = [];
@@ -1792,11 +1759,11 @@ ArrayLike.prototype = {
 ui.ArrayLike = ArrayLike;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/keyarray.js
+// Source: src/core/keyarray.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
@@ -1916,11 +1883,11 @@ KeyArray.prototype.clear = function () {
 ui.KeyArray = KeyArray;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/linked-list.js
+// Source: src/core/linked-list.js
 
-(function($, ui) {
+(function(ui, $) {
 // LinkedList
 
 function Node(element) {
@@ -2080,11 +2047,11 @@ function getAndRemove(atTheEnd) {
 
 ui.LinkedList = LinkedList;
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util.js
+// Source: src/core/utils/util.js
 
-(function($, ui) {
+(function(ui, $) {
 // util
 
 //获取浏览器滚动条的宽度
@@ -2425,11 +2392,11 @@ ui.getLeftLocation = function (target, width, height) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-string.js
+// Source: src/core/utils/util-string.js
 
-(function($, ui) {
+(function(ui, $) {
 // string util
 
 var textEmpty = "";
@@ -2758,11 +2725,11 @@ ui.str = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-date.js
+// Source: src/core/utils/util-date.js
 
-(function($, ui) {
+(function(ui, $) {
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
@@ -3247,11 +3214,11 @@ ui.date = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-object.js
+// Source: src/core/utils/util-object.js
 
-(function($, ui) {
+(function(ui, $) {
 //object
 
 function _ignore(ignore) {
@@ -3336,11 +3303,11 @@ ui.obj = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-url.js
+// Source: src/core/utils/util-url.js
 
-(function($, ui) {
+(function(ui, $) {
 //url
 
 var url_rquery = /\?/,
@@ -3447,11 +3414,11 @@ ui.url = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-structure-transform.js
+// Source: src/core/utils/util-structure-transform.js
 
-(function($, ui) {
+(function(ui, $) {
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -3595,11 +3562,11 @@ ui.trans = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-random.js
+// Source: src/core/utils/util-random.js
 
-(function($, ui) {
+(function(ui, $) {
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -3738,11 +3705,11 @@ random.vivid = function(ranges) {
 ui.random = random;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/parser.js
+// Source: src/core/parser.js
 
-(function($, ui) {
+(function(ui, $) {
 var open = "{",
     close = "}",
     formatterOperator = "|";
@@ -3899,11 +3866,11 @@ ui.parseXML = parseXML;
 ui.parseHTML = parseHTML;
 ui.parseJSON = JSON.parse;
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/task.js
+// Source: src/core/task.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
 
 JavaScript中分为MacroTask和MicroTask
@@ -4060,11 +4027,11 @@ ui.clearMicroTask = function(index) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/cookie.js
+// Source: src/core/cookie.js
 
-(function($, ui) {
+(function(ui, $) {
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -4154,11 +4121,11 @@ ui.cookie = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/style-sheet.js
+// Source: src/core/style-sheet.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // 样式表操作
 function getRules() {
@@ -4318,11 +4285,11 @@ StyleSheet.createStyleSheet = function(id) {
 ui.StyleSheet = StyleSheet;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/jquery-extend.js
+// Source: src/core/jquery-extend.js
 
-(function($, ui) {
+(function(ui, $) {
 // jquery extends
 
 var rword = /[^, ]+/g,
@@ -4585,7 +4552,7 @@ $.fn.textinput = function(data, fn) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 
 // 兼容AMD

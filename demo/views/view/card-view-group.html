@@ -67,7 +67,7 @@
                 created: function() {
                     createCardView.call(this);
 
-                    $("#addItem").click(function(e) {
+                    $("#addItem").on("click", function(e) {
                         if(removeItems.length === 0) {
                             ui.messageShow("没有被移除的项目，请先移除一个项目");
                             return;
@@ -76,7 +76,7 @@
                             pageLogic.cardView.addItem(removeItems.shift());
                         }
                     });
-                    $("#addGroup").click(function(e) {
+                    $("#addGroup").on("click", function(e) {
                         if(westlifeGroup.length === 0) {
                             ui.messageShow("没新分组");
                             return;
@@ -87,7 +87,7 @@
                         });
                         westlifeGroup = [];
                     });
-                    $("#insertItem").click(function(e) {
+                    $("#insertItem").on("click", function(e) {
                         if(!westlifeInsertItem) {
                             ui.messageShow("没有需要插入的元素");
                             return;
@@ -96,7 +96,7 @@
                         pageLogic.cardView.insertItem(36, westlifeInsertItem);
                         westlifeInsertItem = null;
                     });
-                    $("#deleteItem").click(function(e) {
+                    $("#deleteItem").on("click", function(e) {
                         var selectList = pageLogic.cardView.getSelection();
                         if(selectList.length === 0) {
                             ui.messageShow("您还没有选择要删除的内容");

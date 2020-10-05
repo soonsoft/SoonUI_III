@@ -44,7 +44,7 @@
                 toolbar: "toolbar",
                 created: function() {
                     createCardView.call(this);
-                    $("#addItem").click(function(e) {
+                    $("#addItem").on("click", function(e) {
                         if(removeItems.length === 0) {
                             ui.messageShow("没有被移除的项目，请先移除一个项目");
                             return;
@@ -53,7 +53,7 @@
                             pageLogic.cardView.addItem(removeItems.shift());
                         }
                     });
-                    $("#insertItem").click(function(e) {
+                    $("#insertItem").on("click", function(e) {
                         var item = albums[ui.random.getNum(0, albums.length)];
                         pageLogic.cardView.insertItem(
                             ui.random.getNum(0, pageLogic.cardView.count()), 
@@ -61,7 +61,7 @@
                                 picture: "../../lib/data/album-cover/" + item.album + ".jpg"
                             });
                     });
-                    $("#deleteItem").click(function(e) {
+                    $("#deleteItem").on("click", function(e) {
                         var selectList = pageLogic.cardView.getSelection();
                         if(selectList.length === 0) {
                             ui.messageShow("您还没有选择要删除的内容");

@@ -225,7 +225,7 @@ Tab.prototype = {
         tabView.tabs.addClass("font-highlight-hover");
 
         that = this;
-        tabView.tabPanel.click(function(e) {
+        tabView.tabPanel.on("click", function(e) {
             var elem = $(e.target);
             while(!elem.hasClass("ui-tab-button")) {
                 if(elem[0] === tabView.tabPanel[0]) {

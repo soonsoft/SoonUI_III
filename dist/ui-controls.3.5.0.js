@@ -1,6 +1,6 @@
 // Source: src/control/base/control-define.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // 创建命名空间
 ui.ctrls = {};
@@ -233,11 +233,11 @@ function define(name, base, prototype) {
 
 ui.ctrls.define = define;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/base/dropdown-base.js
 
-(function($, ui) {
+(function(ui, $) {
 var htmlClickHideHandler = [],
     dropdownPanelBorderWidth = 1,
     cancelHtmlClickFlag = "cancel-dropdown-html-click";
@@ -623,11 +623,11 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/base/sidebar-base.js
 
-(function($, ui) {
+(function(ui, $) {
 //侧滑面板基类
 ui.ctrls.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
@@ -662,7 +662,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         if(this.option.hasCloseButton) {
             this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
             this._closeButton.append("<i class='fa fa-angle-right'></i>");
-            this._closeButton.click(function(e) {
+            this._closeButton.on("click", function(e) {
                 that.hide();
             });
         }
@@ -820,11 +820,11 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/column-style.js
 
-(function($, ui) {
+(function(ui, $) {
 // column style 默认提供的GridView和ReportView的格式化器
 var spanKey = "_RowspanContext",
     hoverViewKey = "_HoverView";
@@ -856,7 +856,6 @@ columnFormatter = {
     /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        //checkbox.click(this.onCheckboxAllClickHandler);
         this.columnResetter.add(function () {
             checkbox.removeClass("fa-check-square").addClass("fa-square");
         });
@@ -1354,11 +1353,11 @@ ui.ColumnStyle = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/mask.js
 
-(function($, ui) {
+(function(ui, $) {
 //全局遮罩
 ui.mask = {
     maskId: "#ui_mask_rectangle",
@@ -1475,11 +1474,11 @@ ui.mask = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/pager.js
 
-(function($, ui) {
+(function(ui, $) {
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
@@ -1624,7 +1623,7 @@ Pager.prototype = {
                     that.pageChangedHandler();
                 });
             }
-            this.pageNumPanel.click(function(e) {
+            this.pageNumPanel.on("click", function(e) {
                 var btn = $(e.target);
                 if (btn.nodeName() !== "A")
                     return;
@@ -1694,11 +1693,11 @@ Pager.prototype = {
 ui.ctrls.Pager = Pager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/dialog-box.js
 
-(function($, ui) {
+(function(ui, $) {
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
@@ -1939,7 +1938,7 @@ ctrlHandlers = {
         closeBtn = $("<a href='javascript:void(0)'>×</a>");
         closeBtn.attr("class", option.className || "closable-button font-highlight-hover");
 
-        closeBtn.click(function() {
+        closeBtn.on("click", function() {
             that.hide();
         });
 
@@ -1952,7 +1951,7 @@ ctrlHandlers = {
         maximizableButton = $("<a href='javascript:void(0)'><i class='fa fa-window-maximize'></i></a>");
         maximizableButton.attr("class", option.className || "maximizable-button font-highlight-hover");
 
-        maximizableButton.click(function() {
+        maximizableButton.on("click", function() {
             that._maximize(!that.isMaximizeState, maximizableButton);
         });
 
@@ -2594,11 +2593,11 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/loading-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // 加载提示框
 var loadingBox,
     loadingClass = "c_dotsPlaying";
@@ -2677,11 +2676,11 @@ ui.loadingHide = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/message-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // MessageBox
 var MessageType = {
         message: 0,
@@ -2747,10 +2746,10 @@ MessageBox.prototype = {
             });
             var close = $("<a href='javascript:void(0)' class='closable-button'>×</a>");
             var that = this;
-            close.click(function (e) {
+            close.on("click", function (e) {
                 that.hide(true);
             });
-            this.box.mouseenter(function (e) {
+            this.box.on("mouseenter", function (e) {
                 if (that.isClosing) {
                     return;
                 }
@@ -2760,7 +2759,7 @@ MessageBox.prototype = {
                     clearTimeout(that.hideHandler);
                 }
             });
-            this.box.mouseleave(function (e) {
+            this.box.on("mouseleave", function (e) {
                 that.waitSeconds(defaultWaitSeconds);
             });
 
@@ -2896,11 +2895,11 @@ ui.failedShow = function(text) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/option-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
@@ -3024,11 +3023,11 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/chooser.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 选择器
@@ -3352,7 +3351,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         this._super({
             focus: this.onFocusHandler
         });
-        this.chooserPanel.click(function (e) {
+        this.chooserPanel.on("click", function (e) {
             e.stopPropagation();
         });
     },
@@ -3441,7 +3440,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             sizeData.width += tempWidth + temp + this.option.margin;
 
             div.mousewheel({ target: div }, this.onMousewheelHandler);
-            div.click(this.onItemClickHandler);
+            div.on("click", this.onItemClickHandler);
             
             ul = this._createList(item);
             div.append(ul);
@@ -3709,11 +3708,11 @@ $.fn.chooser = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/color-picker.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * Farbtastic Color Picker 1.2
@@ -4091,7 +4090,7 @@ $.fn.colorPicker = function (option) {
     
     colorPicker = ui.ctrls.DropDownBase(option, this);
     colorPickerPanel = $("<div class='ui-color-picker border-highlight' />");
-    colorPickerPanel.click(function (e) {
+    colorPickerPanel.on("click", function (e) {
         e.stopPropagation();
     });
 
@@ -4121,11 +4120,11 @@ $.fn.colorPicker = function (option) {
 
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/date-chooser.js
 
-(function($, ui) {
+(function(ui, $) {
 var selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
     monthSelectedClass = "month-selected",
@@ -4545,7 +4544,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._calendarPanel
             .addClass("ui-date-chooser-panel")
             .addClass("border-highlight")
-            .click(function (e) {
+            .on("click", function (e) {
                 e.stopPropagation();
             });
 
@@ -4600,14 +4599,14 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._settingPanel.append(yearTitle);
         // 后退
         prev = $("<div class='date-chooser-prev'/>");
-        prev.click({ value: -10 }, this.onYearChangedHandler);
+        prev.on("click", { value: -10 }, this.onYearChangedHandler);
         yearTitle.append(prev);
         this._yearPrev = prev;
         // 标题文字
         yearTitle.append("<div class='date-chooser-title'><span id='yearTitle'>" + this._language.year + "</span></div>");
         // 前进
         next = $("<div class='date-chooser-next'/>");
-        next.click({ value: 10 }, this.onYearChangedHandler);
+        next.on("click", { value: 10 }, this.onYearChangedHandler);
         yearTitle.append(next);
         this._yearNext = next;
         // 清除浮动
@@ -4635,7 +4634,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         yearPanel = $("<div class='date-chooser-year-panel' />");
         this._yearsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._yearsTable.click(this.onYearSelectedHandler);
+        this._yearsTable.on("click", this.onYearSelectedHandler);
         tbody = $("<tbody />");
         for(i = 0; i < 3; i++) {
             tr = $("<tr />");
@@ -4657,7 +4656,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         monthPanel = $("<div class='date-chooser-month-panel' />");
         this._monthsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._monthsTable.click(this.onMonthSelectedHandler);
+        this._monthsTable.on("click", this.onMonthSelectedHandler);
         tbody = $("<tbody />");
         index = 0;
         for (i = 0; i < 3; i++) {
@@ -4705,19 +4704,19 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         titlePanel = $("<div class='date-chooser-calendar-title' />");
         // 后退
         prev = $("<div class='date-chooser-prev' />");
-        prev.click({ value: -1 }, this.onMonthChangedHandler);
+        prev.on("click", { value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
         this._monthPrev = prev;
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.click(this.onCalendarTitleClickHandler);
+        this._linkBtn.on("click", this.onCalendarTitleClickHandler);
         this._updateCalendarTitle();
         dateTitle.append(this._linkBtn);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
-        next.click({ value: 1 }, this.onMonthChangedHandler);
+        next.on("click", { value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
         this._monthNext = next;
 
@@ -4764,7 +4763,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         daysPanel.append(this._currentDays);
         daysPanel.append(this._nextDays);
 
-        daysPanel.click(this.onDayItemClickHandler);
+        daysPanel.on("click", this.onDayItemClickHandler);
 
         return daysPanel;
     },
@@ -4862,7 +4861,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             btn.css(css);
         }
         if(eventFn) {
-            btn.click(eventFn);
+            btn.on("click", eventFn);
         }
         return btn;
     },
@@ -5540,18 +5539,18 @@ $.fn.dateChooser = function(option) {
 
         ui.hideAll(currentDateChooser);
         currentDateChooser.show();
-    }).click(function(e) {
+    }).on("click", function(e) {
         e.stopPropagation();
     });
     return currentDateChooser;
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-list.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 自定义下拉列表
@@ -5687,7 +5686,7 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
-        this.listPanel.click(this.onItemClickHandler);
+        this.listPanel.on("click", this.onItemClickHandler);
 
         this.wrapElement(this.element, this.listPanel);
 
@@ -6004,11 +6003,11 @@ $.fn.selectionList = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-tree.js
 
-(function($, ui) {
+(function(ui, $) {
 /**
  * 树形下拉列表，可以完美的解决多级联动下拉列表的各种弊端
  * 支持单项选择和多项选择
@@ -6261,7 +6260,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
         this.wrapElement(this.element, this.treePanel);
 
         this._showClass = "ui-selection-tree-show";
@@ -6889,11 +6888,11 @@ $.fn.selectionTree = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-tree4autocomplete.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 支持自动完成的下拉树
@@ -7069,7 +7068,7 @@ ui.ctrls.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         if(!dl) {
             dl = this._autoCompleteList = $("<dl class='autocomplete-dl' />");
             dl.hide();
-            dl.click(this.onClickHandler)
+            dl.on("click", this.onClickHandler)
                 .mouseover(this.onMouseoverHandler);
             this.treePanel.append(dl);
         } else {
@@ -7171,11 +7170,11 @@ $.fn.autocompleteSelectionTree = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/calendar-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // CalendarView
 var controlName = "ui.ctrls.CalendarView",
     timeTitleWidth = 80,
@@ -7469,7 +7468,7 @@ YearView.prototype = {
         content.empty().append(table);
 
         table.data("month", month);
-        table.click(this.onYearItemClickHandler);
+        table.on("click", this.onYearItemClickHandler);
     },
     _isDateCell: function(td) {
         return !td.hasClass("ui-calendar-empty") && td.children().length > 0;
@@ -7844,7 +7843,7 @@ MonthView.prototype = {
 
         if (!this.daysTable) {
             this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
-            this.daysTable.click(this.onMonthItemClickHandler);
+            this.daysTable.on("click", this.onMonthItemClickHandler);
         } else {
             this.daysTable.html("");
         }
@@ -8365,7 +8364,7 @@ WeekView.prototype = {
         this.weekTable.append(colgroup).append(thead);
         this.weekDayPanel.append(this.weekTable);
 
-        this.weekTable.click(this.onWeekHeadItemClickHandler);
+        this.weekTable.on("click", this.onWeekHeadItemClickHandler);
     },
     _createHourName: function() {
         var table, colgroup, tbody, 
@@ -8973,7 +8972,7 @@ DayView.prototype = {
                 this._formatDayText(this.calendar.currentDate) + "</span>");
         this.dayPanel.append(this.dayTitle);
 
-        this.dayTitle.click(this.onDayHeadItemClickHandler);
+        this.dayTitle.on("click", this.onDayHeadItemClickHandler);
     },
     _createHourName: WeekView.prototype._createHourName,
     _createHour: function() {
@@ -10274,11 +10273,11 @@ ui.page.hlchanged(function(e, colorInfo) {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/card-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // CardView
 
 var selectedClass = "ui-card-view-selection",
@@ -10479,7 +10478,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
         this._initDataPrompt();
         this.element.append(this.viewBody);
         if(this.option.selection) {
-            this.viewBody.click(this.onBodyClickHandler);
+            this.viewBody.on("click", this.onBodyClickHandler);
         }
         this._initPagerPanel();
 
@@ -11278,11 +11277,11 @@ $.fn.cardView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/fold-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // 折叠视图
 function onFoldTitleClick(e) {
     var elem,
@@ -11332,7 +11331,7 @@ FoldView.prototype = {
         dtList = this.element.children("dt");
         len = dtList.length;
         if(len > 0) {
-            this.element.click(this.onFoldTitleClickHandler);
+            this.element.on("click", this.onFoldTitleClickHandler);
         }
         for(i = 0; i < len; i++) {
             dt = $(dtList[i]);
@@ -11372,11 +11371,11 @@ $.fn.foldView = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view-group.js
 
-(function($, ui) {
+(function(ui, $) {
 // GridViewGroup
 
 function defaultCreateGroupItem(groupKey) {
@@ -11537,11 +11536,11 @@ GridViewGroup.prototype = {
 ui.ctrls.GridViewGroup = GridViewGroup;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view-tree.js
 
-(function($, ui) {
+(function(ui, $) {
 // GridViewTree
 
 var childrenField = "_children",
@@ -11945,11 +11944,11 @@ GridViewTree.prototype = {
 ui.ctrls.GridViewTree = GridViewTree;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // grid view
 
 var cellCheckbox = "grid-checkbox",
@@ -12517,7 +12516,8 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click(
+        this.element.on(
+            "click", 
             this.clickHandlers
                 .getDelegateHandler(function(elem) {
                     return elem.hasClass("ui-grid-view");
@@ -13404,11 +13404,11 @@ $.fn.gridView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/list-view.js
 
-(function($, ui) {
+(function(ui, $) {
 //list view
 
 var indexAttr = "data-index";
@@ -13492,7 +13492,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         this.element.addClass("ui-list-view");
 
         this.listPanel = $("<ul class='ui-list-view-ul' />");
-        this.listPanel.click(this.onListItemClickHandler);
+        this.listPanel.on("click", this.onListItemClickHandler);
         this.element.append(this.listPanel);
 
         if(this.option.pager) {
@@ -14047,11 +14047,11 @@ $.fn.listView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/report-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // Report View
 
 var lastCell = "last-cell",
@@ -15114,11 +15114,11 @@ $.fn.reportView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/tab-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // TabView
 
 var selectedClass = "ui-tab-selection";
@@ -15346,7 +15346,7 @@ Tab.prototype = {
         tabView.tabs.addClass("font-highlight-hover");
 
         that = this;
-        tabView.tabPanel.click(function(e) {
+        tabView.tabPanel.on("click", function(e) {
             var elem = $(e.target);
             while(!elem.hasClass("ui-tab-button")) {
                 if(elem[0] === tabView.tabPanel[0]) {
@@ -15673,11 +15673,11 @@ TabManager.prototype = {
 ui.ctrls.TabView.TabManager = TabManager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/tree-view.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 树形列表
@@ -15694,7 +15694,7 @@ ui.ctrls.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
             .addClass("ui-selection-tree-panel")
             .addClass("ui-tree-view-panel")
             .css("position", position);
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
 
         if (Array.isArray(this.option.viewData)) {
             this._fill(this.option.viewData);
@@ -15710,11 +15710,11 @@ $.fn.treeView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/confirm-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 确认按钮 */
 
 function noop() {}
@@ -15798,7 +15798,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
             .empty()
             .append(textState)
             .append(confirmState);
-        this.element.click(this.onButtonClickHandler);
+        this.element.on("click", this.onButtonClickHandler);
         
         this._initAnimation(textState, confirmState);
         
@@ -15913,11 +15913,11 @@ $.fn.confirmClick = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/extend-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 扩展按钮 */
 ui.ctrls.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
@@ -16027,12 +16027,12 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.parent.append(this.buttonPanel);
         this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
-        this.element.click(function(e) {
+        this.element.on("click", function(e) {
             e.stopPropagation();
             that.show();
         });
         if(this.hasCloseButton) {
-            this.centerIcon.click(function(e) {
+            this.centerIcon.on("click", function(e) {
                 that.hide();
             });
         } else {
@@ -16040,7 +16040,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
                 that.hide();
             });
         }
-        this.buttonPanel.click(function(e) {
+        this.buttonPanel.on("click", function(e) {
             e.stopPropagation();
         });
     },
@@ -16247,7 +16247,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         });
         
         if(ui.core.isFunction(button.handler)) {
-            button.elem.click(function(e) {
+            button.elem.on("click", function(e) {
                 button.handler.call(that, button);
             });
         }
@@ -16317,11 +16317,11 @@ $.fn.extendButton = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/filter-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 内容过滤选择器 */
 var prefix = "filter_button_",
     filterCount = 0;
@@ -16373,7 +16373,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         if (this.option.filterCss) {
             this.filterPanel.css(this.option.filterCss);
         }
-        this.filterPanel.click(this.onItemClickHandler);
+        this.filterPanel.on("click", this.onItemClickHandler);
         this.parent.append(this.filterPanel);
 
         if (!ui.core.isNumber(this.option.defaultIndex) || this.option.defaultIndex >= len || this.option.defaultIndex < 0) {
@@ -16552,11 +16552,11 @@ $.fn.filterButton = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/hover-view.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 悬停视图 */
 var guid = 1;
 // 鼠标移动处理事件
@@ -16831,11 +16831,11 @@ $.fn.addHoverView = function (view) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/progress.js
 
-(function($, ui) {
+(function(ui, $) {
 // Progress
 
 var circlePrototype,
@@ -17174,11 +17174,11 @@ $.fn.progress = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/slidebar.js
 
-(function($, ui) {
+(function(ui, $) {
 // Slidebar
 
 function prepareMove(arg) {
@@ -17473,11 +17473,11 @@ $.fn.slidebar = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/switch-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 开关按钮 */
 
 var normalStyle,
@@ -17739,11 +17739,11 @@ $.fn.switchButton = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/tag.js
 
-(function($, ui) {
+(function(ui, $) {
 // tag
 
 var size = {
@@ -17962,11 +17962,11 @@ ui.ctrls.Tag.addColor = function(name, color) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/uploader.js
 
-(function($, ui) {
+(function(ui, $) {
 // uploader
 /**
  * HTML上传工具，提供ajax和iframe两种机制，自动根据当前浏览器特性进行切换
@@ -18310,11 +18310,11 @@ $.fn.uploader = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-preview.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片预览视图
 
 function onChooserItemClick(e) {
@@ -18382,10 +18382,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             .append(this.chooserNext);
         
         that = this;
-        this.chooserPrev.click(function(e) {
+        this.chooserPrev.on("click", function(e) {
             that.beforeItems();
         });
-        this.chooserNext.click(function(e) {
+        this.chooserNextchooserPrev.on("click", function(e) {
             that.afterItems();
         });
         
@@ -18470,7 +18470,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click(this._onChooserItemClickHandler);
+        this.chooserQueuechooserPrev.on("click", this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
@@ -18675,11 +18675,11 @@ $.fn.imagePreview = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-viewer.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片轮播视图
 ui.ctrls.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
@@ -18791,10 +18791,10 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
         if(this.option.hasSwitchButtom === true) {
             this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='fa fa-angle-left'></i></a>");
             this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='fa fa-angle-right'></i></a>");
-            this.prevBtn.click((function(e) {
+            this.prevBtn.on("click", (function(e) {
                 this.prev();
             }).bind(this));
-            this.nextBtn.click((function(e) {
+            this.nextBtn.on("click", (function(e) {
                 this.next();
             }).bind(this));
             this.element
@@ -18999,11 +18999,11 @@ $.fn.imageViewer = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-watcher.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片局部放大查看器
 ui.ctrls.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
@@ -19163,11 +19163,11 @@ $.fn.imageWatcher = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-zoomer.js
 
-(function($, ui) {
+(function(ui, $) {
 function getLargeImageSrc(img) {
     var src = img.attr("data-large-src");
     if(!src) {
@@ -19254,7 +19254,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='closable-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        this.closeButton.click(function () {
+        this.closeButton.on("click", function () {
             that.hide();
         });
         
@@ -19264,14 +19264,14 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             .append(this.closeButton);
         if(this.option.getNext) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
-            this.nextButton.click(function(e) {
+            this.nextButton.on("click", function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
         if(this.option.getPrev) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
-            this.prevButton.click(function(e) {
+            this.prevButton.on("click", function(e) {
                 that._doPrevView();
             });
             this.imagePanel.append(this.prevButton);
@@ -19672,7 +19672,7 @@ $.fn.addImageZoomer = function (zoomer) {
         return;
     }
     if (zoomer instanceof ui.ctrls.ImageZoomer) {
-        this.click(function(e) {
+        this.on("click", function(e) {
             var target = $(e.target);
             var largeSize = target.data("LargeSize");
             if(largeSize) {
@@ -19696,4 +19696,4 @@ $.fn.addImageZoomer = function (zoomer) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);

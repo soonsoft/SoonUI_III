@@ -198,7 +198,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
         this._initDataPrompt();
         this.element.append(this.viewBody);
         if(this.option.selection) {
-            this.viewBody.click(this.onBodyClickHandler);
+            this.viewBody.on("click", this.onBodyClickHandler);
         }
         this._initPagerPanel();
 

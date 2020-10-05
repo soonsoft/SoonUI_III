@@ -703,14 +703,14 @@ ui.ctrls.define("ui.ctrls.Menu", {
 
         that = this;
         //菜单点击事件
-        this.menuList.click(function (e) {
+        this.menuList.on("click", function (e) {
             that.onMenuItemClickHandler(e);
         });
         
         //菜单汉堡按钮点击事件
         if(this.hasMenuButton) {
             menuButton = this.option.menuButton;
-            menuButton.click(function (e) {
+            menuButton.on("click", function (e) {
                 if (menuButton.hasClass(showClass)) {
                     menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);
                     that.hide(that.hasAnimation());

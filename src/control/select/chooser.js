@@ -321,7 +321,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         this._super({
             focus: this.onFocusHandler
         });
-        this.chooserPanel.click(function (e) {
+        this.chooserPanel.on("click", function (e) {
             e.stopPropagation();
         });
     },
@@ -410,7 +410,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             sizeData.width += tempWidth + temp + this.option.margin;
 
             div.mousewheel({ target: div }, this.onMousewheelHandler);
-            div.click(this.onItemClickHandler);
+            div.on("click", this.onItemClickHandler);
             
             ul = this._createList(item);
             div.append(ul);

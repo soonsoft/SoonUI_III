@@ -71,10 +71,10 @@
             }
 
             function initEvent(router) {
-                $("#menu1").click(function(e) {
+                $("#menu1").on("click", function(e) {
                     router.push("/");
                 });
-                $("#menu2").click(function(e) {
+                $("#menu2").on("click", function(e) {
                     router.push("/dictionary");
                 });
             }

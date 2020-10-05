@@ -110,49 +110,49 @@ module.exports = function(grunt) {
 
     // UI库主框架文件
     let coreFiles = [
-        "src/core.js",
-        "src/i18n.js"
+        "src/core/core.js",
+        "src/core/i18n.js"
     ];
     if(withShims) {
         coreFiles.push(
-            "src/ES5-Array-shims.js",
-            "src/ES6-Array-shims.js",
-            "src/ES5-String-shims.js",
-            "src/ES6-String-shims.js",
-            "src/ES5-Function-shims.js",
-            "src/ES5-JSON-shims.js",
-            "src/ES6-Number-shims.js",
-            "src/ES5-Object-shims.js",
-            "src/ES6-Promise.shims.js",
-            "src/ES6-Map.shims.js"
+            "src/shims/ES5-Array-shims.js",
+            "src/shims/ES6-Array-shims.js",
+            "src/shims/ES5-String-shims.js",
+            "src/shims/ES6-String-shims.js",
+            "src/shims/ES5-Function-shims.js",
+            "src/shims/ES5-JSON-shims.js",
+            "src/shims/ES6-Number-shims.js",
+            "src/shims/ES5-Object-shims.js",
+            "src/shims/ES6-Promise.shims.js",
+            "src/shims/ES6-Map.shims.js"
         );
     }
     // 自定义数据结构
     coreFiles.push(
-        "src/array-like.js",
-        "src/keyarray.js",
-        "src/linked-list.js"
+        "src/core/array-like.js",
+        "src/core/keyarray.js",
+        "src/core/linked-list.js"
     );
     // 工具函数
     coreFiles.push(
-        "src/util.js",
-        "src/util-string.js",
-        "src/util-date.js",
-        "src/util-object.js",
-        "src/util-url.js",
-        "src/util-structure-transform.js",
-        "src/util-random.js"
+        "src/core/utils/util.js",
+        "src/core/utils/util-string.js",
+        "src/core/utils/util-date.js",
+        "src/core/utils/util-object.js",
+        "src/core/utils/util-url.js",
+        "src/core/utils/util-structure-transform.js",
+        "src/core/utils/util-random.js"
     );
     // 公共组件
     coreFiles.push(
-        "src/parser.js",
-        "src/task.js",
-        "src/cookie.js",
-        "src/style-sheet.js"
+        "src/core/parser.js",
+        "src/core/task.js",
+        "src/core/cookie.js",
+        "src/core/style-sheet.js"
     );
     if(withJQuery) {
         coreFiles.push(
-            "src/jquery-extend.js"
+            "src/core/jquery-extend.js"
         );
     }
 
@@ -232,7 +232,7 @@ module.exports = function(grunt) {
     let shell = grunt.file.read("src/soon-ui.js").split(rsrcHolder);
     shell[0] = shell[0] + "ui.version = '<%= pkg.version %>';\r\n\r\n";
 
-    grunt.initConfig({
+    grunt.config.init({
         // 从package.json 文件读入项目配置信息
         pkg: grunt.file.readJSON("package.json"),
         // 合并工具

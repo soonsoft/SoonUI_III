@@ -161,16 +161,16 @@
 
                     $(".ui-fold-view").foldView();
 
-                    $("#showSimpleDialogBox").click(function(e) {
+                    $("#showSimpleDialogBox").on("click", function(e) {
                         pageLogic.simpleDialogBox.show();
                     });
-                    $("#showIframeDialogBox").click(function(e) {
+                    $("#showIframeDialogBox").on("click", function(e) {
                         pageLogic.iframeDialogBox.show();
                     });
-                    $("#showStyleDialogBox").click(function(e) {
+                    $("#showStyleDialogBox").on("click", function(e) {
                         pageLogic.styleDialogBox.show();
                     });
-                    $("#showCustomingDialogBox").click(function(e) {
+                    $("#showCustomingDialogBox").on("click", function(e) {
                         pageLogic.customingDialogBox.show();
                     });
                 }
@@ -191,10 +191,10 @@
                     buttons: [yesButton, noButton]
                 });
 
-                yesButton.click(function(e) {
+                yesButton.on("click", function(e) {
                     pageLogic.simpleDialogBox.done();
                 });
-                noButton.click(function(e) {
+                noButton.on("click", function(e) {
                     pageLogic.simpleDialogBox.hide();
                 });
             }
@@ -262,7 +262,7 @@
                 boxMap = {};
                 parent = $(".box-parent");
 
-                $(".box-button-list").click(function(e) {
+                $(".box-button-list").on("click", function(e) {
                     var btn = $(e.target),
                         text;
                     if(btn.hasClass("tool-button")) {

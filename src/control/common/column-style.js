@@ -29,7 +29,6 @@ columnFormatter = {
     /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        //checkbox.click(this.onCheckboxAllClickHandler);
         this.columnResetter.add(function () {
             checkbox.removeClass("fa-check-square").addClass("fa-square");
         });
