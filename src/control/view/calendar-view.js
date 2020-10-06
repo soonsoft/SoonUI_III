@@ -1346,7 +1346,7 @@ WeekView.prototype = {
         for (i = 0; i < 7; i++) {
             day = this.weekDays[i];
             th = $(tr.cells[i]);
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             // 将样式恢复成初始值
             th.attr("class", "weekday-cell");
         }
@@ -1451,22 +1451,28 @@ WeekView.prototype = {
         this._setTodayStyle();
     },
     _getUnitHourNameHeight: function() {
-        var table;
+        var table, rect;
         if(!this.hourNames) {
             return hourHeight;
         }
         table = this.hourNames.children("table")[0];
-        return $(table.tBodies[0].rows[0].cells[1]).outerHeight() / this.calendar._getTimeCellCount();
+        rect = table.tBodies[0].rows[0].cells[1].getBoundingClientRect();
+        return rect.height / this.calendar._getTimeCellCount();
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
         position.top = position.top;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top,
             left: position.left,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
     // API
@@ -2256,13 +2262,18 @@ Selector.prototype = {
         };
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top - 2,
             left: position.left - 2,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
 
@@ -2407,7 +2418,7 @@ Selector.prototype = {
             eventData.top = selectorInfo.top;
             eventData.left = selectorInfo.left;
             eventData.parentWidth = selectorInfo.parentWidth;
-            eventData.parentWidth = selectorInfo.parentWidth;
+            eventData.parentHeight = selectorInfo.parentHeight;
             that.view.calendar.fire("selected", eventData);
         }, 50);
     },
@@ -2451,13 +2462,14 @@ Selector.prototype = {
         }
     },
     getSelectorInfo: function() {
-        var box = this.selectionBox;
+        var box = this.selectionBox,
+            rect = this.view.hourTable.getBoundingClientRect();
         return {
             element: box,
             top: parseFloat(box.css("top")),
             left: parseFloat(box.css("left")),
             parentWidth: this.view.viewPanel.width() - timeTitleWidth,
-            parentHeight: this.view.hourTable.outerHeight()
+            parentHeight: rect.height
         };
     },
     /** 获取选则的内容 */

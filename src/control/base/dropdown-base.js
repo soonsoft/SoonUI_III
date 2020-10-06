@@ -189,8 +189,8 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             "margin-top": elem.css("margin-top"),
             "margin-right": elem.css("margin-right"),
             "margin-bottom": elem.css("margin-bottom"),
-            width: elem.outerWidth() + "px",
-            height: elem.outerHeight() + "px"
+            width: elem[0].offsetWidth + "px",
+            height: elem[0].offsetHeight + "px"
         };
         if(currentCss.position === "relative" || currentCss.position === "absolute") {
             currentCss.top = elem.css("top");
@@ -207,9 +207,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             currentCss.display = "block";
         }
         var wrapElem = $("<div class='dropdown-wrap cancel-dropdown-html-click' />").css(currentCss);
-        elem.css({
-            "margin": "0px"
-        }).wrap(wrapElem);
+        elem.css("margin", 0).wrap(wrapElem);
         
         wrapElem = elem.parent();
         if(panel) {
@@ -244,7 +242,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element ? this.element.outerWidth() : 100;
+            width = this.element ? this.element.getBoundingClientRect().width : 100;
         }
         this.panelWidth = width - dropdownPanelBorderWidth * 2;
         this._panel.css("width", this.panelWidth + "px");
@@ -263,6 +261,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         ui.addHideHandler(this, this.hide);
         var panelWidth, panelHeight,
             width, height,
+            rect,
             location,
             offset;
 
@@ -270,11 +269,13 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             this._panel.addClass(this._showClass);
             this._panel.css("opacity", "0");
             
-            width = this.element.outerWidth();
-            height = this.element.outerHeight();
+            rect = this.element.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
 
-            panelWidth = this._panel.outerWidth();
-            panelHeight = this._panel.outerHeight();
+            rect = this._panel.getBoundingClientRect();
+            panelWidth = rect.width;
+            panelHeight = rect.height;
 
             if(this.hasLayoutPanel()) {
                 location = getLayoutPanelLocation(this.layoutPanel, this.element, width, height, panelWidth, panelHeight);

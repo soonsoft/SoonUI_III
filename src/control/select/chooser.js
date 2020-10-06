@@ -220,15 +220,17 @@ function onItemClick(e) {
 }
 function onMousewheel(e) {
     var div, index, item, 
-        val, change, direction;
+        val, change, direction,
+        delta;
     e.stopPropagation();
 
     div = e.data.target;
     index = parseInt(div.attr("data-index"), 10);
     item = this.scrollData[index];
     val = this.option.itemSize + this.option.margin;
-    change = (-e.delta) * val;
-    direction = -e.delta > 0;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    change = delta * val;
+    direction = delta > 0;
     if(item.lastDirection === null) {
         item.lastDirection = direction;
     }
@@ -271,6 +273,8 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         return ["changing", "changed", "cancel", "listChanged"];
     },
     _create: function() {
+        var rect;
+
         this._super();
 
         // 存放当前的选择数据
@@ -289,14 +293,15 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.option.itemSize = defaultItemSize;
         }
 
-        this.width = this.element.outerWidth() - borderWidth * 2;
+        rect = this.element.getBoundingClientRect();
+        this.width = rect.width - borderWidth * 2;
         if (this.width < this.itemSize + (this.margin * 2)) {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onItemClickHandler = $.proxy(onItemClick, this);
-        this.onMousewheelHandler = $.proxy(onMousewheel, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onItemClickHandler = onItemClick.bind(this);
+        this.onMousewheelHandler = onMousewheel.bind(this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -409,7 +414,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
             sizeData.width += tempWidth + temp + this.option.margin;
 
-            div.mousewheel({ target: div }, this.onMousewheelHandler);
+            div.on("wheel", { target: div }, this.onMousewheelHandler);
             div.on("click", this.onItemClickHandler);
             
             ul = this._createList(item);

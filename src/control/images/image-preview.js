@@ -68,7 +68,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         this.chooserPrev.on("click", function(e) {
             that.beforeItems();
         });
-        this.chooserNextchooserPrev.on("click", function(e) {
+        this.chooserNext.on("click", function(e) {
             that.afterItems();
         });
         
@@ -153,7 +153,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueuechooserPrev.on("click", this._onChooserItemClickHandler);
+        this.chooserQueue.on("click", this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
@@ -162,7 +162,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             height,
             marginValue, 
             i, len, image,
-            item, img,
+            item, img, rect,
             css;
 
         marginValue = 0;
@@ -186,12 +186,13 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             item.append(img);
             this.chooserQueue.append(item);
 
+            rect = item.getBoundingClientRect();
             if(this.isHorizontal) {
                 item.css("left", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerWidth();
+                marginValue += this.option.imageMargin + rect.width;
             } else {
                 item.css("top", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerHeight();
+                marginValue += this.option.imageMargin + rect.height;
             }
             this.items.push(item);
         }

@@ -22,6 +22,7 @@ function onDocumentMousemove (e) {
     };
     pl.bottom = pl.top + this.height;
     pl.right = pl.left + this.width;
+    console.log([pl.left, pl.right, tl.left, tl.right]);
 
     //差值
     var xdv = -1,
@@ -50,7 +51,7 @@ function onDocumentMousemove (e) {
         ydv = y - b;
     }
 
-    if (xdv == -1 && ydv == -1) {
+    if (xdv === -1 && ydv === -1) {
         xdv = 0;
         if (x >= tl.left && x <= tl.right) {
             if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
@@ -63,11 +64,8 @@ function onDocumentMousemove (e) {
                 ydv = y - pl.bottom;
             }
         }
-        if (ydv == -1) {
-            this.viewPanel.css({
-                "opacity": 1,
-                "filter": "Alpha(opacity=100)"
-            });
+        if (ydv === -1) {
+            this.viewPanel.css("opacity", 1);
             return;
         }
     }
@@ -79,13 +77,11 @@ function onDocumentMousemove (e) {
 
     var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
     if (opacity < 0.2) {
+        console.log("hide");
         this.hide();
         return;
     }
-    this.viewPanel.css({
-        "opacity": opacity,
-        "filter": "Alpha(opacity=" + (opacity * 100) + ")"
-    });
+    this.viewPanel.css("opacity", opacity);
 }
 
 
@@ -108,8 +104,8 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         });
         $(document.body).append(this.viewPanel);
 
-        this.width = this.viewPanel.outerWidth();
-        this.height = this.viewPanel.outerHeight();
+        this.width = null;
+        this.height = null;
 
         this.target = null;
         this.targetWidth = null;
@@ -133,10 +129,7 @@ ui.ctrls.define("ui.ctrls.HoverView", {
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeFrom,
             onChange: function(val) {
-                this.target.css({
-                    "opacity": val / 100,
-                    "filter": "Alpha(opacity=" + val + ")"
-                });
+                this.target.css("opacity", val / 100);
             }
         }).add({
             target: this.viewPanel,
@@ -185,16 +178,12 @@ ui.ctrls.define("ui.ctrls.HoverView", {
     show: function (target) {
         var view = this,
             location,
-            option;
+            option,
+            rect;
 
         this.target = target;
 
         if (this.fire("showing") === false) return;
-
-        //update size
-        this.targetWidth = this.target.outerWidth();
-        this.targetHeight = this.target.outerHeight();
-        this.height = this.viewPanel.outerHeight();
 
         this.animator.stop();
         location = this.getLocation();
@@ -227,6 +216,16 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         }
         this.isShow = true;
         this.viewPanel.css("display", "block");
+        
+        //update size
+        rect = this.target.getBoundingClientRect();
+        this.targetWidth = rect.width;
+        this.targetHeight = rect.height;
+
+        rect = this.target.getBoundingClientRect();
+        this.width = rect.width;
+        this.height = rect.height;
+
         this.animator.start().then(function() {
             view.addDocMousemove();
             view.fire("shown");

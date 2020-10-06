@@ -3147,14 +3147,13 @@ MouseDragger.prototype = {
                 "height": "100%",
                 "z-index": "999999",
                 "background-color": "#fff",
-                "filter": "Alpha(opacity=1)",
                 "opacity": ".01"    
             });
         }
 
-        this.onMouseDownHandler = $.proxy(mouseDown, this);
-        this.onMouseMoveHandler = $.proxy(mouseMove, this);
-        this.onMouseUpHandler = $.proxy(mouseUp, this);
+        this.onMouseDownHandler = mouseDown.bind(this);
+        this.onMouseMoveHandler = mouseMove.bind(this);
+        this.onMouseUpHandler = mouseUp.bind(this);
     },
     on: function() {
         var target = this.option.target,
@@ -3226,20 +3225,25 @@ $.fn.draggable = function(option) {
     }
     option.onBeginDrag = function(arg) {
         var option = this.option,
-            p = option.parent.offset();
+            p = option.parent.offset(),
+            targetRect,
+            parentRect;
         if(!p) p = { top: 0, left: 0 };
 
         if(oldBeginDrag) {
             oldBeginDrag.call(null, arg);
         }
 
+        parentRect = option.parent.getBoundingClientRect();
+        targetRect = option.target.getBoundingClientRect();
+
         option.topLimit = p.top + option.getParentCssNum("border-top") + option.getParentCssNum("padding-top");
         option.leftLimit = p.left + option.getParentCssNum("border-left") + option.getParentCssNum("padding-left");
-        option.rightLimit = p.left + (option.parent.outerWidth() || option.parent.width());
-        option.bottomLimit = p.top + (option.parent.outerHeight() || option.parent.height());
+        option.rightLimit = p.left + parentRect.width;
+        option.bottomLimit = p.top + parentRect.height;
         
-        option.targetWidth = option.target.outerWidth();
-        option.targetHeight = option.target.outerHeight();
+        option.targetWidth = targetRect.width;
+        option.targetHeight = targetRect.height;
 
         option.parentTop = p.top;
         option.parentLeft = p.left;
@@ -3493,6 +3497,7 @@ page.init = function(config) {
 
         if(this.$errors) {
             this.$errors.forEach(function(e) {
+                console.log(e);
                 var errorMessage = ui.str.format("page init error. [{0}] {1}", e.cycleName, e.message);
                 if(ui.errorShow) {
                     ui.errorShow(errorMessage);

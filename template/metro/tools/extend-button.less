@@ -13,8 +13,7 @@
     width: 100%;
     height: 100%;
     background-color: @panel-color;
-    filter: Alpha(opacity=0);
-    opacity: 1;
+    opacity: 0;
     border-radius: 50%;
     border-width: 1px;
     border-style: solid;
@@ -28,17 +27,14 @@
     text-align: center;
     font-size: 16px;
     border-radius: 50%;
-    filter: Alpha(opacity=60);
     opacity: .6;
 }
 
     .extend-button-panel .extend-button:hover {
-        filter: Alpha(opacity=100);
         opacity: 1;
     }
     
     .extend-button-panel .center-icon {
-        filter: Alpha(opacity=100);
         opacity: 1;
     }
     
@@ -63,6 +59,5 @@
         border-radius: 50%;
         border-color: @border-color;
         border-style: solid;
-        filter: Alpha(opacity=70);
         opacity: .7;
     }

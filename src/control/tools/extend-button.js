@@ -146,10 +146,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         }).add({
             target: this.buttonPanelBackground,
             onChange: function(op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
+                this.target.css("opacity", op / 100);
             }
         });
         this.buttonPanelAnimator.duration =240;
@@ -158,9 +155,11 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside ? this.element.offset() : this.element.position();
-        position.left = position.left + this.element.outerWidth() / 2;
-        position.top = position.top + this.element.outerHeight()/ 2;
+        var 
+            position = this.isBodyInside ? this.element.offset() : this.element.position(),
+            rect = this.element.getBoundingClientRect();
+        position.left = position.left + rect.width / 2;
+        position.top = position.top + rect.height / 2;
         return position;
     },
     _setButtonPanelAnimationOpenValue: function(animator) {

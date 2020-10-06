@@ -429,8 +429,8 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             "margin-top": elem.css("margin-top"),
             "margin-right": elem.css("margin-right"),
             "margin-bottom": elem.css("margin-bottom"),
-            width: elem.outerWidth() + "px",
-            height: elem.outerHeight() + "px"
+            width: elem[0].offsetWidth + "px",
+            height: elem[0].offsetHeight + "px"
         };
         if(currentCss.position === "relative" || currentCss.position === "absolute") {
             currentCss.top = elem.css("top");
@@ -447,9 +447,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             currentCss.display = "block";
         }
         var wrapElem = $("<div class='dropdown-wrap cancel-dropdown-html-click' />").css(currentCss);
-        elem.css({
-            "margin": "0px"
-        }).wrap(wrapElem);
+        elem.css("margin", 0).wrap(wrapElem);
         
         wrapElem = elem.parent();
         if(panel) {
@@ -484,7 +482,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element ? this.element.outerWidth() : 100;
+            width = this.element ? this.element.getBoundingClientRect().width : 100;
         }
         this.panelWidth = width - dropdownPanelBorderWidth * 2;
         this._panel.css("width", this.panelWidth + "px");
@@ -503,6 +501,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         ui.addHideHandler(this, this.hide);
         var panelWidth, panelHeight,
             width, height,
+            rect,
             location,
             offset;
 
@@ -510,11 +509,13 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             this._panel.addClass(this._showClass);
             this._panel.css("opacity", "0");
             
-            width = this.element.outerWidth();
-            height = this.element.outerHeight();
+            rect = this.element.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
 
-            panelWidth = this._panel.outerWidth();
-            panelHeight = this._panel.outerHeight();
+            rect = this._panel.getBoundingClientRect();
+            panelWidth = rect.width;
+            panelHeight = rect.height;
 
             if(this.hasLayoutPanel()) {
                 location = getLayoutPanelLocation(this.layoutPanel, this.element, width, height, panelWidth, panelHeight);
@@ -1367,7 +1368,7 @@ ui.mask = {
     open: function(target, option) {
         var mask = $(this.maskId),
             body = $(document.body),
-            offset;
+            rect;
         if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
@@ -1398,10 +1399,7 @@ ui.mask = {
             this._mask_animator = ui.animator({
                 target: mask,
                 onChange: function (op) {
-                    this.target.css({
-                        "opacity": op / 100,
-                        "filter": "Alpha(opacity=" + op + ")"
-                    });
+                    this.target.css("opacity", op / 100);
                 }
             });
             this._mask_animator.duration = 500;
@@ -1423,20 +1421,19 @@ ui.mask = {
                 height: document.documentElement.clientHeight + "px"
             });
         } else {
-            offset = target.offset();
+            rect = target.getBoundingClientRect();
             mask.css({
-                top: offset.top + "px",
-                left: offset.left + "px",
-                width: target.outerWidth() + "px",
-                height: target.outerHeight() + "px"
+                top: rect.top + "px",
+                left: rect.left + "px",
+                width: rect.width + "px",
+                height: rect.height + "px"
             });
         }
         
         if(option.animate) {
             mask.css({
                 "display": "block",
-                "opacity": "0",
-                "filter": "Alpha(opacity=0)"
+                "opacity": "0"
             });
             this._mask_animator[0].begin = 0;
             this._mask_animator[0].end = option.opacity * 100;
@@ -1444,7 +1441,6 @@ ui.mask = {
         } else {
             mask.css({
                 "display": "block",
-                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
                 "opacity": option.opacity
             });
         }
@@ -3250,15 +3246,17 @@ function onItemClick(e) {
 }
 function onMousewheel(e) {
     var div, index, item, 
-        val, change, direction;
+        val, change, direction,
+        delta;
     e.stopPropagation();
 
     div = e.data.target;
     index = parseInt(div.attr("data-index"), 10);
     item = this.scrollData[index];
     val = this.option.itemSize + this.option.margin;
-    change = (-e.delta) * val;
-    direction = -e.delta > 0;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    change = delta * val;
+    direction = delta > 0;
     if(item.lastDirection === null) {
         item.lastDirection = direction;
     }
@@ -3301,6 +3299,8 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         return ["changing", "changed", "cancel", "listChanged"];
     },
     _create: function() {
+        var rect;
+
         this._super();
 
         // 存放当前的选择数据
@@ -3319,14 +3319,15 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.option.itemSize = defaultItemSize;
         }
 
-        this.width = this.element.outerWidth() - borderWidth * 2;
+        rect = this.element.getBoundingClientRect();
+        this.width = rect.width - borderWidth * 2;
         if (this.width < this.itemSize + (this.margin * 2)) {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onItemClickHandler = $.proxy(onItemClick, this);
-        this.onMousewheelHandler = $.proxy(onMousewheel, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onItemClickHandler = onItemClick.bind(this);
+        this.onMousewheelHandler = onMousewheel.bind(this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -3439,7 +3440,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
             sizeData.width += tempWidth + temp + this.option.margin;
 
-            div.mousewheel({ target: div }, this.onMousewheelHandler);
+            div.on("wheel", { target: div }, this.onMousewheelHandler);
             div.on("click", this.onItemClickHandler);
             
             ul = this._createList(item);
@@ -4401,6 +4402,7 @@ function onTimeMousewheel(e) {
     var elem,
         max,
         val,
+        delta,
         h, m, s;
 
     elem = $(e.target);
@@ -4414,7 +4416,8 @@ function onTimeMousewheel(e) {
     }
     val = elem.val();
     val = parseFloat(val);
-    val += -e.delta;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    val += delta;
     if (val < 0) {
         val = max - 1;
     } else if (val >= max) {
@@ -4576,12 +4579,10 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).add({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
@@ -4815,7 +4816,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             this.secondText.textinput(this.onTimeTextinputHandler);
             ctrlPanel.append(this.secondText);
 
-            ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
+            ctrlPanel.on("wheel", this.onTimeMousewheelHandler);
         } else {
             this._setTodayButton(function() {
                 this._todayButton = this._createButton(
@@ -8523,7 +8524,7 @@ WeekView.prototype = {
         for (i = 0; i < 7; i++) {
             day = this.weekDays[i];
             th = $(tr.cells[i]);
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             // 将样式恢复成初始值
             th.attr("class", "weekday-cell");
         }
@@ -8628,22 +8629,28 @@ WeekView.prototype = {
         this._setTodayStyle();
     },
     _getUnitHourNameHeight: function() {
-        var table;
+        var table, rect;
         if(!this.hourNames) {
             return hourHeight;
         }
         table = this.hourNames.children("table")[0];
-        return $(table.tBodies[0].rows[0].cells[1]).outerHeight() / this.calendar._getTimeCellCount();
+        rect = table.tBodies[0].rows[0].cells[1].getBoundingClientRect();
+        return rect.height / this.calendar._getTimeCellCount();
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
         position.top = position.top;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top,
             left: position.left,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
     // API
@@ -9433,13 +9440,18 @@ Selector.prototype = {
         };
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top - 2,
             left: position.left - 2,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
 
@@ -9584,7 +9596,7 @@ Selector.prototype = {
             eventData.top = selectorInfo.top;
             eventData.left = selectorInfo.left;
             eventData.parentWidth = selectorInfo.parentWidth;
-            eventData.parentWidth = selectorInfo.parentWidth;
+            eventData.parentHeight = selectorInfo.parentHeight;
             that.view.calendar.fire("selected", eventData);
         }, 50);
     },
@@ -9628,13 +9640,14 @@ Selector.prototype = {
         }
     },
     getSelectorInfo: function() {
-        var box = this.selectionBox;
+        var box = this.selectionBox,
+            rect = this.view.hourTable.getBoundingClientRect();
         return {
             element: box,
             top: parseFloat(box.css("top")),
             left: parseFloat(box.css("left")),
             parentWidth: this.view.viewPanel.width() - timeTitleWidth,
-            parentHeight: this.view.hourTable.outerHeight()
+            parentHeight: rect.height
         };
     },
     /** 获取选则的内容 */
@@ -11322,7 +11335,7 @@ FoldView.prototype = {
     constructor: FoldView,
     initialize: function(element) {
         this.element = element;
-        this.onFoldTitleClickHandler = $.proxy(onFoldTitleClick, this);
+        this.onFoldTitleClickHandler = onFoldTitleClick.bind(this);
     },
     _render: function() {
         var dtList,
@@ -12530,7 +12543,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.element.append(this.head);
         // 表体
         this.body = $("<div class='ui-grid-body' />");
-        this.body.scroll(this.onScrollingHandler);
+        this.body.on("scroll", this.onScrollingHandler);
         this.element.append(this.body);
         // 信息提示
         this.prompt = new Prompt(this, this.option.prompt);
@@ -12931,7 +12944,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             tr.append(th);
         }
 
-        this._headScrollCol = $("<col style='width:0' />");
+        this._headScrollCol = this._createCol({ len: 0 });
         colGroup.append(this._headScrollCol);
         tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);
@@ -13694,7 +13707,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             if(this.isMultiple()) {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(elem[0] === this._selectList[i]) {
-                        this._selectList(i, 1);
+                        this._selectList.splice(i, 1);
                         break;
                     }
                 }
@@ -14357,12 +14370,12 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         // 滚动条占位符对象
         this._headScrollColumn = {
-            addScrollCol: function(tr, colGroup) {
+            addScrollCol: function(tr, colGroup, context) {
                 var rows,
                     rowspan,
                     th;
 
-                this.scrollCol = $("<col style='width:0' />");
+                this.scrollCol = context._createCol({ len: 0 });
                 colGroup.append(this.scrollCol);
             
                 rows = tr.parent().children();
@@ -14606,7 +14619,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         this._createHeadTable(this.headTable, columns, groupColumns, false, null, 
             // 创建滚动条适应列
             function(table, tr, groupCol) {
-                this._headScrollColumn.addScrollCol(tr, groupCol);
+                this._headScrollColumn.addScrollCol(tr, groupCol, this);
             });
         this.reportDataHead.append(this.headTable);
     },   
@@ -14628,7 +14641,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         var isRebind = false;
         if (!this.reportDataBody) {
             this.reportDataBody = $("<div class='data-body' />");
-            this.reportDataBody.scroll(this.onScrollingHandler);
+            this.reportDataBody.on("scroll", this.onScrollingHandler);
             this.body.append(this.reportDataBody);
         } else {
             this.reportDataBody.html("");
@@ -15770,7 +15783,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+        this.onButtonClickHandler = onButtonClick.bind(this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);
@@ -16066,10 +16079,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         }).add({
             target: this.buttonPanelBackground,
             onChange: function(op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
+                this.target.css("opacity", op / 100);
             }
         });
         this.buttonPanelAnimator.duration =240;
@@ -16078,9 +16088,11 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside ? this.element.offset() : this.element.position();
-        position.left = position.left + this.element.outerWidth() / 2;
-        position.top = position.top + this.element.outerHeight()/ 2;
+        var 
+            position = this.isBodyInside ? this.element.offset() : this.element.position(),
+            rect = this.element.getBoundingClientRect();
+        position.left = position.left + rect.width / 2;
+        position.top = position.top + rect.height / 2;
         return position;
     },
     _setButtonPanelAnimationOpenValue: function(animator) {
@@ -16360,7 +16372,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         this.radioName = prefix + (filterCount++);
         this._current = null;
 
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {
@@ -16581,6 +16593,7 @@ function onDocumentMousemove (e) {
     };
     pl.bottom = pl.top + this.height;
     pl.right = pl.left + this.width;
+    console.log([pl.left, pl.right, tl.left, tl.right]);
 
     //差值
     var xdv = -1,
@@ -16609,7 +16622,7 @@ function onDocumentMousemove (e) {
         ydv = y - b;
     }
 
-    if (xdv == -1 && ydv == -1) {
+    if (xdv === -1 && ydv === -1) {
         xdv = 0;
         if (x >= tl.left && x <= tl.right) {
             if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
@@ -16622,11 +16635,8 @@ function onDocumentMousemove (e) {
                 ydv = y - pl.bottom;
             }
         }
-        if (ydv == -1) {
-            this.viewPanel.css({
-                "opacity": 1,
-                "filter": "Alpha(opacity=100)"
-            });
+        if (ydv === -1) {
+            this.viewPanel.css("opacity", 1);
             return;
         }
     }
@@ -16638,13 +16648,11 @@ function onDocumentMousemove (e) {
 
     var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
     if (opacity < 0.2) {
+        console.log("hide");
         this.hide();
         return;
     }
-    this.viewPanel.css({
-        "opacity": opacity,
-        "filter": "Alpha(opacity=" + (opacity * 100) + ")"
-    });
+    this.viewPanel.css("opacity", opacity);
 }
 
 
@@ -16667,8 +16675,8 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         });
         $(document.body).append(this.viewPanel);
 
-        this.width = this.viewPanel.outerWidth();
-        this.height = this.viewPanel.outerHeight();
+        this.width = null;
+        this.height = null;
 
         this.target = null;
         this.targetWidth = null;
@@ -16692,10 +16700,7 @@ ui.ctrls.define("ui.ctrls.HoverView", {
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeFrom,
             onChange: function(val) {
-                this.target.css({
-                    "opacity": val / 100,
-                    "filter": "Alpha(opacity=" + val + ")"
-                });
+                this.target.css("opacity", val / 100);
             }
         }).add({
             target: this.viewPanel,
@@ -16744,16 +16749,12 @@ ui.ctrls.define("ui.ctrls.HoverView", {
     show: function (target) {
         var view = this,
             location,
-            option;
+            option,
+            rect;
 
         this.target = target;
 
         if (this.fire("showing") === false) return;
-
-        //update size
-        this.targetWidth = this.target.outerWidth();
-        this.targetHeight = this.target.outerHeight();
-        this.height = this.viewPanel.outerHeight();
 
         this.animator.stop();
         location = this.getLocation();
@@ -16786,6 +16787,16 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         }
         this.isShow = true;
         this.viewPanel.css("display", "block");
+        
+        //update size
+        rect = this.target.getBoundingClientRect();
+        this.targetWidth = rect.width;
+        this.targetHeight = rect.height;
+
+        rect = this.target.getBoundingClientRect();
+        this.width = rect.width;
+        this.height = rect.height;
+
         this.animator.start().then(function() {
             view.addDocMousemove();
             view.fire("shown");
@@ -17264,14 +17275,16 @@ function onMouseup(e) {
 function onMouseWheel(e) {
     var lengthValue,
         arg,
-        stepValue;
+        stepValue,
+        delta;
 
     e.stopPropagation();
     if(this.mouseDragger._isDragStart) {
         return;
     }
     arg = {};
-    stepValue = (-e.delta) * 5;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    stepValue = delta * 5;
 
     if(this.isHorizontal()) {
         lengthValue = this.track.width();
@@ -17344,7 +17357,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this._initScale();
         this._initMouseDragger();
         this.track.on("mouseup", this.onMouseupHandler);
-        this.element.mousewheel(this.onMouseWheelHandler);
+        this.element.on("wheel", this.onMouseWheelHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;
@@ -18385,7 +18398,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         this.chooserPrev.on("click", function(e) {
             that.beforeItems();
         });
-        this.chooserNextchooserPrev.on("click", function(e) {
+        this.chooserNext.on("click", function(e) {
             that.afterItems();
         });
         
@@ -18470,7 +18483,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueuechooserPrev.on("click", this._onChooserItemClickHandler);
+        this.chooserQueue.on("click", this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
@@ -18479,7 +18492,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             height,
             marginValue, 
             i, len, image,
-            item, img,
+            item, img, rect,
             css;
 
         marginValue = 0;
@@ -18503,12 +18516,13 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             item.append(img);
             this.chooserQueue.append(item);
 
+            rect = item.getBoundingClientRect();
             if(this.isHorizontal) {
                 item.css("left", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerWidth();
+                marginValue += this.option.imageMargin + rect.width;
             } else {
                 item.css("top", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerHeight();
+                marginValue += this.option.imageMargin + rect.height;
             }
             this.items.push(item);
         }
@@ -19124,22 +19138,24 @@ ui.ctrls.define("ui.ctrls.ImageWatcher", {
         this.leftRatio = (left - marginLeft) / this.imageOffsetWidth;
     },
     _setZoomView: function() {
-        var top, left;
+        var top, left, rect;
         if(this.focusView.css("display") === "none") {
             this.zoomView.css("display", "none");
             return;
         }
+
+        rect = this.element.getBoundingClientRect();
         if(this.option.position === "top") {
             left = 0;
             top = -(this.zoomHeight + this.viewMargin);
         } else if(this.option.position === "bottom") {
             left = 0;
-            top = (this.element.outerHeight() + this.viewMargin);
+            top = (rect.height + this.viewMargin);
         } else if(this.option.position === "left") {
             left = -(this.zoomWidth + this.viewMargin);
             top = 0;
         } else {
-            left = (this.element.outerWidth() + this.viewMargin);
+            left = (rect.width + this.viewMargin);
             top = 0;
         }
         

@@ -104,6 +104,7 @@ page.init = function(config) {
 
         if(this.$errors) {
             this.$errors.forEach(function(e) {
+                console.log(e);
                 var errorMessage = ui.str.format("page init error. [{0}] {1}", e.cycleName, e.message);
                 if(ui.errorShow) {
                     ui.errorShow(errorMessage);

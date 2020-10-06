@@ -7,7 +7,7 @@ ui.mask = {
     open: function(target, option) {
         var mask = $(this.maskId),
             body = $(document.body),
-            offset;
+            rect;
         if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
@@ -38,10 +38,7 @@ ui.mask = {
             this._mask_animator = ui.animator({
                 target: mask,
                 onChange: function (op) {
-                    this.target.css({
-                        "opacity": op / 100,
-                        "filter": "Alpha(opacity=" + op + ")"
-                    });
+                    this.target.css("opacity", op / 100);
                 }
             });
             this._mask_animator.duration = 500;
@@ -63,20 +60,19 @@ ui.mask = {
                 height: document.documentElement.clientHeight + "px"
             });
         } else {
-            offset = target.offset();
+            rect = target.getBoundingClientRect();
             mask.css({
-                top: offset.top + "px",
-                left: offset.left + "px",
-                width: target.outerWidth() + "px",
-                height: target.outerHeight() + "px"
+                top: rect.top + "px",
+                left: rect.left + "px",
+                width: rect.width + "px",
+                height: rect.height + "px"
             });
         }
         
         if(option.animate) {
             mask.css({
                 "display": "block",
-                "opacity": "0",
-                "filter": "Alpha(opacity=0)"
+                "opacity": "0"
             });
             this._mask_animator[0].begin = 0;
             this._mask_animator[0].end = option.opacity * 100;
@@ -84,7 +80,6 @@ ui.mask = {
         } else {
             mask.css({
                 "display": "block",
-                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
                 "opacity": option.opacity
             });
         }

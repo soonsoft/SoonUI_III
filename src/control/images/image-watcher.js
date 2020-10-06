@@ -118,22 +118,24 @@ ui.ctrls.define("ui.ctrls.ImageWatcher", {
         this.leftRatio = (left - marginLeft) / this.imageOffsetWidth;
     },
     _setZoomView: function() {
-        var top, left;
+        var top, left, rect;
         if(this.focusView.css("display") === "none") {
             this.zoomView.css("display", "none");
             return;
         }
+
+        rect = this.element.getBoundingClientRect();
         if(this.option.position === "top") {
             left = 0;
             top = -(this.zoomHeight + this.viewMargin);
         } else if(this.option.position === "bottom") {
             left = 0;
-            top = (this.element.outerHeight() + this.viewMargin);
+            top = (rect.height + this.viewMargin);
         } else if(this.option.position === "left") {
             left = -(this.zoomWidth + this.viewMargin);
             top = 0;
         } else {
-            left = (this.element.outerWidth() + this.viewMargin);
+            left = (rect.width + this.viewMargin);
             top = 0;
         }
         

@@ -316,7 +316,7 @@
                     valueField: "id",
                     textField: "name",
                     parentField: "parent",
-                    width: 160,
+                    width: 200,
                     defaultExpandLevel: 2,
                     nodeSelectable: true,
                     multiple: true,
@@ -336,7 +336,7 @@
                     ]
                 });
                 this.multipleTree.changed(function(e, eventData) {
-                    var arr = this.getSelection(),
+                    var arr,
                         data = [],
                         i;
 
@@ -353,6 +353,7 @@
                         this.selectParentNode(eventData.element, eventData.isSelection);
                     }
 
+                    arr = this.getSelection();
                     for(i = 0; i < arr.length; i++) {
                         data.push(arr[i].name);
                     }
@@ -375,7 +376,7 @@
                     valueField: "id",
                     textField: "name",
                     parentField: "parent",
-                    width: 160,
+                    width: 200,
                     layoutPanel: this.contentPanel,
                     lazy: true,
                     viewData: [

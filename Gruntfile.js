@@ -4,8 +4,10 @@ module.exports = function(grunt) {
     const rsrcHolder = /\/\/\$\|\$/;
     const tempPrefix = "_temp_";
 
-    /** 是否用jquery */
-    const withJQuery = true;
+    /** 是否用jQuery */
+    const withjQuery = false;
+    /** 是否依赖自带的jQuery垫片库 */
+    const withsQuery = true;
     /** 是否使用自带的垫片函数 */
     const withShims = true;
 
@@ -102,7 +104,7 @@ module.exports = function(grunt) {
 
     // 源码过滤器
     const filters = {
-        "src/i18n.js": function(src) {
+        "src/core/i18n.js": function(src) {
             let i18nSource = i18n.loadLanguages.call(grunt, langPath + "/" + lang);
             return src + "\r\n" + i18nSource;
         }
@@ -124,7 +126,8 @@ module.exports = function(grunt) {
             "src/shims/ES6-Number-shims.js",
             "src/shims/ES5-Object-shims.js",
             "src/shims/ES6-Promise.shims.js",
-            "src/shims/ES6-Map.shims.js"
+            "src/shims/ES6-Map.shims.js",
+            "src/shims/ES6-Math-shims"
         );
     }
     // 自定义数据结构
@@ -133,6 +136,24 @@ module.exports = function(grunt) {
         "src/core/keyarray.js",
         "src/core/linked-list.js"
     );
+
+    // jQuery方言
+    if(withsQuery) {
+        // 使用fake jQuery
+        coreFiles.push(
+            "src/shims/jQuery/zepto.js",
+            "src/shims/jQuery/style.js",
+            "src/shims/jQuery/event.js",
+            "src/shims/jQuery/ie.js",
+            "src/shims/jQuery/data.js"
+        );
+    }
+    if(withjQuery || withsQuery) {
+        coreFiles.push(
+            "src/shims/jQuery/jQuery-extend.js"
+        );
+    }
+
     // 工具函数
     coreFiles.push(
         "src/core/utils/util.js",
@@ -150,11 +171,6 @@ module.exports = function(grunt) {
         "src/core/cookie.js",
         "src/core/style-sheet.js"
     );
-    if(withJQuery) {
-        coreFiles.push(
-            "src/core/jquery-extend.js"
-        );
-    }
 
     // 单独的ui.core.js
     let coreDestFile = "dist/ui-core.<%= pkg.version %>.js";

@@ -274,6 +274,7 @@ function onTimeMousewheel(e) {
     var elem,
         max,
         val,
+        delta,
         h, m, s;
 
     elem = $(e.target);
@@ -287,7 +288,8 @@ function onTimeMousewheel(e) {
     }
     val = elem.val();
     val = parseFloat(val);
-    val += -e.delta;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    val += delta;
     if (val < 0) {
         val = max - 1;
     } else if (val >= max) {
@@ -449,12 +451,10 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).add({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
@@ -688,7 +688,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             this.secondText.textinput(this.onTimeTextinputHandler);
             ctrlPanel.append(this.secondText);
 
-            ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
+            ctrlPanel.on("wheel", this.onTimeMousewheelHandler);
         } else {
             this._setTodayButton(function() {
                 this._todayButton = this._createButton(

@@ -6,9 +6,9 @@ ui.tempDiv = $("<div style='position:absolute;left:-1000px;top:-100px;width:100p
 ui.tempInnerDiv = $("<div style='width:100%;height:50px;' />");
 ui.tempDiv.append(ui.tempInnerDiv);
 document.documentElement.appendChild(ui.tempDiv.get(0));
-ui.tempWidth = ui.tempInnerDiv.width();
+ui.tempWidth = ui.tempInnerDiv[0].clientWidth;
 ui.tempInnerDiv.css("height", "120px");
-ui.scrollbarHeight = ui.scrollbarWidth = ui.tempWidth - ui.tempInnerDiv.width();
+ui.scrollbarHeight = ui.scrollbarWidth = ui.tempWidth - ui.tempInnerDiv[0].clientWidth;
 ui.tempInnerDiv.remove();
 ui.tempDiv.remove();
 delete ui.tempWidth;
@@ -254,14 +254,17 @@ function setLocation(fn, target, panel) {
     var width, 
         height,
         location,
+        rect,
         css = {};
     
     if (!target || !panel) {
         return;
     }
+
+    rect = panel.getBoundingClientRect();
     
-    width = panel.outerWidth();
-    height = panel.outerHeight();
+    width = rect.width;
+    height = rect.height;
     
     location = fn.call(ui, target, width, height);
     css.top = location.top + "px";
@@ -282,7 +285,7 @@ ui.setLeft = function (target, panel) {
 //获取目标元素下方的坐标信息
 ui.getDownLocation = function (target, width, height) {
     var location,
-        position,
+        rect,
         documentElement,
         top, left;
 
@@ -293,15 +296,15 @@ ui.getDownLocation = function (target, width, height) {
     if (!target) {
         return location;
     }
-    position = target.offset();
+    rect = target.getBoundingClientRect();
     documentElement = document.documentElement;
-    top = position.top + target.outerHeight();
-    left = position.left;
+    top = rect.top + rect.height;
+    left = rect.left;
     if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
-        top -= height + target.outerHeight();
+        top -= height + rect.height;
     }
     if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
-        left = left - (width - target.outerWidth());
+        left = left - (width - rect.width);
     }
     location.top = top;
     location.left = left;
@@ -311,7 +314,7 @@ ui.getDownLocation = function (target, width, height) {
 //获取目标元素左边的坐标信息
 ui.getLeftLocation = function (target, width, height) {
     var location,
-        position,
+        rect,
         documentElement,
         top, left;
     
@@ -322,15 +325,15 @@ ui.getLeftLocation = function (target, width, height) {
     if (!target) {
         return location;
     }
-    position = target.offset();
+    rect = target.getBoundingClientRect();
     documentElement = document.documentElement;
-    top = position.top;
-    left = position.left + target.outerWidth();
+    top = rect.top;
+    left = rect.left + rect.width;
     if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
         top -= (top + height) - (documentElement.clientHeight + documentElement.scrollTop);
     }
     if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
-        left = position.left - width;
+        left = rect.left - width;
     }
     location.top = top;
     location.left = left;

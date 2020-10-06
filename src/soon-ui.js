@@ -46,18 +46,22 @@
 "use strict";
 
 var ui = {};
-var $ = window.$;
-if(!$) {
-	$ = require("jquery");
-	if($) {
-		window.$ = $;
-	}
-}
 
 // 常规的浏览器导入
 if(noGlobal) {
 	window.ui = ui;
 	window.SOONUI = ui;
+}
+
+var $ = null;
+function init_$() {
+	$ = ui.$ || window.$;
+	if(!$) {
+		$ = require("jquery");
+	}
+	if(!window.$) {
+		window.$ = $ || undefined;
+	}
 }
 
 //$|$

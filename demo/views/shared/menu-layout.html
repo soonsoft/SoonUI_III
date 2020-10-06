@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width" />
     <title>@{title}</title>
 
-    <link type="text/css" href="../../../dist/theme/light/site-light.css" rel="stylesheet" />
-    <link type="text/css" href="../../../dist/theme/light/metro-light.all.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/site-dark.css" rel="stylesheet" />
+    <link type="text/css" href="../../../dist/theme/dark/metro-dark.all.css" rel="stylesheet" />
     <link type="text/css" href="../../../dist/theme/viewpage/viewpage.all.css" rel="stylesheet" />
     <link type="text/css" href="../../content/font-awesome.min.css" rel="stylesheet" />
     @{style}
@@ -32,13 +32,11 @@
         </div>
     </section>
 
-    <script type="text/javascript" src="../../../vendor/jquery.slim.min.js"></script>
-    <script type="text/javascript" src="../../../dist/ui-core.3.5.0.js"></script>
-    <script type="text/javascript" src="../../../dist/ui-components.3.5.0.js"></script>
-    <script type="text/javascript" src="../../../dist/ui-controls.3.5.0.js"></script>
-    <script type="text/javascript" src="../../../dist/ui-viewpages.3.5.0.js"></script>
+    <script type="text/javascript" src="../../../dist/SOON.UI.3.5.0.all.js"></script>
     <script type="text/javascript" src="../../lib/data/highlights.js"></script>
     <script type="text/javascript">
+        ui.theme.currentTheme = "Dark";
+        ui.theme.backgroundColor = "#1d1f21";
         ui.page.init({
             master: function() {
                 this.loaded(function() {

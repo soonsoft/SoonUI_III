@@ -53,7 +53,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+        this.onButtonClickHandler = onButtonClick.bind(this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);

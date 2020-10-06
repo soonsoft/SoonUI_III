@@ -36,7 +36,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         this.radioName = prefix + (filterCount++);
         this._current = null;
 
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {

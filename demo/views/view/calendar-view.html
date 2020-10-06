@@ -345,7 +345,8 @@
                 });
             }
 
-            // 年视图相关方法
+            //#region 年视图相关方法
+
             function bindYearEvents() {
                 var getViewFn = function() {
                     var view = pageLogic.calendarView.currentView;
@@ -456,9 +457,11 @@
                 }
                 return data;
             }
-            
 
-            // 月视图相关方法
+            //#endregion
+
+            //#region 月视图相关方法
+            
             function bindMonthEvents() {
                 var getViewFn = function() {
                     var view = pageLogic.calendarView.currentView;
@@ -584,7 +587,10 @@
                 return data;
             }
 
-            // 周视图相关方法
+            //#endregion
+
+            //#region 周视图相关方法
+            
             function bindWeekEvents() {
                 var getViewFn = function() {
                     var view = pageLogic.calendarView.currentView;
@@ -659,9 +665,11 @@
                     wcpWidth, wcpHeight,
                     top, left;
 
-                boxWidth = box.outerWidth();
-                wcpWidth = view.weekCtrlPanel.outerWidth();
-                wcpHeight = view.weekCtrlPanel.outerHeight();
+                view.weekCtrlPanel.css("display", "block");
+
+                boxWidth = box[0].offsetWidth;
+                wcpWidth = view.weekCtrlPanel[0].offsetWidth;
+                wcpHeight = view.weekCtrlPanel[0].offsetHeight;
                 top = boxPosition.top;
                 left = boxPosition.left + boxWidth;
 
@@ -672,7 +680,6 @@
                     left = boxPosition.left - wcpWidth;
                 }
                 view.weekCtrlPanel.css({
-                    "display": "block",
                     "left": left + "px",
                     "top": top + "px"
                 });
@@ -712,7 +719,10 @@
                 view.cancelSelection();
             }
 
-            // 日视图相关方法
+            //#endregion
+
+            //#region 日视图相关方法
+            
             function bindDayEvents() {
                 $("#dayScheduleOk").click(function (e) {
                     addDayDaySchedule();
@@ -727,14 +737,15 @@
                     wcpWidth, wcpHeight,
                     top, left;
 
-                boxWidth = box.outerWidth();
-                wcpWidth = view.dayCtrlPanel.outerWidth();
-                wcpHeight = view.dayCtrlPanel.outerHeight();
+                view.dayCtrlPanel.css("display", "block");
+
+                boxWidth = box[0].offsetWidth;
+                wcpWidth = view.dayCtrlPanel[0].offsetWidth;
+                wcpHeight = view.dayCtrlPanel[0].offsetHeight;
                 top = boxPosition.top;
                 left = boxPosition.left + ((boxWidth - wcpWidth) / 2);
 
                 view.dayCtrlPanel.css({
-                    "display": "block",
                     "left": left + "px",
                     "top": top + "px"
                 });
@@ -773,6 +784,8 @@
                 });
                 view.cancelSelection();
             }
+
+            //#endregion
         })();
     </script>
 </partial>

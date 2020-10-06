@@ -469,7 +469,6 @@
         </div>
     </section>
 
-    <script type="text/javascript" src="../vendor/jquery.slim.min.js"></script>
     <script type="text/javascript" src="../dist/SOON.UI.3.5.0.all.js"></script>
     <script type="text/javascript">
         (function() {
@@ -537,7 +536,7 @@
                     this.indicator.html(html.join(""));
 
                     animator = ui.animator({
-                        target: $(document),
+                        target: $(document.documentElement),
                         onChange: function(val) {
                             this.target.scrollTop(val);
                         },

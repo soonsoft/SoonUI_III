@@ -579,7 +579,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.element.append(this.head);
         // 表体
         this.body = $("<div class='ui-grid-body' />");
-        this.body.scroll(this.onScrollingHandler);
+        this.body.on("scroll", this.onScrollingHandler);
         this.element.append(this.body);
         // 信息提示
         this.prompt = new Prompt(this, this.option.prompt);
@@ -980,7 +980,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             tr.append(th);
         }
 
-        this._headScrollCol = $("<col style='width:0' />");
+        this._headScrollCol = this._createCol({ len: 0 });
         colGroup.append(this._headScrollCol);
         tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);

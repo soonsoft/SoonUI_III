@@ -83,14 +83,16 @@ function onMouseup(e) {
 function onMouseWheel(e) {
     var lengthValue,
         arg,
-        stepValue;
+        stepValue,
+        delta;
 
     e.stopPropagation();
     if(this.mouseDragger._isDragStart) {
         return;
     }
     arg = {};
-    stepValue = (-e.delta) * 5;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    stepValue = delta * 5;
 
     if(this.isHorizontal()) {
         lengthValue = this.track.width();
@@ -163,7 +165,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this._initScale();
         this._initMouseDragger();
         this.track.on("mouseup", this.onMouseupHandler);
-        this.element.mousewheel(this.onMouseWheelHandler);
+        this.element.on("wheel", this.onMouseWheelHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;

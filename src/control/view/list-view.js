@@ -283,7 +283,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             if(this.isMultiple()) {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(elem[0] === this._selectList[i]) {
-                        this._selectList(i, 1);
+                        this._selectList.splice(i, 1);
                         break;
                     }
                 }

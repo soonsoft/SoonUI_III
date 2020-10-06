@@ -303,12 +303,12 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         // 滚动条占位符对象
         this._headScrollColumn = {
-            addScrollCol: function(tr, colGroup) {
+            addScrollCol: function(tr, colGroup, context) {
                 var rows,
                     rowspan,
                     th;
 
-                this.scrollCol = $("<col style='width:0' />");
+                this.scrollCol = context._createCol({ len: 0 });
                 colGroup.append(this.scrollCol);
             
                 rows = tr.parent().children();
@@ -552,7 +552,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         this._createHeadTable(this.headTable, columns, groupColumns, false, null, 
             // 创建滚动条适应列
             function(table, tr, groupCol) {
-                this._headScrollColumn.addScrollCol(tr, groupCol);
+                this._headScrollColumn.addScrollCol(tr, groupCol, this);
             });
         this.reportDataHead.append(this.headTable);
     },   
@@ -574,7 +574,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         var isRebind = false;
         if (!this.reportDataBody) {
             this.reportDataBody = $("<div class='data-body' />");
-            this.reportDataBody.scroll(this.onScrollingHandler);
+            this.reportDataBody.on("scroll", this.onScrollingHandler);
             this.body.append(this.reportDataBody);
         } else {
             this.reportDataBody.html("");

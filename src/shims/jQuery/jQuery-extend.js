@@ -1,4 +1,4 @@
-// jquery extends
+// jQuery extends
 
 var rword = /[^, ]+/g,
     ieVersion,
@@ -52,35 +52,6 @@ $.fn.hasVerticalScroll = function() {
     }
 };
 
-/** 获取对象的z-index值 */
-$.fn.zIndex = function (zIndex) {
-    if (zIndex !== undefined) {
-        return this.css("zIndex", zIndex);
-    }
-
-    if (this.length) {
-        var elem = $(this[0]), position, value;
-        while (elem.length && elem[0] !== document) {
-            // Ignore z-index if position is set to a value where z-index is ignored by the browser
-            // This makes behavior of this function consistent across browsers
-            // WebKit always returns auto if the element is positioned
-            position = elem.css("position");
-            if (position === "absolute" || position === "relative" || position === "fixed") {
-                // IE returns 0 when zIndex is not specified
-                // other browsers return a string
-                // we ignore the case of nested elements with an explicit value of 0
-                // <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
-                value = parseInt(elem.css("zIndex"), 10);
-                if (!isNaN(value) && value !== 0) {
-                    return value;
-                }
-            }
-            elem = elem.parent();
-        }
-    }
-    return 0;
-};
-
 /** 填充select下拉框的选项 */
 $.fn.bindOptions = function (arr, valueField, textField) {
     if (this.nodeName() !== "SELECT") {
@@ -122,6 +93,7 @@ $.fn.selectOption = function () {
 };
 
 /** 为jquery添加鼠标滚轮事件 */
+/*
 $.fn.mousewheel = function (data, fn) {
     var mouseWheelEventName = eventSupported("mousewheel", this) ? "mousewheel" : "DOMMouseScroll";
     return arguments.length > 0 ?
@@ -130,7 +102,7 @@ $.fn.mousewheel = function (data, fn) {
 };
 if($.fn.jquery >= "3.0.0") {
     "mousewheel DOMMouseScroll".replace(rword, function (name) {
-        jQuery.event.special[ name ] = {
+        $.event.special[ name ] = {
             delegateType: name,
             bindType: name,
             handle: function( event ) {
@@ -147,7 +119,7 @@ if($.fn.jquery >= "3.0.0") {
     });
 } else {
     "mousewheel DOMMouseScroll".replace(rword, function (name) {
-        jQuery.event.fixHooks[name] = {
+        $.event.fixHooks[name] = {
             filter: fixMousewheelDelta
         };
     });
@@ -179,7 +151,7 @@ function eventSupported(eventName, elem) {
     }
     return isSupported;
 }
-
+*/
 
 if(ieVersion) {
     $(DOC).on("selectionchange", function(e) {
