@@ -366,28 +366,6 @@ module.exports = function(grunt) {
                 files: themeFiles
             }
         },
-        // 单元测试
-        qunit: {
-            files: ["test/**/*.html"]
-        },
-        // javaScript语法和风格的检查工具
-        jshint: {
-            // define the files to lint
-            files: ["gruntfile.js", "src/**/*.js"],
-            // configure JSHint (documented at http://www.jshint.com/docs/)
-            options: {
-                // more options here if you want to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true
-                }
-            }
-        },
-        watch: {
-            files: ["<%= jshint.files %>"],
-            tasks: ["jshint", "qunit"]
-        },
         "temp-remove": {
             files: tempFiles
         },
@@ -437,12 +415,6 @@ module.exports = function(grunt) {
     grunt.registerTask("prestyle", ["theme-create"]);
     // 创建主题样式文件
     grunt.registerTask("demo", ["html-build"]);
-    // 在命令行上输入"grunt check"，执行语法检查。
-    grunt.registerTask("check", ["jshint"]);
-    // 在命令行上输入"grunt test"，test task就会被执行。
-    grunt.registerTask("test", ["jshint", "qunit"]);
-    // 在命令行上输入"grunt"，就会执行default task
-    grunt.registerTask("default", ["clean", "prestyle", "less:production", "concat", "temp-remove"]);
     // 在命令行上输入"grunt release，就会执行"
     grunt.registerTask("release", ["clean", "prestyle", "less:devlopment", "concat", "temp-remove", "uglify"]);
 };
