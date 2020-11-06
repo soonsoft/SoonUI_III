@@ -9797,7 +9797,7 @@ ui.define("ui.ctrls.ControlBase", {
 
         this.document = document;
         this.window = window;
-        this.element = element || null;
+        this.element = ensureElement(element) || null;
 
         // 配置项初始化 deep copy
         if(this.constructor && this.constructor.prototype) {
@@ -9856,6 +9856,16 @@ ui.define("ui.ctrls.ControlBase", {
         return this.fullName;
     }
 });
+
+function ensureElement(element) {
+    if(!element) {
+        return element;
+    }
+
+    if(!ui.core.isJQueryObject(element)) {
+        return $(element);
+    }
+}
 
 function mergeEvents() {
     var temp,
@@ -30712,21 +30722,24 @@ plugin({
     name: "toolbar",
     handler: function(arg) {
         var id, extendShow = false;
-        if(ui.core.isString(arg)) {
-            id = arg;
-        } else if(ui.core.isObject(arg)) {
-            id = arg.id;
-            extendShow = arg.extendShow;
-        } else if(ui.core.isFunction(arg)) {
+
+        if(ui.core.isFunction(arg)) {
             this.toolbar = arg.call(this);
             return;
+        }
+
+        if(ui.core.isString(arg) || ui.core.isDomObject(arg)) {
+            id = arg;
+        } else if(ui.core.isPlainObject(arg)) {
+            id = arg.id;
+            extendShow = !!arg.extendShow;
         } else {
             return;
         }
 
         this.toolbar = ui.Toolbar({
             toolbarId: id,
-            defaultExtendShow: !!extendShow
+            defaultExtendShow: extendShow
         });
     }
 });

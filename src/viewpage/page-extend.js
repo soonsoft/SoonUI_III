@@ -344,21 +344,24 @@ plugin({
     name: "toolbar",
     handler: function(arg) {
         var id, extendShow = false;
-        if(ui.core.isString(arg)) {
-            id = arg;
-        } else if(ui.core.isObject(arg)) {
-            id = arg.id;
-            extendShow = arg.extendShow;
-        } else if(ui.core.isFunction(arg)) {
+
+        if(ui.core.isFunction(arg)) {
             this.toolbar = arg.call(this);
             return;
+        }
+
+        if(ui.core.isString(arg) || ui.core.isDomObject(arg)) {
+            id = arg;
+        } else if(ui.core.isPlainObject(arg)) {
+            id = arg.id;
+            extendShow = !!arg.extendShow;
         } else {
             return;
         }
 
         this.toolbar = ui.Toolbar({
             toolbarId: id,
-            defaultExtendShow: !!extendShow
+            defaultExtendShow: extendShow
         });
     }
 });

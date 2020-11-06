@@ -112,7 +112,7 @@ ui.define("ui.ctrls.ControlBase", {
 
         this.document = document;
         this.window = window;
-        this.element = element || null;
+        this.element = ensureElement(element) || null;
 
         // 配置项初始化 deep copy
         if(this.constructor && this.constructor.prototype) {
@@ -171,6 +171,16 @@ ui.define("ui.ctrls.ControlBase", {
         return this.fullName;
     }
 });
+
+function ensureElement(element) {
+    if(!element) {
+        return element;
+    }
+
+    if(!ui.core.isJQueryObject(element)) {
+        return $(element);
+    }
+}
 
 function mergeEvents() {
     var temp,
