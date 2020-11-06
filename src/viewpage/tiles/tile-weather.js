@@ -240,7 +240,6 @@ function onWeatherHandleClick(e) {
 
     item = context.current.children(".weather-item");
     context.changeDayAnimator.start().then(function() {
-        var op = this[0];
         item.addClass("active-dynamic");
     });
 }

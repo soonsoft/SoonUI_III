@@ -56,9 +56,6 @@ if(noGlobal) {
 var $ = null;
 function init_$() {
 	$ = ui.$ || window.$;
-	if(!$) {
-		$ = require("jquery");
-	}
 	if(!window.$) {
 		window.$ = $ || undefined;
 	}
@@ -3967,10 +3964,15 @@ ui.getBoundingClientRect = function(elem) {
     box = elem.getBoundingClientRect();
     box.width = box.width || box.right - box.left;
     box.height = box.height || box.bottom - box.top;
+    box.x = box.x || box.left;
+    box.y = box.y || box.top
     return box;
 };
 
-//获取元素
+/**
+ * 获取元素
+ * @param {*} arg 参数，可以是id，也可以是dom element也可以是jQuery element 
+ */
 ui.getJQueryElement = function(arg) {
     var elem = null;
     if(ui.core.type(arg) === "string") {
@@ -4009,17 +4011,30 @@ function setLocation(fn, target, panel) {
     panel.css(css);
 }
 
-//将元素移动到目标元素下方
+/**
+ * 将元素移动到目标元素下方
+ * @param {*} target 目标元素
+ * @param {*} panel 要移动的元素
+ */
 ui.setDown = function (target, panel) {
     setLocation(ui.getDownLocation, target, panel);
 };
 
-//将元素移动到目标元素左边
+/**
+ * 将元素移动到目标元素左边
+ * @param {*} target 目标元素
+ * @param {*} panel 要移动的元素
+ */
 ui.setLeft = function (target, panel) {
     setLocation(ui.getLeftLocation, target, panel);
 };
 
-//获取目标元素下方的坐标信息
+/**
+ * 获取目标元素下方的坐标信息
+ * @param {*} target 目标元素
+ * @param {*} width 要移动元素的宽
+ * @param {*} height 要移动元素的高
+ */
 ui.getDownLocation = function (target, width, height) {
     var location,
         rect,
@@ -4048,7 +4063,12 @@ ui.getDownLocation = function (target, width, height) {
     return location;
 };
 
-//获取目标元素左边的坐标信息
+/**
+ * 获取目标元素左边的坐标信息
+ * @param {*} target 目标元素
+ * @param {*} width 要移动元素的宽
+ * @param {*} height 要移动元素的高
+ */
 ui.getLeftLocation = function (target, width, height) {
     var location,
         rect,
@@ -9283,16 +9303,18 @@ $.fn.undraggable = function() {
 
 (function(ui, $) {
 
-function setHighlight(highlight) {
-    var sheet,
-        styleUrl;
-    sheet = $("#" + ui.theme.highlightSheetId);
-    if(sheet.length > 0) {
-        styleUrl = sheet.prop("href");
-        styleUrl = ui.url.setParams({
-            highlight: highlight.Id
-        });
-        sheet.prop("href", styleUrl);
+function setHighlight(highlight, url) {
+    var sheet = document.getElementById(ui.theme.highlightSheetId),
+        styleUrl = url;
+    if(sheet) {
+        // 如果没有指定Url，则使用现有的Url更新参数
+        if(!styleUrl) {
+            styleUrl = sheet.href;
+            styleUrl = ui.url.setParams({
+                highlight: highlight.Id
+            });
+        }
+        sheet.href = styleUrl;
     }
     ui.theme.currentHighlight = highlight;
     ui.page.fire("hlchanged", ui.theme.currentHighlight);
@@ -9338,9 +9360,9 @@ ui.theme = {
         );
     },
     /** 设置高亮色 */
-    setHighlight: function(color) {
+    setHighlight: function(color, styleUrl) {
         if(color) {
-            setHighlight(color);
+            setHighlight(color, styleUrl);
         }
     },
     /** 初始化高亮色 */
@@ -32287,7 +32309,6 @@ function onWeatherHandleClick(e) {
 
     item = context.current.children(".weather-item");
     context.changeDayAnimator.start().then(function() {
-        var op = this[0];
         item.addClass("active-dynamic");
     });
 }

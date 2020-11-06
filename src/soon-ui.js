@@ -56,9 +56,6 @@ if(noGlobal) {
 var $ = null;
 function init_$() {
 	$ = ui.$ || window.$;
-	if(!$) {
-		$ = require("jquery");
-	}
 	if(!window.$) {
 		window.$ = $ || undefined;
 	}

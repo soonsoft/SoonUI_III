@@ -1,14 +1,16 @@
 
-function setHighlight(highlight) {
-    var sheet,
-        styleUrl;
-    sheet = $("#" + ui.theme.highlightSheetId);
-    if(sheet.length > 0) {
-        styleUrl = sheet.prop("href");
-        styleUrl = ui.url.setParams({
-            highlight: highlight.Id
-        });
-        sheet.prop("href", styleUrl);
+function setHighlight(highlight, url) {
+    var sheet = document.getElementById(ui.theme.highlightSheetId),
+        styleUrl = url;
+    if(sheet) {
+        // 如果没有指定Url，则使用现有的Url更新参数
+        if(!styleUrl) {
+            styleUrl = sheet.href;
+            styleUrl = ui.url.setParams({
+                highlight: highlight.Id
+            });
+        }
+        sheet.href = styleUrl;
     }
     ui.theme.currentHighlight = highlight;
     ui.page.fire("hlchanged", ui.theme.currentHighlight);
@@ -54,9 +56,9 @@ ui.theme = {
         );
     },
     /** 设置高亮色 */
-    setHighlight: function(color) {
+    setHighlight: function(color, styleUrl) {
         if(color) {
-            setHighlight(color);
+            setHighlight(color, styleUrl);
         }
     },
     /** 初始化高亮色 */
