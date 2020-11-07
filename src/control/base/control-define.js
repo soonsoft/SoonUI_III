@@ -173,13 +173,7 @@ ui.define("ui.ctrls.ControlBase", {
 });
 
 function ensureElement(element) {
-    if(!element) {
-        return element;
-    }
-
-    if(!ui.core.isJQueryObject(element)) {
-        return $(element);
-    }
+    return !element || ui.core.isJQueryObject(element) ? element : $(element);
 }
 
 function mergeEvents() {

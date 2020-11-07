@@ -13,11 +13,13 @@ SidebarManager.prototype = {
         return this;
     },
     setElement: function(name, option, element) {
+        var sidebar = null,
+            that = this;
+
         if(ui.str.isEmpty(name)) {
             return;
         }
-        var sidebar = null,
-            that = this;
+
         if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
@@ -33,6 +35,7 @@ SidebarManager.prototype = {
             });
             this.sidebars.set(name, sidebar);
         }
+        
         return sidebar;
     },
     get: function(name) {
