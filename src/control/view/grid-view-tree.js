@@ -300,9 +300,9 @@ GridViewTree.prototype = {
             item._isFolded = false;
             span = [null, span[0]];
             if (this.tree.lazy) {
-                fold = $("<i class='fold font-highlight-hover fa fa-angle-right' />");
+                fold = $("<i class='fold font-highlight-hover far fa-angle-right' />");
             } else {
-                fold = $("<i class='fold unfold font-highlight-hover fa fa-angle-down' />");
+                fold = $("<i class='fold unfold font-highlight-hover far fa-angle-down' />");
             }
             fold.css("margin-left", (item._level * (12 + 5) + 5) + "px");
             span[0] = fold[0];

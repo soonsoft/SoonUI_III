@@ -913,7 +913,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
             if (!Array.isArray(menu.children) || menu.children.length === 0) {
                 htmlBuilder.push("<a class='direct' href='", this._addMenuCodeToSrc(menu.url, menu.resourceCode), "'></a>");
             } else {
-                htmlBuilder.push("<i class='allow fa fa-angle-down'></i>");
+                htmlBuilder.push("<i class='allow far fa-angle-down'></i>");
             }
             htmlBuilder.push("</u></dt>");
 

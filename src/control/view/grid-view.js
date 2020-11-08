@@ -6,8 +6,8 @@ var cellCheckbox = "grid-checkbox",
     lastCell = "last-cell",
     sortColumn = "sort-column",
     sortClass = "fa-sort",
-    asc = "fa-sort-asc",
-    desc = "fa-sort-desc";
+    asc = "fa-sort-up",
+    desc = "fa-sort-down";
 
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;

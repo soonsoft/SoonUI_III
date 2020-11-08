@@ -450,7 +450,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
         });
         itemElement.append(frame);
         itemElement.append("<i class='check-marker border-highlight'></i>");
-        itemElement.append("<i class='check-icon fa fa-check'></i>");
+        itemElement.append("<i class='check-icon far fa-check'></i>");
     },
     _renderPageList: function(rowCount) {
         if (!this.pager) {

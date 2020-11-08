@@ -380,7 +380,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _createFoldButton: function(level) {
         var btn, i, len;
         
-        btn = $("<i class='fold-button font-highlight-hover fa' />");
+        btn = $("<i class='fold-button font-highlight-hover far' />");
         for (i = 1, len = arguments.length; i < len; i++) {
             btn.addClass(arguments[i]);
         }

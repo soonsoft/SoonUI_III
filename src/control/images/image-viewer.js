@@ -107,8 +107,8 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
         }
         
         if(this.option.hasSwitchButtom === true) {
-            this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='fa fa-angle-left'></i></a>");
-            this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='fa fa-angle-right'></i></a>");
+            this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='far fa-angle-left'></i></a>");
+            this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='far fa-angle-right'></i></a>");
             this.prevBtn.on("click", (function(e) {
                 this.prev();
             }).bind(this));

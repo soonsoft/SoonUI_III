@@ -409,6 +409,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             },
             onMoving: function(arg) {
                 var option,
+                    that,
                     left;
                 
                 option = this.option;

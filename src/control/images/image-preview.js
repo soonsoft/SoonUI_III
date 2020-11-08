@@ -88,10 +88,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 "height": "100%"
             };
             this.chooserPrev
-                .append("<i class='fa fa-angle-left'></i>")
+                .append("<i class='far fa-angle-left'></i>")
                 .css(showCss);
             this.chooserNext
-                .append("<i class='fa fa-angle-right'></i>")
+                .append("<i class='far fa-angle-right'></i>")
                 .css(showCss)
                 .css("right", "0px");
             this.isOverflow = function() {
@@ -124,10 +124,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 "line-height": buttonSize + "px"
             };
             this.chooserPrev
-                .append("<i class='fa fa-angle-up'></i>")
+                .append("<i class='far fa-angle-up'></i>")
                 .css(showCss);
             this.chooserNext
-                .append("<i class='fa fa-angle-down'></i>")
+                .append("<i class='far fa-angle-down'></i>")
                 .css(showCss)
                 .css("bottom", "0px");
             showCss = {

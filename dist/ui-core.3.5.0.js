@@ -3154,7 +3154,11 @@ function add(element, events, fn, data, selector, delegator, capture){
     handler.proxy = function(e){
       e = compatible(e)
       if (e.isImmediatePropagationStopped()) return
-      e.data = data
+      if(e instanceof InputEvent) {
+        e.eventData = data;
+      } else {
+        e.data = data
+      }
       var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
       if (result === false) e.preventDefault(), e.stopPropagation()
       return result
@@ -3658,8 +3662,7 @@ if(ieVersion) {
 }
 /** 为jquery添加文本框输入事件 */
 $.fn.textinput = function(data, fn) {
-    var eventData,
-        composing,
+    var composing,
         eventMock,
         nodeName;
 

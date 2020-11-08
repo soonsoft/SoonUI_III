@@ -1235,10 +1235,10 @@
   margin-right: 5px;
   vertical-align: baseline;
 }
-.ui-table-head .sort-column .fa-sort-asc {
+.ui-table-head .sort-column .fa-sort-up {
   vertical-align: middle;
 }
-.ui-table-head .sort-column .fa-sort-desc {
+.ui-table-head .sort-column .fa-sort-down {
   vertical-align: text-top;
 }
 /* 表体 */

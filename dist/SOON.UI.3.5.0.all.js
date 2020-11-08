@@ -3154,7 +3154,11 @@ function add(element, events, fn, data, selector, delegator, capture){
     handler.proxy = function(e){
       e = compatible(e)
       if (e.isImmediatePropagationStopped()) return
-      e.data = data
+      if(e instanceof InputEvent) {
+        e.eventData = data;
+      } else {
+        e.data = data
+      }
       var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
       if (result === false) e.preventDefault(), e.stopPropagation()
       return result
@@ -3658,8 +3662,7 @@ if(ieVersion) {
 }
 /** 为jquery添加文本框输入事件 */
 $.fn.textinput = function(data, fn) {
-    var eventData,
-        composing,
+    var composing,
         eventMock,
         nodeName;
 
@@ -9858,13 +9861,7 @@ ui.define("ui.ctrls.ControlBase", {
 });
 
 function ensureElement(element) {
-    if(!element) {
-        return element;
-    }
-
-    if(!ui.core.isJQueryObject(element)) {
-        return $(element);
-    }
+    return !element || ui.core.isJQueryObject(element) ? element : $(element);
 }
 
 function mergeEvents() {
@@ -10025,11 +10022,12 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
 
 function onMousemove(e) {
     var eWidth = this.element.width(),
+        paddingRight = parseFloat(this.element.css("padding-right")) || 0,
         offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0 && this.isShow()) {
+    if (eWidth - paddingRight - offsetX < 0 && this.isShow()) {
         this.element.css("cursor", "pointer");
         this._clearable = true;
     } else {
@@ -10039,15 +10037,18 @@ function onMousemove(e) {
 }
 
 function onMouseup(e) {
+    var eWidth, paddingRight, offsetX;
+
     if(!this._clearable) {
         return;
     }
-    var eWidth = this.element.width(),
-        offsetX = e.offsetX;
+    eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
+    offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         if (ui.core.isFunction(this._clear)) {
             this._clear();
         }
@@ -10354,7 +10355,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         
         if(this.option.hasCloseButton) {
             this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
-            this._closeButton.append("<i class='fa fa-angle-right'></i>");
+            this._closeButton.append("<i class='far fa-angle-right'></i>");
             this._closeButton.on("click", function(e) {
                 that.hide();
             });
@@ -14372,13 +14373,13 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         okCancel.append(
             this._createButton(
                 this.onApplyYearMonthHandler, 
-                "<i class='fa fa-check'></i>", 
+                "<i class='far fa-check'></i>", 
                 null, 
                 { "margin-right": "10px" }));
         okCancel.append(
             this._createButton(
                 this.onCancelYearMonthHandler, 
-                "<i class='fa fa-remove'></i>"));
+                "<i class='far fa-times'></i>"));
         return okCancel;
     },
     _initCalendarPanel: function() {
@@ -16083,7 +16084,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     _createFoldButton: function(level) {
         var btn, i, len;
         
-        btn = $("<i class='fold-button font-highlight-hover fa' />");
+        btn = $("<i class='fold-button font-highlight-hover far' />");
         for (i = 1, len = arguments.length; i < len; i++) {
             btn.addClass(arguments[i]);
         }
@@ -20435,7 +20436,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
         });
         itemElement.append(frame);
         itemElement.append("<i class='check-marker border-highlight'></i>");
-        itemElement.append("<i class='check-icon fa fa-check'></i>");
+        itemElement.append("<i class='check-icon far fa-check'></i>");
     },
     _renderPageList: function(rowCount) {
         if (!this.pager) {
@@ -21007,12 +21008,12 @@ function onFoldTitleClick(e) {
     if(dd.css("display") === "none") {
         icon.removeClass("background-highlight")
             .addClass("font-highlight")
-            .html("<i class='fa fa-angle-up' />");
+            .html("<i class='far fa-angle-up' />");
         dd.css("display", "block");
     } else {
         icon.removeClass("font-highlight")
             .addClass("background-highlight")
-            .html("<i class='fa fa-angle-down' />");
+            .html("<i class='far fa-angle-down' />");
         dd.css("display", "none");
     }
 }
@@ -21045,10 +21046,10 @@ FoldView.prototype = {
             div = $("<div class='ui-fold-view-icon border-highlight' />");
             if(dt.next().css("display") === "none") {
                 div.addClass("background-highlight")
-                    .html("<i class='fa fa-angle-down' />");
+                    .html("<i class='far fa-angle-down' />");
             } else {
                 div.addClass("font-highlight")
-                    .html("<i class='fa fa-angle-up' />");
+                    .html("<i class='far fa-angle-up' />");
             }
             dt.empty();
             dt.append(div)
@@ -21548,9 +21549,9 @@ GridViewTree.prototype = {
             item._isFolded = false;
             span = [null, span[0]];
             if (this.tree.lazy) {
-                fold = $("<i class='fold font-highlight-hover fa fa-angle-right' />");
+                fold = $("<i class='fold font-highlight-hover far fa-angle-right' />");
             } else {
-                fold = $("<i class='fold unfold font-highlight-hover fa fa-angle-down' />");
+                fold = $("<i class='fold unfold font-highlight-hover far fa-angle-down' />");
             }
             fold.css("margin-left", (item._level * (12 + 5) + 5) + "px");
             span[0] = fold[0];
@@ -21662,8 +21663,8 @@ var cellCheckbox = "grid-checkbox",
     lastCell = "last-cell",
     sortColumn = "sort-column",
     sortClass = "fa-sort",
-    asc = "fa-sort-asc",
-    desc = "fa-sort-desc";
+    asc = "fa-sort-up",
+    desc = "fa-sort-down";
 
 var tag = /^((?:[\w\u00c0-\uFFFF\*_-]|\\.)+)/,
     attributes = /\[\s*((?:[\w\u00c0-\uFFFF_-]|\\.)+)\s*(?:(\S?=)\s*(['"]*)(.*?)\3|)\s*\]/;
@@ -24168,6 +24169,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             },
             onMoving: function(arg) {
                 var option,
+                    that,
                     left;
                 
                 option = this.option;
@@ -28110,10 +28112,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 "height": "100%"
             };
             this.chooserPrev
-                .append("<i class='fa fa-angle-left'></i>")
+                .append("<i class='far fa-angle-left'></i>")
                 .css(showCss);
             this.chooserNext
-                .append("<i class='fa fa-angle-right'></i>")
+                .append("<i class='far fa-angle-right'></i>")
                 .css(showCss)
                 .css("right", "0px");
             this.isOverflow = function() {
@@ -28146,10 +28148,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 "line-height": buttonSize + "px"
             };
             this.chooserPrev
-                .append("<i class='fa fa-angle-up'></i>")
+                .append("<i class='far fa-angle-up'></i>")
                 .css(showCss);
             this.chooserNext
-                .append("<i class='fa fa-angle-down'></i>")
+                .append("<i class='far fa-angle-down'></i>")
                 .css(showCss)
                 .css("bottom", "0px");
             showCss = {
@@ -28495,8 +28497,8 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
         }
         
         if(this.option.hasSwitchButtom === true) {
-            this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='fa fa-angle-left'></i></a>");
-            this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='fa fa-angle-right'></i></a>");
+            this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='far fa-angle-left'></i></a>");
+            this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='far fa-angle-right'></i></a>");
             this.prevBtn.on("click", (function(e) {
                 this.prev();
             }).bind(this));
@@ -28971,14 +28973,14 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             .append(this.nextView)
             .append(this.closeButton);
         if(this.option.getNext) {
-            this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
+            this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='far fa-angle-right'></i></a>");
             this.nextButton.on("click", function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
         if(this.option.getPrev) {
-            this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
+            this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='far fa-angle-left'></i></a>");
             this.prevButton.on("click", function(e) {
                 that._doPrevView();
             });
@@ -30324,7 +30326,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
             if (!Array.isArray(menu.children) || menu.children.length === 0) {
                 htmlBuilder.push("<a class='direct' href='", this._addMenuCodeToSrc(menu.url, menu.resourceCode), "'></a>");
             } else {
-                htmlBuilder.push("<i class='allow fa fa-angle-down'></i>");
+                htmlBuilder.push("<i class='allow far fa-angle-down'></i>");
             }
             htmlBuilder.push("</u></dt>");
 
@@ -30764,11 +30766,13 @@ SidebarManager.prototype = {
         return this;
     },
     setElement: function(name, option, element) {
+        var sidebar = null,
+            that = this;
+
         if(ui.str.isEmpty(name)) {
             return;
         }
-        var sidebar = null,
-            that = this;
+
         if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
@@ -30784,6 +30788,7 @@ SidebarManager.prototype = {
             });
             this.sidebars.set(name, sidebar);
         }
+        
         return sidebar;
     },
     get: function(name) {
@@ -32477,7 +32482,7 @@ Toolbar.prototype = {
                 $(this.tools[0]).before(moreTool);
             }
             this.tools = this.toolbarPanel.children(".tools");
-            this.extendButton = $("<a class='tool-action-button tool-extend-button' href='javascript:void(0)' title='更多'><i class='fa fa-ellipsis-h'></i></a>");
+            this.extendButton = $("<a class='tool-action-button tool-extend-button' href='javascript:void(0)' title='更多'><i class='far fa-ellipsis-h'></i></a>");
             moreActions.append(this.extendButton);
         }
         
@@ -32491,7 +32496,7 @@ Toolbar.prototype = {
         });
     },
     _initPinButton: function() {
-        this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='fa fa-thumb-tack'></i></a>");
+        this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='far fa-thumbtack'></i></a>");
         this.extendWrapPanel.append(this.pinButton);
         var that = this;
         this.pinButton.on("click", function(e) {
@@ -32582,7 +32587,7 @@ Toolbar.prototype = {
     pinExtend: function() {
         this.pinButton.addClass("extend-pin");
         this.pinButton.children("i")
-            .removeClass("fa-thumb-tack")
+            .removeClass("fa-thumbtack")
             .addClass("fa-angle-up");
         this.extendButton.css("display", "none");
         
@@ -32594,7 +32599,7 @@ Toolbar.prototype = {
         this.pinButton.removeClass("extend-pin");
         this.pinButton.children("i")
             .removeClass("fa-angle-up")
-            .addClass("fa-thumb-tack");
+            .addClass("fa-thumbtack");
         this.extendButton.css("display", "inline-block");
             
         this.height = this.height - this.extendHeight;

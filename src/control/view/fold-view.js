@@ -18,12 +18,12 @@ function onFoldTitleClick(e) {
     if(dd.css("display") === "none") {
         icon.removeClass("background-highlight")
             .addClass("font-highlight")
-            .html("<i class='fa fa-angle-up' />");
+            .html("<i class='far fa-angle-up' />");
         dd.css("display", "block");
     } else {
         icon.removeClass("font-highlight")
             .addClass("background-highlight")
-            .html("<i class='fa fa-angle-down' />");
+            .html("<i class='far fa-angle-down' />");
         dd.css("display", "none");
     }
 }
@@ -56,10 +56,10 @@ FoldView.prototype = {
             div = $("<div class='ui-fold-view-icon border-highlight' />");
             if(dt.next().css("display") === "none") {
                 div.addClass("background-highlight")
-                    .html("<i class='fa fa-angle-down' />");
+                    .html("<i class='far fa-angle-down' />");
             } else {
                 div.addClass("font-highlight")
-                    .html("<i class='fa fa-angle-up' />");
+                    .html("<i class='far fa-angle-up' />");
             }
             dt.empty();
             dt.append(div)

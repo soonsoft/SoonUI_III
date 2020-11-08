@@ -93,11 +93,12 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
 
 function onMousemove(e) {
     var eWidth = this.element.width(),
+        paddingRight = parseFloat(this.element.css("padding-right")) || 0,
         offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0 && this.isShow()) {
+    if (eWidth - paddingRight - offsetX < 0 && this.isShow()) {
         this.element.css("cursor", "pointer");
         this._clearable = true;
     } else {
@@ -107,15 +108,18 @@ function onMousemove(e) {
 }
 
 function onMouseup(e) {
+    var eWidth, paddingRight, offsetX;
+
     if(!this._clearable) {
         return;
     }
-    var eWidth = this.element.width(),
-        offsetX = e.offsetX;
+    eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
+    offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         if (ui.core.isFunction(this._clear)) {
             this._clear();
         }

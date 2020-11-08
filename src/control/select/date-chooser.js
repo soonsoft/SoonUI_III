@@ -552,13 +552,13 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         okCancel.append(
             this._createButton(
                 this.onApplyYearMonthHandler, 
-                "<i class='fa fa-check'></i>", 
+                "<i class='far fa-check'></i>", 
                 null, 
                 { "margin-right": "10px" }));
         okCancel.append(
             this._createButton(
                 this.onCancelYearMonthHandler, 
-                "<i class='fa fa-remove'></i>"));
+                "<i class='far fa-times'></i>"));
         return okCancel;
     },
     _initCalendarPanel: function() {

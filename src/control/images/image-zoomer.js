@@ -93,14 +93,14 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             .append(this.nextView)
             .append(this.closeButton);
         if(this.option.getNext) {
-            this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
+            this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='far fa-angle-right'></i></a>");
             this.nextButton.on("click", function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
         if(this.option.getPrev) {
-            this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
+            this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='far fa-angle-left'></i></a>");
             this.prevButton.on("click", function(e) {
                 that._doPrevView();
             });

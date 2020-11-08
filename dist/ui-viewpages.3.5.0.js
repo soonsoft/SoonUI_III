@@ -916,7 +916,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
             if (!Array.isArray(menu.children) || menu.children.length === 0) {
                 htmlBuilder.push("<a class='direct' href='", this._addMenuCodeToSrc(menu.url, menu.resourceCode), "'></a>");
             } else {
-                htmlBuilder.push("<i class='allow fa fa-angle-down'></i>");
+                htmlBuilder.push("<i class='allow far fa-angle-down'></i>");
             }
             htmlBuilder.push("</u></dt>");
 
@@ -1356,11 +1356,13 @@ SidebarManager.prototype = {
         return this;
     },
     setElement: function(name, option, element) {
+        var sidebar = null,
+            that = this;
+
         if(ui.str.isEmpty(name)) {
             return;
         }
-        var sidebar = null,
-            that = this;
+
         if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
@@ -1376,6 +1378,7 @@ SidebarManager.prototype = {
             });
             this.sidebars.set(name, sidebar);
         }
+        
         return sidebar;
     },
     get: function(name) {
@@ -3069,7 +3072,7 @@ Toolbar.prototype = {
                 $(this.tools[0]).before(moreTool);
             }
             this.tools = this.toolbarPanel.children(".tools");
-            this.extendButton = $("<a class='tool-action-button tool-extend-button' href='javascript:void(0)' title='更多'><i class='fa fa-ellipsis-h'></i></a>");
+            this.extendButton = $("<a class='tool-action-button tool-extend-button' href='javascript:void(0)' title='更多'><i class='far fa-ellipsis-h'></i></a>");
             moreActions.append(this.extendButton);
         }
         
@@ -3083,7 +3086,7 @@ Toolbar.prototype = {
         });
     },
     _initPinButton: function() {
-        this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='fa fa-thumb-tack'></i></a>");
+        this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='far fa-thumbtack'></i></a>");
         this.extendWrapPanel.append(this.pinButton);
         var that = this;
         this.pinButton.on("click", function(e) {
@@ -3174,7 +3177,7 @@ Toolbar.prototype = {
     pinExtend: function() {
         this.pinButton.addClass("extend-pin");
         this.pinButton.children("i")
-            .removeClass("fa-thumb-tack")
+            .removeClass("fa-thumbtack")
             .addClass("fa-angle-up");
         this.extendButton.css("display", "none");
         
@@ -3186,7 +3189,7 @@ Toolbar.prototype = {
         this.pinButton.removeClass("extend-pin");
         this.pinButton.children("i")
             .removeClass("fa-angle-up")
-            .addClass("fa-thumb-tack");
+            .addClass("fa-thumbtack");
         this.extendButton.css("display", "inline-block");
             
         this.height = this.height - this.extendHeight;

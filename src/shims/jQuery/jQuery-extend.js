@@ -163,8 +163,7 @@ if(ieVersion) {
 }
 /** 为jquery添加文本框输入事件 */
 $.fn.textinput = function(data, fn) {
-    var eventData,
-        composing,
+    var composing,
         eventMock,
         nodeName;
 
