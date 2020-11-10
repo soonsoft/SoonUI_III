@@ -5425,6 +5425,7 @@ function createDateChooser(option, element) {
 }
 function onMousemoveHandler(e) {
     var eWidth,
+        paddingRight,
         offsetX;
     if(!this.isShow()) {
         this.element.css("cursor", "auto");
@@ -5432,11 +5433,12 @@ function onMousemoveHandler(e) {
         return;
     }
     eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
     offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         this.element.css("cursor", "pointer");
         this._clearable = true;
     } else {
@@ -5446,16 +5448,18 @@ function onMousemoveHandler(e) {
 }
 function onMouseupHandler(e) {
     var eWidth,
+        paddingRight,
         offsetX;
     if(!this._clearable) {
         return;
     }
     eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
     offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         if ($.isFunction(this._clear)) {
             this._clear();
         }
