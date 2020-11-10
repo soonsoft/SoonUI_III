@@ -185,6 +185,11 @@
 
     <script src="../../../dist/SOON.UI.3.5.0.all.js"></script>
     <script src="../../../vendor/echarts.min.js"></script>
+    <script>
+        if(!window.$) {
+            window.$ = ui.$;
+        }
+    </script>
     
     <script src="../../lib/data/wuhan.js"></script>
     <!-- 页面逻辑 -->

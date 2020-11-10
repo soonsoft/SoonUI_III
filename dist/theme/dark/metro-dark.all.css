@@ -2077,6 +2077,10 @@ div.c_flyingDots div.c_loadingFallback {
   margin-top: 30px;
   margin-bottom: 30px;
 }
+.ui-option-box-buttons .button {
+  height: 24px;
+  line-height: 24px;
+}
 
 /*
 	Color: #1d1f21

@@ -3,7 +3,7 @@
 (function(ui, $) {
 ui.effect = {};
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/effect/blur.js
 
@@ -612,7 +612,7 @@ ui.effect.blurImageDataRGBA = processImageDataRGBA;
 ui.effect.blurImageDataRGB = processImageDataRGB;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/effect/wave.js
 
@@ -785,4 +785,4 @@ ui.effect.WaveLine = WaveLine;
 ui.effect.WaveArea = WaveArea;
 ui.effect.Wave = Wave;
 
-})(ui, $);
+})(ui, ui.$);

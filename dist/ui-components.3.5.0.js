@@ -201,7 +201,7 @@ Introsort.prototype = {
 ui.Introsort = Introsort;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/animation.js
 
@@ -854,7 +854,7 @@ ui.animator.fadeOut = function(target) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/selector-set.js
 
@@ -1207,7 +1207,7 @@ SelectorSet.prototype = {
 ui.SelectorSet = SelectorSet;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/event-delegate.js
 
@@ -1395,7 +1395,7 @@ ui.on = on;
 ui.off = off;
 ui.fire = fire;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/custom-event.js
 
@@ -1544,7 +1544,7 @@ CustomEvent.prototype = {
 ui.CustomEvent = CustomEvent;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/ajax.js
 
@@ -2385,7 +2385,7 @@ function extendHttpProcessor() {
 
 }
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/color.js
 
@@ -2525,7 +2525,7 @@ ui.color = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/browser.js
 
@@ -2652,7 +2652,7 @@ ui.platform = platform;
 ui.browser = browser;
 ui.engine = engine;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/image-loader.js
 
@@ -2844,7 +2844,7 @@ $.fn.setImage = function (src, width, height, fillMode) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/define.js
 
@@ -3012,7 +3012,7 @@ ui.define = function(name, base, prototype) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/draggable.js
 
@@ -3302,7 +3302,7 @@ $.fn.undraggable = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/theme.js
 
@@ -3388,7 +3388,7 @@ ui.theme = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/page.js
 
@@ -3561,6 +3561,8 @@ page.get = function(pluginName) {
         };
     })(handlers, ranks, pluginName);
 };
+
+/*
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
@@ -3603,6 +3605,8 @@ page.plugin({
         }
     }
 });
+*/
+
 // 创建
 page.plugin({
     name: "created",
@@ -3683,4 +3687,4 @@ $(window)
 ui.page = page;
 
 
-})(ui, $);
+})(ui, ui.$);

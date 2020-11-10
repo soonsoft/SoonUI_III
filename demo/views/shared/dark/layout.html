@@ -32,6 +32,9 @@
     <script type="text/javascript" src="../../../dist/SOON.UI.3.5.0.all.js"></script>
     <script type="text/javascript" src="../../lib/data/highlights.js"></script>
     <script type="text/javascript">
+        if(!window.$) {
+            window.$ = ui.$;
+        }
         ui.theme.currentTheme = "Dark";
         ui.theme.backgroundColor = "#1d1f21";
         ui.page.init({

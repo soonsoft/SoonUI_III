@@ -36,6 +36,9 @@
     <script type="text/javascript" src="../dist/ui-effects.3.5.0.js"></script>
     <script type="text/javascript" src="./lib/data/highlights.js"></script>
     <script type="text/javascript">
+        if(!window.$) {
+            window.$ = ui.$;
+        }
         (function() {
             var wave;
             ui.page.init({

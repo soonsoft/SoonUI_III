@@ -166,6 +166,8 @@ page.get = function(pluginName) {
         };
     })(handlers, ranks, pluginName);
 };
+
+/*
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
@@ -208,6 +210,8 @@ page.plugin({
         }
     }
 });
+*/
+
 // 创建
 page.plugin({
     name: "created",

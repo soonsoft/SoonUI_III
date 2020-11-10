@@ -53,12 +53,9 @@ if(noGlobal) {
 	window.SOONUI = ui;
 }
 
-var $ = null;
+var $ = ui.$ = window.$;
 function init_$() {
-	$ = ui.$ || window.$;
-	if(!window.$) {
-		window.$ = $ || undefined;
-	}
+	$ = ui.$;
 }
 
 ui.version = '3.5.0';
@@ -264,7 +261,7 @@ core.isTouchAvailable = function() {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/i18n.js
 
@@ -340,7 +337,7 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 // language of viewpage
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Array-shims.js
 
@@ -548,7 +545,7 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Array-shims.js
 
@@ -638,7 +635,7 @@ if(!isFunction(Array.of)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-String-shims.js
 
@@ -664,7 +661,7 @@ if(!isFunction(String.prototype.trim)) {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-String-shims.js
 
@@ -786,7 +783,7 @@ if(!isFunction(String.prototype.endsWith)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Function-shims.js
 
@@ -818,7 +815,7 @@ if(!isFunction(Function.prototype.bind)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-JSON-shims.js
 
@@ -1022,7 +1019,7 @@ JSON.parse = function (text, reviver) {
     throw new SyntaxError("JSON.parse");
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Number-shims.js
 
@@ -1060,7 +1057,7 @@ if(!isFunction(Number.parseFloat)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Object-shims.js
 
@@ -1455,7 +1452,7 @@ if(!isFunction(Object.create)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Promise.shims.js
 
@@ -1715,7 +1712,7 @@ global = ui.core.global();
 global.Promise = PromiseShim;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/array-like.js
 
@@ -1793,7 +1790,7 @@ ArrayLike.prototype = {
 ui.ArrayLike = ArrayLike;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/keyarray.js
 
@@ -1917,7 +1914,7 @@ KeyArray.prototype.clear = function () {
 ui.KeyArray = KeyArray;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/linked-list.js
 
@@ -2081,7 +2078,7 @@ function getAndRemove(atTheEnd) {
 
 ui.LinkedList = LinkedList;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/zepto.js
 
@@ -3044,7 +3041,7 @@ ui.$.fn.jquery = "zepto"
 init_$(ui.$)
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/style.js
 
@@ -3083,7 +3080,7 @@ ui.core.each("Width, Height", function(name) {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/event.js
 
@@ -3368,7 +3365,7 @@ $.Event = function(type, props) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/ie.js
 
@@ -3395,7 +3392,7 @@ $.Event = function(type, props) {
 })()
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/data.js
 
@@ -3492,7 +3489,7 @@ var data = {},
   })
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/jQuery-extend.js
 
@@ -3730,7 +3727,7 @@ $.fn.textinput = function(data, fn) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util.js
 
@@ -4101,7 +4098,7 @@ ui.getLeftLocation = function (target, width, height) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-string.js
 
@@ -4434,7 +4431,7 @@ ui.str = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-date.js
 
@@ -4923,7 +4920,7 @@ ui.date = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-object.js
 
@@ -5012,7 +5009,7 @@ ui.obj = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-url.js
 
@@ -5123,7 +5120,7 @@ ui.url = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-structure-transform.js
 
@@ -5271,7 +5268,7 @@ ui.trans = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-random.js
 
@@ -5414,7 +5411,7 @@ random.vivid = function(ranges) {
 ui.random = random;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/parser.js
 
@@ -5575,7 +5572,7 @@ ui.parseXML = parseXML;
 ui.parseHTML = parseHTML;
 ui.parseJSON = JSON.parse;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/task.js
 
@@ -5736,7 +5733,7 @@ ui.clearMicroTask = function(index) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/cookie.js
 
@@ -5830,7 +5827,7 @@ ui.cookie = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/style-sheet.js
 
@@ -5994,7 +5991,7 @@ StyleSheet.createStyleSheet = function(id) {
 ui.StyleSheet = StyleSheet;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 
 // 兼容AMD

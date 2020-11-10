@@ -237,7 +237,7 @@ function define(name, base, prototype) {
 
 ui.ctrls.define = define;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/base/dropdown-base.js
 
@@ -632,7 +632,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/base/sidebar-base.js
 
@@ -829,7 +829,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/column-style.js
 
@@ -1362,7 +1362,7 @@ ui.ColumnStyle = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/mask.js
 
@@ -1478,7 +1478,7 @@ ui.mask = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/pager.js
 
@@ -1697,7 +1697,7 @@ Pager.prototype = {
 ui.ctrls.Pager = Pager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/dialog-box.js
 
@@ -2597,7 +2597,7 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/loading-box.js
 
@@ -2680,7 +2680,7 @@ ui.loadingHide = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/message-box.js
 
@@ -2899,7 +2899,7 @@ ui.failedShow = function(text) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/option-box.js
 
@@ -3027,7 +3027,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/chooser.js
 
@@ -3717,7 +3717,7 @@ $.fn.chooser = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/color-picker.js
 
@@ -4129,7 +4129,7 @@ $.fn.colorPicker = function (option) {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/date-chooser.js
 
@@ -5555,7 +5555,7 @@ $.fn.dateChooser = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-list.js
 
@@ -6012,7 +6012,7 @@ $.fn.selectionList = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-tree.js
 
@@ -6897,7 +6897,7 @@ $.fn.selectionTree = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-tree4autocomplete.js
 
@@ -7179,7 +7179,7 @@ $.fn.autocompleteSelectionTree = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/calendar-view.js
 
@@ -10294,7 +10294,7 @@ ui.page.hlchanged(function(e, colorInfo) {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/card-view.js
 
@@ -11298,7 +11298,7 @@ $.fn.cardView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/fold-view.js
 
@@ -11392,7 +11392,7 @@ $.fn.foldView = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view-group.js
 
@@ -11557,7 +11557,7 @@ GridViewGroup.prototype = {
 ui.ctrls.GridViewGroup = GridViewGroup;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view-tree.js
 
@@ -11965,7 +11965,7 @@ GridViewTree.prototype = {
 ui.ctrls.GridViewTree = GridViewTree;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view.js
 
@@ -13425,7 +13425,7 @@ $.fn.gridView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/list-view.js
 
@@ -14068,7 +14068,7 @@ $.fn.listView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/report-view.js
 
@@ -15136,7 +15136,7 @@ $.fn.reportView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/tab-view.js
 
@@ -15695,7 +15695,7 @@ TabManager.prototype = {
 ui.ctrls.TabView.TabManager = TabManager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/tree-view.js
 
@@ -15732,7 +15732,7 @@ $.fn.treeView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/confirm-button.js
 
@@ -15935,7 +15935,7 @@ $.fn.confirmClick = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/extend-button.js
 
@@ -16338,7 +16338,7 @@ $.fn.extendButton = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/filter-button.js
 
@@ -16573,7 +16573,7 @@ $.fn.filterButton = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/hover-view.js
 
@@ -16851,7 +16851,7 @@ $.fn.addHoverView = function (view) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/progress.js
 
@@ -17194,7 +17194,7 @@ $.fn.progress = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/slidebar.js
 
@@ -17495,7 +17495,7 @@ $.fn.slidebar = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/switch-button.js
 
@@ -17761,7 +17761,7 @@ $.fn.switchButton = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/tag.js
 
@@ -17984,7 +17984,7 @@ ui.ctrls.Tag.addColor = function(name, color) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/uploader.js
 
@@ -18332,7 +18332,7 @@ $.fn.uploader = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-preview.js
 
@@ -18698,7 +18698,7 @@ $.fn.imagePreview = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-viewer.js
 
@@ -19022,7 +19022,7 @@ $.fn.imageViewer = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-watcher.js
 
@@ -19188,7 +19188,7 @@ $.fn.imageWatcher = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-zoomer.js
 
@@ -19721,4 +19721,4 @@ $.fn.addImageZoomer = function (zoomer) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);

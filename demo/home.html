@@ -400,7 +400,9 @@
                     代号: OCEAN
                 </h3>
                 <p class="description-text">
-                    SOON.UI是用于桌面Web浏览器的UI框架，基于jQuery开发。SOON.UI 3.0版本重写了所有代码，使其更加模块化，分层也更清晰。从逻辑上分为ui-core(核心)，ui-components(组件)，ui-controls(控件)，ui-effects(特效)，ui-viewpages(视图)五个组件。松散的构建形式使其可以很容易的从中分离出一部分用于构建现有的项目，不用为了一部分功能而不得不引入整个SOON.UI库。对于新项目直接引入SOON.UI.3.5.0.all.js就可以使用完整的功能了。
+                    SOON.UI是用于桌面Web浏览器的UI框架。SOON.UI III 重写了所有代码，使其更加模块化，分层也更清晰。松散的构建形式使其可以很容易的从中分离出一部分用于构建现有的项目，不用为了一部分功能而不得不引入整个SOON.UI库。对于新项目直接引入SOON.UI.3.5.0.all.js就可以使用完整的功能了。
+                    <br /><br />
+                    本次更新了3.5版本，这个版本我们移除了jQuery。如今的DOM API无论是易用性还是兼容性都非常好了，是时候和jQuery说再见了。衷心的感谢jQuery在那个黑暗的时代，以一己之力大大的推动了Web前端的发展。
                 </p>
                 <div class="link-panel">
                     <a class="main-link" style="margin-right:20px;" href="https://github.com/soonsoft/SoonUI_III">GitHub</a>
@@ -471,6 +473,9 @@
 
     <script type="text/javascript" src="../dist/SOON.UI.3.5.0.all.js"></script>
     <script type="text/javascript">
+        if(!window.$) {
+            window.$ = ui.$;
+        }
         (function() {
             var 
                 layer,

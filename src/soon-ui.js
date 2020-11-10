@@ -53,12 +53,9 @@ if(noGlobal) {
 	window.SOONUI = ui;
 }
 
-var $ = null;
+var $ = ui.$ = window.$;
 function init_$() {
-	$ = ui.$ || window.$;
-	if(!window.$) {
-		window.$ = $ || undefined;
-	}
+	$ = ui.$;
 }
 
 //$|$

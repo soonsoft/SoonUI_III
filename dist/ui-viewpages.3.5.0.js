@@ -963,7 +963,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/page-extend.js
 
@@ -1336,7 +1336,7 @@ plugin({
     }
 });
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/sidebar-manager.js
 
@@ -1445,7 +1445,7 @@ SidebarManager.prototype = {
 ui.SidebarManager = SidebarManager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tile-view.js
 
@@ -2308,7 +2308,7 @@ TileContainer.prototype = {
 ui.TileContainer = TileContainer;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-calendar.js
 
@@ -2394,7 +2394,7 @@ ui.tiles.calendar = function(tile) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-clock.js
 
@@ -2484,7 +2484,7 @@ ui.tiles.clock = function(tile) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-picture.js
 
@@ -2670,7 +2670,7 @@ function moveNext(tile) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-weather.js
 
@@ -2979,7 +2979,7 @@ ui.tiles.weather = function(tile, weatherData) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/toolbar.js
 
@@ -3202,4 +3202,4 @@ Toolbar.prototype = {
 ui.Toolbar = Toolbar;
 
 
-})(ui, $);
+})(ui, ui.$);
