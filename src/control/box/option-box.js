@@ -12,7 +12,6 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
     _create: function() {
         this._super();
         this.contentPanel = null;
-        this.contentHeight = 0;
         this.contentTop = 40;
         this.buttonTop = 0;
         this.operatePanelHeight = 0;
@@ -34,7 +33,6 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.contentPanel = $("<section class='ui-option-box-content' />");
 
         this.contentPanel.append(this.element);
-        this.contentHeight = this.element.height();
 
         this.borderWidth += parseInt(this._panel.css("border-left-width"), 10) || 0;
         this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
@@ -70,7 +68,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
             buttonContainer = $("<div class='ui-form' />");
             this.operatePanel.append(buttonContainer);
             this._panel.append(this.operatePanel);
-            this.buttonTop = 24;
+            this.buttonTop = 16;
             this.operatePanelHeight = 24;
         } else {
             buttonContainer = this.operatePanel.children(".ui-form");
@@ -87,17 +85,19 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
             this.titlePanel.append(title);
         }
     },
-    setWidth: function(width) {
+    setSize: function(width, height, resizeFire) {
         var contentMaxheight;
 
-        this._super(width);
+        this._super(width, height, resizeFire);
+
         // 调整内容的对齐方式
         contentMaxheight = this.height - this.contentTop - this.buttonTop - this.operatePanelHeight - this.buttonTop;
         this.contentPanel.css({
             "max-height": contentMaxheight + "px"
         });
+
         if (this.operatePanel) {
-            if (contentMaxheight < this.contentHeight) {
+            if (contentMaxheight < this.element.width()) {
                 this.operatePanel.css("width", this.width - ui.scrollbarWidth + "px");
             } else {
                 this.operatePanel.css("width", "100%");

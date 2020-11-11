@@ -47,12 +47,15 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         this.borderWidth += parseInt(this._panel.css("border-right-width"), 10) || 0;
         
         //进入异步调用，给resize事件绑定的时间
-        setTimeout(function() {
-            that.setWidth();
-        });
-        ui.page.resize(function() {
-            that.setWidth();
-        }, ui.eventPriority.ctrlResize);
+        setTimeout((function() {
+            // 初始化位置
+            var width = this.width;
+            this.width = 0;
+            that.setSize(width, this.parent.height());
+        }).bind(this));
+        ui.page.resize((function() {
+            that.setSize(this.width, this.parent.height());
+        }).bind(this), ui.eventPriority.ctrlResize);
         
         this.animator = ui.animator({
             target: this._panel,
@@ -85,33 +88,43 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             this.element = elem;
         }
     },
-    setWidth: function(width, resizeFire) {
-        var parentWidth = this.parent.width(),
-            parentHeight = this.parent.height();
-        
-        this.height = parentHeight;
-        var sizeCss = {
-            height: this.height + "px"
-        };
-        var right = this.width;
-        if (ui.core.isNumber(width)) {
+    setSize: function(width, height, resizeFire) {
+        var parentWidth,
+            oldWidth = this.width, 
+            oldHeight = this.height,
+            sizeCss = {};
+
+        if(ui.core.isNumber(width) && width > 0 && width !== oldWidth) {
             this.width = width;
-            sizeCss["width"] = this.width + "px";
-            right = width;
+            sizeCss.width = width + "px";
         }
-        this.hideLeft = parentWidth;
-        this.left = parentWidth - this.width - this.borderWidth;
+
+        if(ui.core.isNumber(height) && height > 0 && height !== oldHeight) {
+            this.height = height;
+            sizeCss.height = height + "px";
+        }
+
+        if(!sizeCss.width && !sizeCss.height) {
+            return;
+        }
+
         this._panel.css(sizeCss);
-        if (this.isShow()) {
-            this._panel.css({
-                "left": this.left + "px",
-                "display": "block"
-            });
-        } else {
-            this._panel.css({
-                "left": this.hideLeft + "px",
-                "display": "none"
-            });
+
+        if(sizeCss.width) {
+            parentWidth = this.parent.width();
+            this.hideLeft = parentWidth;
+            this.left = parentWidth - this.width - this.borderWidth;
+            if (this.isShow()) {
+                this._panel.css({
+                    "left": this.left + "px",
+                    "display": "block"
+                });
+            } else {
+                this._panel.css({
+                    "left": this.hideLeft + "px",
+                    "display": "none"
+                });
+            }
         }
         
         if(resizeFire !== false) {
@@ -137,7 +150,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             op = this.animator[0];
             op.target.css("display", "block");
             op.target.addClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.hideLeft;
+            op.begin = parseFloat(op.target.css("left")) || this.hideLeft;
             op.end = this.left;
 
             for(i = 0, len = arguments.length; i < len; i++) {
@@ -169,7 +182,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
             
             op = this.animator[0];
             op.target.removeClass(this._showClass);
-            op.begin = parseFloat(op.target.css("left"), 10) || this.left;
+            op.begin = parseFloat(op.target.css("left")) || this.left;
             op.end = this.hideLeft;
             
             for(i = 0, len = arguments.length; i < len; i++) {
