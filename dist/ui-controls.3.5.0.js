@@ -2738,15 +2738,15 @@ MessageBox.prototype = {
     },
     getIcon: function(type) {
         if(type === MessageType.warn) {
-            return "mb-warn fa fa-exclamation-triangle";
+            return "mb-warn fas fa-exclamation-triangle";
         } else if(type === MessageType.error) {
-            return "mb-error fa fa-times-circle";
+            return "mb-error fas fa-times-circle";
         } else if(type === MessageType.success) {
-            return "mb-success fa fa-check-circle-o";
+            return "mb-success far fa-check-circle";
         } else if(type === MessageType.failed) {
-            return "mb-failed fa fa-times-circle-o";
+            return "mb-failed far fa-times-circle";
         } else {
-            return "mb-message fa fa-commenting";
+            return "mb-message fas fa-comment-dots";
         }
     },
     getBox: function () {
