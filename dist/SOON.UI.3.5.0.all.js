@@ -30600,7 +30600,6 @@ plugin({
 
         sidebarElement = $("<section class='user-settings' />");
         userInfo = $("<div class='user-info' />");
-        highlightPanel = $("<div class='highlight-panel' />");
         operateList = $("<div class='operate-list' />");
 
         // 用户信息
@@ -30622,6 +30621,7 @@ plugin({
             "<br clear='left' />"
         );
         userInfo.append(htmlBuilder.join(""));
+        sidebarElement.append(userInfo);
 
         //初始化当前用户的主题ID
         if(!ui.theme.currentHighlight) {
@@ -30629,6 +30629,8 @@ plugin({
         }
         // 高亮色
         if(Array.isArray(ui.theme.highlights)) {
+            highlightPanel = $("<div class='highlight-panel' />");
+
             htmlBuilder = [];
             htmlBuilder.push("<h3 class='highlight-group-title font-highlight'>个性色</h3>");
             htmlBuilder.push("<div style='width:100%;height:auto'>");
@@ -30678,6 +30680,9 @@ plugin({
                     }
                 }
             });
+
+            sidebarElement.append(highlightPanel);
+            sidebarElement.append("<hr class='horizontal' />");
         }
 
         // 操作列表
@@ -30697,12 +30702,7 @@ plugin({
             htmlBuilder.push("</ul>");
         }
         operateList.append(htmlBuilder.join(""));
-
-        sidebarElement
-            .append(userInfo)
-            .append(highlightPanel)
-            .append("<hr class='horizontal' />")
-            .append(operateList);
+        sidebarElement.append(operateList);
 
         sidebar = this.sidebarManager.setElement("userSidebar", {
             parent: "body",
