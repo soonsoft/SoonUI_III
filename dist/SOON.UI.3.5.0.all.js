@@ -28042,6 +28042,8 @@ $.fn.uploader = function(option) {
 (function(ui, $) {
 //图片预览视图
 
+var defaultSmallImageSize = 48;
+
 function onChooserItemClick(e) {
     var elem = $(e.target),
         nodeName = elem.nodeName(),
@@ -28067,6 +28069,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         return {
             chooserButtonSize: 16,
             imageMargin: 10,
+            chooserSize: 48,
             //vertical | horizontal
             direction: "horizontal"
         };
@@ -28087,8 +28090,11 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         }
         
         this.isHorizontal = this.option.direction === "horizontal";
-        if(!ui.core.type(this.option.chooserButtonSize) || this.option.chooserButtonSize < 2) {
+        if(!ui.core.isNumber(this.option.chooserButtonSize) || this.option.chooserButtonSize < 2) {
             this.option.chooserButtonSize = 16;
+        }
+        if(!ui.core.isNumber(this.option.chooserSize)) {
+            this.option.chooserSize = 48;
         }
         this.item = [];
 
@@ -28102,9 +28108,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
-        this.chooser.append(this.chooserPrev)
-            .append(this.chooserQueue)
-            .append(this.chooserNext);
+        this.chooser
+                .append(this.chooserPrev)
+                .append(this.chooserQueue)
+                .append(this.chooserNext);
         
         that = this;
         this.chooserPrev.on("click", function(e) {
@@ -28121,7 +28128,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         
         buttonSize = this.option.chooserButtonSize;
         if(this.isHorizontal) {
-            this.smallImageSize = this.chooser.height();
+            this.smallImageSize = this.option.chooserSize;
+            this.chooser.css({
+                height: this.smallImageSize + "px"
+            });
             this.chooserAnimator[0].onChange = function(val) {
                 this.target[0].scrollLeft = val;
             };
@@ -28156,7 +28166,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         } else {
-            this.smallImageSize = this.chooser.width();
+            this.smallImageSize = this.option.chooserSize;
+            this.chooser.css({
+                width: this.smallImageSize + "px"
+            });
             this.chooserAnimator[0].onChange = function(val) {
                 this.target.scrollTop(val);
             };
@@ -28204,7 +28217,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             height,
             marginValue, 
             i, len, image,
-            item, img, rect,
+            item, img,
             css;
 
         marginValue = 0;
@@ -28228,13 +28241,12 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             item.append(img);
             this.chooserQueue.append(item);
 
-            rect = item.getBoundingClientRect();
             if(this.isHorizontal) {
                 item.css("left", marginValue + "px");
-                marginValue += this.option.imageMargin + rect.width;
+                marginValue += this.option.imageMargin + width;
             } else {
                 item.css("top", marginValue + "px");
-                marginValue += this.option.imageMargin + rect.height;
+                marginValue += this.option.imageMargin + height;
             }
             this.items.push(item);
         }
@@ -31552,7 +31564,7 @@ TileContainer.prototype = {
             }
         }, interval);
     },
-    _calculateGroupLayoutInfo: function(containerWidth) {
+    _calculateGroupLayoutInfo: function(containerWidth, groupLength) {
         var size,
             medium,
             groupCount,
@@ -31563,8 +31575,8 @@ TileContainer.prototype = {
         groupWidth = size * medium.width + (size - 1) * tileMargin;
         groupCount = Math.floor((containerWidth - edgeDistance) / (groupWidth + edgeDistance));
 
-        if(groupCount > 1 && this.groups.length === 1) {
-            groupCount = 1;
+        if(groupCount > 1 && groupLength > 0) {
+            groupCount = groupLength < groupCount ? groupLength : groupCount;
         }
         if(groupCount < 1) {
             size = Math.floor(containerWidth / (medium.width + edgeDistance));
@@ -31603,6 +31615,7 @@ TileContainer.prototype = {
             groupEdgeDistance, 
             scrollWidth,
             group,
+            groupLength,
             groupTemp,
             i, len, j;
 
@@ -31613,18 +31626,19 @@ TileContainer.prototype = {
             throw new TypeError("the arguments containerHeight: " + containerHeight + " is invalid.");
         }
 
-        if(this.groups.length === 0) {
+        groupLength = this.groups.length;
+        if(groupLength === 0) {
             return;
         }
         this.containerWidth = containerWidth;
         this.containerHeight = containerHeight;
-        groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth);
+        groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth, groupLength);
         
         // 排列每一组磁贴
         groupWholeHeight = [];
-        for(i = 0, len = this.groups.length; i < len;) {
-            for(j = 0; j < groupLayoutInfo.groupCount; j++) {
-                if(i >= len) {
+        for(i = 0; i < groupLength;) {
+            for(j = 0, len = groupLayoutInfo.groupCount; j < len; j++) {
+                if(i >= groupLength) {
                     break;
                 }
                 group = this.groups[i];
@@ -31656,10 +31670,10 @@ TileContainer.prototype = {
         
         // 排列组
         groupTemp = {};
-        for(i = 0, len = this.groups.length; i < len;) {
+        for(i = 0; i < groupLength;) {
             groupTemp.left = groupEdgeDistance;
-            for(j = 0; j < groupLayoutInfo.groupCount; j++) {
-                if(i >= len) {
+            for(j = 0, len = groupLayoutInfo.groupCount; j < len; j++) {
+                if(i >= groupLength) {
                     break;
                 }
                 group = this.groups[i];

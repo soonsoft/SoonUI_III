@@ -18356,6 +18356,8 @@ $.fn.uploader = function(option) {
 (function(ui, $) {
 //图片预览视图
 
+var defaultSmallImageSize = 48;
+
 function onChooserItemClick(e) {
     var elem = $(e.target),
         nodeName = elem.nodeName(),
@@ -18381,6 +18383,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         return {
             chooserButtonSize: 16,
             imageMargin: 10,
+            chooserSize: 48,
             //vertical | horizontal
             direction: "horizontal"
         };
@@ -18401,8 +18404,11 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         }
         
         this.isHorizontal = this.option.direction === "horizontal";
-        if(!ui.core.type(this.option.chooserButtonSize) || this.option.chooserButtonSize < 2) {
+        if(!ui.core.isNumber(this.option.chooserButtonSize) || this.option.chooserButtonSize < 2) {
             this.option.chooserButtonSize = 16;
+        }
+        if(!ui.core.isNumber(this.option.chooserSize)) {
+            this.option.chooserSize = 48;
         }
         this.item = [];
 
@@ -18416,9 +18422,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         this.chooserQueue = $("<div class='chooser-queue' />");
         this.chooserPrev = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
         this.chooserNext = $("<a href='javascript:void(0)' class='chooser-button font-highlight-hover'></a>");
-        this.chooser.append(this.chooserPrev)
-            .append(this.chooserQueue)
-            .append(this.chooserNext);
+        this.chooser
+                .append(this.chooserPrev)
+                .append(this.chooserQueue)
+                .append(this.chooserNext);
         
         that = this;
         this.chooserPrev.on("click", function(e) {
@@ -18435,7 +18442,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         
         buttonSize = this.option.chooserButtonSize;
         if(this.isHorizontal) {
-            this.smallImageSize = this.chooser.height();
+            this.smallImageSize = this.option.chooserSize;
+            this.chooser.css({
+                height: this.smallImageSize + "px"
+            });
             this.chooserAnimator[0].onChange = function(val) {
                 this.target[0].scrollLeft = val;
             };
@@ -18470,7 +18480,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         } else {
-            this.smallImageSize = this.chooser.width();
+            this.smallImageSize = this.option.chooserSize;
+            this.chooser.css({
+                width: this.smallImageSize + "px"
+            });
             this.chooserAnimator[0].onChange = function(val) {
                 this.target.scrollTop(val);
             };
@@ -18518,7 +18531,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             height,
             marginValue, 
             i, len, image,
-            item, img, rect,
+            item, img,
             css;
 
         marginValue = 0;
@@ -18542,13 +18555,12 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             item.append(img);
             this.chooserQueue.append(item);
 
-            rect = item.getBoundingClientRect();
             if(this.isHorizontal) {
                 item.css("left", marginValue + "px");
-                marginValue += this.option.imageMargin + rect.width;
+                marginValue += this.option.imageMargin + width;
             } else {
                 item.css("top", marginValue + "px");
-                marginValue += this.option.imageMargin + rect.height;
+                marginValue += this.option.imageMargin + height;
             }
             this.items.push(item);
         }

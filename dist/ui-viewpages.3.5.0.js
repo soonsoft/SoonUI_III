@@ -2124,7 +2124,7 @@ TileContainer.prototype = {
             }
         }, interval);
     },
-    _calculateGroupLayoutInfo: function(containerWidth) {
+    _calculateGroupLayoutInfo: function(containerWidth, groupLength) {
         var size,
             medium,
             groupCount,
@@ -2135,8 +2135,8 @@ TileContainer.prototype = {
         groupWidth = size * medium.width + (size - 1) * tileMargin;
         groupCount = Math.floor((containerWidth - edgeDistance) / (groupWidth + edgeDistance));
 
-        if(groupCount > 1 && this.groups.length === 1) {
-            groupCount = 1;
+        if(groupCount > 1 && groupLength > 0) {
+            groupCount = groupLength < groupCount ? groupLength : groupCount;
         }
         if(groupCount < 1) {
             size = Math.floor(containerWidth / (medium.width + edgeDistance));
@@ -2175,6 +2175,7 @@ TileContainer.prototype = {
             groupEdgeDistance, 
             scrollWidth,
             group,
+            groupLength,
             groupTemp,
             i, len, j;
 
@@ -2185,18 +2186,19 @@ TileContainer.prototype = {
             throw new TypeError("the arguments containerHeight: " + containerHeight + " is invalid.");
         }
 
-        if(this.groups.length === 0) {
+        groupLength = this.groups.length;
+        if(groupLength === 0) {
             return;
         }
         this.containerWidth = containerWidth;
         this.containerHeight = containerHeight;
-        groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth);
+        groupLayoutInfo = this._calculateGroupLayoutInfo(containerWidth, groupLength);
         
         // 排列每一组磁贴
         groupWholeHeight = [];
-        for(i = 0, len = this.groups.length; i < len;) {
-            for(j = 0; j < groupLayoutInfo.groupCount; j++) {
-                if(i >= len) {
+        for(i = 0; i < groupLength;) {
+            for(j = 0, len = groupLayoutInfo.groupCount; j < len; j++) {
+                if(i >= groupLength) {
                     break;
                 }
                 group = this.groups[i];
@@ -2228,10 +2230,10 @@ TileContainer.prototype = {
         
         // 排列组
         groupTemp = {};
-        for(i = 0, len = this.groups.length; i < len;) {
+        for(i = 0; i < groupLength;) {
             groupTemp.left = groupEdgeDistance;
-            for(j = 0; j < groupLayoutInfo.groupCount; j++) {
-                if(i >= len) {
+            for(j = 0, len = groupLayoutInfo.groupCount; j < len; j++) {
+                if(i >= groupLength) {
                     break;
                 }
                 group = this.groups[i];
