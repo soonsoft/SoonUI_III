@@ -1499,8 +1499,6 @@
   color: #666666;
 }
 .image-preview .image-preview-chooser .small-img {
-  width: 44px;
-  height: 44px;
   border: solid 2px transparent;
   overflow: hidden;
   cursor: pointer;

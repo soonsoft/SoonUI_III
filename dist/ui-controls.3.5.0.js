@@ -18451,7 +18451,8 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             };
             showCss = {
                 "width": buttonSize + "px",
-                "height": "100%"
+                "height": "100%",
+                "line-height": (this.smallImageSize - 4) + "px"
             };
             this.chooserPrev
                 .append("<i class='far fa-angle-left'></i>")
@@ -18544,6 +18545,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             css = this._getImageDisplay(width, height, image.width, image.height);
             item = $("<div class='small-img' />");
             item.attr("data-index", i);
+            item.css({
+                width: width + "px",
+                height: height + "px"
+            });
             img = $("<img alt='' />");
             img.css({
                 width: css.width,
