@@ -185,16 +185,13 @@ module.exports = function(grunt) {
         "src/component/event-delegate.js",
         "src/component/custom-event.js",
         "src/component/ajax.js",
-        //"src/component/ajax-extend.js",
         "src/component/color.js",
         "src/component/browser.js",
         "src/component/image-loader.js",
-        //"src/component/view-model.js",
         "src/component/define.js",
         "src/component/draggable.js",
         "src/component/theme.js",
-        "src/component/page.js",
-        //"src/component/router.js"
+        "src/component/page.js"
     ];
     let componentDestFile = "dist/ui-components.<%= pkg.version %>.js";
 

@@ -7590,6 +7590,9 @@ if(global.VBArray) {
 }
 // 是否使用新的XMLHttpRequest onload事件
 useOnload = msie === 0 || msie > 8;
+if(!msie) {
+    supportCORS = true;
+}
 // 检查IE是否支持跨域
 if(msie >= 9) {
     supportCORS = typeof (new XMLHttpRequest()).withCredentials === "boolean";
