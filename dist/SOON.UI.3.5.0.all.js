@@ -8143,7 +8143,7 @@ httpRequestMethods = {
         that = this;
         if(isSuccess) {
             this._resolve({
-                data: this.response, 
+                response: this.response, 
                 statusText: statusText, 
                 ajaxRequest: this
             });
