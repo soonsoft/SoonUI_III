@@ -1278,8 +1278,6 @@ plugin({
                             location.href = item.handler;
                         };
                     }
-                    htmlBuilder.push("'></a>");
-                    htmlBuilder.push("</li>");
                 }
             });
             htmlBuilder.push("</ul>");
