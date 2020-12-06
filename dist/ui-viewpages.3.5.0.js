@@ -1282,22 +1282,20 @@ plugin({
             });
             htmlBuilder.push("</ul>");
 
-            if("0" in operateContext) {
-                operateList.on("click", function(e) {
-                    var elem = $(e.target),
-                        handlerIndex,
-                        handler;
-                    if(!elem.hasClass("operate-list-anchor")) {
-                        return;
-                    }
+            operateList.on("click", function(e) {
+                var elem = $(e.target),
+                    handlerIndex,
+                    handler;
+                if(!elem.hasClass("operate-list-anchor")) {
+                    return;
+                }
 
-                    handlerIndex = elem.attr("data-index");
-                    handler = operateContext[handlerIndex];
-                    if(ui.core.isFunction(handler)) {
-                        handler();
-                    }
-                });
-            }
+                handlerIndex = elem.attr("data-index");
+                handler = operateContext[handlerIndex];
+                if(ui.core.isFunction(handler)) {
+                    handler();
+                }
+            });
         }
         operateList.append(htmlBuilder.join(""));
         sidebarElement.append(operateList);
