@@ -1142,11 +1142,11 @@ plugin({
                 position: "职位",
                 // 请求高亮色css的URL
                 changeHighlightUrl: "",
-                // 用户操作菜单 [{text: "修改密码", url: "/Account/Password"}, {text: "退出", url: "/Account/LogOff"}]
+                // 用户操作菜单 [{text: "修改密码", handler: "/Account/Password"}, {text: "退出", handler: "/Account/LogOff"}]
                 operateList: [
-                    { text: "个性化", url: "###" },
-                    { text: "修改密码", url: "###" }, 
-                    { text: "退出", url: "###" }
+                    { text: "个性化" },
+                    { text: "修改密码" }, 
+                    { text: "退出" }
                 ]
             },
             userProtrait,
@@ -1154,6 +1154,7 @@ plugin({
             userInfo,
             highlightPanel,
             operateList,
+            operateContext,
             htmlBuilder,
             i, len, highlight,
             sidebar,
@@ -1260,18 +1261,41 @@ plugin({
         // 操作列表
         htmlBuilder = [];
         if(config.operateList && config.operateList.length > 0) {
+            operateContext = {};
             htmlBuilder.push("<ul class='operate-list-ul'>");
-            config.operateList.forEach(function(item) {
+            config.operateList.forEach(function(item, index) {
                 if(item.text) {
                     htmlBuilder.push(
                         "<li class='operate-list-li theme-panel-hover'>",
                         "<span class='operate-text'>", ui.str.htmlEncode(item.text), "</span>",
-                        "<a class='operate-list-anchor' href='", item.url, "'></a>",
+                        "<a class='operate-list-anchor' href='javascript:void(0)' data-index='", index, "'></a>",
                         "</li>"
                     );
+                    if(ui.core.isFunction(item.handler)) {
+                        operateContext[index] = item.handler;
+                    } else if(ui.core.isString(item.handler)) {
+                        operateContext[index] = function() {
+                            location.href = item.handler;
+                        };
+                    }
                 }
             });
             htmlBuilder.push("</ul>");
+
+            operateList.on("click", function(e) {
+                var elem = $(e.target),
+                    handlerIndex,
+                    handler;
+                if(!elem.hasClass("operate-list-anchor")) {
+                    return;
+                }
+
+                handlerIndex = elem.attr("data-index");
+                handler = operateContext[handlerIndex];
+                if(ui.core.isFunction(handler)) {
+                    handler();
+                }
+            });
         }
         operateList.append(htmlBuilder.join(""));
         sidebarElement.append(operateList);
