@@ -77,7 +77,7 @@ ui.url = {
                 s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
             },
             i, t, key;
-        if ($.isArray(data)) {
+        if (Array.isArray(data)) {
             for (i = 0; i < data.length; i++) {
                 t = data[i];
                 if (t.hasOwnProperty("name")) {
