@@ -22,7 +22,6 @@ function onDocumentMousemove (e) {
     };
     pl.bottom = pl.top + this.height;
     pl.right = pl.left + this.width;
-    console.log([pl.left, pl.right, tl.left, tl.right]);
 
     //差值
     var xdv = -1,
@@ -77,7 +76,6 @@ function onDocumentMousemove (e) {
 
     var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
     if (opacity < 0.2) {
-        console.log("hide");
         this.hide();
         return;
     }
@@ -97,6 +95,13 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         return ["showing", "shown", "hiding", "hidden"];
     },
     _create: function () {
+        if (!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
+            this.option.width = 160;
+        }
+        if (!ui.core.isNumber(this.option.height) || this.option.height <= 0) {
+            this.option.height = 160;
+        }
+
         this.viewPanel = $("<div class='hover-view-panel border-highlight' />");
         this.viewPanel.css({
             "width": this.option.width + "px",
@@ -104,8 +109,8 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         });
         $(document.body).append(this.viewPanel);
 
-        this.width = null;
-        this.height = null;
+        this.width = this.option.width;
+        this.height = this.option.height;
 
         this.target = null;
         this.targetWidth = null;
@@ -114,13 +119,6 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         this.hasDocMousemoveEvent = false;
 
         this.isShow = false;
-
-        if (!ui.core.isNumber(this.option.width) || this.option.width <= 0) {
-            this.option.width = 160;
-        }
-        if (!ui.core.isNumber(this.option.height) || this.option.height <= 0) {
-            this.option.height = 160;
-        }
 
         this.onDocumentMousemoveHander = onDocumentMousemove.bind(this);
         this.onDocumentMousemoveHander.guid = "hoverView" + (guid++);
@@ -222,7 +220,7 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         this.targetWidth = rect.width;
         this.targetHeight = rect.height;
 
-        rect = this.target.getBoundingClientRect();
+        rect = this.viewPanel.getBoundingClientRect();
         this.width = rect.width;
         this.height = rect.height;
 
