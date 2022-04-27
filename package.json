@@ -20,7 +20,7 @@
   "license": "Apache-2.0",
   "homepage": "http://www.soonui.com",
   "devDependencies": {
-    "grunt": "^1.4.0",
+    "grunt": "^1.5.2",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-less": "^2.0.0",
