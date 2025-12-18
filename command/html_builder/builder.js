@@ -1,3 +1,5 @@
+const { get, file } = require("grunt");
+
 module.exports = function( grunt ) {
     "use strict";
 
@@ -11,9 +13,9 @@ module.exports = function( grunt ) {
         layoutKey = /@\{([^@\{\}]+)\}/gi,
         textFormatReg = /\\?\{([^{}]+)\}/gm;
 
-    let layoutDirectory = "demo/views/shared",
-        defaultLayout = "layout.html",
-        layoutMap = new Map();
+    let layoutDirectory,
+        defaultLayout,
+        layoutMap;
 
     function format (str, params) {
         let Arr_slice = Array.prototype.slice;
@@ -30,6 +32,10 @@ module.exports = function( grunt ) {
         });
     }
 
+    function getFilename(filePath) {
+        return filePath.substring(filePath.lastIndexOf(path.sep) + 1);
+    }
+
     function prepareLayout(layoutDir) {
         let files = fs.readdirSync(layoutDir);
         for(let i = 0; i < files.length; i++) {
@@ -42,18 +48,20 @@ module.exports = function( grunt ) {
         }
     }
 
-    function createLayout(layoutFilename) {
+    function createLayout(filePath) {
+        let layoutFilename = getFilename(filePath);
         if(layoutMap.has(layoutFilename)) {
             return;
         }
-        if(!fs.existsSync(layoutFilename)) {
+
+        if(!fs.existsSync(filePath)) {
             return;
         }
         let layoutInfo = {
             layoutText: null,
             partialIdList: []
         };
-        let layoutText = fs.readFileSync(layoutFilename, "utf8");
+        let layoutText = fs.readFileSync(filePath, "utf8");
         if(!layoutText) {
             throw new Error("layout is empty");
         }
@@ -81,7 +89,7 @@ module.exports = function( grunt ) {
         let attr;
         let end;
 
-        let layoutInfo = layoutMap.get(defaultLayout);
+        let layoutInfo = layoutMap.get(getFilename(defaultLayout));
         let array = html.match(layoutKey);
         if(Array.isArray(array)) {
             for(let i = 0; i < array.length; i++) {
@@ -91,7 +99,6 @@ module.exports = function( grunt ) {
                 let arr = text.split(":");
                 if(arr[0].toLowerCase() === "layout") {
                     let key = (arr[1] + "").toLowerCase();
-                    key = path.join(rootPath, key);
                     if(layoutMap.has(key)) {
                         layoutInfo = layoutMap.get(key);
                     }
@@ -179,17 +186,21 @@ module.exports = function( grunt ) {
         return true; 
     }
 
+    // 支持通过命令行参数或任务 target 指定主题：
+    // 用法示例：`grunt html-build --theme=light` 或 `grunt html-build:light`
     grunt.registerMultiTask(
         "html-build",
         "构建页面",
         function() {
+            layoutMap = new Map();
+            layoutDirectory = "demo/views/shared";
+            defaultLayout = "layout.html";
+            
             distPath = this.data.dist;
-            if(this.data.defaultLayout) {
-                defaultLayout = this.data.defaultLayout;
-            }
             if(this.data.layoutDirectory) {
                 layoutDirectory = this.data.layoutDirectory;
             }
+            defaultLayout = path.join(layoutDirectory, defaultLayout);
 
             let templateSrc = path.join(rootPath, this.data.views);
             let layoutFile = grunt.file.expand(path.join(rootPath, defaultLayout));
@@ -200,6 +211,7 @@ module.exports = function( grunt ) {
             if(layoutDir.length > 0) {
                 layoutDir = layoutDir[0];
             }
+            console.log("default layout:", defaultLayout);
             prepareLayout(layoutDir);
 
             let excludes = this.data.excludes;
@@ -222,15 +234,15 @@ module.exports = function( grunt ) {
 
             let files = grunt.file.expand(templateSrc);
             for(let i = 0; i < files.length; i++) {
-                let filename = path.join(files[i]);
+                let filePath = path.join(files[i]);
                 // 排除模板页
-                if(layoutMap.has(filename)) {
+                if(layoutMap.has(getFilename(filePath))) {
                     continue;
                 }
                 // 排除指定的文件
                 let isContinue = false;
                 for(let j = 0; j < excludes.length; j++) {
-                    if(filename === excludes[j]) {
+                    if(filePath === excludes[j]) {
                         isContinue = true;
                         break;
                     }
@@ -238,7 +250,7 @@ module.exports = function( grunt ) {
                 if(isContinue) {
                     continue;
                 }
-                createPartial(filename);
+                createPartial(filePath);
             }
         }
     );

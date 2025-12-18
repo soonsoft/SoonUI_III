@@ -384,11 +384,18 @@ module.exports = function(grunt) {
             }
         },
         "html-build": {
-            demo: {
+            light: {
                 views: "demo/views/**/*.html",
-                dist: "demo/pages/{0}/{1}.html",
-                layoutDirectory: "demo/views/shared",
-                defaultLayout: "demo/views/shared/layout.html",
+                dist: "demo/light/{0}/{1}.html",
+                layoutDirectory: "demo/views/shared/light",
+                excludes: [
+                    "demo/views/shared/**/*.html"
+                ]
+            },
+            dark: {
+                views: "demo/views/**/*.html",
+                dist: "demo/dark/{0}/{1}.html",
+                layoutDirectory: "demo/views/shared/dark",
                 excludes: [
                     "demo/views/shared/**/*.html"
                 ]
@@ -411,7 +418,7 @@ module.exports = function(grunt) {
     // 创建主题样式文件
     grunt.registerTask("prestyle", ["theme-create"]);
     // 创建主题样式文件
-    grunt.registerTask("demo", ["html-build"]);
+    grunt.registerTask("demo", ["html-build:light", "html-build:dark"]);
     // 在命令行上输入"grunt release，就会执行"
     grunt.registerTask("release", ["clean", "prestyle", "less:devlopment", "concat", "temp-remove", "uglify"]);
 };
